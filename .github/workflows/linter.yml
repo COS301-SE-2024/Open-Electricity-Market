@@ -30,9 +30,8 @@ jobs:
           # linter requires full git history
           fetch-depth: 0
 
-      # Runs a single command using the runners shell
       - name: Super-Linter
-        uses: super-linter/super-linter@v6.5.0
+        uses: docker://super-linter/super-linter:latest
         env: 
           # To report status checks
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

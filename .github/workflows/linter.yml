@@ -1,5 +1,7 @@
 name: linter
 
+permissions: { }
+
 on:
   push:
     branches: [ "main" , "dev" ]

@@ -1,8 +1,10 @@
+mod grid_simulation;
+
 #[macro_use] extern crate rocket;
 
 #[get("/")]
 fn index() -> &'static str {
-    "Hello, world!"
+    grid_simulation::test()
 }
 
 #[launch]

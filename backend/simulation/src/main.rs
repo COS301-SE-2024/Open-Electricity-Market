@@ -14,17 +14,19 @@ struct HitCount {
 fn index(state: &State<grid_simulation::Grid>) -> String {
     // let current_count = hit_count.count.fetch_add(1,Ordering::Relaxed);
     let curren_voltage = state.grid.get_avg_distribution_line_voltage();
-    format!("Number of visits: {}", curren_voltage)
+    format!("Voltage: {}", curren_voltage)
 }
 
 
-#[get("/produce")]
-fn produce() -> String{
+#[get("/produce/<amount>")]
+fn produce(state: &State<grid_simulation::Grid>,amount: u64) -> String{
+    state.grid.produce(amount);
     format!("{}","produce")
 }
 
-#[get("/consume")]
-fn consume() -> String{
+#[get("/consume/<amount>")]
+fn consume(state: &State<grid_simulation::Grid>,amount: u64) -> String{
+    state.grid.consume(amount);
     format!("{}","consume")
 }
 

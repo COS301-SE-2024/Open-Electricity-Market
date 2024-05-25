@@ -33,6 +33,9 @@ impl GridElement for DistributionLine{
        let current = self.amps.load(Ordering::Relaxed);
        if current > amps {
            self.amps.fetch_sub(amps,Ordering::Relaxed);
+       } else  {
+           self.amps.fetch_sub(current,Ordering::Relaxed);
+
        }
         return current;
     }

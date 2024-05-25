@@ -17,15 +17,15 @@ async fn index(state: &State<Info>) -> String {
     let voltage = body.parse::<f32>().unwrap();
     let mut price = state.price.load(Ordering::Relaxed);
 
-    if voltage > IDEAL_VOLTAGE {
+    if voltage < IDEAL_VOLTAGE {
         price = state.price.fetch_add(1,Ordering::Relaxed);
-    } else if voltage < crate::IDEAL_VOLTAGE {
+    } else if voltage > IDEAL_VOLTAGE {
         price = state.price.fetch_sub(1,Ordering::Relaxed);
     }
 
     let open = "{";
     let close  = "}";
-    format!("'{open} 'Voltage': {voltage}, 'Price':{price}  {close}'")
+    format!("{open} 'Voltage': {voltage}, 'Price':{price}  {close}")
 }
 
 

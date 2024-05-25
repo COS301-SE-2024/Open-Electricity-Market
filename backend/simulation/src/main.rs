@@ -26,8 +26,8 @@ fn produce(state: &State<grid_simulation::Grid>,amount: u64) -> String{
 
 #[get("/consume/<amount>")]
 fn consume(state: &State<grid_simulation::Grid>,amount: u64) -> String{
-    state.grid.consume(amount);
-    format!("{}","consume")
+    let c = state.grid.consume(amount);
+    format!("Consume {c}")
 }
 
 #[launch]

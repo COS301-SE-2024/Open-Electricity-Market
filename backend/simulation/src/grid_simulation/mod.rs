@@ -20,7 +20,7 @@ pub(crate) enum GridPiece {
 }
 
 pub struct DistributionLine {
-    pub resistance : u64,
+    pub resistance : f32,
     pub amps : AtomicU64,
     pub to : GridPiece,
 }
@@ -30,11 +30,11 @@ impl GridElement for DistributionLine{
          let old = self.amps.fetch_add(amps,Ordering::Relaxed);
     }
     fn consume(& self,amps :u64) -> u64{
-       let old = self.amps.fetch_sub(amps,Ordering::Relaxed);
-       if old - amps < 0 {
-           self.amps.fetch_add(old-amps,Ordering::Relaxed);
+       let current = self.amps.load(Ordering::Relaxed);
+       if current > amps {
+           self.amps.fetch_sub(amps,Ordering::Relaxed);
        }
-        return old -amps;
+        return current;
     }
 
     fn get_avg_distribution_line_voltage(&self) -> f32 {
@@ -52,7 +52,7 @@ impl GridElement for DistributionLine{
 impl PowerLine for DistributionLine {
     fn get_current_voltages(& self) -> f32 {
         let amps = self.amps.load(Ordering::Relaxed);
-        return amps as f32 * self.resistance as f32;
+        return amps as f32 * self.resistance;
     }
 }
 

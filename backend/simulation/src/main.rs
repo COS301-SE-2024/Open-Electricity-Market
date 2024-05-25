@@ -14,7 +14,7 @@ struct HitCount {
 fn index(state: &State<grid_simulation::Grid>) -> String {
     // let current_count = hit_count.count.fetch_add(1,Ordering::Relaxed);
     let curren_voltage = state.grid.get_avg_distribution_line_voltage();
-    format!("Voltage: {}", curren_voltage)
+    format!("{curren_voltage}")
 }
 
 
@@ -32,7 +32,7 @@ fn consume(state: &State<grid_simulation::Grid>,amount: u64) -> String{
 
 #[launch]
 fn rocket() -> _ {
-    let d1 = grid_simulation::DistributionLine{resistance: 150,amps :AtomicU64::new(0),to : grid_simulation::GridPiece::Nil};
+    let d1 = grid_simulation::DistributionLine{resistance: 0.2,amps :AtomicU64::new(0),to : grid_simulation::GridPiece::Nil};
     rocket::build().mount("/", routes![index,produce,consume]).manage(grid_simulation::Grid{grid : Box::new(d1)})
 
 }

@@ -1,9 +1,16 @@
 #[macro_use] extern crate rocket;
 extern crate reqwest;
+extern crate deadqueue;
 
 use std::fmt::format;
+use std::sync::{Arc, Mutex};
 use std::sync::atomic::{AtomicU32, Ordering};
 use rocket::State;
+
+
+
+type TaskQueue = deadqueue::unlimited::Queue<(u64,f32,String)>;
+
 
 const IDEAL_VOLTAGE: f32 = 230.0;
 struct Info {
@@ -19,9 +26,9 @@ async fn index(state: &State<Info>) -> String {
 
 
 
-    if voltage < IDEAL_VOLTAGE {
+    if voltage > IDEAL_VOLTAGE {
         price = state.price.fetch_add(1,Ordering::Relaxed);
-    } else if voltage > IDEAL_VOLTAGE {
+    } else if voltage < IDEAL_VOLTAGE {
         if (price > 1) {
             price = state.price.fetch_sub(1,Ordering::Relaxed);
         }
@@ -32,10 +39,53 @@ async fn index(state: &State<Info>) -> String {
     format!("{open} 'Voltage': {voltage}, 'Price':{price}  {close}")
 }
 
+#[get("/bid/<amount>/<price>/<id>")]
+async fn bid(state: &State<Arc<TaskQueue>>,amount: u64,price :f32,id :String) -> String {
+    state.push((amount,price,id));
+    let len = state.len();
+    format!("Bids {len}")
+}
+
+#[get("/sell/<amount>")]
+async fn sell(bid_queue: &State<Arc<TaskQueue>>, sold_list : &State<Arc<Mutex<Vec<String>>>>, amount: u64) -> String {
+    let bid = bid_queue.try_pop();
+    match bid {
+        None => {
+            "There is no demand".to_string()
+        }
+        Some((bid_amount,price,id)) => {
+            if bid_amount <= amount {
+                sold_list.lock().unwrap().push(id);
+                let income = amount as f32*price;
+                format!("{income}")
+            } else {
+                bid_queue.push((bid_amount, price, id));
+                "Could not meet demand".to_string()
+            }
+        }
+    }
+}
+
+
+#[get("/met/<id>")]
+async fn met(sold_list : &State<Arc<Mutex<Vec<String>>>>, id: String) -> String {
+    let mut vec = sold_list.lock().unwrap();
+    if vec.contains(&id){
+        let index = vec.iter().position(|r| r.to_string() == id.to_string()).unwrap();
+        vec.remove(index);
+        "true".to_string()
+    } else {
+        "false".to_string()
+    }
+}
+
+
 
 #[launch]
 fn rocket() -> _ {
-    rocket::build().mount("/", routes![index])
+    rocket::build().mount("/", routes![index,bid,sell,met])
         .configure(rocket::Config::figment().merge(("port", 8001)))
+        .manage(Arc::new(TaskQueue::new()))
         .manage(Info {price : AtomicU32::new(100)})
+        .manage(Arc::new(Mutex::new(Vec::<String>::new())))
 }

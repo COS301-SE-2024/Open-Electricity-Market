@@ -1,4 +1,5 @@
 extern crate reqwest;
+use uuid::Uuid;
 
 
 use std::env;
@@ -29,15 +30,23 @@ async fn main()  {
         if procedure == "consume" {
             actual = ((desired_price/price)*value as f32 ) as u64;
             println!("Price {price} Desired Price {desired_price} Value {actual}");
-        } else {
-            let percentage = (price-desired_price)/desired_price;
-            let diff = value as f32*percentage;
-            if (diff > 0.0) {
-                actual = value + diff as u64;
-            } else {
-                actual = value - (-diff) as u64;
+
+            let id = Uuid::new_v4();
+            let res = reqwest::get(format!("http://127.0.0.1:8001/bid/{actual}/{price}/{id}")).await.unwrap();
+            let mut body = res.text().await.unwrap();
+
+            while body != "true"{
+                let res = reqwest::get(format!("http://127.0.0.1:8001/met/{id}")).await.unwrap();
+                body = res.text().await.unwrap();
+                sleep(Duration::from_millis(500)).await;
             }
-            println!("Price {price} Desired Price {desired_price} Value {actual} Diff {diff}");
+
+        } else {
+            actual = ((desired_price/price)*value as f32 ) as u64;
+            //Hence a producer
+            let res = reqwest::get(format!("http://127.0.0.1:8001/sell/{actual}")).await.unwrap();
+            let mut body = res.text().await.unwrap();
+            println!("{body}")
         }
 
 

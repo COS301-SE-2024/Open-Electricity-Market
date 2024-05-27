@@ -38,22 +38,27 @@ async fn main()  {
             while body != "true"{
                 let res = reqwest::get(format!("http://127.0.0.1:8001/met/{id}")).await.unwrap();
                 body = res.text().await.unwrap();
-                sleep(Duration::from_millis(500)).await;
+                sleep(Duration::from_millis(1000)).await;
             }
-
+            let res = reqwest::get(format!("http://127.0.0.1:8000/{procedure}/{actual}")).await.unwrap();
+            let body = res.text().await.unwrap();
+            println!("Body:\n{}", body);
         } else {
             actual = ((desired_price/price)*value as f32 ) as u64;
             //Hence a producer
             let res = reqwest::get(format!("http://127.0.0.1:8001/sell/{actual}")).await.unwrap();
             let mut body = res.text().await.unwrap();
-            println!("{body}")
+            println!("{body}");
+            if body != "There is no demand" && body != "Could not meet demand" {
+                let res = reqwest::get(format!("http://127.0.0.1:8000/{procedure}/{body}")).await.unwrap();
+                let body = res.text().await.unwrap();
+                println!("Body:\n{}", body);
+            }
         }
 
 
 
-        let res = reqwest::get(format!("http://127.0.0.1:8000/{procedure}/{actual}")).await.unwrap();
-        let body = res.text().await.unwrap();
-        println!("Body:\n{}", body);
+
         sleep(Duration::from_millis(1000)).await;
     }
 }

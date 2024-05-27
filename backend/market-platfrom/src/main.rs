@@ -25,14 +25,16 @@ async fn index(state: &State<Info>) -> String {
     let mut price = state.price.load(Ordering::Relaxed);
 
 
-
-    if voltage > IDEAL_VOLTAGE {
-        price = state.price.fetch_add(1,Ordering::Relaxed);
-    } else if voltage < IDEAL_VOLTAGE {
-        if (price > 1) {
-            price = state.price.fetch_sub(1,Ordering::Relaxed);
+    if voltage != 0.0 {
+        if voltage > IDEAL_VOLTAGE {
+            price = state.price.fetch_add(1,Ordering::Relaxed);
+        } else if voltage < IDEAL_VOLTAGE {
+            if (price > 1) {
+                price = state.price.fetch_sub(1,Ordering::Relaxed);
+            }
         }
     }
+
 
     let open = "{";
     let close  = "}";
@@ -56,8 +58,7 @@ async fn sell(bid_queue: &State<Arc<TaskQueue>>, sold_list : &State<Arc<Mutex<Ve
         Some((bid_amount,price,id)) => {
             if bid_amount <= amount {
                 sold_list.lock().unwrap().push(id);
-                let income = amount as f32*price;
-                format!("{income}")
+                format!("{bid_amount}")
             } else {
                 bid_queue.push((bid_amount, price, id));
                 "Could not meet demand".to_string()

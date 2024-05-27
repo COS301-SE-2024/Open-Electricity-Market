@@ -1,14 +1,12 @@
+
+
 mod grid_simulation;
 
 #[macro_use] extern crate rocket;
 
-use std::fmt::format;
-use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::atomic::{AtomicU64};
 use rocket::State;
 
-struct HitCount {
-    count: AtomicU64
-}
 
 #[get("/")]
 fn index(state: &State<grid_simulation::Grid>) -> String {
@@ -36,3 +34,5 @@ fn rocket() -> _ {
     rocket::build().mount("/", routes![index,produce,consume]).manage(grid_simulation::Grid{grid : Box::new(d1)})
 
 }
+
+

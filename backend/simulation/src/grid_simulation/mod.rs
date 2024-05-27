@@ -1,4 +1,5 @@
 use std::sync::atomic::{AtomicU64, Ordering};
+mod tests;
 
 pub trait GridElement : Sync + Send {
     fn produce(&self,amps :u64);
@@ -27,17 +28,17 @@ pub struct DistributionLine {
 
 impl GridElement for DistributionLine{
     fn produce(& self,amps :u64){
-         let old = self.amps.fetch_add(amps,Ordering::Relaxed);
+         let _ = self.amps.fetch_add(amps,Ordering::Relaxed);
     }
     fn consume(& self,amps :u64) -> u64{
        let current = self.amps.load(Ordering::Relaxed);
        if current > amps {
            self.amps.fetch_sub(amps,Ordering::Relaxed);
+           return amps
        } else  {
            self.amps.fetch_sub(current,Ordering::Relaxed);
-
+           return current;
        }
-        return current;
     }
 
     fn get_avg_distribution_line_voltage(&self) -> f32 {
@@ -76,3 +77,6 @@ impl Grid{
         0.0
     }
 }
+
+
+

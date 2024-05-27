@@ -17,10 +17,14 @@ async fn index(state: &State<Info>) -> String {
     let voltage = body.parse::<f32>().unwrap();
     let mut price = state.price.load(Ordering::Relaxed);
 
+
+
     if voltage < IDEAL_VOLTAGE {
         price = state.price.fetch_add(1,Ordering::Relaxed);
     } else if voltage > IDEAL_VOLTAGE {
-        price = state.price.fetch_sub(1,Ordering::Relaxed);
+        if (price > 1) {
+            price = state.price.fetch_sub(1,Ordering::Relaxed);
+        }
     }
 
     let open = "{";

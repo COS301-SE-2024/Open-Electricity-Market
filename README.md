@@ -1,6 +1,6 @@
 # Open Electricity Market
 by Team Isidore - for EPI-USE Labs
-
+[![Super-Linter](https://github.com/COS301-SE-2024/Open-Electricity-Market/actions/workflows/linter.yml/badge.svg)](https://github.com/marketplace/actions/super-linter)
 ## Demo
 
 ### Demo 1

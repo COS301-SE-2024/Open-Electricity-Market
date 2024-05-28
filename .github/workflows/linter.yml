@@ -31,7 +31,9 @@ jobs:
           fetch-depth: 0
 
       - name: Super-Linter
-        uses: docker://github/super-linter:latest
+        uses: super-linter/super-linter@latest
         env: 
           # To report status checks
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VALIDATE_RUST_2015: false
+          VALIDATE_RUST_2018: false

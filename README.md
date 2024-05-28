@@ -14,8 +14,8 @@ Contact us: [isidore.capstone@gmail.com](mailto:isidore.capstone@gmail.com)
 
 |     | Member Name                | Group Role | Links                                                                                                      |
 | --- | -------------------------- | ---------- | ---------------------------------------------------------------------------------------------------------- |
-|     | Simon Swart                |            |                                                                                                            |
+|     | Simon Swart                |            | [GitHub](https://github.com/MasterJeddy)                                                                   |
 |     | Ruan van der Walt          |            | [LinkedIn](www.linkedin.com/in/ruan-van-der-walt-22a921177)<br>[GitHub](https://github.com/RuanvanderWalt) |
-|     | Mihail Dicoski             |            |                                                                                                            |
-|     | Christiaan Geordan Strydom |            |                                                                                                            |
-|     | Daniel de Villiers         |            |                                                                                                            |
+|     | Mihail Dicoski             |            | [GitHub](https://github.com/mihaildicoski)                                                                 |
+|     | Christiaan Geordan Strydom |            | [GitHub](https://github.com/anyx66)                                                                        |
+|     | Daniel de Villiers         |            | [GitHub](https://github.com/Danieldv-s)                                                                    |

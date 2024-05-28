@@ -11,7 +11,7 @@
   
   <header class="bg-gray-800 text-white p-4">
     <nav class="container mx-auto">
-      <a href="/" class="text">Home</a>
+      <a href="/Dashboard" class="text">Dashboard</a>
       <a href="/GridSimulation">Grid Simulation</a>
       <a href="/BiddingMarket">Bidding Market</a>
     </nav>

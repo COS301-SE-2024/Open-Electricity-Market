@@ -35,3 +35,5 @@ jobs:
         env: 
           # To report status checks
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VALIDATE_RUST_2015: false
+          VALIDATE_RUST_2018: false

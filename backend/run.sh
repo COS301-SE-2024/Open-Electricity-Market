@@ -1,17 +1,17 @@
 #!/bin/bash
-cd simulation
+cd simulation || exit
 cargo build
-cd ..
-cd market-platfrom
+cd .. || exit
+cd market-platfrom || exit
 cargo build
-cd ..
-cd agent
+cd .. || exit
+cd agent || exit
 cargo build
-cd ..
+cd .. || exit
 killbg() {
-	for p in "{$pids[@]}" ; do
-		echo "&p";
-		kill "&p";
+	for p in {$pids[@]} ; do
+		echo &p;
+		kill &p;
 	done
 }
 trap killbg EXIT

@@ -1,12 +1,13 @@
+---
 name: linter
 
 permissions: { }
 
 on:
   push:
-    branches: [ "main" , "dev" ]
+    branches: ["main","dev"]
   pull_request:
-    branches: [ "main" , "dev" ]
+    branches: ["main","dev"]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -23,17 +24,16 @@ jobs:
       statuses: write # Updates commit statuses
 
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Checkout code
         uses: actions/checkout@v4
         with: 
           # linter requires full git history
           fetch-depth: 0
 
-      # Runs a single command using the runners shell
       - name: Super-Linter
-        uses: super-linter/super-linter@v6.5.0
+        uses: super-linter/super-linter@latest
         env: 
           # To report status checks
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+          VALIDATE_RUST_2015: false
+          VALIDATE_RUST_2018: false

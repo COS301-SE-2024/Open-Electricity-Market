@@ -7,15 +7,39 @@ use rocket::State;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::{Arc, Mutex};
 
+
+use rocket::http::Header;
+use rocket::{Request, Response};
+use rocket::fairing::{Fairing, Info, Kind};
+
+pub struct CORS;
+
+#[rocket::async_trait]
+impl Fairing for CORS {
+    fn info(&self) -> Info {
+        Info {
+            name: "Add CORS headers to responses",
+            kind: Kind::Response
+        }
+    }
+
+    async fn on_response<'r>(&self, _request: &'r Request<'_>, response: &mut Response<'r>) {
+        response.set_header(Header::new("Access-Control-Allow-Origin", "*"));
+        response.set_header(Header::new("Access-Control-Allow-Methods", "POST, GET, PATCH, OPTIONS"));
+        response.set_header(Header::new("Access-Control-Allow-Headers", "*"));
+        response.set_header(Header::new("Access-Control-Allow-Credentials", "true"));
+    }
+}
+
 type TaskQueue = deadqueue::unlimited::Queue<(u64, f32, String)>;
 
 const IDEAL_VOLTAGE: f32 = 230.0;
-struct Info {
+struct MyInfo {
     price: AtomicU32,
 }
 
 #[get("/")]
-async fn index(state: &State<Info>) -> String {
+async fn index(state: &State<MyInfo>) -> String {
     let res = reqwest::get("http://127.0.0.1:8000/").await.unwrap();
     let body = res.text().await.unwrap();
     let voltage = body.parse::<f32>().unwrap();
@@ -31,7 +55,7 @@ async fn index(state: &State<Info>) -> String {
 
     let open = "{";
     let close = "}";
-    format!("{open} 'Voltage': {voltage}, 'Price':{price}  {close}")
+    format!("{open}\"Voltage\":\"{voltage}\",\"Price\":\"{price}\"{close}")
 }
 
 #[get("/bid/<amount>/<price>/<id>")]
@@ -80,8 +104,10 @@ fn rocket() -> _ {
         .mount("/", routes![index, bid, sell, met])
         .configure(rocket::Config::figment().merge(("port", 8001)))
         .manage(Arc::new(TaskQueue::new()))
-        .manage(Info {
+        .manage(MyInfo {
             price: AtomicU32::new(100),
         })
         .manage(Arc::new(Mutex::new(Vec::<String>::new())))
+        .attach(CORS)
+
 }

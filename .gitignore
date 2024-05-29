@@ -115,3 +115,5 @@ backend/agent/.idea/
 *.iml
 
 backend/market-platfrom/.idea/
+
+Frontend/.idea/

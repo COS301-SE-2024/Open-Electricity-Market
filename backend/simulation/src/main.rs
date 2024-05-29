@@ -16,7 +16,7 @@ fn index(state: &State<grid_simulation::Grid>) -> String {
 #[get("/produce/<amount>")]
 fn produce(state: &State<grid_simulation::Grid>, amount: u64) -> String {
     state.grid.produce(amount);
-    format!("{}", "produce")
+    "produce".to_string()
 }
 
 #[get("/consume/<amount>")]

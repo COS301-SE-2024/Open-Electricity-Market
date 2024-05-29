@@ -4,7 +4,6 @@ extern crate deadqueue;
 extern crate reqwest;
 
 use rocket::State;
-use std::fmt::format;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::{Arc, Mutex};
 
@@ -25,10 +24,8 @@ async fn index(state: &State<Info>) -> String {
     if voltage != 0.0 {
         if voltage > IDEAL_VOLTAGE {
             price = state.price.fetch_add(1, Ordering::Relaxed);
-        } else if voltage < IDEAL_VOLTAGE {
-            if (price > 1) {
-                price = state.price.fetch_sub(1, Ordering::Relaxed);
-            }
+        } else if voltage < IDEAL_VOLTAGE && price > 1 {
+            price = state.price.fetch_sub(1, Ordering::Relaxed);
         }
     }
 
@@ -69,10 +66,7 @@ async fn sell(
 async fn met(sold_list: &State<Arc<Mutex<Vec<String>>>>, id: String) -> String {
     let mut vec = sold_list.lock().unwrap();
     if vec.contains(&id) {
-        let index = vec
-            .iter()
-            .position(|r| r.to_string() == id.to_string())
-            .unwrap();
+        let index = vec.iter().position(|r| *r == id).unwrap();
         vec.remove(index);
         "true".to_string()
     } else {

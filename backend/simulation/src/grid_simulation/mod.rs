@@ -34,10 +34,10 @@ impl GridElement for DistributionLine {
         let current = self.amps.load(Ordering::Relaxed);
         if current > amps {
             self.amps.fetch_sub(amps, Ordering::Relaxed);
-            return amps;
+            amps
         } else {
             self.amps.fetch_sub(current, Ordering::Relaxed);
-            return current;
+            current
         }
     }
 
@@ -47,7 +47,7 @@ impl GridElement for DistributionLine {
                 return self.get_current_voltages()
                     + to.as_ref().get_avg_distribution_line_voltage()
             }
-            GridPiece::Nil => return self.get_current_voltages(),
+            GridPiece::Nil => self.get_current_voltages(),
         }
     }
 }
@@ -55,7 +55,7 @@ impl GridElement for DistributionLine {
 impl PowerLine for DistributionLine {
     fn get_current_voltages(&self) -> f32 {
         let amps = self.amps.load(Ordering::Relaxed);
-        return amps as f32 * self.resistance;
+        amps as f32 * self.resistance
     }
 }
 

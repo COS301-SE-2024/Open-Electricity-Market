@@ -9,9 +9,9 @@ cd agent || exit
 cargo build
 cd .. || exit
 killbg() {
-	for p in {$pids[@]} ; do
-		echo &p;
-		kill &p;
+	for p in ${$pids[@]} ; do
+		echo & p;
+		kill & p;
 	done
 }
 trap killbg EXIT

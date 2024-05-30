@@ -16,10 +16,10 @@ killbg() {
 }
 trap killbg EXIT
 pids=()
-./simulation/target/debug/simulation &
+./simulation/target/release/simulation &
 pids+=($!)
-./market-platfrom/target/debug/market-platfrom &
+./market-platfrom/target/release/market-platfrom &
 pids+=($!)
-./agent/target/debug/agent consume 1118 &
+./agent/target/release/agent consume 1118 &
 pids+=($!)
-./agent/target/debug/agent produce 2000
+./agent/target/release/agent produce 2000

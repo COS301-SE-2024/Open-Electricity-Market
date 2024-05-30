@@ -1,0 +1,22 @@
+FROM rust:1.78
+WORKDIR /usr/src/simulation-api
+
+COPY . .
+
+WORKDIR /usr/src/simulation-api/market-platfrom
+RUN cargo install --path .
+
+WORKDIR /usr/src/simulation-api/agent
+RUN cargo install --path .
+
+WORKDIR /usr/src/simulation-api/simulation
+RUN cargo install --path .
+
+WORKDIR /usr/src/simulation-api/
+
+ENV ROCKET_ADDRESS=0.0.0.0
+
+EXPOSE 8000
+EXPOSE 8001
+
+CMD simulation & market-platfrom & agent consume 1118 & agent produce 2000

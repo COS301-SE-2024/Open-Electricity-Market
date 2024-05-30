@@ -1,8 +1,9 @@
 use diesel::prelude::*;
-use diesel::sql_types::Uuid;
+use uuid::Uuid;
 
 #[derive(Queryable, Selectable)]
 #[diesel(table_name = crate::schema::open_em::users)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct User {
     pub user_id: Uuid,
     pub email: String,

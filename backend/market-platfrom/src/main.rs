@@ -16,7 +16,6 @@ use rocket::serde::json::serde_json::json;
 use rocket::serde::json::{Json, Value};
 use rocket::yansi::Paint;
 use crate::models::{NewUserModel, User};
-use crate::schema::open_em::users::last_name;
 use pwhash::bcrypt;
 
 mod schema;
@@ -35,6 +34,7 @@ fn establish_connection() -> PgConnection {
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     PgConnection::establish(&database_url)
         .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
+
 }
 
 #[get("/")]
@@ -97,20 +97,27 @@ async fn met(sold_list: &State<Arc<Mutex<Vec<String>>>>, id: String) -> String {
     }
 }
 
-#[derive(Deserialize)]
+#[derive(Serialize,Deserialize)]
 #[serde(crate = "rocket::serde")]
 struct Credentials<'r>{
     email: &'r str,
-    password: &'r str
+    password: &'r str,
 }
-#[post("/login")]
-fn login(){
+
+#[post("/login", format="application/json", data="<credentials>")]
+async fn login(credentials: Json<Credentials<'_>>) -> Value{
 
     use self::schema::open_em::users::dsl::*;
 
     let connection = &mut establish_connection();
 
+    let user = users.filter(email.eq(credentials.email)).select(User::as_select())
+        .load::<User>(connection)
+        .expect("Error loading posts");
 
+    let verify = bcrypt::verify(credentials.password, &*user[0].pass_hash);
+
+    json!({ "status": "ok", "verified": verify })
 
 }
 
@@ -124,10 +131,9 @@ struct NewUser<'r>{
 }
 
 #[post("/register", format="application/json", data="<new_user>")]
-fn register(new_user: Json<NewUser<'_>>) {
+async fn register(new_user: Json<NewUser<'_>>) -> Value {
 
     use self::schema::open_em::users;
-    use self::models::NewUserModel;
 
     let connection = &mut establish_connection();
     let binding = bcrypt::hash(new_user.password).unwrap();
@@ -136,6 +142,8 @@ fn register(new_user: Json<NewUser<'_>>) {
     let new_user_insert = NewUserModel{ email: new_user.email, first_name: new_user.first_name, last_name: new_user.last_name, pass_hash: h};
 
     diesel::insert_into(users::table).values(&new_user_insert).execute(connection).expect("Error adding new user");
+
+    json!({ "status": "ok", "email": new_user.email })
 
 }
 

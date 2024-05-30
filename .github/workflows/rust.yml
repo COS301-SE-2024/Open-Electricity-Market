@@ -1,5 +1,7 @@
 name: Rust
 
+permissions: { }
+
 on:
   push:
     branches: [ $default-branch ]
@@ -13,6 +15,11 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: read
+      statuses: write # Updates commit statuses
 
     steps:
     - uses: actions/checkout@v2

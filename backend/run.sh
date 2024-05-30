@@ -2,7 +2,7 @@
 cd simulation || exit
 cargo build
 cd .. || exit
-cd market-platfrom || exit
+cd market-platform || exit
 cargo build
 cd .. || exit
 cd agent || exit
@@ -18,7 +18,7 @@ trap killbg EXIT
 pids=()
 ./simulation/target/release/simulation &
 pids+=($!)
-./market-platfrom/target/release/market-platfrom &
+./market-platfrom/target/release/market-platform &
 pids+=($!)
 ./agent/target/release/agent consume 1118 &
 pids+=($!)

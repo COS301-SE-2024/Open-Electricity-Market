@@ -3,7 +3,7 @@ WORKDIR /usr/src/simulation-api
 
 COPY . .
 
-WORKDIR /usr/src/simulation-api/market-platfrom
+WORKDIR /usr/src/simulation-api/market-platform
 RUN cargo install --path .
 
 WORKDIR /usr/src/simulation-api/agent

@@ -3,15 +3,38 @@ extern crate rocket;
 extern crate deadqueue;
 extern crate reqwest;
 
+use std::env;
 use rocket::State;
+use rocket::serde::{Serialize,Deserialize};
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::{Arc, Mutex};
+use diesel::pg::PgConnection;
+use diesel::prelude::*;
+use dotenvy::dotenv;
+use rocket::form::name::NameBuf;
+use rocket::serde::json::serde_json::json;
+use rocket::serde::json::{Json, Value};
+use rocket::yansi::Paint;
+use crate::models::{NewUserModel, User};
+use crate::schema::open_em::users::last_name;
+use pwhash::bcrypt;
+
+mod schema;
+mod models;
 
 type TaskQueue = deadqueue::unlimited::Queue<(u64, f32, String)>;
 
 const IDEAL_VOLTAGE: f32 = 230.0;
 struct Info {
     price: AtomicU32,
+}
+
+fn establish_connection() -> PgConnection {
+    dotenv().ok();
+
+    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    PgConnection::establish(&database_url)
+        .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
 }
 
 #[get("/")]
@@ -74,10 +97,52 @@ async fn met(sold_list: &State<Arc<Mutex<Vec<String>>>>, id: String) -> String {
     }
 }
 
+#[derive(Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct Credentials<'r>{
+    email: &'r str,
+    password: &'r str
+}
+#[post("/login")]
+fn login(){
+
+    use self::schema::open_em::users::dsl::*;
+
+    let connection = &mut establish_connection();
+
+
+
+}
+
+#[derive(Serialize,Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct NewUser<'r>{
+    email: &'r str,
+    first_name: &'r str,
+    last_name: &'r str,
+    password: &'r str,
+}
+
+#[post("/register", format="application/json", data="<new_user>")]
+fn register(new_user: Json<NewUser<'_>>) {
+
+    use self::schema::open_em::users;
+    use self::models::NewUserModel;
+
+    let connection = &mut establish_connection();
+    let binding = bcrypt::hash(new_user.password).unwrap();
+    let h = binding.as_str();
+
+    let new_user_insert = NewUserModel{ email: new_user.email, first_name: new_user.first_name, last_name: new_user.last_name, pass_hash: h};
+
+    diesel::insert_into(users::table).values(&new_user_insert).execute(connection).expect("Error adding new user");
+
+}
+
 #[launch]
 fn rocket() -> _ {
     rocket::build()
-        .mount("/", routes![index, bid, sell, met])
+        .mount("/", routes![index, bid, sell, met, register, login])
         .configure(rocket::Config::figment().merge(("port", 8001)))
         .manage(Arc::new(TaskQueue::new()))
         .manage(Info {

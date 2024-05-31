@@ -3,24 +3,23 @@ extern crate rocket;
 extern crate deadqueue;
 extern crate reqwest;
 
-
 use crate::models::{NewUserModel, User};
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use dotenvy::dotenv;
 use pwhash::bcrypt;
+use rocket::fairing::{Fairing, Info, Kind};
 use rocket::form::name::NameBuf;
+use rocket::http::Header;
 use rocket::serde::json::serde_json::json;
 use rocket::serde::json::{Json, Value};
 use rocket::serde::{Deserialize, Serialize};
 use rocket::yansi::Paint;
 use rocket::State;
+use rocket::{Request, Response};
 use std::env;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::{Arc, Mutex};
-use rocket::fairing::{Fairing, Info, Kind};
-use rocket::http::Header;
-use rocket::{Request, Response};
 
 mod models;
 mod schema;
@@ -47,7 +46,6 @@ impl Fairing for CORS {
     }
 }
 
-
 type TaskQueue = deadqueue::unlimited::Queue<(u64, f32, String)>;
 
 const IDEAL_VOLTAGE: f32 = 230.0;
@@ -55,7 +53,6 @@ const IDEAL_VOLTAGE: f32 = 230.0;
 struct MyInfo {
     price: AtomicU32,
 }
-
 
 fn establish_connection() -> PgConnection {
     dotenv().ok();
@@ -124,7 +121,6 @@ async fn met(sold_list: &State<Arc<Mutex<Vec<String>>>>, id: String) -> String {
         "false".to_string()
     }
 }
-
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]

@@ -18,8 +18,11 @@
  
 
   async function fetchData() {
-    const response = await fetch("https://api.coindesk.com/v1/bpi/currentprice.json"); //have to insert endpoint
-    data = await response.json();
+    //https://api.coindesk.com/v1/bpi/currentprice.json
+    const response = await fetch("http://localhost:8001");//have to insert endpoint
+    let text = await response.text()
+    console.log(text)
+    data = JSON.parse(text)
     console.log(data);
     return data;
   }
@@ -30,7 +33,7 @@
   <p>Here you can overview data about the grid.</p>
   
 
-  <!-- {#if data}
+{#if data}
     {#each Object.entries(data) as [key, value]}
       <p>
         {key}:
@@ -43,32 +46,32 @@
     {/each}
   {:else}
     <p>Loading...</p>
-  {/if} -->
+  {/if}
 
 
-  <div class="stats shadow">
-  
-    <div class="stat place-items-center">
-      <div class="stat-title">Current Price</div>
-      <div class="stat-value">R31</div>
-      <div class="stat-desc">Prices are dynamic</div>
-    </div>
+<!--  <div class="stats shadow">-->
+<!--  -->
+<!--    <div class="stat place-items-center">-->
+<!--      <div class="stat-title">Current Price</div>-->
+<!--      <div class="stat-value">R31</div>-->
+<!--      <div class="stat-desc">Prices are dynamic</div>-->
+<!--    </div>-->
 
-    <div class="stat place-items-center">
-      <div class="stat-title">Current Voltage</div>
-      <div class="stat-value">5V</div>
-      <div class="stat-desc text-red-700">90 (14%)</div>
-    </div>
+<!--    <div class="stat place-items-center">-->
+<!--      <div class="stat-title">Current Voltage</div>-->
+<!--      <div class="stat-value">5V</div>-->
+<!--      <div class="stat-desc text-red-700">90 (14%)</div>-->
+<!--    </div>-->
+<!--    -->
+<!--    <div class="stat place-items-center">-->
+<!--      <div class="stat-title">Users</div>-->
+<!--      <div class="stat-value">4,200</div>-->
+<!--      <div class="stat-desc text-green-800">↗︎ 40 (2%)</div>-->
+<!--    </div>-->
     
-    <div class="stat place-items-center">
-      <div class="stat-title">Users</div>
-      <div class="stat-value">4,200</div>
-      <div class="stat-desc text-green-800">↗︎ 40 (2%)</div>
-    </div>
     
     
-    
-  </div>
+<!--  </div>-->
 
 
 

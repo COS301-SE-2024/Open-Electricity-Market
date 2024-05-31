@@ -1,10 +1,12 @@
 [package]
-name = "market-platfrom"
+name = "market-platform"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+openssl = { version = "0.10", features = ["vendored"] }
 tokio = { version = "1", features = ["full"] }
 rocket = "0.5.0"
 reqwest = "0.12.4"
 deadqueue = "0.2.4"
+json = "0.12.4"

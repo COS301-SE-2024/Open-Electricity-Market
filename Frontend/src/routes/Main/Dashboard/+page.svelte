@@ -7,7 +7,7 @@
 
   onMount(async () => {
     data = await fetchData();
-    // interval = setInterval(fetchData, 2000);
+    // interval = setInterval(fetchData, 800);
 
     //return function runs when the component is unmounted 
     return() => {
@@ -29,39 +29,41 @@
 </script>
 
 <main class="container mx-auto">
-  <h1 class="text-2xl font-bold mb-4">Overview</h1>
-  <p>Here you can overview data about the grid.</p>
+  <!-- <h1 class="text-2xl font-bold mb-4">Overview</h1>
+  <p>Here you can overview data about the grid.</p> -->
   
 
 {#if data}
     {#each Object.entries(data) as [key, value]}
-      <p>
-        {key}:
-        {#if key === "price"}
-          ${value}
+      
+        
+        {#if key === "Price"}
+          <div class="stats shadow">
+            <div class="stat place-items-center">
+              <div class="stat-title">Current Price</div>
+              <div class="stat-value">R{value}</div>
+              <div class="stat-desc">Prices are dynamic</div>
+          </div>
+        </div>
         {:else}
-          {Array.isArray(value) ? value.join(", ") : value}
+        <div class = "stats shadow">
+          <div class="stat place-items-center">
+            <div class="stat-title">Current Voltage</div>
+            <div class="stat-value">{value}V</div>
+            <div class="stat-desc text-red-700">90 (14%)</div>
+          </div>
+          </div>
         {/if}
-      </p>
+      
     {/each}
   {:else}
     <p>Loading...</p>
   {/if}
 
 
-<!--  <div class="stats shadow">-->
-<!--  -->
-<!--    <div class="stat place-items-center">-->
-<!--      <div class="stat-title">Current Price</div>-->
-<!--      <div class="stat-value">R31</div>-->
-<!--      <div class="stat-desc">Prices are dynamic</div>-->
-<!--    </div>-->
+ 
 
-<!--    <div class="stat place-items-center">-->
-<!--      <div class="stat-title">Current Voltage</div>-->
-<!--      <div class="stat-value">5V</div>-->
-<!--      <div class="stat-desc text-red-700">90 (14%)</div>-->
-<!--    </div>-->
+   
 <!--    -->
 <!--    <div class="stat place-items-center">-->
 <!--      <div class="stat-title">Users</div>-->

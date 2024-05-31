@@ -34,6 +34,7 @@ jobs:
         uses: super-linter/super-linter@latest
         env: 
           # To report status checks
+          LINTER_RULES_PATH: ".github/config/linter-setup"
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_RUST_2015: false
           VALIDATE_RUST_2018: false

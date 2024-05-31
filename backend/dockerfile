@@ -62,8 +62,8 @@ ENV SSL_VER="1.1.1w" \
     CC=musl-gcc \
     PREFIX=/musl \
     PATH=/usr/local/bin:/root/.cargo/bin:$PATH \
-    PKG_CONFIG_PATH=/usr/local/lib/pkgconfig \
-    LD_LIBRARY_PATH=$PREFIX
+    PKG_CONFIG_PATH=/usr/local/lib/pkgconfig
+ENV LD_LIBRARY_PATH=$PREFIX
 
 # Install a more recent release of protoc (protobuf-compiler in jammy is 4 years old and misses some features)
 RUN cd /tmp && \

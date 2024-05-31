@@ -18,5 +18,5 @@ pub struct NewUserModel<'a> {
     pub email: &'a str,
     pub first_name: &'a str,
     pub last_name: &'a str,
-    pub pass_hash: &'a str
+    pub pass_hash: &'a str,
 }

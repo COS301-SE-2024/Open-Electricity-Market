@@ -3,23 +3,23 @@ extern crate rocket;
 extern crate deadqueue;
 extern crate reqwest;
 
-use std::env;
-use rocket::State;
-use rocket::serde::{Serialize,Deserialize};
-use std::sync::atomic::{AtomicU32, Ordering};
-use std::sync::{Arc, Mutex};
+use crate::models::{NewUserModel, User};
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use dotenvy::dotenv;
+use pwhash::bcrypt;
 use rocket::form::name::NameBuf;
 use rocket::serde::json::serde_json::json;
 use rocket::serde::json::{Json, Value};
+use rocket::serde::{Deserialize, Serialize};
 use rocket::yansi::Paint;
-use crate::models::{NewUserModel, User};
-use pwhash::bcrypt;
+use rocket::State;
+use std::env;
+use std::sync::atomic::{AtomicU32, Ordering};
+use std::sync::{Arc, Mutex};
 
-mod schema;
 mod models;
+mod schema;
 
 type TaskQueue = deadqueue::unlimited::Queue<(u64, f32, String)>;
 
@@ -34,7 +34,6 @@ fn establish_connection() -> PgConnection {
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     PgConnection::establish(&database_url)
         .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
-
 }
 
 #[get("/")]
@@ -97,54 +96,60 @@ async fn met(sold_list: &State<Arc<Mutex<Vec<String>>>>, id: String) -> String {
     }
 }
 
-#[derive(Serialize,Deserialize)]
+#[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct Credentials<'r>{
+struct Credentials<'r> {
     email: &'r str,
     password: &'r str,
 }
 
-#[post("/login", format="application/json", data="<credentials>")]
-async fn login(credentials: Json<Credentials<'_>>) -> Value{
-
+#[post("/login", format = "application/json", data = "<credentials>")]
+async fn login(credentials: Json<Credentials<'_>>) -> Value {
     use self::schema::open_em::users::dsl::*;
 
     let connection = &mut establish_connection();
 
-    let user = users.filter(email.eq(credentials.email)).select(User::as_select())
+    let user = users
+        .filter(email.eq(credentials.email))
+        .select(User::as_select())
         .load::<User>(connection)
         .expect("Error loading posts");
 
     let verify = bcrypt::verify(credentials.password, &*user[0].pass_hash);
 
     json!({ "status": "ok", "verified": verify })
-
 }
 
-#[derive(Serialize,Deserialize)]
+#[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct NewUser<'r>{
+struct NewUser<'r> {
     email: &'r str,
     first_name: &'r str,
     last_name: &'r str,
     password: &'r str,
 }
 
-#[post("/register", format="application/json", data="<new_user>")]
+#[post("/register", format = "application/json", data = "<new_user>")]
 async fn register(new_user: Json<NewUser<'_>>) -> Value {
-
     use self::schema::open_em::users;
 
     let connection = &mut establish_connection();
     let binding = bcrypt::hash(new_user.password).unwrap();
     let h = binding.as_str();
 
-    let new_user_insert = NewUserModel{ email: new_user.email, first_name: new_user.first_name, last_name: new_user.last_name, pass_hash: h};
+    let new_user_insert = NewUserModel {
+        email: new_user.email,
+        first_name: new_user.first_name,
+        last_name: new_user.last_name,
+        pass_hash: h,
+    };
 
-    diesel::insert_into(users::table).values(&new_user_insert).execute(connection).expect("Error adding new user");
+    diesel::insert_into(users::table)
+        .values(&new_user_insert)
+        .execute(connection)
+        .expect("Error adding new user");
 
     json!({ "status": "ok", "email": new_user.email })
-
 }
 
 #[launch]

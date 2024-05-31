@@ -1,5 +1,5 @@
 <script>
-    import "../app.css";
+    import "../../app.css";
     import { page } from '$app/stores';
     import { derived } from "svelte/store";
 
@@ -30,14 +30,14 @@
 
   </style>
   
-  <!-- <header class="bg-gray-800 text-white p-4">
+  <header class="bg-gray-800 text-white p-4 ">
     <nav class="container mx-auto">
-      <a href="/Dashboard" class = {activebutton == '/Dashboard' ? 'active' : ''}>Dashboard</a>
-      <a href="/GridSimulation" class = {activebutton == '/GridSimulation' ? 'active' : ''}>Grid Simulation</a>
-      <a href="/BiddingMarket" class = {activebutton == '/BiddingMarket' ? 'active' : ''}>Bidding Market</a>
+      <a href="/Main/Dashboard" class = {activebutton == '/Main/Dashboard' ? 'active' : ''}>Dashboard</a>
+      <a href="/Main/GridSimulation" class = {activebutton == '/Main/GridSimulation' ? 'active' : ''}>Grid Simulation</a>
+      <a href="/Main/BiddingMarket" class = {activebutton == '/Main/BiddingMarket' ? 'active' : ''}>Bidding Market</a>
     </nav>
-  </header> -->
+  </header>
   
-  <main class="container mx-auto ">
+  <main class="container mx-auto mt-8">
     <slot />
   </main>

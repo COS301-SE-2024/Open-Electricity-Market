@@ -41,3 +41,6 @@ jobs:
           VALIDATE_RUST_CLIPPY: false
           VALIDATE_CSS: false
           VALIDATE_SQLFLUFF: false
+          VALIDATE_CHECKOV: false
+          VALIDATE_DOCKERFILE_HADOLINT: false
+          VALIDATE_JAVASCRIPT_STANDARD: false

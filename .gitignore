@@ -1,5 +1,8 @@
 ### Environment specific
 
+**/*.env
+**/*.env.*
+
 ## VSCode
 .vscode/*
 !.vscode/settings.json

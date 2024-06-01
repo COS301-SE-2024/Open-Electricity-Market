@@ -4,7 +4,7 @@
   let interval;
 
   // console.log(uid());
-  var arrayofuids = [];
+  let arrayofuids = [];
   var arrayofpricesbought = [];
   // const userid = uid();
 
@@ -14,7 +14,7 @@
   onMount(async () => {
     await checkMet();
     interval = setInterval(checkMet, 800);
-
+    
     //return function runs when the component is unmounted
     return () => {
       clearInterval(interval);
@@ -41,6 +41,7 @@
         removeelement(element);
       }
     }
+    arrayofuids = arrayofuids;
   }
 
   async function bidFunction() {
@@ -67,7 +68,6 @@
 
 <main class="container mx-auto">
   <h1 class="text-2xl font-bold mb-4">Bidding Market</h1>
-
   <div class="overflow-x-auto">
     <table class="table table-xs">
       <thead>
@@ -77,13 +77,20 @@
           <th>Price</th>
         </tr>
       </thead>
+      
+      
+      
+      {#each arrayofuids as id (id)}
       <tbody>
         <tr>
-          <th>1</th>
-          <td>363b5e030e2</td>
+          <!-- <th>{i+1}</th> -->
+          <td>{id}</td>
           <td>R230.45</td>
         </tr>
       </tbody>
+      {/each}
+    
+      
     </table>
 
     <button on:click={bidFunction} class="btn bg-green-600 mt-20 mr-1 w-1/6"

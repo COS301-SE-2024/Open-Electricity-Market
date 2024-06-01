@@ -1,14 +1,12 @@
 <script>
     import logo from '$lib/assets/Power2.svg';
     import pylonBack from '$lib/assets/pylonBack.png';
-    //import Button from "../signup/signup.svelte"
+    import Button from "/mnt/c/University/Year3/Semester1/COS301/Capstone/CapstoneWork/Open-Electricity-Market/Frontend/src/routes/Button.svelte";
     //let pylonBack = '$lib/assets/pylonBack.png';
     let username = '';
     let password = '';
 </script>
-<div class = "background">
-    <img alt = "Background" src = {pylonBack}/>
-</div>
+
 <div class = "body">
     
     <img class= "logo" alt = "Logo" src = {logo}/>
@@ -31,7 +29,7 @@
         width: 100%;
         align-items: center;
         color: white;
-        /*background-image: url('$lib/assets/pylonBack.png');*/
+        background-image: url('$lib/assets/pylonBack.png');
     }
     h1{
         font-size: 50px

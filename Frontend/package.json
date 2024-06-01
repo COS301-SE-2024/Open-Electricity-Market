@@ -25,6 +25,7 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"daisyui": "^4.11.1"
+		"daisyui": "^4.11.1",
+		"uid": "^2.0.2"
 	}
 }

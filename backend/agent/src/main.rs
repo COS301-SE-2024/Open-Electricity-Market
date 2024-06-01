@@ -14,13 +14,13 @@ async fn main() {
 
     loop {
         let res = reqwest::get("http://127.0.0.1:8001/").await.unwrap();
-        let body = res.text().await.unwrap();
-        let mut split = body.split("'Price':");
+        let text = res.text().await.unwrap();
+        let mut split = text.split("\"Price\":\"");
         split.next();
-        let body = split.next().unwrap().to_string();
-        split = body.split("  ");
-        let body = split.next().unwrap().to_string();
-        let price = body.parse::<f32>().unwrap();
+        let parsel = split.next().unwrap();
+        let mut split = parsel.split('"');
+        let parsel = split.next().unwrap();
+        let price = parsel.parse::<f32>().unwrap();
 
         let actual;
 

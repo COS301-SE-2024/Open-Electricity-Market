@@ -8,22 +8,19 @@
   var arrayofpricesbought = [];
   // const userid = uid();
 
-
-  
-
   onMount(async () => {
     await checkMet();
     interval = setInterval(checkMet, 800);
-    
+
     //return function runs when the component is unmounted
     return () => {
       clearInterval(interval);
     };
   });
 
-  async function removeelement(element){
-    for(let i = 0; i<arrayofuids.length; i++){
-      let tempy = arrayofuids[i]; 
+  async function removeelement(element) {
+    for (let i = 0; i < arrayofuids.length; i++) {
+      let tempy = arrayofuids[i];
       if (tempy == element) {
         arrayofuids.splice(i, 1);
       }
@@ -77,29 +74,26 @@
           <th>Price</th>
         </tr>
       </thead>
-      
-      
-      
+
       {#each arrayofuids as id (id)}
-      <tbody>
-        <tr>
-          <!-- <th>{i+1}</th> -->
-          <td>{id}</td>
-          <td>R230.45</td>
-        </tr>
-      </tbody>
+        <tbody>
+          <tr>
+            <!-- <th>{i+1}</th> -->
+            <td>{id}</td>
+            <td>R230.45</td>
+          </tr>
+        </tbody>
       {/each}
-    
-      
     </table>
 
-    <button on:click={bidFunction} class="btn bg-green-600 mt-20 mr-1 w-1/6"
-      >Bid</button
-    >
-    <button on:click={sellFunction} class="btn bg bg-red-700 w-1/6">Sell</button
-    >
+    <div class="absolute bottom-0 left-24 mb-64">
+      <button on:click={bidFunction} class="btn bg-green-600 w-28 h-14">Bid</button>
+      <button on:click={sellFunction} class="btn bg bg-red-700 w-28 h-14 ml-2">Sell</button>
+    </div>
   </div>
 </main>
+
+
 
 <style>
 </style>

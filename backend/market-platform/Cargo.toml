@@ -5,8 +5,12 @@ edition = "2021"
 
 [dependencies]
 openssl = { version = "0.10", features = ["vendored"] }
+json = "0.12.4"
 tokio = { version = "1", features = ["full"] }
-rocket = "0.5.0"
+rocket = { version = "0.5.0", features = ["json"] }
 reqwest = "0.12.4"
 deadqueue = "0.2.4"
-json = "0.12.4"
+diesel = {version = "2.1.6", features = ["postgres", "uuid"]}
+uuid = "1.8.0"
+dotenvy = "0.15.7"
+pwhash = "1.0.0"

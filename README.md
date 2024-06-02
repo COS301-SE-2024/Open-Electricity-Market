@@ -3,8 +3,9 @@ for EPI-USE Labs
 A cutting-edge simulation platform, designed to transform the way we manage energy, as well as optimise grid operations.
 
 [![Super-Linter](https://github.com/COS301-SE-2024/Open-Electricity-Market/actions/workflows/linter.yml/badge.svg)](https://github.com/marketplace/actions/super-linter)
+![GitHub Workflow Status](https://github.com/COS301-SE-2024/Open-Electricity-Market/actions/workflows/rust.yml/badge.svg)
+![GitHub Workflow Status](https://github.com/COS301-SE-2024/Open-Electricity-Market/actions/workflows/node.js.yml/badge.svg)
 
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/COS301-SE-2024/Open-Electricity-Market/rust.yml?branch=main)
 
 ### [Project Board](https://github.com/orgs/COS301-SE-2024/projects/61)
 

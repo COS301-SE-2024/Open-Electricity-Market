@@ -18,7 +18,7 @@ async fn main() {
         let mut split = text.split("\"Price\":\"");
         split.next();
         let parsel = split.next().unwrap();
-        let mut split = parsel.split("\"");
+        let mut split = parsel.split('"');
         let parsel = split.next().unwrap();
         let price = parsel.parse::<f32>().unwrap();
 

@@ -3,14 +3,26 @@ extern crate rocket;
 extern crate deadqueue;
 extern crate reqwest;
 
+use crate::models::{NewUserModel, User};
+use diesel::pg::PgConnection;
+use diesel::prelude::*;
+use dotenvy::dotenv;
+use pwhash::bcrypt;
+use rocket::fairing::{Fairing, Info, Kind};
+use rocket::form::name::NameBuf;
+use rocket::http::Header;
+use rocket::serde::json::serde_json::json;
+use rocket::serde::json::{Json, Value};
+use rocket::serde::{Deserialize, Serialize};
+use rocket::yansi::Paint;
 use rocket::State;
+use rocket::{Request, Response};
+use std::env;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::{Arc, Mutex};
 
-
-use rocket::http::Header;
-use rocket::{Request, Response};
-use rocket::fairing::{Fairing, Info, Kind};
+mod models;
+mod schema;
 
 pub struct CORS;
 
@@ -19,13 +31,16 @@ impl Fairing for CORS {
     fn info(&self) -> Info {
         Info {
             name: "Add CORS headers to responses",
-            kind: Kind::Response
+            kind: Kind::Response,
         }
     }
 
     async fn on_response<'r>(&self, _request: &'r Request<'_>, response: &mut Response<'r>) {
         response.set_header(Header::new("Access-Control-Allow-Origin", "*"));
-        response.set_header(Header::new("Access-Control-Allow-Methods", "POST, GET, PATCH, OPTIONS"));
+        response.set_header(Header::new(
+            "Access-Control-Allow-Methods",
+            "POST, GET, PATCH, OPTIONS",
+        ));
         response.set_header(Header::new("Access-Control-Allow-Headers", "*"));
         response.set_header(Header::new("Access-Control-Allow-Credentials", "true"));
     }
@@ -34,8 +49,17 @@ impl Fairing for CORS {
 type TaskQueue = deadqueue::unlimited::Queue<(u64, f32, String)>;
 
 const IDEAL_VOLTAGE: f32 = 230.0;
+
 struct MyInfo {
     price: AtomicU32,
+}
+
+fn establish_connection() -> PgConnection {
+    dotenv().ok();
+
+    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    PgConnection::establish(&database_url)
+        .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
 }
 
 #[get("/")]
@@ -98,10 +122,66 @@ async fn met(sold_list: &State<Arc<Mutex<Vec<String>>>>, id: String) -> String {
     }
 }
 
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct Credentials<'r> {
+    email: &'r str,
+    password: &'r str,
+}
+
+#[post("/login", format = "application/json", data = "<credentials>")]
+async fn login(credentials: Json<Credentials<'_>>) -> Value {
+    use self::schema::open_em::users::dsl::*;
+
+    let connection = &mut establish_connection();
+
+    let user = users
+        .filter(email.eq(credentials.email))
+        .select(User::as_select())
+        .load::<User>(connection)
+        .expect("Error loading posts");
+
+    let verify = bcrypt::verify(credentials.password, &*user[0].pass_hash);
+
+    json!({ "status": "ok", "verified": verify })
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct NewUser<'r> {
+    email: &'r str,
+    first_name: &'r str,
+    last_name: &'r str,
+    password: &'r str,
+}
+
+#[post("/register", format = "application/json", data = "<new_user>")]
+async fn register(new_user: Json<NewUser<'_>>) -> Value {
+    use self::schema::open_em::users;
+
+    let connection = &mut establish_connection();
+    let binding = bcrypt::hash(new_user.password).unwrap();
+    let h = binding.as_str();
+
+    let new_user_insert = NewUserModel {
+        email: new_user.email,
+        first_name: new_user.first_name,
+        last_name: new_user.last_name,
+        pass_hash: h,
+    };
+
+    diesel::insert_into(users::table)
+        .values(&new_user_insert)
+        .execute(connection)
+        .expect("Error adding new user");
+
+    json!({ "status": "ok", "email": new_user.email })
+}
+
 #[launch]
 fn rocket() -> _ {
     rocket::build()
-        .mount("/", routes![index, bid, sell, met])
+        .mount("/", routes![index, bid, sell, met, register, login])
         .configure(rocket::Config::figment().merge(("port", 8001)))
         .manage(Arc::new(TaskQueue::new()))
         .manage(MyInfo {
@@ -109,5 +189,4 @@ fn rocket() -> _ {
         })
         .manage(Arc::new(Mutex::new(Vec::<String>::new())))
         .attach(CORS)
-
 }

@@ -7,7 +7,7 @@
         //add to database
         if(password == passwordValidate)
         {
-            goto("/login");
+            goto("/");
         }
     }
     function back(){

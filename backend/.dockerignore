@@ -1,8 +1,5 @@
 ### Environment specific
 
-**/*.env
-**/*.env.*
-
 ## VSCode
 .vscode/*
 !.vscode/settings.json
@@ -113,16 +110,11 @@ Cargo.lock
 
 # MSVC Windows builds of rustc generate these, which store debugging information
 *.pdb
-/backend/market-platform/.env
 backend/agent/.idea/
 
 *.iml
 
-backend/market-platform/.idea/
+backend/market-platfrom/.idea/
 winget
 
 Frontend/.idea/
-
-Frontend/node_modules/
-
-Frontend/.svelte-kit/

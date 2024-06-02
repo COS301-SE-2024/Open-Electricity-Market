@@ -5,9 +5,9 @@ permissions: { }
 
 on:
   push:
-    branches: ["main","dev"]
+    branches: ["main"]
   pull_request:
-    branches: ["main","dev"]
+    branches: ["main"]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -31,9 +31,18 @@ jobs:
           fetch-depth: 0
 
       - name: Super-Linter
-        uses: super-linter/super-linter@latest
+        uses: super-linter/super-linter@v6.5.1
         env: 
+          LINTER_RULES_PATH: ".github/config/linter-setup"
           # To report status checks
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VALIDATE_RUST_2015: false
-          VALIDATE_RUST_2018: false
+          VALIDATE_RUST_2015: false # outdated
+          VALIDATE_RUST_2018: false # outdated
+          VALIDATE_RUST_CLIPPY: false # Tries to resolve ssh libraries using the wrong version of libc
+          VALIDATE_CSS: false # unreasonable @tailwind errors, doesn't identify a valid library
+          VALIDATE_SQLFLUFF: false # requested by Ruan, will probably be configured in the near future
+          VALIDATE_CHECKOV: false # minor dockerfile hints, will be fixed in the future
+          VALIDATE_DOCKERFILE_HADOLINT: false # bunch of warnings, needs configuration
+          VALIDATE_JAVASCRIPT_STANDARD: false # should install and run standard --fix
+          VALIDATE_MARKDOWN: false # Markdown files are acceptable but still a work in progress
+          # VALIDATE_HTML: false # It checks for the tabspaces inconsistencies

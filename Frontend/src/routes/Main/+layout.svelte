@@ -1,4 +1,5 @@
 <script>
+    //use own version
     import "../app.css";
     import { goto } from '$app/navigation';
     import { page } from '$app/stores';

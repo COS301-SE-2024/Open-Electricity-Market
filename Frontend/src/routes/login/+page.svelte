@@ -1,8 +1,17 @@
-<script>
+<script lang="ts">
     import logo from '$lib/assets/Logo.png';
     //import pylonBack from '$lib/assets/pylonBack.png';
-    import Button from "/mnt/c/University/Year3/Semester1/COS301/Capstone/CapstoneWork/Open-Electricity-Market/Frontend/src/routes/Button.svelte";
+    //import Button from "/mnt/c/University/Year3/Semester1/COS301/Capstone/CapstoneWork/Open-Electricity-Market/Frontend/src/routes/Button.svelte";
     //let pylonBack = '$lib/assets/pylonBack.png';
+    import {goto} from "$app/navigation";
+    function signup(){
+        goto("/signup");
+    }
+    function login(){
+        //Username and password to be validated.
+        //send to main page
+        //goto("");
+    }
     let username = '';
     let password = '';
 </script>
@@ -14,8 +23,8 @@
         <h2>Login into account:</h2>
         <input class = "fillin" type = "text" color = "black" bind:value={username} placeholder="Username here..."/>
         <input class = "fillin" type = "text" size = "35" bind:value={password} placeholder="Password here..."/>
-        <Button class = "login">Login</Button>
-        <Button class = "signup">Signup</Button>
+        <button class = "buttons" on:click={login}>Login</button>
+        <button class = "buttons" on:click={signup}>Signup</button>
     </div>
 </div>
 
@@ -71,10 +80,45 @@
         height: 43px;
         width: 378px;
         margin: 18px;
+        position: relative;
+        top: -27px;
         border-radius: 6px;
         background-color: white;
-        font-size:47px;
+        font-size:27px;
         color: black;
     }
-    
+    ::placeholder{
+        color: black;
+    }
+    ::-ms-input-placeholder{
+        color: black;
+    }
+    .buttons{
+        background-color: #124E86;
+        border: black;
+        border-radius: 6px;
+        color: white;
+        margin: 19px;
+        position: relative;
+        top: 19px;
+        text-align: center;
+        font-size: 28px;
+        height: 66px;
+        width: 336px;
+        transition-duration: 0.4s;
+    }
+    .buttons:hover{
+        background-color: black;
+        border: #124E86;
+        border-radius: 6px;
+        color: white;
+        margin: 19px;
+        position: relative;
+        top: 19px;
+        text-align: center;
+        font-size: 28px;
+        height: 66px;
+        width: 336px;
+        transition-duration: 0.4s;
+    }
 </style>

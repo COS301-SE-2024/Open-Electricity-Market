@@ -1,3 +1,0 @@
-<script>
-    let buttonProps
-</script>

@@ -1,55 +1,113 @@
-<script>
+<script lang="ts">
     import logo from '$lib/assets/Logo.png';
-    import pylonBack from '$lib/assets/pylonBack.png';
-    import Button from "/mnt/c/University/Year3/Semester1/COS301/Capstone/CapstoneWork/Open-Electricity-Market/Frontend/src/routes/Button.svelte";
+    //import pylonBack from '$lib/assets/pylonBack.png';
+    //import Button from "/mnt/c/University/Year3/Semester1/COS301/Capstone/CapstoneWork/Open-Electricity-Market/Frontend/src/routes/Button.svelte";
+    import {goto} from "$app/navigation";
+    function create(){
+        //add to database
+        if(password == passwordValidate)
+        {
+            goto("/login");
+        }
+    }
+    function back(){
+        goto("/login");
+    }
     let username = '';
     let password = '';
+    let passwordValidate = '';
 </script>
 <div class = "background">
-    <img alt = "Background" src = {pylonBack}/>
+    <div class = "body">
+        <img class= "logo" alt = "Logo" src = {logo}/>
+        <h1>Create an account with us!</h1>
+        <input class = "fillin" type = "text" bind:value={username} placeholder="Username here..."/>
+        <input class = "fillin" type = "text" bind:value={password} placeholder="Password here..."/>
+        <input class = "fillin" type = "text" bind:value={passwordValidate} placeholder="Confirm Password"/>
+        <button class = "buttons" on:click={create}>Create Account</button>
+        <button class = "buttons" on:click={back}>Back</button>
+    </div>
 </div>
-<div class = "body">
-    
-    <img class= "logo" alt = "Logo" src = {logo}/>
-    <h1>Create an account with us</h1>
-    <p>Login into account:</p>
-    <input bind:value={username} placeholder="Username here..."/>
-    <input bind:value={password} placeholder="Password here..."/>
-    <Button class = "login">Login</Button>
-    <Button class = "signup">Signup</Button>
-</div>
-
 <style>
-    .body{
-        text-align: center;
-        display: flex;
-        flex-flow: column;
-        justify-content: center;
-        position: absolute;
-        height: 100%;
-        width: 100%;
-        align-items: center;
-        color: white;
-        /*background-image: url('$lib/assets/pylonBack.png');*/
-    }
-    h1{
-        font-size: 50px
+    @font-face{
+        font-family: 'NATS';
+        font-style: normal;
+        font-weight: 50;
+        src: url("/fonts/NATS-Regular.ttf");
     }
     .background{
         position: absolute;
+        top: 0;
+        left: 0;
         height: 100%;
         width: 100%;
-        top: 0;
-        z-index: -1;
+        background-image: url('$lib/assets/pylonBack.png');
         background-size: cover;
-    
+    }
+    .body{
+        color: white;
+        display: flex;
+        position: absolute;
+        flex-flow: column;
+        height: 100%;
+        width: 100%;
+        background-color: rgba(0, 0, 0, 0.93);
+        align-items: center;
     }
     .logo{
-        height: 284px;
-        width: 220px;
-        display: flex;
-        flex-flow: column;
-        justify-content: center;
+        position: relative;
+        top: 20px;
     }
-    
+    h1{
+        font-weight: normal;
+        font-size: 50px;
+        top: 24px;
+        position: relative;
+        font-family: NATS;
+        letter-spacing: 9px;
+    }
+    .fillin{
+        height: 43px;
+        width: 378px;
+        margin: 18px;
+        position: relative;
+        top: 18px;
+        border-radius: 6px;
+        background-color: white;
+        font-size:27px;
+        color: black;
+    }
+    ::placeholder{
+        color: black;
+    }
+    ::-ms-input-placeholder{
+        color: black;
+    }
+    .buttons{
+        background-color: #124E86;
+        border: black;
+        border-radius: 6px;
+        color: white;
+        margin: 19px;
+        position: relative;
+        top: 57px;
+        text-align: center;
+        font-size: 28px;
+        height: 66px;
+        width: 336px;
+        transition-duration: 0.4s;
+    }
+    .buttons:hover{
+        background-color: black;
+        border: #124E86;
+        border-radius: 6px;
+        color: white;
+        margin: 19px;
+        position: relative;
+        top: 57px;
+        text-align: center;
+        font-size: 28px;
+        height: 66px;
+        width: 336px;
+    }
 </style>

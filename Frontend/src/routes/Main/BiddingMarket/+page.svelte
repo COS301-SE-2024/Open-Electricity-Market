@@ -27,13 +27,23 @@
 }
 
 
-  async function removeelement(element) {
+   async function removeelement(element) {
     for (let i = 0; i < arrayofuids.length; i++) {
       let tempy = arrayofuids[i];
       if (tempy == element) {
         arrayofuids.splice(i, 1);
       }
     }
+  }
+
+  export function removeelement2(currarray, element) {
+    for (let i = 0; i < currarray.length; i++) {
+      let tempy = currarray[i];
+      if (tempy == element) {
+        return currarray.splice(i, 1);
+      }
+    }
+    return currarray.clone();
   }
 
   async function checkMet() {

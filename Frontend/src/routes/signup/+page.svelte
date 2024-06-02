@@ -11,7 +11,7 @@
         }
     }
     function back(){
-        goto("/login");
+        goto("/");
     }
     let username = '';
     let password = '';

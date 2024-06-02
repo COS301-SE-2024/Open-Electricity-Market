@@ -1,12 +1,15 @@
 # Open Electricity Market
 by Team Isidore - for EPI-USE Labs
 [![Super-Linter](https://github.com/COS301-SE-2024/Open-Electricity-Market/actions/workflows/linter.yml/badge.svg)](https://github.com/marketplace/actions/super-linter)
+
 ## Demo
 
 ### Demo 1
 
 ## Documentation
 
+
+### [GitHub Rules and Conventions]()
 ## Team
 Contact us: [isidore.capstone@gmail.com](mailto:isidore.capstone@gmail.com)
 
@@ -19,3 +22,4 @@ Contact us: [isidore.capstone@gmail.com](mailto:isidore.capstone@gmail.com)
 |     | Mihail Dicoski             |            | [GitHub](https://github.com/mihaildicoski)                                                                 |
 |     | Christiaan Geordan Strydom |            | [GitHub](https://github.com/anyx66)                                                                        |
 |     | Daniel de Villiers         |            | [GitHub](https://github.com/Danieldv-s)                                                                    |
+

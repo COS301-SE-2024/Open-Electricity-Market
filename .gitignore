@@ -122,3 +122,7 @@ backend/market-platform/.idea/
 winget
 
 Frontend/.idea/
+
+Frontend/node_modules/
+
+Frontend/.svelte-kit/

@@ -22,8 +22,8 @@
         <img class= "logo" alt = "Logo" src = {logo}/>
         <h1>Create an account with us!</h1>
         <input class = "fillin" type = "text" bind:value={username} placeholder="Username here..."/>
-        <input class = "fillin" type = "text" bind:value={password} placeholder="Password here..."/>
-        <input class = "fillin" type = "text" bind:value={passwordValidate} placeholder="Confirm Password"/>
+        <input class = "fillin" type = "password" bind:value={password} placeholder="Password here..."/>
+        <input class = "fillin" type = "password" bind:value={passwordValidate} placeholder="Confirm Password"/>
         <button class = "buttons" on:click={create}>Create Account</button>
         <button class = "buttons" on:click={back}>Back</button>
     </div>

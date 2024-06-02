@@ -22,7 +22,7 @@
         <h1>Welcome To OpenElectricityMarket!</h1>
         <h2>Login into account:</h2>
         <input class = "fillin" type = "text" color = "black" bind:value={username} placeholder="Username here..."/>
-        <input class = "fillin" type = "text" size = "35" bind:value={password} placeholder="Password here..."/>
+        <input class = "fillin" type = "password" size = "35" bind:value={password} placeholder="Password here..."/>
         <button class = "buttons" on:click={login}>Login</button>
         <button class = "buttons" on:click={signup}>Signup</button>
     </div>
@@ -71,7 +71,7 @@
     h2{
         font-weight: normal;
         font-size: 33px;
-        top: -28px;
+        top: 22px;
         position: relative;
         font-family: NATS;
         letter-spacing: 10px;
@@ -81,7 +81,7 @@
         width: 378px;
         margin: 18px;
         position: relative;
-        top: -27px;
+        top: 27px;
         border-radius: 6px;
         background-color: white;
         font-size:27px;
@@ -98,9 +98,9 @@
         border: black;
         border-radius: 6px;
         color: white;
-        margin: 19px;
+        margin: 15px;
         position: relative;
-        top: 19px;
+        top: 49px;
         text-align: center;
         font-size: 28px;
         height: 66px;
@@ -112,13 +112,14 @@
         border: #124E86;
         border-radius: 6px;
         color: white;
-        margin: 19px;
+        margin: 15px;
         position: relative;
-        top: 19px;
+        top: 49px;
         text-align: center;
         font-size: 28px;
         height: 66px;
         width: 336px;
         transition-duration: 0.4s;
     }
+    
 </style>

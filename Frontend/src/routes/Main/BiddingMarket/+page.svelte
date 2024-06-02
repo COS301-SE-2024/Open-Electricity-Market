@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import { uid } from "uid";
   let interval;
+  
 
   // console.log(uid());
   let arrayofuids = [];
@@ -17,6 +18,14 @@
       clearInterval(interval);
     };
   });
+
+  function getRandomPrice() {
+    //for demo purposes
+    let random = Math.random();
+    let temp = random * (250.00 - 200.00) + 200.00;
+    return temp.toFixed(2);
+}
+
 
   async function removeelement(element) {
     for (let i = 0; i < arrayofuids.length; i++) {
@@ -75,12 +84,12 @@
         </tr>
       </thead>
 
-      {#each arrayofuids as id (id)}
+      {#each arrayofuids as id, i (id)}
         <tbody>
           <tr>
-            <!-- <th>{i+1}</th> -->
+            <th>{i+1}</th>
             <td>{id}</td>
-            <td>R230.45</td>
+            <td>R{getRandomPrice()}</td>
           </tr>
         </tbody>
       {/each}

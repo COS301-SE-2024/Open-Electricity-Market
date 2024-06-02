@@ -1,7 +1,5 @@
 <script>
-    //use own version
-    import "../app.css";
-    import { goto } from '$app/navigation';
+    import "../../app.css";
     import { page } from '$app/stores';
     import { derived } from "svelte/store";
 
@@ -11,7 +9,6 @@
 
     $: activebutton = $currentpath; 
 
-    // $: console.log(activebutton);
 
     
 
@@ -33,11 +30,11 @@
 
   </style>
   
-  <header class="bg-gray-800 text-white p-4">
+  <header class="bg-gray-800 text-white p-4 ">
     <nav class="container mx-auto">
-      <a href="/Dashboard" class = {activebutton == '/Dashboard' ? 'active' : ''}>Dashboard</a>
-      <a href="/GridSimulation" class = {activebutton == '/GridSimulation' ? 'active' : ''}>Grid Simulation</a>
-      <a href="/BiddingMarket" class = {activebutton == '/BiddingMarket' ? 'active' : ''}>Bidding Market</a>
+      <a href="/Main/Dashboard" class = {activebutton == '/Main/Dashboard' ? 'active' : ''}>Dashboard</a>
+      <a href="/Main/GridSimulation" class = {activebutton == '/Main/GridSimulation' ? 'active' : ''}>Grid Simulation</a>
+      <a href="/Main/BiddingMarket" class = {activebutton == '/Main/BiddingMarket' ? 'active' : ''}>Bidding Market</a>
     </nav>
   </header>
   

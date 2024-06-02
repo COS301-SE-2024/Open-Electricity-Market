@@ -1,5 +1,5 @@
 <script>
-    import logo from '$lib/assets/Power2.svg';
+    import logo from '$lib/assets/Logo.png';
     import pylonBack from '$lib/assets/pylonBack.png';
     import Button from "/mnt/c/University/Year3/Semester1/COS301/Capstone/CapstoneWork/Open-Electricity-Market/Frontend/src/routes/Button.svelte";
     let username = '';

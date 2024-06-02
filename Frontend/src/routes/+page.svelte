@@ -10,7 +10,7 @@
     function login(){
         //Username and password to be validated.
         //send to main page
-        //goto("");
+        goto("/Main/Dashboard");
     }
     let username = '';
     let password = '';

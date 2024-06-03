@@ -1,0 +1,43 @@
+name: Rust
+
+permissions: { }
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main","dev"]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: read
+      statuses: write # Updates commit statuses
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Build-Agent
+      run: cd backend/agent ; cargo build --verbose 
+    
+    - name: Build-Market-Platform
+      run: cd backend/market-platform ; cargo build --verbose 
+
+    - name: Build-Simulation
+      run: cd backend/simulation ; cargo build --verbose 
+
+    - name: Test-Agent
+      run: cd backend/agent ; cargo test --verbose
+    
+    - name: Test-Market-Platform
+      run: cd backend/market-platform ; cargo test --verbose
+
+    - name: Test-Simulation
+      run: cd backend/simulation ; cargo test --verbose

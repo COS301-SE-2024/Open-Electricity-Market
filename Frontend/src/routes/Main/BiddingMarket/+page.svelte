@@ -44,7 +44,7 @@
       }
     }
     return currarray.clone();
-  }
+  };
 
   async function checkMet() {
     for (let i = 0; i < arrayofuids.length; i++) {

@@ -7,7 +7,9 @@
 		"build": "vite build",
 		"preview": "vite preview",
 		"test": "vitest",
-		"lint": "eslint ."
+		"lint": "eslint .",
+		"test:ui": "vitest --ui",
+		"test-watch": "vitest"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^3.0.0",

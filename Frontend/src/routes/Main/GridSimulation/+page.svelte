@@ -7,7 +7,7 @@
   <p>Here you can simulate the national grid.</p>
   
 
- <Chart />
+ <Chart class = "w-3/5 h-3/5"  />
 
 
  

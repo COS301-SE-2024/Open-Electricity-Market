@@ -10,9 +10,11 @@
       if (typeof window !== 'undefined') { // Check if running in the browser
         chart = createChart(chartCanvas, sampleChartConfig);
       }
+      
       return () => {
         if (chart) {
           chart.destroy();
+      
         }
       };
     });

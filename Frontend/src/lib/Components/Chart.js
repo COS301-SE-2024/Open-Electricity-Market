@@ -7,7 +7,7 @@ export function createChart(context, config) {
 export const sampleChartConfig = {
   type: "line",
   data: {
-    labels: ["January", "February", "March", "April", "May", "June"],
+    labels: ["1", "2", "3", "4", "5", "6"],
     datasets: [
       {
         label: "Sample Data",

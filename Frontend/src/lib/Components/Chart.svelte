@@ -1,22 +1,56 @@
 
 <script>
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
   import { createChart, sampleChartConfig } from './Chart.js';
 
   let chart;
   let chartCanvas;
+  let data; 
+  let interval; 
 
   onMount(() => {
     if (typeof window !== 'undefined') { // Check if running in the browser
       chart = createChart(chartCanvas, sampleChartConfig);
+      fetchData(); 
+      interval = setInterval(fetchData, 800);
     }
 
     return () => {
       if (chart) {
-        chart.destroy();
+        //chart.destroy();
       }
+      clearInterval(interval);
     };
   });
+
+  
+
+  async function fetchData() {
+
+      try {
+        const response = await fetch("http://localhost:8001");
+        const data = await response.json();
+        updateChart(data.Voltage);
+      } catch (error) {
+        console.log("There was an error fetching the JSON for the chart..", error);
+      }
+  };
+
+  function updateChart(data){
+
+    if(chart){
+      chart.data.datasets[0].data.push(data);
+      chart.data.labels.push(chart.data.labels.length + 1); 
+      chart.update();
+    }
+      
+
+  }
+
+
+
+ 
+
 </script>
 
 <div style="display: flex; max-width: 50%;"> 

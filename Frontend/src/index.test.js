@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { render } from "@testing-library/svelte";
-import BiddingMarket from "./routes/Main/BiddingMarket/+page.svelte";
+// import { render } from "@testing-library/svelte";
+// import BiddingMarket from "./routes/Main/BiddingMarket/+page.svelte";
 
 describe("sum test", () => {
   it("adds 1 + 2 to equal 3", () => {

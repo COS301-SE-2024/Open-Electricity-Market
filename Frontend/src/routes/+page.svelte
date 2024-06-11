@@ -15,11 +15,12 @@
 
 <div class = "background">
     <div class = "body">
-        <img class= "logo" alt = "Logo" src = {logo}/>
+        <!--<img class= "logo" alt = "Logo" src = {logo}/>-->
+        <img class= "h-auto max-w-full" alt = "Logo" src = {logo}/>
         <h1>Welcome To OpenElectricityMarket!</h1>
         <h2>Log In</h2>
-        <input class = "input bg-fillin text-fillin w-fillin h-fillin" type = "text" bind:value={username} placeholder="Username here..."/>
-        <input class = "input bg-fillin text-fillin w-fillin h-fillin" type = "password" bind:value={password} placeholder="Password here..."/>
+        <input type = "text" placeholder="Username here..." class = "input bg-fillin text-fillinText font-fillin w-fillin h-fillin"  bind:value={username}/>
+        <input type = "password" placeholder="Password here..." class = "input bg-fillin text-fillinText font-fillin w-fillin h-fillin" bind:value={password}/>
         <button class = "btn bg-btnCol btn-outline text-btnTxt w-btnWid h-btnHei" on:click={login}>Login</button>
         <button class = "btn bg-btnCol btn-outline text-btnTxt w-btnWid h-btnHei" on:click={signup}>Signup</button>
     </div>
@@ -90,7 +91,7 @@
     ::-ms-input-placeholder{
         color: black;
     }
-    .buttons{
+    /*.buttons{
         background-color: #124E86;
         border: black;
         border-radius: 6px;
@@ -117,6 +118,6 @@
         height: 66px;
         width: 336px;
         transition-duration: 0.4s;
-    }
+    }*/
     
 </style>

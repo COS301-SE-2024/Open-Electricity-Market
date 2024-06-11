@@ -5,8 +5,13 @@ module.exports = {
   theme: {
     extend: {
       fontSize:{
+        "heading1": "50px",
+        "heading2": "33px",
         "fillin":"27px",
         "btnTxt":"28px"
+      },
+      fontWeight:{
+        "fillin":"600"
       },
       width: 
       {
@@ -21,6 +26,7 @@ module.exports = {
       colors:
       {
         "fillin":"white",
+        "fillinText": "black",
         "btnCol":"#124E86",
         "btnTxt": "white"
 

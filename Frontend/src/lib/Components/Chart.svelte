@@ -30,16 +30,17 @@
       try {
         const response = await fetch("http://localhost:8001");
         const data = await response.json();
-        updateChart(data.Voltage);
+        updateChart(data.Voltage, data.Price);
       } catch (error) {
         console.log("There was an error fetching the JSON for the chart..", error);
       }
   };
 
-  function updateChart(data){
+  function updateChart(data1, data2){
 
     if(chart){
-      chart.data.datasets[0].data.push(data);
+      chart.data.datasets[0].data.push(data1);
+      chart.data.datasets[1].data.push(data2);
       chart.data.labels.push(chart.data.labels.length + 1); 
       chart.update();
     }

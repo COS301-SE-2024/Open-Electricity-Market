@@ -1,5 +1,5 @@
 <script>
-  
+    import Chart from '$lib/Components/Chart.svelte'
 </script>
 
 <main class="container mx-auto">
@@ -7,7 +7,7 @@
   <p>Here you can simulate the national grid.</p>
   
 
- 
+ <Chart />
 
 
 

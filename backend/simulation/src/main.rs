@@ -124,7 +124,7 @@ impl ACEquipment  for Transformers<'_>  {
     }
 
     fn get_json(&self) -> String {
-        todo!()
+        json!({"Ratio":self.ratio}).to_string()
     }
 }
 
@@ -149,7 +149,14 @@ impl ACEquipment  for Generators<'_>  {
     }
 
     fn get_json(&self) -> String {
-        todo!()
+        json!({ "Voltages":{
+                "Phase1":self.voltage.phase1,
+                "Phase2":self.voltage.phase2,
+                "Phase3":self.voltage.phase3
+                },
+            "Frequency" : self.frequency,
+            "Max voltages" : self.max_voltage
+        }).to_string()
     }
 }
 
@@ -234,7 +241,8 @@ fn rocket() -> _ {
     let mut house = Consumer { supplier:&line2, load: 0.0 };
 
     let mut elapsed_time = 0.1;
-    while true {
+
+    loop {
         gen1.update(elapsed_time);
         trans1.update(elapsed_time);
         house.update(elapsed_time);

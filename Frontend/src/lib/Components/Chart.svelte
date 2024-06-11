@@ -12,7 +12,7 @@
     if (typeof window !== 'undefined') { // Check if running in the browser
       chart = createChart(chartCanvas, sampleChartConfig);
       fetchData(); 
-      interval = setInterval(fetchData, 800);
+      interval = setInterval(fetchData, 50);
     }
 
     return () => {

@@ -18,9 +18,7 @@
         <img class= "logo" alt = "Logo" src = {logo}/>
         <h1>Welcome To OpenElectricityMarket!</h1>
         <h2>Log In</h2>
-        <!--<input class = "fillin" type = "text" color = "black" bind:value={username} placeholder="Username here..."/>-->
         <input class = "input bg-fillin text-fillin w-fillin h-fillin" type = "text" bind:value={username} placeholder="Username here..."/>
-        <!--<input class = "fillin" type = "password" size = "35" bind:value={password} placeholder="Password here..."/>-->
         <input class = "input bg-fillin text-fillin w-fillin h-fillin" type = "password" bind:value={password} placeholder="Password here..."/>
         <button class = "btn bg-btnCol btn-outline text-btnTxt w-btnWid h-btnHei" on:click={login}>Login</button>
         <button class = "btn bg-btnCol btn-outline text-btnTxt w-btnWid h-btnHei" on:click={signup}>Signup</button>

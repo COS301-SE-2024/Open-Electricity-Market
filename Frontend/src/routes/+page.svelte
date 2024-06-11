@@ -1,8 +1,5 @@
-<script lang="ts">
+<script>
     import logo from '$lib/assets/Logo.png';
-    //import pylonBack from '$lib/assets/pylonBack.png';
-    //import Button from "/mnt/c/University/Year3/Semester1/COS301/Capstone/CapstoneWork/Open-Electricity-Market/Frontend/src/routes/Button.svelte";
-    //let pylonBack = '$lib/assets/pylonBack.png';
     import {goto} from "$app/navigation";
     function signup(){
         goto("/signup");
@@ -20,10 +17,13 @@
     <div class = "body">
         <img class= "logo" alt = "Logo" src = {logo}/>
         <h1>Welcome To OpenElectricityMarket!</h1>
-        <h2>Login into account:</h2>
-        <input class = "fillin" type = "text" color = "black" bind:value={username} placeholder="Username here..."/>
-        <input class = "fillin" type = "password" size = "35" bind:value={password} placeholder="Password here..."/>
-        <button class = "buttons" on:click={login}>Login</button>
+        <h2>Log In</h2>
+        <!--<input class = "fillin" type = "text" color = "black" bind:value={username} placeholder="Username here..."/>-->
+
+        <!--<input class = "fillin" type = "password" size = "35" bind:value={password} placeholder="Password here..."/>-->
+        <!--<button class = "buttons" on:click={login}>Login</button>-->
+        <button class = "btn bg-sky-800 btn-outline btn-lg text-btnTxt w-btnWid" on:click={login}>Login</button>
+        <!--<button class = "buttons" on:click={signup}>Signup</button>-->
         <button class = "buttons" on:click={signup}>Signup</button>
     </div>
 </div>

@@ -3,7 +3,15 @@ module.exports = {
     './src/**/*.{html,js,svelte,ts}',
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontSize:{
+        "btnTxt":"28px"
+      },
+      width: 
+      {
+        "btnWid":"336px"
+      }
+    },
   },
   plugins: [
     require("daisyui")

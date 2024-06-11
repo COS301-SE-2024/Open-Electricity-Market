@@ -1,7 +1,5 @@
-<script lang="ts">
+<script>
     import logo from '$lib/assets/Logo.png';
-    //import pylonBack from '$lib/assets/pylonBack.png';
-    //import Button from "/mnt/c/University/Year3/Semester1/COS301/Capstone/CapstoneWork/Open-Electricity-Market/Frontend/src/routes/Button.svelte";
     import {goto} from "$app/navigation";
     function create(){
         //add to database
@@ -19,6 +17,7 @@
 </script>
 <div class = "background">
     <div class = "body">
+        <!--Ask for name and username too-->
         <img class= "logo" alt = "Logo" src = {logo}/>
         <h1>Create an account with us!</h1>
         <input class = "fillin" type = "text" bind:value={username} placeholder="Username here..."/>

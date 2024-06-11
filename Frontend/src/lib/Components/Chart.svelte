@@ -10,22 +10,21 @@
       if (typeof window !== 'undefined') { // Check if running in the browser
         chart = createChart(chartCanvas, sampleChartConfig);
       }
-      
+
       return () => {
         if (chart) {
           chart.destroy();
-      
         }
       };
     });
   </script>
   
-  <canvas bind:this={chartCanvas} width="400" height="400"></canvas>
+  <canvas bind:this={chartCanvas} width="9" height = "2"></canvas>
   
   <style>
-    canvas {
+    /* canvas {
       max-width: 100%;
       max-height: 100%;
-    }
+    } */
   </style>
   

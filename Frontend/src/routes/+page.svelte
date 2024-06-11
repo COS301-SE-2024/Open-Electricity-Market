@@ -22,9 +22,9 @@
 
         <!--<input class = "fillin" type = "password" size = "35" bind:value={password} placeholder="Password here..."/>-->
         <!--<button class = "buttons" on:click={login}>Login</button>-->
-        <button class = "btn bg-sky-800 btn-outline btn-lg text-btnTxt w-btnWid" on:click={login}>Login</button>
+        <button class = "btn bg-btnCol btn-outline text-btnTxt w-btnWid h-btnHei" on:click={login}>Login</button>
         <!--<button class = "buttons" on:click={signup}>Signup</button>-->
-        <button class = "buttons" on:click={signup}>Signup</button>
+        <button class = "btn bg-btnCol btn-outline text-btnTxt w-btnWid h-btnHei" on:click={signup}>Signup</button>
     </div>
 </div>
 

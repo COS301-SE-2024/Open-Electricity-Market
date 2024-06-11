@@ -32,6 +32,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"chart.js": "^4.4.3",
 		"daisyui": "^4.11.1",
 		"uid": "^2.0.2"
 	}

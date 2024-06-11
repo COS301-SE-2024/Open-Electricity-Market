@@ -11,27 +11,30 @@ module.exports = {
         "btnTxt":"28px"
       },
       fontWeight:{
+        "heading1":"normal",
+        "heading2": "normal",
         "fillin":"600"
       },
       width: 
       {
         "fillin":"378px",
-        "btnWid":"336px"
+        "btn":"336px"
       },
       height:
       {
         "fillin":"43px",
-        "btnHei":"66px"
+        "btn":"66px"
       },
       colors:
       {
         "fillin":"white",
         "fillinText": "black",
-        "btnCol":"#124E86",
-        "btnTxt": "white"
+        "btn":"#124E86",
+        "btnTxt": "white",
+      },
+      spacing:{
 
       }
-
     },
   },
   plugins: [

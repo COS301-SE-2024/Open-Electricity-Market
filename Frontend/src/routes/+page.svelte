@@ -13,16 +13,15 @@
     let password = '';
 </script>
 
-<div class = "background">
+<div class = "bg-cover bg-center h-screen" style="background-image: url('../src/lib/assets/pylonBack.png');">
     <div class = "body">
-        <!--<img class= "logo" alt = "Logo" src = {logo}/>-->
         <img class= "h-auto max-w-full" alt = "Logo" src = {logo}/>
-        <h1>Welcome To OpenElectricityMarket!</h1>
-        <h2>Log In</h2>
-        <input type = "text" placeholder="Username here..." class = "input bg-fillin text-fillinText font-fillin w-fillin h-fillin"  bind:value={username}/>
-        <input type = "password" placeholder="Password here..." class = "input bg-fillin text-fillinText font-fillin w-fillin h-fillin" bind:value={password}/>
-        <button class = "btn bg-btnCol btn-outline text-btnTxt w-btnWid h-btnHei" on:click={login}>Login</button>
-        <button class = "btn bg-btnCol btn-outline text-btnTxt w-btnWid h-btnHei" on:click={signup}>Signup</button>
+        <h1 class ="mb-4 text-heading1 font-heading1">Welcome To OpenElectricityMarket!</h1>
+        <h2 class = "mb-4 text-heading2 font-heading2">Log In</h2>
+        <input type = "text" placeholder="Username" class = "input bg-fillin text-fillinText font-fillin w-fillin h-fillin"  bind:value={username}/>
+        <input type = "password" placeholder="Password" class = "input bg-fillin text-fillinText font-fillin w-fillin h-fillin" bind:value={password}/>
+        <button class = "btn bg-btn btn-outline text-btnTxt w-btn h-btn" on:click={login}>Login</button>
+        <button class = "btn bg-btn btn-outline text-btnTxt w-btn h-btn" on:click={signup}>Signup</button>
     </div>
 </div>
 
@@ -58,22 +57,22 @@
         position: relative;
         top: 20px;
     }
-    h1{
+    /*h1{
         font-weight: normal;
         font-size: 50px;
         top: 24px;
         position: relative;
         font-family: NATS;
         letter-spacing: 9px;
-    }
-    h2{
+    }*/
+    /*h2{
         font-weight: normal;
         font-size: 33px;
         top: 22px;
         position: relative;
         font-family: NATS;
         letter-spacing: 10px;
-    }
+    }*/
     .fillin{
         height: 43px;
         width: 378px;

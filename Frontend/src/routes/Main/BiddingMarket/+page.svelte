@@ -86,13 +86,13 @@
   <h1 class="text-2xl font-bold mb-4">Bidding Market</h1>
   <div class="overflow-x-auto">
     
-    <div class="card w-96 bg-base-100 shadow-xl">
+    <div class="card card-compact w-96 bg-base-100 shadow-xl">
       <figure><img src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg" alt="Shoes" /></figure>
       <div class="card-body">
-        <h2 class="card-title">Shoes!</h2>
-        <p>If a dog chews shoes whose shoes does he choose?</p>
+        <h2 class="card-title">Sample Electricity Company</h2>
+        <p>Seller information goes here</p>
         <div class="card-actions justify-end">
-          <button class="btn btn-primary">Buy Now</button>
+          <button on:click={sellFunction} class="btn bg-green-600">Buy Now</button>
         </div>
       </div>
     </div>

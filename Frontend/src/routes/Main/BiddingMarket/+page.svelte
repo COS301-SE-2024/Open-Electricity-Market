@@ -85,25 +85,17 @@
 <main class="container mx-auto">
   <h1 class="text-2xl font-bold mb-4">Bidding Market</h1>
   <div class="overflow-x-auto">
-    <table class="table table-xs">
-      <thead>
-        <tr>
-          <th></th>
-          <th>Id</th>
-          <th>Price</th>
-        </tr>
-      </thead>
-
-      {#each arrayofuids as id, i (id)}
-        <tbody>
-          <tr>
-            <th>{i+1}</th>
-            <td>{id}</td>
-            <td>R{getRandomPrice()}</td>
-          </tr>
-        </tbody>
-      {/each}
-    </table>
+    
+    <div class="card w-96 bg-base-100 shadow-xl">
+      <figure><img src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg" alt="Shoes" /></figure>
+      <div class="card-body">
+        <h2 class="card-title">Shoes!</h2>
+        <p>If a dog chews shoes whose shoes does he choose?</p>
+        <div class="card-actions justify-end">
+          <button class="btn btn-primary">Buy Now</button>
+        </div>
+      </div>
+    </div>
 
     <div class="absolute bottom-0 left-24 mb-64">
       <button on:click={bidFunction} class="btn bg-green-600 w-28 h-14">Bid</button>

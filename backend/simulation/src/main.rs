@@ -3,14 +3,17 @@ extern crate rocket;
 
 use std::cell::RefCell;
 use std::cmp::max;
+use std::sync::{Arc, Mutex};
 use rocket::State;
 use std::sync::atomic::AtomicU64;
 use std::thread::current;
 use rocket::serde::json::json;
+use rocket::yansi::Paint;
 
 
 struct Location<'a> {
-  equipment: Vec<GridEquipment<'a>>
+  equipment: Vec<GridEquipment<'a>>,
+
 }
 
 trait ACEquipment {
@@ -26,13 +29,13 @@ enum GridEquipment<'a> {
 }
 
 struct Consumer<'a> {
-    supplier:  &'a RefCell<TransmissionLines>,
+    supplier:  &'a Arc<Mutex<TransmissionLines>>,
     load : f32
 }
 
 impl ACEquipment for Consumer<'_> {
     fn update(&mut self, elapsed_time: f32) {
-        let mut supplier_voltage =self.supplier.borrow_mut();
+        let mut supplier_voltage =self.supplier.lock().unwrap();
 
         if supplier_voltage.voltage.phase1 > supplier_voltage.voltage.phase2 && supplier_voltage.voltage.phase1 > supplier_voltage.voltage.phase3{
             self.load = supplier_voltage.voltage.phase1;
@@ -111,16 +114,18 @@ impl ACEquipment  for TransmissionLines {
 
 struct Transformers<'a> {
     ratio : f32,
-    primary: &'a RefCell<TransmissionLines>,
-    secondary: &'a RefCell<TransmissionLines>
+    primary: &'a Arc<Mutex<TransmissionLines>>,
+    secondary: &'a Arc<Mutex<TransmissionLines>>
 }
 
 impl ACEquipment  for Transformers<'_>  {
     fn update(&mut self, elapsed_time: f32) {
-        self.secondary.borrow_mut().voltage.phase1 = self.primary.borrow_mut().voltage.phase1*self.ratio;
-        self.secondary.borrow_mut().voltage.phase2 = self.primary.borrow_mut().voltage.phase2*self.ratio;
-        self.secondary.borrow_mut().voltage.phase3 = self.primary.borrow_mut().voltage.phase3*self.ratio;
-        self.secondary.borrow_mut().update(elapsed_time);
+        let mut secondary = self.secondary.lock().unwrap();
+        let mut primary = self.primary.lock().unwrap();
+        secondary.voltage.phase1 = primary.voltage.phase1*self.ratio;
+        secondary.voltage.phase2 = primary.voltage.phase2*self.ratio;
+        secondary.voltage.phase3 = primary.voltage.phase3*self.ratio;
+        secondary.update(elapsed_time);
     }
 
     fn get_json(&self) -> String {
@@ -131,7 +136,7 @@ impl ACEquipment  for Transformers<'_>  {
 struct Generators<'a> {
     voltage : Voltage3Phase,
     frequency : f32,
-    line_out:  &'a RefCell<TransmissionLines>,
+    line_out:  &'a Arc<Mutex<TransmissionLines>>,
     max_voltage : f32
 }
 
@@ -141,11 +146,13 @@ impl ACEquipment  for Generators<'_>  {
         self.voltage.phase2 = self.max_voltage*f32::sin(self.frequency*std::f32::consts::FRAC_2_PI*elapsed_time-(std::f32::consts::FRAC_2_PI/3.0));
         self.voltage.phase3 = self.max_voltage*f32::sin(self.frequency*std::f32::consts::FRAC_2_PI*elapsed_time-(2.0*std::f32::consts::FRAC_2_PI/3.0));
 
-        self.line_out.borrow_mut().voltage.phase1 =  self.voltage.phase1;
-        self.line_out.borrow_mut().voltage.phase2 =  self.voltage.phase2;
-        self.line_out.borrow_mut().voltage.phase3 =  self.voltage.phase3;
+        let mut line_out = self.line_out.lock().unwrap();
 
-        self.line_out.borrow_mut().update(elapsed_time);
+        line_out.voltage.phase1 =  self.voltage.phase1;
+        line_out.voltage.phase2 =  self.voltage.phase2;
+        line_out.voltage.phase3 =  self.voltage.phase3;
+
+        line_out.update(elapsed_time);
     }
 
     fn get_json(&self) -> String {
@@ -188,10 +195,29 @@ fn consume(amount: u64) -> String {
     format!("Consume a")
 }
 
+#[get("/start")]
+fn start(grid: &State<Arc<Mutex<Location>>>) -> String {
+    let mut elapsed_time = 0.1;
+    loop {
+
+        let mut grid = grid.lock().unwrap();
+
+        for g in grid.equipment.iter_mut() {
+            match g {
+                GridEquipment::Consumer(c) => {c.update(elapsed_time)}
+                GridEquipment::ACSwitches(_) => {}
+                GridEquipment::Transformers(t) => {t.update(elapsed_time)}
+                GridEquipment::Generators(g) => {g.update(elapsed_time)}
+            }
+        }
+        elapsed_time += 0.1;
+    }
+}
+
 #[launch]
 fn rocket() -> _ {
     println!("Hi");
-    let line1 = RefCell::new(TransmissionLines {
+    let line1 = Arc::new(Mutex::new(TransmissionLines {
         current: Current3Phase {
             phase1: 0.0,
             phase2: 0.0,
@@ -203,9 +229,9 @@ fn rocket() -> _ {
             phase2: 0.0,
             phase3: 0.0,
         },
-    });
+    })) ;
 
-    let line2 = RefCell::new(TransmissionLines {
+    let line2 = Arc::new(Mutex::new(TransmissionLines {
         current: Current3Phase {
             phase1: 0.0,
             phase2: 0.0,
@@ -217,7 +243,7 @@ fn rocket() -> _ {
             phase2: 0.0,
             phase3: 0.0,
         },
-    });
+    }));
 
 
     let mut gen1 = Generators {
@@ -227,7 +253,7 @@ fn rocket() -> _ {
             phase3: 0.0,
         },
         frequency: 50.0,
-        line_out: &line1,
+        line_out: & line1,
         max_voltage: 230.0,
     };
 
@@ -240,17 +266,10 @@ fn rocket() -> _ {
 
     let mut house = Consumer { supplier:&line2, load: 0.0 };
 
-    let mut elapsed_time = 0.1;
+    let mut power_test = Location { equipment: vec![GridEquipment::Generators(gen1),GridEquipment::Transformers(trans1),GridEquipment::Consumer(house)] };
 
-    loop {
-        gen1.update(elapsed_time);
-        trans1.update(elapsed_time);
-        house.update(elapsed_time);
-        elapsed_time += 0.1;
-        println!("{}", line1.borrow().get_json());
-    }
 
     rocket::build()
         .mount("/", routes![index, produce, consume])
-        // .manage()
+        .manage(Arc::new(Mutex::new(power_test)))
 }

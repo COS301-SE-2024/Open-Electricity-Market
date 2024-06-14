@@ -12,6 +12,10 @@ use rocket::yansi::Paint;
 use std::time::{Duration, Instant};
 
 
+trait ToJson {
+    fn to_json(&self) -> String;
+}
+
 struct Generator {
     id : u32,
     voltage: Voltage,
@@ -20,11 +24,41 @@ struct Generator {
     transmission_line: u32,
 }
 
+impl ToJson for Generator {
+    fn to_json(&self) -> String{
+        json!({ "ID" : self.id,
+            "Voltage" : {
+                "Phase 1" : self.voltage.0,
+                "Phase 2" : self.voltage.1,
+                "Phase 3" : self.voltage.2,
+            },
+            "Max Voltage" : self.max_voltage,
+            "Frequency" : self.frequency,
+            "Connected Transmission Line" : self.transmission_line
+        }).to_string()
+    }
+}
+
+
 struct Consumer {
     id : u32,
     resistance: Resistance,
     transmission_line: u32,
     voltage: Voltage
+}
+
+impl ToJson for Consumer {
+    fn to_json(&self) -> String {
+        json!({ "ID" : self.id,
+            "Resistance" : self.resistance.0,
+            "Connected Transmission Line" : self.transmission_line,
+             "Voltage" : {
+                "Phase 1" : self.voltage.0,
+                "Phase 2" : self.voltage.1,
+                "Phase 3" : self.voltage.2,
+            }
+        }).to_string()
+    }
 }
 
 struct TransmissionLine {
@@ -34,6 +68,20 @@ struct TransmissionLine {
     voltage: Voltage
 }
 
+impl ToJson for TransmissionLine {
+    fn to_json(&self) -> String {
+        json!({ "ID" : self.id,
+            "Resistance" : self.resistance.0,
+            "Impedance" : self.impedance.0,
+            "Voltage" : {
+                "Phase 1" : self.voltage.0,
+                "Phase 2" : self.voltage.1,
+                "Phase 3" : self.voltage.2,
+            }
+        }).to_string()
+    }
+}
+
 struct Transformer {
     id : u32,
     ratio : f32,
@@ -41,10 +89,18 @@ struct Transformer {
     secondary : u32,
 }
 
+impl ToJson for Transformer {
+    fn to_json(&self) -> String {
+        json!({ "ID" : self.id,
+                "Ratio" : self.ratio,
+                "Primary Transmission Line" : self.primary,
+                "Secondary Transmission Line" : self.secondary
+        }).to_string()
+    }
+}
+
 struct Resistance(f32);
 struct Voltage(f32,f32,f32);
-
-
 struct Grid {
     consumers : Vec<Consumer>,
     transmission_lines: Vec<TransmissionLine>,
@@ -121,10 +177,43 @@ impl Grid {
 
 
     }
-
 }
 
+impl ToJson for Grid {
+    fn to_json(&self) -> String {
+        // consumers : Vec<Consumer>,
+        // transmission_lines: Vec<TransmissionLine>,
+        // generators : Vec<Generator>,
+        // transformers: Vec<Transformer>,
+        // started : bool
+        let mut consumer_strings: Vec<String> = vec![];
+        for consumer in self.consumers.iter() {
+           consumer_strings.push(consumer.to_json());
+        };
 
+        let mut transmission_line_strings: Vec<String> = vec![];
+        for lines in self.transmission_lines.iter() {
+            transmission_line_strings.push(lines.to_json());
+        };
+
+        let mut generator_strings : Vec<String> = vec![];
+        for gen in self.generators.iter() {
+            generator_strings.push(gen.to_json());
+        }
+
+        let mut transformer_strings : Vec<String> = vec![];
+        for trans in self.transformers.iter() {
+            transformer_strings.push(trans.to_json());
+        }
+
+        json!({"Consumers" : consumer_strings,
+            "Transmission Lines" : transmission_line_strings,
+            "Generators" : generator_strings,
+            "Transformers" : transformer_strings,
+            "Started" : self.started
+        }).to_string()
+    }
+}
 
 #[get("/")]
 fn index() -> String {
@@ -139,6 +228,12 @@ fn produce(amount: u64) -> String {
 #[get("/consume/<amount>")]
 fn consume(amount: u64) -> String {
     format!("Consume a")
+}
+
+#[get("/info")]
+fn info(grid: &State<Arc<Mutex<Grid>>>) ->String {
+    let g = grid.lock().unwrap();
+    g.to_json()
 }
 
 #[get("/start")]
@@ -169,7 +264,7 @@ fn start(grid: &State<Arc<Mutex<Grid>>>) -> String {
 #[launch]
 fn rocket() -> _ {
     rocket::build()
-        .mount("/", routes![index, produce, consume,start])
+        .mount("/", routes![index, produce, consume,start,info])
         .manage(Arc::new(Mutex::new(Grid {
             consumers: vec![
                 Consumer {id: 1,resistance: Resistance(1000.0),transmission_line: 1, voltage: Voltage(0.0,0.0,0.0)}

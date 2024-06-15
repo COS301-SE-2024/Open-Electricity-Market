@@ -7,9 +7,11 @@ use std::sync::{Arc, Mutex};
 use rocket::State;
 use std::sync::atomic::AtomicU64;
 use std::thread::current;
-use rocket::serde::json::json;
+use rocket::serde::json::{json, Json};
 use rocket::yansi::Paint;
 use std::time::{Duration, Instant};
+use rocket::serde::{Deserialize, Serialize};
+use rocket::response::content;
 
 
 trait ToJson {
@@ -110,6 +112,27 @@ struct Grid {
 }
 
 impl Grid {
+
+    fn update_generator(&mut self,id : u32,max_voltages :f32){
+        let index = self.generators.iter().position(|c| c.id == id);
+        match index {
+            None => {}
+            Some(i) => {
+                self.generators[i].max_voltage = max_voltages;
+            }
+        }
+    }
+
+    fn update_consumer(&mut self,id :u32,resistance: Resistance) {
+        let index = self.consumers.iter().position(|c| c.id == id);
+        match index {
+            None => {}
+            Some(i) => {
+                self.consumers[i].resistance.0 = resistance.0;
+            }
+        }
+    }
+
     fn update_impedance(&mut self) {
         for line in self.transmission_lines.iter_mut() {
             let index =self.consumers.iter().position( |c| c.transmission_line == line.id);
@@ -220,23 +243,47 @@ fn index() -> String {
     "Yay".to_string()
 }
 
-#[get("/produce/<amount>")]
-fn produce(amount: u64) -> String {
-    "produce".to_string()
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct GeneratorUpdate {
+    id: u32,
+    supply: f32,
 }
 
-#[get("/consume/<amount>")]
-fn consume(amount: u64) -> String {
-    format!("Consume a")
+
+#[post("/produce", format = "application/json", data = "<data>")]
+fn produce(grid: &State<Arc<Mutex<Grid>>>, data : Json<GeneratorUpdate>) -> String {
+    let mut g  = grid.lock().unwrap();
+    g.update_generator(data.id,data.supply);
+    let id = data.id;
+    let supply = data.supply;
+    format!("Production of {id} set to {supply}V").to_string()
 }
 
-#[get("/info")]
-fn info(grid: &State<Arc<Mutex<Grid>>>) ->String {
+
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct ConsumerUpdate {
+    id: u32,
+    load: f32,
+}
+
+#[post("/consume", format = "application/json", data = "<data>")]
+fn consume(grid: &State<Arc<Mutex<Grid>>>, data : Json<ConsumerUpdate>) -> String {
+    let mut g  = grid.lock().unwrap();
+    g.update_consumer(data.id,Resistance(data.load));
+    let id = data.id;
+    let load  = data.load;
+    format!("Consumption of {id} set to {load}Ω")
+}
+
+#[post("/info", format = "application/json")]
+fn info(grid: &State<Arc<Mutex<Grid>>>) ->content::RawJson<String> {
     let g = grid.lock().unwrap();
-    g.to_json()
+    content::RawJson(g.to_json())
 }
 
-#[get("/start")]
+#[post("/start", format = "application/json")]
 fn start(grid: &State<Arc<Mutex<Grid>>>) -> String {
     let mut g = grid.lock().unwrap();
     if !g.started {
@@ -255,9 +302,13 @@ fn start(grid: &State<Arc<Mutex<Grid>>>) -> String {
                 start = Instant::now();
             }
         });
-        "Grid Started".to_string()
+        json!({
+            "Message": "Started Grid"
+        }).to_string()
     } else {
-        "Grid Already Running".to_string()
+        json!({
+            "Message": "Grid Already Running"
+        }).to_string()
     }
 }
 
@@ -267,7 +318,7 @@ fn rocket() -> _ {
         .mount("/", routes![index, produce, consume,start,info])
         .manage(Arc::new(Mutex::new(Grid {
             consumers: vec![
-                Consumer {id: 1,resistance: Resistance(1000.0),transmission_line: 1, voltage: Voltage(0.0,0.0,0.0)}
+                Consumer {id: 0,resistance: Resistance(1000.0),transmission_line: 1, voltage: Voltage(0.0,0.0,0.0)}
             ],
             transmission_lines: vec![
                 TransmissionLine {id:0,resistance: Resistance(50.0) , impedance: Resistance(0.0), voltage: Voltage(0.0, 0.0, 0.0)},

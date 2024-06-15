@@ -13,8 +13,8 @@
     let password = '';
 </script>
 
-<div class = "h-screen bg-cover bg-no-repeat" style="background-image: url('../src/lib/assets/pylonBack.png');">
-    <div class = "bg-black/95 h-screen grid gap-0 grid-cols-1 grid-rows-7 content-center">
+<div class = "h-screen bg-cover bg-no-repeat mx-auto" style="background-image: url('../src/lib/assets/pylonBack.png');">
+    <div class = "bg-black/95 h-screen flex flex-col items-center justify-center mx-auto">
         <img class= "h-auto max-w-full" alt = "Logo" src = {logo}/>
         <h1 class ="mb-4 text-heading1 font-heading1">Welcome To OpenElectricityMarket!</h1>
         <h2 class = "mb-4 text-heading2 font-heading2">Log In</h2>

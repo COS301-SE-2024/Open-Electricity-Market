@@ -13,8 +13,8 @@
     let password = '';
 </script>
 
-<div class = "h-screen w-screen bg-cover" style="background-image: url('../src/lib/assets/pylonBack.png');">
-    <div class = "bg-black/95 h-screen flex flex-col items-center justify-center mx-auto">
+<body class = "h-screen w-max-xl bg-logSignup bg-cover bg-no-repeat bg-center">
+    <div class = "card bg-black/90 h-full w-full flex flex-col items-center justify-center">
         <img class= "h-auto max-w-full" alt = "Logo" src = {logo}/>
         <h1 class ="mb-4 text-heading1 font-heading1">Welcome To OpenElectricityMarket!</h1>
         <h2 class = "mb-4 text-heading2 font-heading2">Log In</h2>
@@ -23,7 +23,7 @@
         <button class = "btn bg-btn btn-outline text-btnTxt w-btn h-btn" on:click={login}>Login</button>
         <button class = "btn bg-btn btn-outline text-btnTxt w-btn h-btn" on:click={signup}>Signup</button>
     </div>
-</div>
+</body>
 
 <style>
     @font-face{
@@ -32,7 +32,7 @@
         font-weight: 50;
         src: url("/fonts/NATS-Regular.ttf");
     }
-    .background{
+    /*.background{
         position: absolute;
         top: 0;
         left: 0;
@@ -40,9 +40,9 @@
         width: 100%;
         background-image: url('$lib/assets/pylonBack.png');
         background-size: cover;
-    }
+    }*/
     
-    .body
+    /*.body
     {
         color: white;
         display: flex;
@@ -52,7 +52,7 @@
         height: 100%;
         background-color: rgba(0, 0, 0, 0.93);
         align-items: center;
-    }
+    }*/
     .logo{
         position: relative;
         top: 20px;

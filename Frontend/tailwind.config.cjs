@@ -19,11 +19,13 @@ module.exports = {
       {
         "fillin":"378px",
         "btn":"336px",
+        "page":"2000px"
       },
       height:
       {
         "fillin":"43px",
-        "btn":"66px"
+        "btn":"66px",
+        "page": "60px"
       },
       colors:
       {
@@ -32,8 +34,8 @@ module.exports = {
         "btn":"#124E86",
         "btnTxt": "white",
       },
-      spacing:{
-
+      backgroundImage:{
+        "logSignup":"url('/src/lib/assets/pylonBack.png')"
       }
     },
   },

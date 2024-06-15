@@ -113,6 +113,26 @@ struct Grid {
 
 impl Grid {
 
+    fn get_average_line_voltage(&self) -> String {
+        let mut phase1 = 0.0;
+        let mut phase2 = 0.0;
+        let mut phase3 = 0.0;
+        for line  in  self.transmission_lines.iter() {
+            phase1 += line.voltage.0;
+            phase2 += line.voltage.1;
+            phase3 += line.voltage.2;
+        }
+        phase1 = phase1 / self.transmission_lines.len() as f32;
+        phase2 = phase2 / self.transmission_lines.len() as f32;
+        phase3 = phase3 / self.transmission_lines.len() as f32;
+
+        json!({
+            "Phase1":phase1,
+            "Phase2":phase2,
+            "Phase3":phase3
+        }).to_string()
+    }
+
     fn update_generator(&mut self,id : u32,max_voltages :f32){
         let index = self.generators.iter().position(|c| c.id == id);
         match index {
@@ -283,6 +303,12 @@ fn info(grid: &State<Arc<Mutex<Grid>>>) ->content::RawJson<String> {
     content::RawJson(g.to_json())
 }
 
+#[post("/overview", format = "application/json")]
+fn overview(grid: &State<Arc<Mutex<Grid>>>) ->content::RawJson<String> {
+    let g = grid.lock().unwrap();
+    content::RawJson(g.get_average_line_voltage())
+}
+
 #[post("/start", format = "application/json")]
 fn start(grid: &State<Arc<Mutex<Grid>>>) -> String {
     let mut g = grid.lock().unwrap();
@@ -315,7 +341,7 @@ fn start(grid: &State<Arc<Mutex<Grid>>>) -> String {
 #[launch]
 fn rocket() -> _ {
     rocket::build()
-        .mount("/", routes![index, produce, consume,start,info])
+        .mount("/", routes![index, produce, consume,start,info,overview])
         .manage(Arc::new(Mutex::new(Grid {
             consumers: vec![
                 Consumer {id: 0,resistance: Resistance(1000.0),transmission_line: 1, voltage: Voltage(0.0,0.0,0.0)}

@@ -14,14 +14,21 @@
 </script>
 
 <body class = "h-screen w-max-xl bg-logSignup bg-cover bg-no-repeat bg-center">
-    <div class = "card bg-black/90 h-full w-full flex flex-col items-center justify-center">
+    <div class = "card bg-black/90 h-full w-full flex flex-col space-y-12 items-center justify-center ">
         <img class= "h-auto max-w-full" alt = "Logo" src = {logo}/>
-        <h1 class ="mb-4 text-heading1 font-heading1">Welcome To OpenElectricityMarket!</h1>
-        <h2 class = "mb-4 text-heading2 font-heading2">Log In</h2>
-        <input type = "text" placeholder="Username" class = "input bg-fillin text-fillinText font-fillin w-fillin h-fillin"  bind:value={username}/>
-        <input type = "password" placeholder="Password" class = "input bg-fillin text-fillinText font-fillin w-fillin h-fillin" bind:value={password}/>
-        <button class = "btn bg-btn btn-outline text-btnTxt w-btn h-btn" on:click={login}>Login</button>
-        <button class = "btn bg-btn btn-outline text-btnTxt w-btn h-btn" on:click={signup}>Signup</button>
+        <div class = "flex flex-col items-center justify-center">
+            <h1 class ="mb-4 text-heading1 font-heading1">Welcome To OpenElectricityMarket!</h1>
+            <h2 class = "mb-4 text-heading2 font-heading2">Log In</h2>
+        </div>
+        
+        <div class = "flex flex-col space-y-8 items-center justify-center">
+            <input type = "text" placeholder="Username" class = "input bg-fillin text-fillinText font-fillin w-fillin h-fillin"  bind:value={username}/>
+            <input type = "password" placeholder="Password" class = "input bg-fillin text-fillinText font-fillin w-fillin h-fillin" bind:value={password}/>
+        </div>
+        <div class = "flex flex-col space-y-8 items-center justify-center">
+            <button class = "btn bg-btn btn-outline text-btnTxt w-btn h-btn" on:click={login}>Login</button>
+            <button class = "btn bg-btn btn-outline text-btnTxt w-btn h-btn" on:click={signup}>Signup</button>
+        </div>
     </div>
 </body>
 
@@ -53,10 +60,10 @@
         background-color: rgba(0, 0, 0, 0.93);
         align-items: center;
     }*/
-    .logo{
+    /*.logo{
         position: relative;
         top: 20px;
-    }
+    }*/
     /*h1{
         font-weight: normal;
         font-size: 50px;
@@ -73,7 +80,7 @@
         font-family: NATS;
         letter-spacing: 10px;
     }*/
-    .fillin{
+    /*.fillin{
         height: 43px;
         width: 378px;
         margin: 18px;
@@ -83,7 +90,7 @@
         background-color: white;
         font-size:27px;
         color: black;
-    }
+    }*/
     ::placeholder{
         color: black;
     }

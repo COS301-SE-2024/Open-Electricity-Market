@@ -18,7 +18,7 @@ module.exports = {
       width: 
       {
         "fillin":"378px",
-        "btn":"336px"
+        "btn":"336px",
       },
       height:
       {

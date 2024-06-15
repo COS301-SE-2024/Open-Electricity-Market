@@ -1,15 +1,10 @@
 #[macro_use]
 extern crate rocket;
 
-use std::cell::RefCell;
-use std::cmp::max;
 use std::sync::{Arc, Mutex};
 use rocket::State;
-use std::sync::atomic::AtomicU64;
-use std::thread::current;
 use rocket::serde::json::{json, Json};
-use rocket::yansi::Paint;
-use std::time::{Duration, Instant};
+use std::time::{Instant};
 use rocket::serde::{Deserialize, Serialize};
 use rocket::response::content;
 

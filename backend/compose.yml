@@ -1,0 +1,5 @@
+services:
+  simulation:
+    build: ./simulation/
+    ports:
+      - "8000:8000"

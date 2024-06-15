@@ -15,18 +15,22 @@
     let password = '';
     let passwordValidate = '';
 </script>
-<div class = "background">
-    <div class = "body">
+<body class = "h-screen w-max-xl bg-logSignup bg-cover bg-no-repeat bg-center">
+    <div class = "card bg-black/90 h-full w-full flex flex-col space-y-12 items-center justify-center">
         <!--Ask for name and username too-->
-        <img class= "logo" alt = "Logo" src = {logo}/>
-        <h1>Create an account with us!</h1>
-        <input class = "fillin" type = "text" bind:value={username} placeholder="Username here..."/>
-        <input class = "fillin" type = "password" bind:value={password} placeholder="Password here..."/>
-        <input class = "fillin" type = "password" bind:value={passwordValidate} placeholder="Confirm Password"/>
-        <button class = "buttons" on:click={create}>Create Account</button>
-        <button class = "buttons" on:click={back}>Back</button>
+        <img class= "h-auto max-w-full" alt = "Logo" src = {logo}/>
+        <h1 class ="mb-4 text-heading1 font-heading1">Create an account with us!</h1>
+        <div class = "flex flex-col space-y-8 items-center justify-center">
+            <input type = "text" bind:value={username} placeholder="Username here..." class = "input bg-fillin text-fillinText font-fillin w-fillin h-fillin"/>
+            <input type = "password" bind:value={password} placeholder="Password here..."class = "input bg-fillin text-fillinText font-fillin w-fillin h-fillin"/>
+            <input type = "password" bind:value={passwordValidate} placeholder="Confirm Password"class = "input bg-fillin text-fillinText font-fillin w-fillin h-fillin"/>
+        </div>
+        <div class = "flex flex-col space-y-8 items-center justify-center">
+            <button class = "btn bg-btn btn-outline text-btnTxt w-btn h-btn" on:click={create}>Create Account</button>
+            <button class = "btn bg-btn btn-outline text-btnTxt w-btn h-btn" on:click={back}>Back</button>
+        </div>
     </div>
-</div>
+</body>
 <style>
     @font-face{
         font-family: 'NATS';

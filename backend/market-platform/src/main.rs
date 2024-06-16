@@ -3,7 +3,7 @@ extern crate rocket;
 extern crate deadqueue;
 extern crate reqwest;
 
-use crate::models::{NewUserModel, User};
+use crate::models::{NewProfileModel, NewUserModel, User};
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use dotenvy::dotenv;
@@ -20,6 +20,7 @@ use rocket::{Request, Response};
 use std::env;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::{Arc, Mutex};
+use uuid::Uuid;
 
 mod models;
 mod schema;
@@ -60,6 +61,7 @@ fn establish_connection() -> PgConnection {
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     PgConnection::establish(&database_url)
         .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
+
 }
 
 #[get("/")]
@@ -122,6 +124,37 @@ async fn met(sold_list: &State<Arc<Mutex<Vec<String>>>>, id: String) -> String {
     }
 }
 
+// #[derive(Serialize,Deserialize)]
+// #[serde(crate = "rocket::serde")]
+// struct Advertisement<'r>{
+//     id: &'r Uuid,
+//     units: &'r f32,
+//     price: &'r f32,
+// }
+//
+// #[post("/advertise", format = "application/json", data = "<credentials>")]
+// async fn advertise() -> Value{
+//
+//
+//
+// }
+//
+// #[derive(Serialize,Deserialize)]
+// #[serde(crate = "rocket::serde")]
+// struct Offer<'r>{
+//     ad_id: &'r Uuid,
+//     user_id: &'r Uuid,
+//     units: &'r f32,
+//     bid: &'r f32,
+// }
+//
+// #[post("/purchase", format = "application/json", data = "<credentials>")]
+// async fn purchase() -> Value{
+//
+//
+//
+// }
+
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
 struct Credentials<'r> {
@@ -158,6 +191,7 @@ struct NewUser<'r> {
 #[post("/register", format = "application/json", data = "<new_user>")]
 async fn register(new_user: Json<NewUser<'_>>) -> Value {
     use self::schema::open_em::users;
+    use self::schema::open_em::profiles;
 
     let connection = &mut establish_connection();
     let binding = bcrypt::hash(new_user.password).unwrap();
@@ -165,15 +199,25 @@ async fn register(new_user: Json<NewUser<'_>>) -> Value {
 
     let new_user_insert = NewUserModel {
         email: new_user.email,
-        first_name: new_user.first_name,
-        last_name: new_user.last_name,
         pass_hash: h,
     };
 
-    diesel::insert_into(users::table)
+    let new_user_ret = diesel::insert_into(users::table)
         .values(&new_user_insert)
-        .execute(connection)
+        .returning(User::as_returning())
+        .get_result::<User>(connection)
         .expect("Error adding new user");
+
+    let new_profile_insert = NewProfileModel {
+        user_id: &new_user_ret.user_id,
+        first_name: new_user.first_name,
+        last_name: new_user.last_name,
+    };
+
+    diesel::insert_into(profiles::table)
+        .values(&new_profile_insert)
+        .execute(connection)
+        .expect("Error adding new profile");
 
     json!({ "status": "ok", "email": new_user.email })
 }

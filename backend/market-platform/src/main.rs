@@ -3,7 +3,7 @@ extern crate rocket;
 extern crate deadqueue;
 extern crate reqwest;
 
-use crate::models::{NewProfileModel, NewUserModel, User};
+use crate::models::{NewAdvertisementModel, NewProfileModel, NewUserModel, User, Advertisement};
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use dotenvy::dotenv;
@@ -124,21 +124,43 @@ async fn met(sold_list: &State<Arc<Mutex<Vec<String>>>>, id: String) -> String {
     }
 }
 
-// #[derive(Serialize,Deserialize)]
-// #[serde(crate = "rocket::serde")]
-// struct Advertisement<'r>{
-//     id: &'r Uuid,
-//     units: &'r f32,
-//     price: &'r f32,
-// }
-//
-// #[post("/advertise", format = "application/json", data = "<credentials>")]
-// async fn advertise() -> Value{
-//
-//
-//
-// }
-//
+#[derive(Serialize,Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct AdvertisementReq<'r>{
+    email: &'r str,
+    units: f64,
+    price: f64,
+}
+
+#[post("/advertise", format = "application/json", data = "<new_ad>")]
+async fn advertise(new_ad: Json<AdvertisementReq<'_>>) -> Value{
+
+    use self::schema::open_em::advertisements;
+    use self::schema::open_em::users::dsl::*;
+    let connection = &mut establish_connection();
+
+    let user = users
+        .filter(email.eq(new_ad.email))
+        .select(User::as_select())
+        .load::<User>(connection)
+        .expect("Error loading users");
+
+    let new_advertisement_insert = NewAdvertisementModel {
+        seller_id: &user[0].user_id,
+        offered_units: &new_ad.units,
+        price: &new_ad.price,
+    };
+
+    let new_ad_ret = diesel::insert_into(advertisements::table)
+        .values(&new_advertisement_insert)
+        .returning(Advertisement::as_returning())
+        .get_result::<Advertisement>(connection)
+        .expect("Error adding new advertisement");
+
+    json!({ "status": "ok", "advertisement_id": new_ad_ret.advertisement_id })
+
+}
+
 // #[derive(Serialize,Deserialize)]
 // #[serde(crate = "rocket::serde")]
 // struct Offer<'r>{
@@ -172,7 +194,7 @@ async fn login(credentials: Json<Credentials<'_>>) -> Value {
         .filter(email.eq(credentials.email))
         .select(User::as_select())
         .load::<User>(connection)
-        .expect("Error loading posts");
+        .expect("Error loading users");
 
     let verify = bcrypt::verify(credentials.password, &*user[0].pass_hash);
 
@@ -225,7 +247,7 @@ async fn register(new_user: Json<NewUser<'_>>) -> Value {
 #[launch]
 fn rocket() -> _ {
     rocket::build()
-        .mount("/", routes![index, bid, sell, met, register, login])
+        .mount("/", routes![index, bid, sell, met, register, login, advertise])
         .configure(rocket::Config::figment().merge(("port", 8001)))
         .manage(Arc::new(TaskQueue::new()))
         .manage(MyInfo {

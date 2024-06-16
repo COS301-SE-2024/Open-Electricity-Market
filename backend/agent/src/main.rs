@@ -8,7 +8,7 @@ use tokio::time::{sleep, Duration};
 async fn main() {
     let args: Vec<String> = env::args().collect();
     let procedure = args[1].clone();
-    let value = args[2].parse::<u64>().unwrap(); //Roughtly how many amps are needed each second by a common south african home
+    let value = args[2].parse::<u64>().unwrap(); //Roughly how many amps are needed each second by a common south african home
     let desired_price: f32 = 100.0;
     dbg!(args);
 

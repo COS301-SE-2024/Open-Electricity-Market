@@ -12,3 +12,11 @@ services:
     ports:
       - "5432:5432"
     env_file: "db.env"
+  market-platform:
+    build: ./market-platform/
+    links:
+      - db
+    environment:
+       DATABASEHOST: db
+    ports:
+      - "8001:8001"

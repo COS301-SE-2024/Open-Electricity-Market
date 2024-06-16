@@ -1,38 +1,358 @@
-mod grid_simulation;
-
 #[macro_use]
 extern crate rocket;
 
+use std::sync::{Arc, Mutex};
 use rocket::State;
-use std::sync::atomic::AtomicU64;
+use rocket::serde::json::{json, Json};
+use std::time::{Instant};
+use rocket::serde::{Deserialize, Serialize};
+use rocket::response::content;
+
+
+trait ToJson {
+    fn to_json(&self) -> String;
+}
+
+struct Generator {
+    id : u32,
+    voltage: Voltage,
+    max_voltage:f32,
+    frequency :f32,
+    transmission_line: u32,
+}
+
+impl ToJson for Generator {
+    fn to_json(&self) -> String{
+        json!({ "ID" : self.id,
+            "Voltage" : {
+                "Phase 1" : self.voltage.0,
+                "Phase 2" : self.voltage.1,
+                "Phase 3" : self.voltage.2,
+            },
+            "Max Voltage" : self.max_voltage,
+            "Frequency" : self.frequency,
+            "Connected Transmission Line" : self.transmission_line
+        }).to_string()
+    }
+}
+
+
+struct Consumer {
+    id : u32,
+    resistance: Resistance,
+    transmission_line: u32,
+    voltage: Voltage
+}
+
+impl ToJson for Consumer {
+    fn to_json(&self) -> String {
+        json!({ "ID" : self.id,
+            "Resistance" : self.resistance.0,
+            "Connected Transmission Line" : self.transmission_line,
+             "Voltage" : {
+                "Phase 1" : self.voltage.0,
+                "Phase 2" : self.voltage.1,
+                "Phase 3" : self.voltage.2,
+            }
+        }).to_string()
+    }
+}
+
+struct TransmissionLine {
+    id : u32,
+    resistance: Resistance,
+    impedance: Resistance,
+    voltage: Voltage
+}
+
+impl ToJson for TransmissionLine {
+    fn to_json(&self) -> String {
+        json!({ "ID" : self.id,
+            "Resistance" : self.resistance.0,
+            "Impedance" : self.impedance.0,
+            "Voltage" : {
+                "Phase 1" : self.voltage.0,
+                "Phase 2" : self.voltage.1,
+                "Phase 3" : self.voltage.2,
+            }
+        }).to_string()
+    }
+}
+
+struct Transformer {
+    id : u32,
+    ratio : f32,
+    primary : u32,
+    secondary : u32,
+}
+
+impl ToJson for Transformer {
+    fn to_json(&self) -> String {
+        json!({ "ID" : self.id,
+                "Ratio" : self.ratio,
+                "Primary Transmission Line" : self.primary,
+                "Secondary Transmission Line" : self.secondary
+        }).to_string()
+    }
+}
+
+struct Resistance(f32);
+struct Voltage(f32,f32,f32);
+struct Grid {
+    consumers : Vec<Consumer>,
+    transmission_lines: Vec<TransmissionLine>,
+    generators : Vec<Generator>,
+    transformers: Vec<Transformer>,
+    started : bool
+}
+
+impl Grid {
+
+    fn get_average_line_voltage(&self) -> String {
+        let mut phase1 = 0.0;
+        let mut phase2 = 0.0;
+        let mut phase3 = 0.0;
+        for line  in  self.transmission_lines.iter() {
+            phase1 += line.voltage.0;
+            phase2 += line.voltage.1;
+            phase3 += line.voltage.2;
+        }
+        phase1 = phase1 / self.transmission_lines.len() as f32;
+        phase2 = phase2 / self.transmission_lines.len() as f32;
+        phase3 = phase3 / self.transmission_lines.len() as f32;
+
+        json!({
+            "Phase1":phase1,
+            "Phase2":phase2,
+            "Phase3":phase3
+        }).to_string()
+    }
+
+    fn update_generator(&mut self,id : u32,max_voltages :f32){
+        let index = self.generators.iter().position(|c| c.id == id);
+        match index {
+            None => {}
+            Some(i) => {
+                self.generators[i].max_voltage = max_voltages;
+            }
+        }
+    }
+
+    fn update_consumer(&mut self,id :u32,resistance: Resistance) {
+        let index = self.consumers.iter().position(|c| c.id == id);
+        match index {
+            None => {}
+            Some(i) => {
+                self.consumers[i].resistance.0 = resistance.0;
+            }
+        }
+    }
+
+    fn update_impedance(&mut self) {
+        for line in self.transmission_lines.iter_mut() {
+            let index =self.consumers.iter().position( |c| c.transmission_line == line.id);
+            match index {
+                None => {line.impedance = Resistance(line.resistance.0)}
+                Some(i) => {line.impedance = Resistance(line.resistance.0+self.consumers[i].resistance.0)}
+            }
+
+        }
+    }
+
+    fn update_generator_voltages(&mut self, elapsed_time:f32){
+        for gen in self.generators.iter_mut() {
+            gen.voltage.0 = gen.max_voltage*f32::sin(gen.frequency*std::f32::consts::FRAC_2_PI*elapsed_time);
+            gen.voltage.1 = gen.max_voltage*f32::sin(gen.frequency*std::f32::consts::FRAC_2_PI*elapsed_time-(std::f32::consts::FRAC_2_PI/3.0));
+            gen.voltage.2 = gen.max_voltage*f32::sin(gen.frequency*std::f32::consts::FRAC_2_PI*elapsed_time-(2.0*std::f32::consts::FRAC_2_PI/3.0));
+        }
+    }
+
+    fn sync_voltages(&mut self) {
+        // Gens to lines
+        for gen in self.generators.iter_mut() {
+            let index = self.transmission_lines.iter().position( |l| l.id == gen.transmission_line);
+            match index {
+                None => {}
+                Some(i) => {
+                    self.transmission_lines[i].voltage.0 = gen.voltage.0;
+                    self.transmission_lines[i].voltage.1 = gen.voltage.1;
+                    self.transmission_lines[i].voltage.2 = gen.voltage.2;
+                }
+            }
+        }
+        // Steps
+        for trans in self.transformers.iter() {
+            let primary_index = self.transmission_lines.iter().position(|l| l.id == trans.primary);
+            let secondary_index = self.transmission_lines.iter().position(|l| l.id == trans.secondary);
+            match primary_index {
+                None => {}
+                Some(i) => {
+                    match secondary_index {
+                        None => {}
+                        Some(j) => {
+                            self.transmission_lines[j].voltage.0 = self.transmission_lines[i].voltage.0*trans.ratio;
+                            self.transmission_lines[j].voltage.1 = self.transmission_lines[i].voltage.1*trans.ratio;
+                            self.transmission_lines[j].voltage.2 = self.transmission_lines[i].voltage.2*trans.ratio;
+                        }
+                    }
+
+                }
+            }
+        }
+
+        // Lines to consumers
+        for line in self.transmission_lines.iter_mut() {
+            let index = self.consumers.iter().position( |c| c.transmission_line == line.id);
+            match index {
+                None => {}
+                Some(i) => {
+                    self.consumers[i].voltage.0 = line.voltage.0;
+                    self.consumers[i].voltage.1 = line.voltage.1;
+                    self.consumers[i].voltage.2 = line.voltage.2;
+                }
+            }
+        }
+
+
+    }
+}
+
+impl ToJson for Grid {
+    fn to_json(&self) -> String {
+        // consumers : Vec<Consumer>,
+        // transmission_lines: Vec<TransmissionLine>,
+        // generators : Vec<Generator>,
+        // transformers: Vec<Transformer>,
+        // started : bool
+        let mut consumer_strings: Vec<String> = vec![];
+        for consumer in self.consumers.iter() {
+           consumer_strings.push(consumer.to_json());
+        };
+
+        let mut transmission_line_strings: Vec<String> = vec![];
+        for lines in self.transmission_lines.iter() {
+            transmission_line_strings.push(lines.to_json());
+        };
+
+        let mut generator_strings : Vec<String> = vec![];
+        for gen in self.generators.iter() {
+            generator_strings.push(gen.to_json());
+        }
+
+        let mut transformer_strings : Vec<String> = vec![];
+        for trans in self.transformers.iter() {
+            transformer_strings.push(trans.to_json());
+        }
+
+        json!({"Consumers" : consumer_strings,
+            "Transmission Lines" : transmission_line_strings,
+            "Generators" : generator_strings,
+            "Transformers" : transformer_strings,
+            "Started" : self.started
+        }).to_string()
+    }
+}
 
 #[get("/")]
-fn index(state: &State<grid_simulation::Grid>) -> String {
-    // let current_count = hit_count.count.fetch_add(1,Ordering::Relaxed);
-    let curren_voltage = state.grid.get_avg_distribution_line_voltage();
-    format!("{curren_voltage}")
+fn index() -> String {
+    "Yay".to_string()
 }
 
-#[get("/produce/<amount>")]
-fn produce(state: &State<grid_simulation::Grid>, amount: u64) -> String {
-    state.grid.produce(amount);
-    "produce".to_string()
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct GeneratorUpdate {
+    id: u32,
+    supply: f32,
 }
 
-#[get("/consume/<amount>")]
-fn consume(state: &State<grid_simulation::Grid>, amount: u64) -> String {
-    let c = state.grid.consume(amount);
-    format!("Consume {c}")
+
+#[post("/produce", format = "application/json", data = "<data>")]
+fn produce(grid: &State<Arc<Mutex<Grid>>>, data : Json<GeneratorUpdate>) -> String {
+    let mut g  = grid.lock().unwrap();
+    g.update_generator(data.id,data.supply);
+    let id = data.id;
+    let supply = data.supply;
+    format!("Production of {id} set to {supply}V").to_string()
+}
+
+
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct ConsumerUpdate {
+    id: u32,
+    load: f32,
+}
+
+#[post("/consume", format = "application/json", data = "<data>")]
+fn consume(grid: &State<Arc<Mutex<Grid>>>, data : Json<ConsumerUpdate>) -> String {
+    let mut g  = grid.lock().unwrap();
+    g.update_consumer(data.id,Resistance(data.load));
+    let id = data.id;
+    let load  = data.load;
+    format!("Consumption of {id} set to {load}Ω")
+}
+
+#[post("/info", format = "application/json")]
+fn info(grid: &State<Arc<Mutex<Grid>>>) ->content::RawJson<String> {
+    let g = grid.lock().unwrap();
+    content::RawJson(g.to_json())
+}
+
+#[post("/overview", format = "application/json")]
+fn overview(grid: &State<Arc<Mutex<Grid>>>) ->content::RawJson<String> {
+    let g = grid.lock().unwrap();
+    content::RawJson(g.get_average_line_voltage())
+}
+
+#[post("/start", format = "application/json")]
+fn start(grid: &State<Arc<Mutex<Grid>>>) -> String {
+    let mut g = grid.lock().unwrap();
+    if !g.started {
+        g.started = true;
+        let clone = grid.inner().clone();
+        tokio::spawn(async move{
+            let mut start = Instant::now();
+            let mut elapsed_time = 0.0;
+            loop {
+                let duration = start.elapsed();
+                elapsed_time += duration.as_secs_f32();
+                let mut grid = clone.lock().unwrap();
+                grid.update_impedance();
+                grid.update_generator_voltages(elapsed_time);
+                grid.sync_voltages();
+                start = Instant::now();
+            }
+        });
+        json!({
+            "Message": "Started Grid"
+        }).to_string()
+    } else {
+        json!({
+            "Message": "Grid Already Running"
+        }).to_string()
+    }
 }
 
 #[launch]
 fn rocket() -> _ {
-    let d1 = grid_simulation::DistributionLine {
-        resistance: 0.2,
-        amps: AtomicU64::new(0),
-        to: grid_simulation::GridPiece::Nil,
-    };
     rocket::build()
-        .mount("/", routes![index, produce, consume])
-        .manage(grid_simulation::Grid { grid: Box::new(d1) })
+        .mount("/", routes![index, produce, consume,start,info,overview])
+        .manage(Arc::new(Mutex::new(Grid {
+            consumers: vec![
+                Consumer {id: 0,resistance: Resistance(1000.0),transmission_line: 1, voltage: Voltage(0.0,0.0,0.0)}
+            ],
+            transmission_lines: vec![
+                TransmissionLine {id:0,resistance: Resistance(50.0) , impedance: Resistance(0.0), voltage: Voltage(0.0, 0.0, 0.0)},
+                TransmissionLine {id:1,resistance: Resistance(50.0) , impedance: Resistance(0.0), voltage: Voltage(0.0, 0.0, 0.0)}
+
+            ],
+            generators: vec![
+                Generator {id:0,voltage: Voltage(0.0,0.0,0.0), max_voltage: 240.0, frequency: 50.0, transmission_line: 0 }
+
+            ],
+            transformers: vec![
+                Transformer {id:0,ratio:0.5,primary:0,secondary:1}
+            ],
+            started: false,
+        })))
 }

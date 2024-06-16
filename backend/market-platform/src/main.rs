@@ -3,7 +3,7 @@ extern crate rocket;
 extern crate deadqueue;
 extern crate reqwest;
 
-use crate::models::{NewAdvertisementModel, NewProfileModel, NewUserModel, User, Advertisement};
+use crate::models::{NewAdvertisementModel, NewProfileModel, NewUserModel, User, Advertisement, NewTransactionModel};
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use dotenvy::dotenv;
@@ -21,6 +21,7 @@ use std::env;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::{Arc, Mutex};
 use uuid::Uuid;
+use crate::schema::open_em::transactions::bought_units;
 
 mod models;
 mod schema;
@@ -163,19 +164,67 @@ async fn advertise(new_ad: Json<AdvertisementReq<'_>>) -> Value{
 
 // #[derive(Serialize,Deserialize)]
 // #[serde(crate = "rocket::serde")]
-// struct Offer<'r>{
-//     ad_id: &'r Uuid,
-//     user_id: &'r Uuid,
-//     units: &'r f32,
-//     bid: &'r f32,
+// struct GetAdvertisementReq{
+//     num_advertisements: i32,
 // }
 //
-// #[post("/purchase", format = "application/json", data = "<credentials>")]
-// async fn purchase() -> Value{
+// #[post("/get_ads", format = "application/json", data = "<ad_req>")]
+// async fn get_ads(ad_req: Json<GetAdvertisementReq>) -> Value{
 //
 //
 //
 // }
+
+#[derive(Serialize,Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct Offer<'r>{
+    ad_id: i64,
+    email: &'r str,
+    units: f64,
+}
+
+#[post("/purchase", format = "application/json", data = "<new_offer>")]
+async fn purchase(new_offer: Json<Offer<'_>>) -> Value{
+
+    use self::schema::open_em::advertisements::dsl::*;
+    use self::schema::open_em::users::dsl::*;
+    use self::schema::open_em::transactions;
+    let connection = &mut establish_connection();
+
+    let user = users
+        .filter(email.eq(new_offer.email))
+        .select(User::as_select())
+        .load::<User>(connection)
+        .expect("Error loading users");
+
+    let advertisement = advertisements
+        .filter(advertisement_id.eq(new_offer.ad_id))
+        .select(Advertisement::as_select())
+        .load::<Advertisement>(connection)
+        .expect("Error loading advertisement");
+
+    let mut purchase = false;
+
+    if advertisement[0].offered_units >= new_offer.units{
+
+        let new_transaction_insert = NewTransactionModel {
+            buyer_id: &user[0].user_id,
+            advertisement_id: &new_offer.ad_id,
+            bought_units: &new_offer.units,
+        };
+
+        diesel::insert_into(transactions::table)
+            .values(&new_transaction_insert)
+            .execute(connection)
+            .expect("Error adding new transaction");
+
+        purchase = true;
+
+    }
+
+    json!({"status": "ok", "purchase": purchase})
+
+}
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
@@ -247,7 +296,7 @@ async fn register(new_user: Json<NewUser<'_>>) -> Value {
 #[launch]
 fn rocket() -> _ {
     rocket::build()
-        .mount("/", routes![index, bid, sell, met, register, login, advertise])
+        .mount("/", routes![index, bid, sell, met, register, login, advertise, purchase])
         .configure(rocket::Config::figment().merge(("port", 8001)))
         .manage(Arc::new(TaskQueue::new()))
         .manage(MyInfo {

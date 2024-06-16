@@ -45,3 +45,11 @@ pub struct NewAdvertisementModel<'a>{
     pub offered_units: &'a f64,
     pub price: &'a f64,
 }
+
+#[derive(Insertable)]
+#[diesel(table_name = crate::schema::open_em::transactions)]
+pub struct NewTransactionModel<'a>{
+    pub buyer_id: &'a Uuid,
+    pub advertisement_id: &'a i64,
+    pub bought_units: &'a f64,
+}

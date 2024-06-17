@@ -12,7 +12,7 @@
     if (typeof window !== 'undefined') { // Check if running in the browser
       chart = createChart(chartCanvas, sampleChartConfig);
       fetchData(); 
-      interval = setInterval(fetchData, 50);
+      interval = setInterval(fetchData, 1000);
     }
 
     return () => {
@@ -28,9 +28,18 @@
   async function fetchData() {
 
       try {
-        const response = await fetch("http://localhost:8001");
+        const response = await fetch("http://localhost:8000/overview", {
+      method: "POST", 
+      headers: {
+        'Content-Type': 'application/json' 
+      }
+    });
+        console.log("request being sent...");
+        // const response = fetch("http://localhost:8000");
         const data = await response.json();
-        updateChart(data.Voltage, data.Price);
+        console.log(data);
+        //Voltage 1,2,3 as well as price
+        updateChart(data.Voltage1, data.Voltage2);
       } catch (error) {
         console.log("There was an error fetching the JSON for the chart..", error);
       }

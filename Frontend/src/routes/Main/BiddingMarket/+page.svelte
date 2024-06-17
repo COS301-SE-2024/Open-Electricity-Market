@@ -87,12 +87,14 @@
   <div class="overflow-x-auto">
     
     <div class="card card-compact w-96 bg-base-100 shadow-xl">
-      <figure><img src="$lib/assets/pylonBack.png" alt="Pylons (sample)" /></figure>
+      <figure><img src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg" alt="Pylons (sample)" /></figure>
       <div class="card-body">
         <h2 class="card-title">Sample Electricity Company</h2>
+        <p>{"Item number " + (0)}</p>
+        <p>{"ID: "}</p>
         <p>Seller information goes here</p>
         <div class="card-actions justify-end">
-          <button on:click={sellFunction} class="btn bg-green-600">View Offers</button>
+          <button on:click={bidFunction} class="btn bg-green-600">View Offers</button>
         </div>
       </div>
     </div>
@@ -100,21 +102,26 @@
     
     {#each arrayofuids as id, i (id)}
     <!-- this is not going to display anything until it reads something from the array -->
+     <!-- remember to change the photo after that starts working -->
     <div class="card card-compact w-96 bg-base-100 shadow-xl">
       <figure><img src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg" alt="Shoes" /></figure>
       <div class="card-body">
         <h2 class="card-title">Sample Electricity Company</h2>
         <p>Seller information goes here</p>
+        <p>{"Item number " + (i+1)}</p>
+        <p>{"ID: " + id}</p>
         <div class="card-actions justify-end">
-          <button on:click={sellFunction} class="btn bg-green-600">Buy Now</button>
+          <button on:click={bidFunction} class="btn btn-primary">Buy Now</button>
         </div>
       </div>
     </div>
     {/each}
 
-    <div class="absolute bottom-0 left-24 mb-64">
-      <button on:click={bidFunction} class="btn bg-green-600 w-28 h-14">Bid</button>
-      <button on:click={sellFunction} class="btn bg bg-red-700 w-28 h-14 ml-2">Sell</button>
+    <div class="absolute bottom-0 left-24 mb-32">
+      <!-- <button on:click={bidFunction} class="btn bg-green-600 w-28 h-14">Bid</button> -->
+
+
+      <button on:click={sellFunction} class="btn bg btn-secondary btn-lg btn-wide">Sell</button>
     </div>
   </div>
 </main>

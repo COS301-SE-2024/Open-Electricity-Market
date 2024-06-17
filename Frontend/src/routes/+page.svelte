@@ -1,6 +1,8 @@
 <script>
     import logo from '$lib/assets/Logo.png';
     import {goto} from "$app/navigation";
+    let email = '';
+    let password = '';
     function signup(){
         goto("/signup");
     }
@@ -9,121 +11,39 @@
         //send to main page
         goto("/Main/Dashboard");
     }
-    let username = '';
-    let password = '';
 </script>
 
-<body class = "h-screen w-max-xl bg-logSignup bg-cover bg-no-repeat bg-center">
-    <div class = "card bg-black/90 h-full w-full flex flex-col space-y-12 items-center justify-center ">
-        <img class= "h-auto max-w-full" alt = "Logo" src = {logo}/>
-        <div class = "flex flex-col items-center justify-center">
-            <h1 class ="mb-4 text-heading1 font-heading1">Welcome To OpenElectricityMarket!</h1>
-            <h2 class = "mb-4 text-heading2 font-heading2">Log In</h2>
+<main>
+    <div class="hero min-h-screen" style="background-image: url(https://images.unsplash.com/photo-1510595256055-e44b27efe497?q=80&w=1700&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D);">
+        <div class="hero-overlay bg-opacity-60"></div>
+        <div class="hero-content flex-col lg:flex-row-reverse">
+          <div class="text-center lg:text-left">
+            <h1 class="text-5xl font-bold">Open Electricity Market.</h1>
+            <p class="py-6">Provident cupiditate voluptatem et in. Quaerat fugiat ut assumenda excepturi exercitationem quasi. In deleniti eaque aut repudiandae et a id nisi.</p>
+          </div>
+          <div class="card shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
+            <form class="card-body">
+              <div class="form-control">
+                <label class="label" for="">
+                  <span class="label-text">Email</span>
+                </label>
+                <input type="email" placeholder="email" class="input input-bordered" required bind:value={email}/>
+              </div>
+              <div class="form-control">
+                <label class="label" for="">
+                  <span class="label-text">Password</span>
+                </label>
+                <input type="password" placeholder="password" class="input input-bordered" required bind:value={password}/>
+                <!-- <label class="label" for="">
+                  <a href="#" class="label-text-alt link link-hover">Forgot password?</a>
+                </label> -->
+              </div>
+              <div class="form-control mt-6">
+                <button class="btn btn-primary" on:click={login}>Login</button>
+                <button class="btn btn-primary mt-3" on:click={signup}>Create an account</button>
+              </div>
+            </form>
+          </div>
         </div>
-        
-        <div class = "flex flex-col space-y-8 items-center justify-center">
-            <input type = "text" placeholder="Username" class = "input bg-fillin text-fillinText font-fillin w-fillin h-fillin"  bind:value={username}/>
-            <input type = "password" placeholder="Password" class = "input bg-fillin text-fillinText font-fillin w-fillin h-fillin" bind:value={password}/>
-        </div>
-        <div class = "flex flex-col space-y-8 items-center justify-center">
-            <button class = "btn bg-btn btn-outline text-btnTxt w-btn h-btn" on:click={login}>Login</button>
-            <button class = "btn bg-btn btn-outline text-btnTxt w-btn h-btn" on:click={signup}>Signup</button>
-        </div>
-    </div>
-</body>
-
-<style>
-    @font-face{
-        font-family: 'NATS';
-        font-style: normal;
-        font-weight: 50;
-        src: url("/fonts/NATS-Regular.ttf");
-    }
-    /*.background{
-        position: absolute;
-        top: 0;
-        left: 0;
-        height: 100%;
-        width: 100%;
-        background-image: url('$lib/assets/pylonBack.png');
-        background-size: cover;
-    }*/
-    
-    /*.body
-    {
-        color: white;
-        display: flex;
-        position: absolute;
-        flex-flow: column;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.93);
-        align-items: center;
-    }*/
-    /*.logo{
-        position: relative;
-        top: 20px;
-    }*/
-    /*h1{
-        font-weight: normal;
-        font-size: 50px;
-        top: 24px;
-        position: relative;
-        font-family: NATS;
-        letter-spacing: 9px;
-    }*/
-    /*h2{
-        font-weight: normal;
-        font-size: 33px;
-        top: 22px;
-        position: relative;
-        font-family: NATS;
-        letter-spacing: 10px;
-    }*/
-    /*.fillin{
-        height: 43px;
-        width: 378px;
-        margin: 18px;
-        position: relative;
-        top: 27px;
-        border-radius: 6px;
-        background-color: white;
-        font-size:27px;
-        color: black;
-    }*/
-    ::placeholder{
-        color: black;
-    }
-    ::-ms-input-placeholder{
-        color: black;
-    }
-    /*.buttons{
-        background-color: #124E86;
-        border: black;
-        border-radius: 6px;
-        color: white;
-        margin: 15px;
-        position: relative;
-        top: 49px;
-        text-align: center;
-        font-size: 28px;
-        height: 66px;
-        width: 336px;
-        transition-duration: 0.4s;
-    }
-    .buttons:hover{
-        background-color: black;
-        border: #124E86;
-        border-radius: 6px;
-        color: white;
-        margin: 15px;
-        position: relative;
-        top: 49px;
-        text-align: center;
-        font-size: 28px;
-        height: 66px;
-        width: 336px;
-        transition-duration: 0.4s;
-    }*/
-    
-</style>
+      </div>
+</main>

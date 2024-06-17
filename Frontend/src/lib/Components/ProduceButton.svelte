@@ -22,4 +22,4 @@
  </script>
  
  <!-- id logic will have to be added later -->
- <button on:click={()=>makeproducerequest(id)} class="btn bg-red-700 w-28 h-14">Buy</button>
+ <button on:click={()=>makeproducerequest(id)} class="btn bg-red-700 w-28 h-14">Produce</button>

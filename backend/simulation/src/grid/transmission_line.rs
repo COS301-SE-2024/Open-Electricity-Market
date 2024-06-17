@@ -1,11 +1,11 @@
-use rocket::serde::json::json;
 use crate::grid::{Resistance, ToJson, Voltage};
+use rocket::serde::json::json;
 
 pub struct TransmissionLine {
-    pub(crate) id : u32,
+    pub(crate) id: u32,
     pub(crate) resistance: Resistance,
     pub(crate) impedance: Resistance,
-    pub(crate) voltage: Voltage
+    pub(crate) voltage: Voltage,
 }
 
 impl ToJson for TransmissionLine {
@@ -18,6 +18,7 @@ impl ToJson for TransmissionLine {
                 "Phase 2" : self.voltage.1,
                 "Phase 3" : self.voltage.2,
             }
-        }).to_string()
+        })
+        .to_string()
     }
 }

@@ -21,8 +21,8 @@
         <img class= "h-auto max-w-full" alt = "Logo" src = {logo}/>
         <h1 class ="mb-4 text-heading1 font-heading1">Create an account with us!</h1>
         <div class = "flex flex-col space-y-8 items-center justify-center">
-            <input type = "text" bind:value={username} placeholder="Username here..." class = "input bg-fillin text-fillinText font-fillin w-fillin h-fillin"/>
-            <input type = "password" bind:value={password} placeholder="Password here..."class = "input bg-fillin text-fillinText font-fillin w-fillin h-fillin"/>
+            <input type = "text" bind:value={username} placeholder="Username" class = "input bg-fillin text-fillinText font-fillin w-fillin h-fillin"/>
+            <input type = "password" bind:value={password} placeholder="Password"class = "input bg-fillin text-fillinText font-fillin w-fillin h-fillin"/>
             <input type = "password" bind:value={passwordValidate} placeholder="Confirm Password"class = "input bg-fillin text-fillinText font-fillin w-fillin h-fillin"/>
         </div>
         <div class = "flex flex-col space-y-8 items-center justify-center">

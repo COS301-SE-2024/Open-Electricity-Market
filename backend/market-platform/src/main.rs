@@ -162,18 +162,61 @@ async fn advertise(new_ad: Json<AdvertisementReq<'_>>) -> Value{
 
 }
 
-// #[derive(Serialize,Deserialize)]
-// #[serde(crate = "rocket::serde")]
-// struct GetAdvertisementReq{
-//     num_advertisements: i32,
-// }
-//
-// #[post("/get_ads", format = "application/json", data = "<ad_req>")]
-// async fn get_ads(ad_req: Json<GetAdvertisementReq>) -> Value{
-//
-//
-//
-// }
+#[derive(Serialize,Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct GetAdvertisementReq{
+    num_advertisements: i64,
+}
+
+#[derive(Serialize,Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct RetAdvertisements {
+    advertisement_id: i64,
+    offered_units: f64,
+    price: f64,
+}
+
+#[post("/get_ads", format = "application/json", data = "<ad_req>")]
+async fn get_ads(ad_req: Json<GetAdvertisementReq>) -> Value{
+
+    use self::schema::open_em::advertisements::dsl::*;
+
+    let advertisements_vec = advertisements
+        .filter(offered_units.gt(0.0))
+        .select(Advertisement::as_select())
+        .order_by(price.asc())
+        .limit(ad_req.num_advertisements)
+        .load::<Advertisement>(&mut establish_connection())
+        .expect("Error loading advertisements");
+
+    let mut advertisements_ret: Vec<RetAdvertisements> = vec![];
+
+    for ad in advertisements_vec  {
+        advertisements_ret.push(RetAdvertisements{
+            advertisement_id: ad.advertisement_id,
+            offered_units: ad.offered_units,
+            price: ad.price,
+        });
+    }
+
+    json!({"status": "ok", "advertisements": advertisements_ret})
+
+}
+
+#[post("/priceview")]
+async fn priceview() -> Value{
+
+    use self::schema::open_em::advertisements::dsl::*;
+
+    let price_avg = advertisements
+        .filter(offered_units.gt(0.0))
+        .select(diesel::dsl::sql::<diesel::sql_types::Double>("AVG(price)"))
+        .load::<f64>(&mut establish_connection())
+        .expect("Error loading average price");
+
+    json!({"status":"ok", "price": price_avg[0]})
+
+}
 
 #[derive(Serialize,Deserialize)]
 #[serde(crate = "rocket::serde")]
@@ -296,7 +339,7 @@ async fn register(new_user: Json<NewUser<'_>>) -> Value {
 #[launch]
 fn rocket() -> _ {
     rocket::build()
-        .mount("/", routes![index, bid, sell, met, register, login, advertise, purchase])
+        .mount("/", routes![index, bid, sell, met, register, login, advertise, purchase, priceview, get_ads])
         .configure(rocket::Config::figment().merge(("port", 8001)))
         .manage(Arc::new(TaskQueue::new()))
         .manage(MyInfo {

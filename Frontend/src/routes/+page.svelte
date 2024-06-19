@@ -23,24 +23,22 @@
           </div>
           <div class="card shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
             <form class="card-body">
-              <div class="form-control">
-                <label class="label" for="">
-                  <span class="label-text">Email</span>
-                </label>
-                <input type="email" placeholder="email" class="input input-bordered" required bind:value={email}/>
+              <h2 class="text-base font-semibold"> Log in to your account </h2>
+
+              <div class="form-control mt-1">
+                <input type="email" placeholder="Email" class="input input-bordered" required bind:value={email}/>
               </div>
-              <div class="form-control">
-                <label class="label" for="">
-                  <span class="label-text">Password</span>
-                </label>
-                <input type="password" placeholder="password" class="input input-bordered" required bind:value={password}/>
+              <div class="form-control mt-4">
+                <input type="password" placeholder="Password" class="input input-bordered" required bind:value={password}/>
                 <!-- <label class="label" for="">
                   <a href="#" class="label-text-alt link link-hover">Forgot password?</a>
                 </label> -->
               </div>
               <div class="form-control mt-6">
                 <button class="btn btn-primary" on:click={login}>Login</button>
-                <button class="btn btn-primary mt-3" on:click={signup}>Create an account</button>
+              </div>
+              <div class="form-control mt-3"> 
+                <button class="btn btn-primary" on:click={signup}>Create an account</button>
               </div>
             </form>
           </div>

@@ -9,8 +9,8 @@ use diesel::prelude::*;
 use dotenvy::dotenv;
 use pwhash::bcrypt;
 use rocket::fairing::{Fairing, Info, Kind};
+use rocket::http::{Header, Method, Status};
 use rocket::form::name::NameBuf;
-use rocket::http::Header;
 use rocket::serde::json::serde_json::json;
 use rocket::serde::json::{Json, Value};
 use rocket::serde::{Deserialize, Serialize};
@@ -37,13 +37,20 @@ impl Fairing for CORS {
         }
     }
 
-    async fn on_response<'r>(&self, _request: &'r Request<'_>, response: &mut Response<'r>) {
-        response.set_header(Header::new("Access-Control-Allow-Origin", "*"));
+    async fn on_response<'r>(&self, request: &'r Request<'_>, response: &mut Response<'r>) {
+        if request.method() == Method::Options {
+            response.set_status(Status::NoContent);
+            response.set_header(Header::new(
+                "Access-Control-Allow-Methods",
+                "POST, PATCH, GET, DELETE",
+            ));
+            response.set_header(Header::new("Access-Control-Allow-Headers", "*"));
+        }
+
         response.set_header(Header::new(
-            "Access-Control-Allow-Methods",
-            "POST, GET, PATCH, OPTIONS",
+            "Access-Control-Allow-Origin",
+            "*",
         ));
-        response.set_header(Header::new("Access-Control-Allow-Headers", "*"));
         response.set_header(Header::new("Access-Control-Allow-Credentials", "true"));
     }
 }

@@ -86,6 +86,36 @@ fn consume(grid: &State<Arc<Mutex<Grid>>>, data: Json<ConsumerUpdate>) -> String
     format!("Consumption of {id} set to {load}Ω")
 }
 
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct ConsumerNew {
+    resistance: f32,
+    transmission_line: u32
+}
+
+#[post("/add_consumer", format = "application/json",data = "<data>")]
+fn add_consumer(grid: &State<Arc<Mutex<Grid>>>, data: Json<ConsumerNew>) -> content::RawJson<String>{
+    let mut g = grid.lock().unwrap();
+    let id = g.add_consumer(Resistance(data.resistance),data.transmission_line,Voltage(0.0,0.0,0.0));
+    content::RawJson(json!({"id":id}).to_string())
+}
+
+
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct GeneratorNew {
+    transmission_line: u32,
+    max_voltage : f32,
+    frequency: f32
+}
+
+#[post("/add_generator", format = "application/json",data = "<data>")]
+fn add_generator(grid: &State<Arc<Mutex<Grid>>>, data: Json<GeneratorNew>) -> content::RawJson<String>{
+    let mut g = grid.lock().unwrap();
+    let id = g.add_generator(Voltage(0.0,0.0,0.0),data.max_voltage,data.frequency,data.transmission_line);
+    content::RawJson(json!({"Id":id}).to_string())
+}
+
 #[post("/info", format = "application/json")]
 fn info(grid: &State<Arc<Mutex<Grid>>>) -> content::RawJson<String> {
     let g = grid.lock().unwrap();
@@ -98,6 +128,7 @@ fn overview(grid: &State<Arc<Mutex<Grid>>>) -> content::RawJson<String> {
     let g = grid.lock().unwrap();
     content::RawJson(g.get_average_line_voltage())
 }
+
 
 #[post("/start", format = "application/json")]
 fn start(grid: &State<Arc<Mutex<Grid>>>) -> String {
@@ -134,7 +165,7 @@ fn start(grid: &State<Arc<Mutex<Grid>>>) -> String {
 fn rocket() -> _ {
     rocket::build()
         .attach(CORS)
-        .mount("/", routes![index, produce, consume, start, info, overview])
+        .mount("/", routes![index, produce, consume, start, info, overview,add_generator,add_consumer])
         .manage(Arc::new(Mutex::new(Grid {
             consumers: vec![Consumer {
                 id: 0,

@@ -1,68 +1,79 @@
-extern crate reqwest;
-use uuid::Uuid;
 
+pub mod schema;
+pub mod models;
+
+pub mod consumer;
+
+use std::collections::HashMap;
+use diesel::pg::PgConnection;
+use diesel::prelude::*;
+use dotenvy::dotenv;
 use std::env;
-use tokio::time::{sleep, Duration};
+use std::sync::Arc;
+use serde::{Deserialize, Serialize};
+use tokio::sync::Mutex;
+use crate::consumer::{Consumer, ConsumerManger, ConsumerNew, ConsumerResponse};
+use crate::models::User;
+
+pub fn establish_connection() -> PgConnection {
+    dotenv().ok();
+
+    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    PgConnection::establish(&database_url)
+        .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
+}
+
 
 #[tokio::main]
-async fn main() {
-    let args: Vec<String> = env::args().collect();
-    let procedure = args[1].clone();
-    let value = args[2].parse::<u64>().unwrap(); //Roughly how many amps are needed each second by a common south african home
-    let desired_price: f32 = 100.0;
-    dbg!(args);
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    use self::schema::open_em::users::dsl::*;
+    dotenv().ok();
+
+    let connection = &mut establish_connection();
+    let results: Vec<User> = users.load(connection).expect("Error loading users");
+
+    println!("Displaying {} users", results.len());
+
+
+
+    let mut consumer_manger = Arc::new(Mutex::new (ConsumerManger {
+        map : HashMap::new()
+    }));
+
+
+
+    for user in results {
+        println!("{} {}", user.email, user.units_bought);
+        println!("-----------");
+        //Create new consumer and link it to grid
+        if user.units_bought > 0.0 {
+            let clone = consumer_manger.clone();
+            tokio::spawn(async move {
+                let mut grid_url = env::var("GRID_URL").expect("DATABASE_URL must be set");
+
+                let mut data = ConsumerNew {
+                    resistance: 1000.0,
+                    transmission_line: 1,
+                };
+
+                grid_url.push_str("/add_consumer");
+                println!("{grid_url}");
+
+                let client = reqwest::Client::new();
+                let resp = client.post(grid_url).json(&data).send().await.expect("Failed to connect to grid");
+                let json = resp.json::<ConsumerResponse>().await.expect("Could not decode json");
+
+                println!("{}",json.id);
+                let mut manager = clone.lock().await;
+                manager.map.insert(user.email, Consumer { id : json.id });
+            });
+        }
+    };
 
     loop {
-        let res = reqwest::get("http://127.0.0.1:8001/").await.unwrap();
-        let text = res.text().await.unwrap();
-        let mut split = text.split("\"Price\":\"");
-        split.next();
-        let parsel = split.next().unwrap();
-        let mut split = parsel.split('"');
-        let parsel = split.next().unwrap();
-        let price = parsel.parse::<f32>().unwrap();
 
-        let actual;
-
-        if procedure == "consume" {
-            actual = ((desired_price / price) * value as f32) as u64;
-            println!("Price {price} Desired Price {desired_price} Value {actual}");
-
-            let id = Uuid::new_v4();
-            let res = reqwest::get(format!("http://127.0.0.1:8001/bid/{actual}/{price}/{id}"))
-                .await
-                .unwrap();
-            let mut body = res.text().await.unwrap();
-
-            while body != "true" {
-                let res = reqwest::get(format!("http://127.0.0.1:8001/met/{id}"))
-                    .await
-                    .unwrap();
-                body = res.text().await.unwrap();
-                sleep(Duration::from_millis(1000)).await;
-            }
-            let res = reqwest::get(format!("http://127.0.0.1:8000/{procedure}/{actual}"))
-                .await
-                .unwrap();
-            let body = res.text().await.unwrap();
-            println!("Body:\n{}", body);
-        } else {
-            actual = ((desired_price / price) * value as f32) as u64;
-            //Hence a producer
-            let res = reqwest::get(format!("http://127.0.0.1:8001/sell/{actual}"))
-                .await
-                .unwrap();
-            let body = res.text().await.unwrap();
-            println!("{body}");
-            if body != "There is no demand" && body != "Could not meet demand" {
-                let res = reqwest::get(format!("http://127.0.0.1:8000/{procedure}/{body}"))
-                    .await
-                    .unwrap();
-                let body = res.text().await.unwrap();
-                println!("Body:\n{}", body);
-            }
-        }
-
-        sleep(Duration::from_millis(1000)).await;
     }
+
+
+    Ok(())
 }

@@ -17,15 +17,27 @@
 
  
 
-  async function fetchData() {
-    //https://api.coindesk.com/v1/bpi/currentprice.json
-    const response = await fetch("http://localhost:8001");//have to insert endpoint
-    let text = await response.text()
-    console.log(text)
-    data = JSON.parse(text)
-    console.log(data);
-    return data;
-  }
+ async function fetchData() {
+
+      try {
+        const response = await fetch("http://localhost:8000/overview", {
+      method: "POST", 
+      headers: {
+        'Content-Type': 'application/json' 
+      }
+
+    });
+        console.log("request being sent...");
+        console.log(response);
+        // const response = fetch("http://localhost:8000");
+        const data = await response.json();
+        console.log(data);
+        //Voltage 1,2,3 as well as price
+        return data; 
+      } catch (error) {
+        console.log("There was an error fetching the JSON for the overview..", error);
+      }
+  };
 </script>
 
 <main class="container mx-auto">

@@ -7,7 +7,7 @@ use crate::grid::transformer::Transformer;
 use crate::grid::transmission_line::TransmissionLine;
 use crate::grid::{Grid, Resistance, ToJson, Voltage};
 use rocket::fairing::{Fairing, Info, Kind};
-use rocket::http::Header;
+use rocket::http::{Header, Method, Status};
 use rocket::response::content;
 use rocket::serde::json::{json, Json};
 use rocket::serde::{Deserialize, Serialize};
@@ -15,8 +15,12 @@ use rocket::{Request, Response, State};
 use std::sync::{Arc, Mutex};
 use std::time::Instant;
 
+
 pub struct CORS;
 pub mod grid;
+
+
+
 
 #[rocket::async_trait]
 impl Fairing for CORS {
@@ -27,13 +31,20 @@ impl Fairing for CORS {
         }
     }
 
-    async fn on_response<'r>(&self, _request: &'r Request<'_>, response: &mut Response<'r>) {
-        response.set_header(Header::new("Access-Control-Allow-Origin", "*"));
+    async fn on_response<'r>(&self, request: &'r Request<'_>, response: &mut Response<'r>) {
+        if request.method() == Method::Options {
+            response.set_status(Status::NoContent);
+            response.set_header(Header::new(
+                "Access-Control-Allow-Methods",
+                "POST, PATCH, GET, DELETE",
+            ));
+            response.set_header(Header::new("Access-Control-Allow-Headers", "*"));
+        }
+
         response.set_header(Header::new(
-            "Access-Control-Allow-Methods",
-            "POST, GET, PATCH, OPTIONS",
+            "Access-Control-Allow-Origin",
+            "*",
         ));
-        response.set_header(Header::new("Access-Control-Allow-Headers", "*"));
         response.set_header(Header::new("Access-Control-Allow-Credentials", "true"));
     }
 }
@@ -81,6 +92,7 @@ fn info(grid: &State<Arc<Mutex<Grid>>>) -> content::RawJson<String> {
     content::RawJson(g.to_json())
 }
 
+
 #[post("/overview", format = "application/json")]
 fn overview(grid: &State<Arc<Mutex<Grid>>>) -> content::RawJson<String> {
     let g = grid.lock().unwrap();
@@ -121,6 +133,7 @@ fn start(grid: &State<Arc<Mutex<Grid>>>) -> String {
 #[launch]
 fn rocket() -> _ {
     rocket::build()
+        .attach(CORS)
         .mount("/", routes![index, produce, consume, start, info, overview])
         .manage(Arc::new(Mutex::new(Grid {
             consumers: vec![Consumer {
@@ -158,5 +171,7 @@ fn rocket() -> _ {
             }],
             started: false,
         })))
-        .attach(CORS)
+
+
+
 }

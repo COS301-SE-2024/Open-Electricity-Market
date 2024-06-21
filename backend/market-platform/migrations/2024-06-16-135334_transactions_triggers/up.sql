@@ -33,3 +33,21 @@ AFTER INSERT
 ON transactions
 FOR EACH ROW
 EXECUTE FUNCTION inc_bought_units();
+
+CREATE OR REPLACE FUNCTION inc_sold_units()
+RETURNS TRIGGER
+AS
+$$
+BEGIN
+    UPDATE users
+        SET units_sold = units_sold + NEW.bought_units
+    WHERE user_id = (SELECT seller_id FROM advertisements WHERE advertisement_id = NEW.advertisement_id);
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_seller
+AFTER INSERT
+ON transactions
+FOR EACH ROW
+EXECUTE FUNCTION inc_sold_units();

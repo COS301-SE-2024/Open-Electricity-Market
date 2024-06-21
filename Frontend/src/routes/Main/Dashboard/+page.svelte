@@ -1,5 +1,7 @@
 <script>
   import { onMount } from "svelte";
+  import { fetchData } from './stores';
+  import Chart from "$lib/Components/Chart.svelte";
   
 
   let data = [];
@@ -17,27 +19,27 @@
 
  
 
- async function fetchData() {
+//  async function fetchData() {
 
-      try {
-        const response = await fetch("http://localhost:8000/overview", {
-      method: "POST", 
-      headers: {
-        'Content-Type': 'application/json' 
-      }
+//       try {
+//         const response = await fetch("http://localhost:8000/overview", {
+//       method: "POST", 
+//       headers: {
+//         'Content-Type': 'application/json' 
+//       }
 
-    });
-        console.log("request being sent...");
-        console.log(response);
-        // const response = fetch("http://localhost:8000");
-        const data = await response.json();
-        console.log(data);
-        //Voltage 1,2,3 as well as price
-        return data; 
-      } catch (error) {
-        console.log("There was an error fetching the JSON for the overview..", error);
-      }
-  };
+//     });
+//         console.log("request being sent...");
+//         console.log(response);
+//         // const response = fetch("http://localhost:8000");
+//         const data = await response.json();
+//         console.log(data);
+//         //Voltage 1,2,3 as well as price
+//         return data; 
+//       } catch (error) {
+//         console.log("There was an error fetching the JSON for the overview..", error);
+//       }
+//   };
 </script>
 
 <main class="container mx-auto">
@@ -60,7 +62,7 @@
         {:else}
         <div class = "stats shadow">
           <div class="stat place-items-center">
-            <div class="stat-title">Current Voltage</div>
+            <div class="stat-title">{key} Voltage</div>
             <div class="stat-value">{value}V</div>
             <div class="stat-desc text-red-700">90 (14%)</div>
           </div>
@@ -71,6 +73,8 @@
   {:else}
     <p>Loading...</p>
   {/if}
+
+  <Chart class = "w-3/5 h-3/5"  />
 
 
  

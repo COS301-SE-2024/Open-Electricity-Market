@@ -1,7 +1,7 @@
 use diesel::prelude::*;
 use uuid::Uuid;
 
-#[derive(Queryable, Selectable)]
+#[derive(Queryable, Selectable,AsChangeset)]
 #[diesel(table_name = crate::schema::open_em::users)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct User {

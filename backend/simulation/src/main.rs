@@ -113,7 +113,7 @@ struct GeneratorNew {
 fn add_generator(grid: &State<Arc<Mutex<Grid>>>, data: Json<GeneratorNew>) -> content::RawJson<String>{
     let mut g = grid.lock().unwrap();
     let id = g.add_generator(Voltage(0.0,0.0,0.0),data.max_voltage,data.frequency,data.transmission_line);
-    content::RawJson(json!({"Id":id}).to_string())
+    content::RawJson(json!({"id":id}).to_string())
 }
 
 #[post("/info", format = "application/json")]

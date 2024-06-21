@@ -1,6 +1,12 @@
 <script>
     import logo from '$lib/assets/Logo.png';
     import {goto} from "$app/navigation";
+    let email = '';
+    let firstname = '';
+    let surname = '';
+    let password = '';
+    let passwordValidate = '';
+    
     function create(){
         //add to database
         if(password == passwordValidate)
@@ -8,12 +14,10 @@
             goto("/");
         }
     }
+    
     function back(){
         goto("/");
     }
-    let email = '';
-    let password = '';
-    let passwordValidate = '';
 </script>
 <main>
     <div class="hero min-h-screen" style="background-image: url(https://images.unsplash.com/photo-1510595256055-e44b27efe497?q=80&w=1700&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D);">
@@ -30,6 +34,14 @@
 
               <div class="form-control">
                 <input type="email" placeholder="Email" class="input input-bordered" required bind:value={email}/>
+              </div>
+
+              <div class="form-control mt-4">
+                <input type="text" placeholder="first name" class="input input-bordered" required bind:value={firstname}/>
+              </div>
+
+              <div class="form-control mt-4">
+                <input type="text" placeholder="surname" class="input input-bordered" required bind:value={surname}/>
               </div>
               
               <div class="form-control mt-4">

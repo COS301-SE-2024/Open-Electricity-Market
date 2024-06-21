@@ -10,6 +10,8 @@ use diesel::prelude::*;
 use dotenvy::dotenv;
 use std::env;
 use std::sync::Arc;
+use std::thread::sleep;
+use std::time::{Duration, Instant};
 use serde::{Deserialize, Serialize};
 use tokio::sync::Mutex;
 use crate::consumer::{Consumer, ConsumerManger, ConsumerNew, ConsumerResponse};
@@ -65,12 +67,27 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
                 println!("{}",json.id);
                 let mut manager = clone.lock().await;
-                manager.map.insert(user.email, Consumer { id : json.id });
+                manager.map.insert(user.email.clone(), Consumer { id : json.id,load:1000.0, email: user.email });
+
             });
         }
     };
 
+
+    let mut start = Instant::now();
+    let mut elapsed_time = 0.0;
     loop {
+        let duration = start.elapsed();
+        start = Instant::now();
+        elapsed_time += duration.as_secs_f32();
+
+        let mut manager = consumer_manger.lock().await;
+
+        for (_,consumer) in manager.map.iter_mut() {
+            consumer.update(elapsed_time);
+            consumer.sync_grid().await;
+        }
+
 
     }
 

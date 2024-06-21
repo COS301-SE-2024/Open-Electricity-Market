@@ -142,11 +142,11 @@ fn start(grid: &State<Arc<Mutex<Grid>>>) -> String {
             loop {
                 let duration = start.elapsed();
                 elapsed_time += duration.as_secs_f32();
+                start = Instant::now();
                 let mut grid = clone.lock().unwrap();
                 grid.update_impedance();
                 grid.update_generator_voltages(elapsed_time);
                 grid.sync_voltages();
-                start = Instant::now();
             }
         });
         json!({

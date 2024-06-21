@@ -1,6 +1,9 @@
 use crate::grid::ToJson;
 use rocket::serde::json::json;
 
+#[cfg(test)]
+mod tests;
+
 pub struct Transformer {
     pub(crate) id: u32,
     pub(crate) ratio: f32,

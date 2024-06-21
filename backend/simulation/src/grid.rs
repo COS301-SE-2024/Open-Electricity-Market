@@ -9,6 +9,10 @@ pub mod generator;
 pub mod transformer;
 pub mod transmission_line;
 
+#[cfg(test)]
+mod tests;
+
+
 pub trait ToJson {
     fn to_json(&self) -> String;
 }

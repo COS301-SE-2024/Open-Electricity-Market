@@ -1,6 +1,9 @@
 use crate::grid::{Resistance, ToJson, Voltage};
 use rocket::serde::json::json;
 
+#[cfg(test)]
+mod tests;
+
 pub struct TransmissionLine {
     pub(crate) id: u32,
     pub(crate) resistance: Resistance,

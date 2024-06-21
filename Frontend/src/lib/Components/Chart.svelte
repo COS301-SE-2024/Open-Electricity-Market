@@ -9,6 +9,7 @@
   let interval; 
 
   onMount(() => {
+    
     if (typeof window !== 'undefined') { // Check if running in the browser
       chart = createChart(chartCanvas, sampleChartConfig);
       fetchData(); 
@@ -33,13 +34,14 @@
       headers: {
         'Content-Type': 'application/json' 
       }
+
     });
         console.log("request being sent...");
         // const response = fetch("http://localhost:8000");
         const data = await response.json();
         console.log(data);
         //Voltage 1,2,3 as well as price
-        updateChart(data.Voltage1, data.Voltage2);
+        updateChart(data.Phase1, data.Phase2);
       } catch (error) {
         console.log("There was an error fetching the JSON for the chart..", error);
       }

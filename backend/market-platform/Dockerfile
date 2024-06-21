@@ -12,4 +12,4 @@ ENV ROCKET_ADDRESS=0.0.0.0
 
 EXPOSE 8001
 
-CMD diesel migration run ; /usr/src/market-platform/target/release/market-platform
+CMD sleep 30 ; diesel migration run ; /usr/src/market-platform/target/release/market-platform

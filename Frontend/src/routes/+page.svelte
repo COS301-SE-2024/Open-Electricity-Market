@@ -1,8 +1,5 @@
-<script lang="ts">
+<script>
     import logo from '$lib/assets/Logo.png';
-    //import pylonBack from '$lib/assets/pylonBack.png';
-    //import Button from "/mnt/c/University/Year3/Semester1/COS301/Capstone/CapstoneWork/Open-Electricity-Market/Frontend/src/routes/Button.svelte";
-    //let pylonBack = '$lib/assets/pylonBack.png';
     import {goto} from "$app/navigation";
     function signup(){
         goto("/signup");
@@ -10,23 +7,30 @@
     function login(){
         //Username and password to be validated.
         //send to main page
-        //goto("");
+        goto("/Main/Dashboard");
     }
     let username = '';
     let password = '';
 </script>
 
-<div class = "background">
-    <div class = "body">
-        <img class= "logo" alt = "Logo" src = {logo}/>
-        <h1>Welcome To OpenElectricityMarket!</h1>
-        <h2>Login into account:</h2>
-        <input class = "fillin" type = "text" color = "black" bind:value={username} placeholder="Username here..."/>
-        <input class = "fillin" type = "text" size = "35" bind:value={password} placeholder="Password here..."/>
-        <button class = "buttons" on:click={login}>Login</button>
-        <button class = "buttons" on:click={signup}>Signup</button>
+<body class = "h-screen w-max-xl bg-logSignup bg-cover bg-no-repeat bg-center">
+    <div class = "card bg-black/90 h-full w-full flex flex-col space-y-12 items-center justify-center ">
+        <img class= "h-auto max-w-full" alt = "Logo" src = {logo}/>
+        <div class = "flex flex-col items-center justify-center">
+            <h1 class ="mb-4 text-heading1 font-heading1">Welcome To OpenElectricityMarket!</h1>
+            <h2 class = "mb-4 text-heading2 font-heading2">Log In</h2>
+        </div>
+        
+        <div class = "flex flex-col space-y-8 items-center justify-center">
+            <input type = "text" placeholder="Username" class = "input bg-fillin text-fillinText font-fillin w-fillin h-fillin"  bind:value={username}/>
+            <input type = "password" placeholder="Password" class = "input bg-fillin text-fillinText font-fillin w-fillin h-fillin" bind:value={password}/>
+        </div>
+        <div class = "flex flex-col space-y-8 items-center justify-center">
+            <button class = "btn bg-btn btn-outline text-btnTxt w-btn h-btn" on:click={login}>Login</button>
+            <button class = "btn bg-btn btn-outline text-btnTxt w-btn h-btn" on:click={signup}>Signup</button>
+        </div>
     </div>
-</div>
+</body>
 
 <style>
     @font-face{
@@ -35,7 +39,7 @@
         font-weight: 50;
         src: url("/fonts/NATS-Regular.ttf");
     }
-    .background{
+    /*.background{
         position: absolute;
         top: 0;
         left: 0;
@@ -43,9 +47,9 @@
         width: 100%;
         background-image: url('$lib/assets/pylonBack.png');
         background-size: cover;
-    }
+    }*/
     
-    .body
+    /*.body
     {
         color: white;
         display: flex;
@@ -55,52 +59,52 @@
         height: 100%;
         background-color: rgba(0, 0, 0, 0.93);
         align-items: center;
-    }
-    .logo{
+    }*/
+    /*.logo{
         position: relative;
         top: 20px;
-    }
-    h1{
+    }*/
+    /*h1{
         font-weight: normal;
         font-size: 50px;
         top: 24px;
         position: relative;
         font-family: NATS;
         letter-spacing: 9px;
-    }
-    h2{
+    }*/
+    /*h2{
         font-weight: normal;
         font-size: 33px;
-        top: -28px;
+        top: 22px;
         position: relative;
         font-family: NATS;
         letter-spacing: 10px;
-    }
-    .fillin{
+    }*/
+    /*.fillin{
         height: 43px;
         width: 378px;
         margin: 18px;
         position: relative;
-        top: -27px;
+        top: 27px;
         border-radius: 6px;
         background-color: white;
         font-size:27px;
         color: black;
-    }
+    }*/
     ::placeholder{
         color: black;
     }
     ::-ms-input-placeholder{
         color: black;
     }
-    .buttons{
+    /*.buttons{
         background-color: #124E86;
         border: black;
         border-radius: 6px;
         color: white;
-        margin: 19px;
+        margin: 15px;
         position: relative;
-        top: 19px;
+        top: 49px;
         text-align: center;
         font-size: 28px;
         height: 66px;
@@ -112,13 +116,14 @@
         border: #124E86;
         border-radius: 6px;
         color: white;
-        margin: 19px;
+        margin: 15px;
         position: relative;
-        top: 19px;
+        top: 49px;
         text-align: center;
         font-size: 28px;
         height: 66px;
         width: 336px;
         transition-duration: 0.4s;
-    }
+    }*/
+    
 </style>

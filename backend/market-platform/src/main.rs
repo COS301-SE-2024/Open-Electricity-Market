@@ -3,14 +3,17 @@ extern crate rocket;
 extern crate deadqueue;
 extern crate reqwest;
 
-use crate::models::{NewAdvertisementModel, NewProfileModel, NewUserModel, User, Advertisement, NewTransactionModel};
+use crate::models::{
+    Advertisement, NewAdvertisementModel, NewProfileModel, NewTransactionModel, NewUserModel, User,
+};
+use crate::schema::open_em::transactions::bought_units;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use dotenvy::dotenv;
 use pwhash::bcrypt;
 use rocket::fairing::{Fairing, Info, Kind};
-use rocket::http::{Header, Method, Status};
 use rocket::form::name::NameBuf;
+use rocket::http::{Header, Method, Status};
 use rocket::serde::json::serde_json::json;
 use rocket::serde::json::{Json, Value};
 use rocket::serde::{Deserialize, Serialize};
@@ -21,7 +24,6 @@ use std::env;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::{Arc, Mutex};
 use uuid::Uuid;
-use crate::schema::open_em::transactions::bought_units;
 
 mod models;
 mod schema;
@@ -47,10 +49,7 @@ impl Fairing for CORS {
             response.set_header(Header::new("Access-Control-Allow-Headers", "*"));
         }
 
-        response.set_header(Header::new(
-            "Access-Control-Allow-Origin",
-            "*",
-        ));
+        response.set_header(Header::new("Access-Control-Allow-Origin", "*"));
         response.set_header(Header::new("Access-Control-Allow-Credentials", "true"));
     }
 }
@@ -69,7 +68,6 @@ fn establish_connection() -> PgConnection {
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     PgConnection::establish(&database_url)
         .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
-
 }
 
 #[get("/")]
@@ -132,17 +130,16 @@ async fn met(sold_list: &State<Arc<Mutex<Vec<String>>>>, id: String) -> String {
     }
 }
 
-#[derive(Serialize,Deserialize)]
+#[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct AdvertisementReq<'r>{
+struct AdvertisementReq<'r> {
     email: &'r str,
     units: f64,
     price: f64,
 }
 
 #[post("/advertise", format = "application/json", data = "<new_ad>")]
-async fn advertise(new_ad: Json<AdvertisementReq<'_>>) -> Value{
-
+async fn advertise(new_ad: Json<AdvertisementReq<'_>>) -> Value {
     use self::schema::open_em::advertisements;
     use self::schema::open_em::users::dsl::*;
     let connection = &mut establish_connection();
@@ -166,16 +163,15 @@ async fn advertise(new_ad: Json<AdvertisementReq<'_>>) -> Value{
         .expect("Error adding new advertisement");
 
     json!({ "status": "ok", "advertisement_id": new_ad_ret.advertisement_id })
-
 }
 
-#[derive(Serialize,Deserialize)]
+#[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct GetAdvertisementReq{
+struct GetAdvertisementReq {
     num_advertisements: i64,
 }
 
-#[derive(Serialize,Deserialize)]
+#[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
 struct RetAdvertisements {
     advertisement_id: i64,
@@ -184,8 +180,7 @@ struct RetAdvertisements {
 }
 
 #[post("/get_ads", format = "application/json", data = "<ad_req>")]
-async fn get_ads(ad_req: Json<GetAdvertisementReq>) -> Value{
-
+async fn get_ads(ad_req: Json<GetAdvertisementReq>) -> Value {
     use self::schema::open_em::advertisements::dsl::*;
 
     let advertisements_vec = advertisements
@@ -198,8 +193,8 @@ async fn get_ads(ad_req: Json<GetAdvertisementReq>) -> Value{
 
     let mut advertisements_ret: Vec<RetAdvertisements> = vec![];
 
-    for ad in advertisements_vec  {
-        advertisements_ret.push(RetAdvertisements{
+    for ad in advertisements_vec {
+        advertisements_ret.push(RetAdvertisements {
             advertisement_id: ad.advertisement_id,
             offered_units: ad.offered_units,
             price: ad.price,
@@ -207,12 +202,10 @@ async fn get_ads(ad_req: Json<GetAdvertisementReq>) -> Value{
     }
 
     json!({"status": "ok", "advertisements": advertisements_ret})
-
 }
 
 #[post("/priceview")]
-async fn priceview() -> Value{
-
+async fn priceview() -> Value {
     use self::schema::open_em::advertisements::dsl::*;
 
     let price_avg = advertisements
@@ -222,23 +215,21 @@ async fn priceview() -> Value{
         .expect("Error loading average price");
 
     json!({"status":"ok", "price": price_avg[0]})
-
 }
 
-#[derive(Serialize,Deserialize)]
+#[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct Offer<'r>{
+struct Offer<'r> {
     ad_id: i64,
     email: &'r str,
     units: f64,
 }
 
 #[post("/purchase", format = "application/json", data = "<new_offer>")]
-async fn purchase(new_offer: Json<Offer<'_>>) -> Value{
-
+async fn purchase(new_offer: Json<Offer<'_>>) -> Value {
     use self::schema::open_em::advertisements::dsl::*;
-    use self::schema::open_em::users::dsl::*;
     use self::schema::open_em::transactions;
+    use self::schema::open_em::users::dsl::*;
     let connection = &mut establish_connection();
 
     let user = users
@@ -255,8 +246,7 @@ async fn purchase(new_offer: Json<Offer<'_>>) -> Value{
 
     let mut purchase = false;
 
-    if advertisement[0].offered_units >= new_offer.units{
-
+    if advertisement[0].offered_units >= new_offer.units {
         let new_transaction_insert = NewTransactionModel {
             buyer_id: &user[0].user_id,
             advertisement_id: &new_offer.ad_id,
@@ -269,11 +259,9 @@ async fn purchase(new_offer: Json<Offer<'_>>) -> Value{
             .expect("Error adding new transaction");
 
         purchase = true;
-
     }
 
     json!({"status": "ok", "purchase": purchase})
-
 }
 
 #[derive(Serialize, Deserialize)]
@@ -311,8 +299,8 @@ struct NewUser<'r> {
 
 #[post("/register", format = "application/json", data = "<new_user>")]
 async fn register(new_user: Json<NewUser<'_>>) -> Value {
-    use self::schema::open_em::users;
     use self::schema::open_em::profiles;
+    use self::schema::open_em::users;
 
     let connection = &mut establish_connection();
     let binding = bcrypt::hash(new_user.password).unwrap();
@@ -346,7 +334,12 @@ async fn register(new_user: Json<NewUser<'_>>) -> Value {
 #[launch]
 fn rocket() -> _ {
     rocket::build()
-        .mount("/", routes![index, bid, sell, met, register, login, advertise, purchase, priceview, get_ads])
+        .mount(
+            "/",
+            routes![
+                index, bid, sell, met, register, login, advertise, purchase, priceview, get_ads
+            ],
+        )
         .configure(rocket::Config::figment().merge(("port", 8001)))
         .manage(Arc::new(TaskQueue::new()))
         .manage(MyInfo {

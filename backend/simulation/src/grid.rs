@@ -45,7 +45,13 @@ impl Grid {
         .to_string()
     }
 
-    pub(crate) fn add_generator(&mut self,voltage: Voltage,max_voltage: f32,frequency :f32,transmission_line :u32) -> u32{
+    pub(crate) fn add_generator(
+        &mut self,
+        voltage: Voltage,
+        max_voltage: f32,
+        frequency: f32,
+        transmission_line: u32,
+    ) -> u32 {
         let id: u32 = self.generators.len() as u32;
         self.generators.push(Generator {
             id,
@@ -57,7 +63,12 @@ impl Grid {
         id
     }
 
-    pub(crate) fn add_consumer(&mut self,resistance: Resistance,transmission_line :u32,voltage: Voltage) -> u32 {
+    pub(crate) fn add_consumer(
+        &mut self,
+        resistance: Resistance,
+        transmission_line: u32,
+        voltage: Voltage,
+    ) -> u32 {
         let id: u32 = self.consumers.len() as u32;
         self.consumers.push(Consumer {
             id,

@@ -32,7 +32,7 @@ pub struct NewUserModel<'a> {
 
 #[derive(Insertable)]
 #[diesel(table_name = crate::schema::open_em::profiles)]
-pub struct NewProfileModel<'a>{
+pub struct NewProfileModel<'a> {
     pub user_id: &'a Uuid,
     pub first_name: &'a str,
     pub last_name: &'a str,
@@ -40,7 +40,7 @@ pub struct NewProfileModel<'a>{
 
 #[derive(Insertable)]
 #[diesel(table_name = crate::schema::open_em::advertisements)]
-pub struct NewAdvertisementModel<'a>{
+pub struct NewAdvertisementModel<'a> {
     pub seller_id: &'a Uuid,
     pub offered_units: &'a f64,
     pub price: &'a f64,
@@ -48,7 +48,7 @@ pub struct NewAdvertisementModel<'a>{
 
 #[derive(Insertable)]
 #[diesel(table_name = crate::schema::open_em::transactions)]
-pub struct NewTransactionModel<'a>{
+pub struct NewTransactionModel<'a> {
     pub buyer_id: &'a Uuid,
     pub advertisement_id: &'a i64,
     pub bought_units: &'a f64,

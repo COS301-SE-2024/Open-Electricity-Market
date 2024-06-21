@@ -15,12 +15,8 @@ use rocket::{Request, Response, State};
 use std::sync::{Arc, Mutex};
 use std::time::Instant;
 
-
 pub struct CORS;
 pub mod grid;
-
-
-
 
 #[rocket::async_trait]
 impl Fairing for CORS {
@@ -41,10 +37,7 @@ impl Fairing for CORS {
             response.set_header(Header::new("Access-Control-Allow-Headers", "*"));
         }
 
-        response.set_header(Header::new(
-            "Access-Control-Allow-Origin",
-            "*",
-        ));
+        response.set_header(Header::new("Access-Control-Allow-Origin", "*"));
         response.set_header(Header::new("Access-Control-Allow-Credentials", "true"));
     }
 }
@@ -90,29 +83,43 @@ fn consume(grid: &State<Arc<Mutex<Grid>>>, data: Json<ConsumerUpdate>) -> String
 #[serde(crate = "rocket::serde")]
 struct ConsumerNew {
     resistance: f32,
-    transmission_line: u32
+    transmission_line: u32,
 }
 
-#[post("/add_consumer", format = "application/json",data = "<data>")]
-fn add_consumer(grid: &State<Arc<Mutex<Grid>>>, data: Json<ConsumerNew>) -> content::RawJson<String>{
+#[post("/add_consumer", format = "application/json", data = "<data>")]
+fn add_consumer(
+    grid: &State<Arc<Mutex<Grid>>>,
+    data: Json<ConsumerNew>,
+) -> content::RawJson<String> {
     let mut g = grid.lock().unwrap();
-    let id = g.add_consumer(Resistance(data.resistance),data.transmission_line,Voltage(0.0,0.0,0.0));
+    let id = g.add_consumer(
+        Resistance(data.resistance),
+        data.transmission_line,
+        Voltage(0.0, 0.0, 0.0),
+    );
     content::RawJson(json!({"id":id}).to_string())
 }
-
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
 struct GeneratorNew {
     transmission_line: u32,
-    max_voltage : f32,
-    frequency: f32
+    max_voltage: f32,
+    frequency: f32,
 }
 
-#[post("/add_generator", format = "application/json",data = "<data>")]
-fn add_generator(grid: &State<Arc<Mutex<Grid>>>, data: Json<GeneratorNew>) -> content::RawJson<String>{
+#[post("/add_generator", format = "application/json", data = "<data>")]
+fn add_generator(
+    grid: &State<Arc<Mutex<Grid>>>,
+    data: Json<GeneratorNew>,
+) -> content::RawJson<String> {
     let mut g = grid.lock().unwrap();
-    let id = g.add_generator(Voltage(0.0,0.0,0.0),data.max_voltage,data.frequency,data.transmission_line);
+    let id = g.add_generator(
+        Voltage(0.0, 0.0, 0.0),
+        data.max_voltage,
+        data.frequency,
+        data.transmission_line,
+    );
     content::RawJson(json!({"id":id}).to_string())
 }
 
@@ -122,13 +129,11 @@ fn info(grid: &State<Arc<Mutex<Grid>>>) -> content::RawJson<String> {
     content::RawJson(g.to_json())
 }
 
-
 #[post("/overview", format = "application/json")]
 fn overview(grid: &State<Arc<Mutex<Grid>>>) -> content::RawJson<String> {
     let g = grid.lock().unwrap();
     content::RawJson(g.get_average_line_voltage())
 }
-
 
 #[post("/start", format = "application/json")]
 fn start(grid: &State<Arc<Mutex<Grid>>>) -> String {
@@ -165,7 +170,19 @@ fn start(grid: &State<Arc<Mutex<Grid>>>) -> String {
 fn rocket() -> _ {
     rocket::build()
         .attach(CORS)
-        .mount("/", routes![index, produce, consume, start, info, overview,add_generator,add_consumer])
+        .mount(
+            "/",
+            routes![
+                index,
+                produce,
+                consume,
+                start,
+                info,
+                overview,
+                add_generator,
+                add_consumer
+            ],
+        )
         .manage(Arc::new(Mutex::new(Grid {
             consumers: vec![Consumer {
                 id: 0,
@@ -202,7 +219,4 @@ fn rocket() -> _ {
             }],
             started: false,
         })))
-
-
-
 }

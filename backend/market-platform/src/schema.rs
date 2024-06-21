@@ -44,10 +44,5 @@ pub mod open_em {
     diesel::joinable!(transactions -> advertisements (advertisement_id));
     diesel::joinable!(transactions -> users (buyer_id));
 
-    diesel::allow_tables_to_appear_in_same_query!(
-        advertisements,
-        profiles,
-        transactions,
-        users,
-    );
+    diesel::allow_tables_to_appear_in_same_query!(advertisements, profiles, transactions, users,);
 }

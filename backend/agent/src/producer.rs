@@ -1,26 +1,25 @@
+use crate::establish_connection;
+use crate::models::User;
+use diesel::RunQueryDsl;
+use diesel::{ExpressionMethods, QueryDsl};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::env;
-use diesel::RunQueryDsl;
-use serde::{Deserialize, Serialize};
-use crate::establish_connection;
-use diesel::{ExpressionMethods, QueryDsl};
-use crate::models::User;
 
 pub struct ProducerManager {
-    pub(crate) map: HashMap<String,Producer>,
+    pub(crate) map: HashMap<String, Producer>,
 }
-
 
 #[derive(Serialize)]
 pub struct ProducerNew {
     pub transmission_line: u32,
-    pub max_voltage : f32,
-    pub frequency: f32
+    pub max_voltage: f32,
+    pub frequency: f32,
 }
 
 #[derive(Deserialize)]
 pub struct ProducerResponse {
-    pub id : u32
+    pub id: u32,
 }
 
 #[derive(Serialize)]
@@ -29,24 +28,21 @@ struct ProducerUpdate {
     supply: f32,
 }
 
-
-pub struct  Producer {
-    pub id :u32,
+pub struct Producer {
+    pub id: u32,
     pub email: String,
-    pub on : bool
+    pub on: bool,
 }
 
-
-impl Producer{
+impl Producer {
     pub async fn sync_grid(&mut self) {
         use super::schema::open_em::users::dsl::*;
         let connection = &mut establish_connection();
 
-
-        let results: Vec<User> = users.filter(email.eq(&self.email)).load(connection).expect("Error loading users");
-
-
-
+        let results: Vec<User> = users
+            .filter(email.eq(&self.email))
+            .load(connection)
+            .expect("Error loading users");
 
         if results[0].units_sold < 0f64 && self.on {
             self.on = !self.on;
@@ -60,11 +56,14 @@ impl Producer{
             };
 
             grid_url.push_str("/produce");
-            let res  = client.post(grid_url).json(&data).send().await.expect("Could not connect to grid");
+            let res = client
+                .post(grid_url)
+                .json(&data)
+                .send()
+                .await
+                .expect("Could not connect to grid");
             let text = res.text().await.unwrap();
             println!("{text}");
-
-
         } else if results[0].units_sold > 0f64 && !self.on {
             self.on = !self.on;
             // Turn on
@@ -77,11 +76,14 @@ impl Producer{
             };
 
             grid_url.push_str("/produce");
-            let res  = client.post(grid_url).json(&data).send().await.expect("Could not connect to grid");
+            let res = client
+                .post(grid_url)
+                .json(&data)
+                .send()
+                .await
+                .expect("Could not connect to grid");
             let text = res.text().await.unwrap();
             println!("{text}");
         }
-
-
     }
 }

@@ -146,85 +146,130 @@ fn grid_to_json_after_setting_start(){
 
 #[test]
 fn grid_get_average_line_voltage() {
-    let grid =  Grid {
+    let mut grid =  Grid {
         consumers: vec![],
         transmission_lines: vec![],
         generators: vec![],
         transformers: vec![],
         started: false,
     };
+
+    grid.transmission_lines.push(TransmissionLine {
+        id: 0,
+        resistance: Resistance(0.0),
+        impedance: Resistance(0.0),
+        voltage: Voltage(230.0, 0.0, 0.0),
+    });
+
+    grid.transmission_lines.push(TransmissionLine {
+        id: 0,
+        resistance: Resistance(0.0),
+        impedance: Resistance(0.0),
+        voltage: Voltage(230.0, 0.0, 0.0),
+    });
+
+    assert_eq!(grid.get_average_line_voltage(),"{\"Phase1\":230.0,\"Phase2\":0.0,\"Phase3\":0.0}")
 
 }
 #[test]
 fn grid_add_generator() {
-    let grid =  Grid {
+    let mut grid =  Grid {
         consumers: vec![],
         transmission_lines: vec![],
         generators: vec![],
         transformers: vec![],
         started: false,
     };
-
+    grid.add_generator(Voltage(0.0,0.0,0.0),0.0,0.0,0);
+    assert_eq!(grid.generators.len(),1)
 }
 #[test]
 fn grid_add_consumer() {
-    let grid =  Grid {
+    let mut grid =  Grid {
         consumers: vec![],
         transmission_lines: vec![],
         generators: vec![],
         transformers: vec![],
         started: false,
     };
-
+    grid.add_consumer(Resistance(0.0), 0, Voltage(0.0,0.0,0.0));
+    assert_eq!(grid.consumers.len(),1)
 }
 #[test]
 fn grid_update_generator(){
-    let grid =  Grid {
+    let mut grid =  Grid {
         consumers: vec![],
         transmission_lines: vec![],
         generators: vec![],
         transformers: vec![],
         started: false,
     };
-
+    let id = grid.add_generator(Voltage(0.0,0.0,0.0),0.0,0.0,0);
+    grid.update_generator(id,240.0);
+    assert_eq!(grid.generators[0].max_voltage,240.0);
 }
 #[test]
 fn grid_update_consumer(){
-    let grid =  Grid {
+    let mut grid =  Grid {
         consumers: vec![],
         transmission_lines: vec![],
         generators: vec![],
         transformers: vec![],
         started: false,
     };
-
+    let id = grid.add_consumer(Resistance(0.0), 0, Voltage(0.0,0.0,0.0));
+    grid.update_consumer(id,Resistance(1000.0));
+    assert_eq!(grid.consumers[0].resistance.0,1000.0);
 }
 
 #[test]
 fn grid_update_impedance() {
-    let grid =  Grid {
+    let mut grid =  Grid {
         consumers: vec![],
         transmission_lines: vec![],
         generators: vec![],
         transformers: vec![],
         started: false,
     };
+
+    grid.transmission_lines.push(TransmissionLine {
+        id: 0,
+        resistance: Resistance(500.0),
+        impedance: Resistance(0.0),
+        voltage: Voltage(0.0,0.0,0.0),
+    });
+
+    grid.add_consumer(Resistance(1000.0), 0, Voltage(0.0,0.0,0.0));
+    grid.add_consumer(Resistance(1000.0), 0, Voltage(0.0,0.0,0.0));
+
+    grid.update_impedance();
+    //Currently wrong
+    assert_eq!(grid.transmission_lines[0].impedance.0,1500.0)
 
 }
 #[test]
 fn grid_update_generator_voltages() {
-    let grid =  Grid {
+    let mut grid =  Grid {
         consumers: vec![],
         transmission_lines: vec![],
         generators: vec![],
         transformers: vec![],
         started: false,
     };
+
+
+    grid.add_generator(Voltage(0.0,0.0,0.0),240.0,0.0,0);
+
+    grid.update_generator_voltages(0.0);
+
+    assert_eq!(grid.generators[0].voltage.0,0.0);
+    assert_eq!(grid.generators[0].voltage.1,-50.5482);
+    assert_eq!(grid.generators[0].voltage.2,-98.82866)
 
 }
 #[test]
 fn grid_sync_voltages() {
-    let grid =  Grid {
+    let mut grid =  Grid {
         consumers: vec![],
         transmission_lines: vec![],
         generators: vec![],
@@ -232,5 +277,24 @@ fn grid_sync_voltages() {
         started: false,
     };
 
+    grid.transmission_lines.push(TransmissionLine {
+        id: 0,
+        resistance: Resistance(500.0),
+        impedance: Resistance(0.0),
+        voltage: Voltage(0.0,0.0,0.0),
+    });
+
+    grid.add_generator(Voltage(0.0,0.0,0.0),240.0,0.0,0);
+
+    grid.add_consumer(Resistance(1000.0), 0, Voltage(0.0,0.0,0.0));
+
+    grid.update_impedance();
+    grid.update_generator_voltages(0.0);
+    grid.sync_voltages();
+
+
+    assert_eq!(grid.consumers[0].voltage.0,0.0);
+    assert_eq!(grid.consumers[0].voltage.1,-50.5482);
+    assert_eq!(grid.consumers[0].voltage.2,-98.82866)
 }
 

@@ -20,6 +20,7 @@
         //updateChart(data.Phase1, data.Phase2);
       } catch (error) {
         console.log("There was an error fetching the JSON for the chart..", error);
+        
       }
   };
 
@@ -31,7 +32,7 @@
   
   <button onclick={fetchstart()} class = "bg-red-500">start</button>
 
- <Chart class = "w-3/5 h-3/5"  />
+ <!-- <Chart class = "w-3/5 h-3/5"  /> -->
 
 
   

@@ -7,10 +7,10 @@
   let interval; 
 
   onMount(async () => {
-    await fetchData(); // Fetch initial data
-    interval = setInterval(fetchData, 800); // Fetch data periodically
+    await fetchData(); 
+    interval = setInterval(fetchData, 800); 
 
-    // Cleanup interval on unmount
+   
     return () => {
       clearInterval(interval);
     };

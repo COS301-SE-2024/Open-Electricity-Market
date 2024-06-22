@@ -63,7 +63,7 @@
         <div class = "stats shadow">
           <div class="stat place-items-center">
             <div class="stat-title">{key} Voltage</div>
-            <div class="stat-value">{value}V</div>
+            <div class="stat-value">{value.toFixed(2)}V</div>
             <div class="stat-desc text-red-700">90 (14%)</div>
           </div>
           </div>

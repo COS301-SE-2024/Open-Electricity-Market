@@ -6,15 +6,23 @@
     let surname = '';
     let password = '';
     let passwordValidate = '';
-    
+    let errormess = "";
     async function create(){
         //add to database
         if(password == passwordValidate)
         {
           const res = await fetch("http://localhost:8001/register", {method: "POST", body: JSON.stringify({email,first_name:firstname,last_name: surname, password})})
           const json = await res.json()
-          result = JSON.stringify(json) 
-          //goto("/");
+          result = JSON.stringify(json)
+          if(json.status == "ok")
+          {
+            goto("/");
+          }
+          else
+          {
+            errormess = "Invalid Credentials";
+          }
+          //
         }
     }
     

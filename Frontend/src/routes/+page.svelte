@@ -3,15 +3,22 @@
     import {goto} from "$app/navigation";
     let email = '';
     let password = '';
+    let errormess = "";
     function signup(){
         goto("/signup");
     }
     async function login(){
         const res = await fetch("http://localhost:8001/login", {method: "POST", body: JSON.stringify({email, password})})
         const json = await res.json()
-        result = JSON.stringify(json)
+        //result = JSON.stringify(json)
+        if(json.verified == true)
+        {
+          goto("/Main/Dashboard");
+        }
+        else{
+          errormess = "Invalid Credentials";
+        }
         //send to main page
-        //goto("/Main/Dashboard");
     }
 </script>
 
@@ -22,6 +29,7 @@
           <div class="text-center lg:text-left">
             <h1 class="text-5xl font-bold">Open Electricity Market.</h1>
             <p class="py-6">Discover a revolutionary platform where you can buy and sell electricity in real-time.</p>
+            <p>{errormess}</p>
           </div>
           <div class="card shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
             <form class="card-body">

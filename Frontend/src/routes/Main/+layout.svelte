@@ -42,9 +42,9 @@
       
     <div class="navbar-center hidden lg:flex">
       <ul class="menu menu-horizontal px-1">
-        <li class="px-2"><a class="w-28 justify-center bg-slate-800" href="/Main/GridSimulation">Grid</a></li>
-        <li class="px-2"><a class="w-28 justify-center bg-slate-800" href="/Main/BiddingMarket">Market</a></li>
-        <li class="px-2"><a class="w-28 justify-center bg-slate-800" href="/Main/Dashboard">Dashboard</a></li>
+        <li class="px-2"><a class="w-28 justify-center {activebutton == '/Main/GridSimulation' ? 'bg-zinc-900' : 'bg-slate-800'}" href="/Main/GridSimulation">Grid</a></li>
+        <li class="px-2"><a class="w-28 justify-center {activebutton == '/Main/BiddingMarket' ? 'bg-zinc-900' : 'bg-slate-800'}" href="/Main/BiddingMarket">Market</a></li>
+        <li class="px-2"><a class="w-28 justify-center {activebutton == '/Main/Dashboard' ? 'bg-zinc-900' : 'bg-slate-800'}" href="/Main/Dashboard">Dashboard</a></li>
       </ul>
     </div>
       

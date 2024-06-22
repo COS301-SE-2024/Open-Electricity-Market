@@ -7,12 +7,13 @@
   let interval; 
 
   onMount(async () => {
-    data = await fetchData();
+    await fetchData();
     interval = setInterval(fetchData, 800);
 
     //return function runs when the component is unmounted 
     return() => {
       clearInterval(interval);
+     
     };
   });
 

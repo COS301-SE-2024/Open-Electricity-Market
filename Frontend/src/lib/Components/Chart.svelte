@@ -8,7 +8,7 @@
   export let data = {}; 
   let interval; 
 
-  onMount(() => {
+  onMount(async () => {
     
     if (typeof window !== 'undefined') { // Check if running in the browser
       chart = createChart(chartCanvas, sampleChartConfig);
@@ -19,7 +19,7 @@
 
     return () => {
       if (chart) {
-        //chart.destroy();
+        chart.destroy();
       }
       // clearInterval(interval);
     };
@@ -49,19 +49,24 @@
   // };
 
     $: if (chart && Object.keys(data).length) {
+      console.log("Reactive if was triggered...");
     updateChart();
   }
 
-  function updateChart(){
+  //  $: if (chart ) {
+  //   updateChart();
+  // }
 
-    if(chart){
+  async function updateChart(){
+
+    if(chart && data.Phase1 && data.Phase2){
       console.log("UPDate chart is reactive on chart js.....");
       chart.data.datasets[0].data.push(data.Phase1);
       chart.data.datasets[1].data.push(data.Phase2);
       chart.data.labels.push(chart.data.labels.length + 1); 
       chart.update();
     }
-      
+      return; 
 
   }
 

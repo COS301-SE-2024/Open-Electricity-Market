@@ -26,7 +26,7 @@
         </div>
         
         <div class = "flex flex-col space-y-8 items-center justify-center">
-            <input type = "text" placeholder="Username" class = "input bg-fillin text-fillinText font-fillin w-fillin h-fillin"  bind:value={username}/>
+            <input type = "text" placeholder="Username" class = "input bg-fillin text-fillinText font-fillin w-fillin h-fillin"  bind:value={email}/>
             <input type = "password" placeholder="Password" class = "input bg-fillin text-fillinText font-fillin w-fillin h-fillin" bind:value={password}/>
         </div>
         <div class = "flex flex-col space-y-8 items-center justify-center">

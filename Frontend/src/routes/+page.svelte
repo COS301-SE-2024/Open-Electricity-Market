@@ -7,7 +7,6 @@
         goto("/signup");
     }
     async function login(){
-        //Username and password to be validated.
         const res = await fetch("http://localhost:8001/login", {method: "POST", body: JSON.stringify({email, password})})
         const json = await res.json()
         result = JSON.stringify(json)

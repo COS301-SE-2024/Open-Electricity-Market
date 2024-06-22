@@ -5,6 +5,13 @@
 
   let data = {};
   let interval; 
+  let numDecimals = 2; 
+  let advancedView = false; 
+  let dropdownViewable = false; 
+
+  function toggleDropdown(){
+    dropdownViewable = !dropdownViewable; 
+  }
 
   onMount(async () => {
     await fetchData(); 
@@ -38,6 +45,16 @@
       }
   };
 
+   function setAdvancedView(){
+    advancedView = !advancedView;
+    if(advancedView){
+      numDecimals = 7; 
+    }
+    else{
+      numDecimals = 2;  
+    }
+  }
+
   async function fetchData() {
     try {
       const response = await fetch("http://localhost:8000/info", {
@@ -64,6 +81,37 @@
 
 <main class="container mx-auto p-4">
 
+ <div class="dropdown mr-3 mt-3">
+  <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6a1.5 1.5 0 110 3 1.5 1.5 0 010-3zm0 4.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zm0 4.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3z" />
+    </svg>
+  </div>
+  <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+  <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+      <li class="flex items-center">
+      <label class="cursor-pointer flex items-center space-x-3 w-full hover:bg-gray-600">
+        <input type="checkbox" class="checkbox checkbox-primary" on:click={setAdvancedView} />
+        <span>Advanced view</span>
+      </label>
+    </li>
+  </ul>
+</div>
+
+
+<button class="btn" onclick="my_modal_2.showModal()">Help</button>
+    <dialog id="my_modal_2" class="modal">  
+      <div class="modal-box">
+        <h3 class="font-bold text-lg ">Grid Simulation Page</h3>
+        <p class="py-4">The grid simulation page contains an overview of the current 
+          state of the electrical grid. 
+        </p>
+      </div>
+      <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+      </form>
+    </dialog>
+
    
  
   {#if Object.keys(data).length > 0}
@@ -76,9 +124,9 @@
             <h3 class="text-lg font-semibold mb-2">Consumer ID: {consumer.ID}</h3>
             <p><strong>Connected Transmission Line:</strong> {consumer["Connected Transmission Line"]}</p>
             <p><strong>Resistance:</strong> {consumer.Resistance} Ω</p>
-            <p><strong>Phase 1 Voltage:</strong> {consumer.Voltage["Phase 1"]} V</p>
-            <p><strong>Phase 2 Voltage:</strong> {consumer.Voltage["Phase 2"]} V</p>
-            <p><strong>Phase 3 Voltage:</strong> {consumer.Voltage["Phase 3"]} V</p>
+            <p><strong>Phase 1 Voltage:</strong> {consumer.Voltage["Phase 1"].toFixed(numDecimals)} V</p>
+            <p><strong>Phase 2 Voltage:</strong> {consumer.Voltage["Phase 2"].toFixed(numDecimals)} V</p>
+            <p><strong>Phase 3 Voltage:</strong> {consumer.Voltage["Phase 3"].toFixed(numDecimals)} V</p>
           </div>
         {/each}
       </div>
@@ -94,9 +142,9 @@
             <p><strong>Connected Transmission Line:</strong> {generator["Connected Transmission Line"]}</p>
             <p><strong>Frequency:</strong> {generator.Frequency} Hz</p>
             <p><strong>Max Voltage:</strong> {generator["Max Voltage"]} V</p>
-            <p><strong>Phase 1 Voltage:</strong> {generator.Voltage["Phase 1"]} V</p>
-            <p><strong>Phase 2 Voltage:</strong> {generator.Voltage["Phase 2"]} V</p>
-            <p><strong>Phase 3 Voltage:</strong> {generator.Voltage["Phase 3"]} V</p>
+            <p><strong>Phase 1 Voltage:</strong> {generator.Voltage["Phase 1"].toFixed(numDecimals)} V</p>
+            <p><strong>Phase 2 Voltage:</strong> {generator.Voltage["Phase 2"].toFixed(numDecimals)} V</p>
+            <p><strong>Phase 3 Voltage:</strong> {generator.Voltage["Phase 3"].toFixed(numDecimals)} V</p>
           </div>
         {/each}
       </div>
@@ -126,9 +174,9 @@
             <h3 class="text-lg font-semibold mb-2">Transmission Line ID: {line.ID}</h3>
             <p><strong>Impedance:</strong> {line.Impedance} Ω</p>
             <p><strong>Resistance:</strong> {line.Resistance} Ω</p>
-            <p><strong>Phase 1 Voltage:</strong> {line.Voltage["Phase 1"]} V</p>
-            <p><strong>Phase 2 Voltage:</strong> {line.Voltage["Phase 2"]} V</p>
-            <p><strong>Phase 3 Voltage:</strong> {line.Voltage["Phase 3"]} V</p>
+            <p><strong>Phase 1 Voltage:</strong> {line.Voltage["Phase 1"].toFixed(numDecimals)} V</p>
+            <p><strong>Phase 2 Voltage:</strong> {line.Voltage["Phase 2"].toFixed(numDecimals)} V</p>
+            <p><strong>Phase 3 Voltage:</strong> {line.Voltage["Phase 3"].toFixed(numDecimals)} V</p>
           </div>
         {/each}
       </div>

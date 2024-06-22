@@ -4,13 +4,17 @@
     function signup(){
         goto("/signup");
     }
-    function login(){
+    async function login(){
         //Username and password to be validated.
+        const res = await fetch("http://localhost:8001/login", {method: "POST", body: JSON.stringify({email, password})})
+        const json = await res.json()
+        result = JSON.stringify(json)
         //send to main page
-        goto("/Main/Dashboard");
+        //goto("/Main/Dashboard");
     }
-    let username = '';
+    let email = '';
     let password = '';
+    let result = null;
 </script>
 
 <body class = "h-screen w-max-xl bg-logSignup bg-cover bg-no-repeat bg-center">
@@ -30,6 +34,9 @@
             <button class = "btn bg-btn btn-outline text-btnTxt w-btn h-btn" on:click={signup}>Signup</button>
         </div>
     </div>
+    <pre>
+        {result}
+        </pre>
 </body>
 
 <style>

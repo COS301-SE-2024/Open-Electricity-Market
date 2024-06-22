@@ -13,7 +13,6 @@
         //send to main page
         //goto("/Main/Dashboard");
     }
-    let result = null;
 </script>
 
 <main>

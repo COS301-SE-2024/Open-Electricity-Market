@@ -7,11 +7,14 @@
     let password = '';
     let passwordValidate = '';
     
-    function create(){
+    async function create(){
         //add to database
         if(password == passwordValidate)
         {
-            goto("/");
+          const res = await fetch("http://localhost:8001/register", {method: "POST", body: JSON.stringify({email,first_name:firstname,last_name: surname, password})})
+          const json = await res.json()
+          result = JSON.stringify(json) 
+          //goto("/");
         }
     }
     

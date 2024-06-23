@@ -1,7 +1,7 @@
 <script>
   import { onMount } from "svelte";
   let interval;
-  let ads;
+  let ads = [];
 
   onMount(async () => {
     await fetchAds();
@@ -24,14 +24,15 @@
       // console.log(response);
 
       ads = await response.json();
+      ads = ads.advertisements;
       console.log(ads);
     } catch (error) {
       console.log("Unable to fetch advertisements." + error)
     }
   }
 
-  async function buyFunction() {
-    
+  async function buyFunction(ad_id) {
+    console.log("Buying from advertisement id: " + ad_id);
   }
 
   async function sellFunction() {
@@ -59,7 +60,7 @@
 
 <main class="container mx-auto">
   <h1 class="text-2xl font-bold mb-4">Bidding Market</h1>
-  <div class="overflow-x-auto">
+  <div class="grid grid-flow-row grid-cols-3 gap-5 overflow-x-auto">
 
     <div class="card card-compact w-96 bg-base-200 shadow-xl">
       <!-- <figure><img src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg" alt="Shoes" /></figure> -->
@@ -79,10 +80,11 @@
       <div class="card card-compact w-96 bg-base-200 shadow-xl">
         <!-- <figure><img src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg" alt="Shoes" /></figure> -->
         <div class="card-body">
-          <h2 class="card-title">Sample Electricity Company</h2>
-          <p>Seller information goes here</p>
+          <h2 class="card-title">Electricity Producer {ad.advertisement_id}</h2>
+          <p>Offered Units: {ad.offered_units}</p>
+          <p>Price: {ad.price}</p>
           <div class="card-actions justify-end">
-            <button on:click={buyFunction} class="btn btn-primary">Buy Now</button>
+            <button on:click={buyFunction(ad.advertisement_id)} class="btn btn-primary">Buy Now</button>
           </div>
         </div>
       </div>

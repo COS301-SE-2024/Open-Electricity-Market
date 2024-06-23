@@ -16,7 +16,7 @@
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            "num_advertisements": 4
+            "num_advertisements": 5
           })
         },
       );
@@ -83,6 +83,22 @@
 
 <main class="container mx-auto">
   <h1 class="text-2xl font-bold mb-4">Electricity Marketplace</h1>
+  
+  <button class="btn btn-secondary mb-3" onclick="help_modal.showModal()">Help</button>
+  <dialog id="help_modal" class="modal">
+    <div class="modal-box">
+      <h3 class="font-bold text-lg">Help!</h3>
+      <p class="py-4">Click the button on the 'Advertise Here' card to enter the number of units you want to sell, and the price you wish to sell them for.</p>
+      <p class="py-4">You can click the button on any of the advertisements to buy one unit of electricity from them.</p>
+      <div class="modal-action">
+        <form method="dialog">
+          <!-- if there is a button in form, it will close the modal -->
+          <button class="btn">Close</button>
+        </form>
+      </div>
+    </div>
+  </dialog>
+
   <div class="grid grid-flow-row grid-cols-3 gap-5 overflow-x-auto">
 
     <div class="card card-compact w-96 bg-slate-700 shadow-xl">

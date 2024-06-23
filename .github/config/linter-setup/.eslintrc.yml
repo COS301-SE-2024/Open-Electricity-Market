@@ -31,6 +31,7 @@ ignorePatterns:
   - "**/pnpm-lock.yaml"
   - "**/package-lock.json"
   - "**/yarn.lock"
+  - ".vscode"
 
 ###############
 # Parser vars #

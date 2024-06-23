@@ -16,6 +16,10 @@
         else if (activebutton=="/Main/Dashboard"){
             document.getElementById("my_modal_dash").showModal();
         }
+        else if(activebutton=="/Main/BiddingMarket"){
+            document.getElementById("help_modal").showModal();
+        }
+
     }
 
   </script>
@@ -86,6 +90,20 @@
         <button>close</button>
       </form>
     </dialog>
+
+     <dialog id="help_modal" class="modal">
+    <div class="modal-box">
+      <h3 class="font-bold text-lg">Help!</h3>
+      <p class="py-4">Click the button on the 'Advertise Here' card to enter the number of units you want to sell, and the price you wish to sell them for.</p>
+      <p class="py-4">You can click the button on any of the advertisements to buy one unit of electricity from them.</p>
+      <div class="modal-action">
+        <form method="dialog">
+          <!-- if there is a button in form, it will close the modal -->
+          <button class="btn">Close</button>
+        </form>
+      </div>
+    </div>
+  </dialog>
 
       <a class="btn bg-slate-800" href="/Main/Dashboard">Profile</a>
     </div>

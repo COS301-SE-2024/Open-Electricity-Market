@@ -6,35 +6,44 @@
     let surname = '';
     let password = '';
     let passwordValidate = '';
-    let errormess = "";
+    let errormessage = "";
+
+    // RFC 2822 standard email validation pattern
+    var emailregex = /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/;
+
     async function create(){
-        //add to database
-        if(password == passwordValidate)
+        
+      if (!email.match(emailregex)) {
+        errormessage = "Please enter a valid email address."
+        return;
+      }
+      
+      if(password == passwordValidate)
+      {
+        const res = await fetch("http://localhost:8001/register", {
+          method: "POST", 
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            "email": email,
+            "first_name": firstname,
+            "last_name": surname, 
+            "password": password
+          })
+        });
+        const json = await res.json();
+        if(json.status == "ok")
         {
-          const res = await fetch("http://localhost:8001/register", {
-            method: "POST", 
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              "email": email,
-              "first_name": firstname,
-              "last_name": surname, 
-              "password": password
-            })
-          });
-          const json = await res.json();
-          if(json.status == "ok")
-          {
-            goto("/");
-          }
-          else
-          {
-            errormess = "An error occured";
-          }
-        } else {
-          errormess = "Passwords must match"
+          goto("/");
         }
+        else
+        {
+          errormessage = "An error occured";
+        }
+      } else {
+        errormessage = "Passwords must match"
+      }
     }
     
     function back(){
@@ -74,8 +83,8 @@
                 <input type="password" placeholder="Re-enter password" class="input input-bordered" required bind:value={passwordValidate}/>
               </div>
 
-              {#if errormess != ''}
-                <h2 class="text-base font-semibold text-black bg-error rounded"> { errormess } </h2>
+              {#if errormessage != ''}
+                <h2 class="text-base font-semibold text-black bg-error rounded"> { errormessage } </h2>
               {/if}
 
               <div class="form-control mt-4">

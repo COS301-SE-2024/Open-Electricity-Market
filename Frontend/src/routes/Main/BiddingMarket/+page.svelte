@@ -1,6 +1,6 @@
 <script>
   import { onMount } from "svelte";
-  let interval;
+  let units, price;
   let ads = [];
 
   onMount(async () => {
@@ -45,13 +45,14 @@
           },
           body: JSON.stringify({
             "email": "email@example.com",
-            "units": 75.0,
-            "price": 75.0
+            "units": units,
+            "price": price
           })
         },
       );
 
       console.log(await response.json());
+      advertise_modal.close();
     } catch (error) {
       console.log("Unable to send advertisement.\n" + error)
     }
@@ -59,16 +60,16 @@
 </script>
 
 <main class="container mx-auto">
-  <h1 class="text-2xl font-bold mb-4">Bidding Market</h1>
+  <h1 class="text-2xl font-bold mb-4">Electricity Marketplace</h1>
   <div class="grid grid-flow-row grid-cols-3 gap-5 overflow-x-auto">
 
-    <div class="card card-compact w-96 bg-base-200 shadow-xl">
+    <div class="card card-compact w-96 bg-slate-700 shadow-xl">
       <!-- <figure><img src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg" alt="Shoes" /></figure> -->
       <div class="card-body">
         <h2 class="card-title">Advertise Here</h2>
-        <p>Contribute to the open market.</p>
+        <p>Put your power up for sale and contribute to the open market!</p>
         <div class="card-actions justify-end">
-          <button on:click={sellFunction} class="btn btn-primary">Advertise</button>
+          <button onclick="advertise_modal.showModal()" class="btn btn-primary">Advertise</button>
         </div>
       </div>
     </div>
@@ -96,8 +97,40 @@
 
 
       <!-- <button on:click={sellFunction} class="btn bg btn-secondary btn-lg btn-wide text-slate-900">Sell</button> -->
+      
     </div>
   </div>
+
+  <dialog id="advertise_modal" class="modal">
+    <div class="modal-box">
+      <h3 class="font-bold text-lg">Advertise</h3>
+      <p class="py-4">Press ESC key or click the button below to close</p>
+      <div class="card">
+        <form class="card-body" method="dialog">
+          <!-- if there is a button in form, it will close the modal -->
+          <div class="modal-middle">
+            <div class="form-control">
+              <input type="number" class="input input-bordered" placeholder="units" bind:value={units} required/>
+            </div>
+  
+            <div class="form-control mt-4">
+              <input type="number" class="input input-bordered" placeholder="price" bind:value={price} required/>
+            </div>
+          </div>
+
+          <div class="modal-action">
+            <div class="form-control">
+              <button class="btn btn-primary" on:click={sellFunction}>Confirm</button>
+            </div>
+            
+            <div class="form-control">
+              <button class="btn" onclick="advertise_modal.close()">Cancel</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </dialog>
 </main>
 
 

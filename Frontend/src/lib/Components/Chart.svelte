@@ -63,6 +63,7 @@
       console.log("UPDate chart is reactive on chart js.....");
       chart.data.datasets[0].data.push(data.Phase1);
       chart.data.datasets[1].data.push(data.Phase2);
+      chart.data.datasets[2].data.push(data.Phase3);
       chart.data.labels.push(chart.data.labels.length + 1); 
       chart.update();
     }

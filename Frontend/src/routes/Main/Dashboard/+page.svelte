@@ -9,6 +9,7 @@
   let numDecimals = 2; 
 
   onMount(async () => {
+    await fetchStart();
     await fetchData();
     interval = setInterval(fetchData, 800);
 
@@ -19,8 +20,21 @@
     };
   });
 
- 
+  async function fetchStart() {
 
+      try {
+        const response = await fetch("http://localhost:8000/start", {
+      method: "POST", 
+      headers: {
+        'Content-Type': 'application/json' 
+      }
+
+    });
+  }
+    catch(error){
+      console.log("There was an error sending a post to /start endpoint.");
+    }
+  };
  async function fetchData() {
 
       try {

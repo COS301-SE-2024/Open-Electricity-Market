@@ -13,22 +13,24 @@
         {
           const res = await fetch("http://localhost:8001/register", {
             method: "POST", 
+            headers: {
+              "Content-Type": "application/json",
+            },
             body: JSON.stringify({
               "email": email,
               "first_name": firstname,
               "last_name": surname, 
               "password": password
             })
-          })
-          const json = await res.json()
-          result = JSON.stringify(json)
+          });
+          const json = await res.json();
           if(json.status == "ok")
           {
             goto("/");
           }
           else
           {
-            errormess = "Invalid Credentials";
+            errormess = "An error occured";
           }
         } else {
           errormess = "Passwords must match"
@@ -73,7 +75,7 @@
               </div>
 
               {#if errormess != ''}
-                <h2 class="text-base font-semibold bg-error"> { errormess } </h2>
+                <h2 class="text-base font-semibold text-black bg-error rounded"> { errormess } </h2>
               {/if}
 
               <div class="form-control mt-4">

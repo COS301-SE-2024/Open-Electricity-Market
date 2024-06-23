@@ -8,6 +8,16 @@
     const currentpath = derived(page, $page => $page.url.pathname);
 
     $: activebutton = $currentpath;
+
+    function showModal(){
+        if(activebutton=="/Main/GridSimulation"){
+            document.getElementById("my_modal_grid").showModal(); 
+        }
+        else if (activebutton=="/Main/Dashboard"){
+            document.getElementById("my_modal_dash").showModal();
+        }
+    }
+
   </script>
   
 <style>
@@ -49,6 +59,30 @@
     </div>
       
     <div class="navbar-end">
+    <button class="btn" on:click={showModal}>Help</button>
+    <dialog id="my_modal_dash" class="modal">  
+      <div class="modal-box">
+        <h3 class="font-bold text-lg ">Dashboard Page</h3>
+        <p class="py-4">The dashboard page contains metrics that you may use in order to help you decide 
+          on when the best time to buy electricity is. 
+        </p>
+      </div>
+      <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+      </form>
+    </dialog>
+
+     <dialog id="my_modal_grid" class="modal">  
+      <div class="modal-box">
+        <h3 class="font-bold text-lg ">Grid Simulation Page</h3>
+        <p class="py-4">The grid simulation page contains an overview of the current 
+          state of the electrical grid. 
+        </p>
+      </div>
+      <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+      </form>
+    </dialog>
       <a class="btn bg-slate-800" href="/Main/Dashboard">Profile</a>
     </div>
   </div>

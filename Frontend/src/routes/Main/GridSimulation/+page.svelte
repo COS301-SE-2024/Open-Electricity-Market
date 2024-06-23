@@ -99,8 +99,8 @@
 </div>
 
 
-<button class="btn" onclick="my_modal_2.showModal()">Help</button>
-    <dialog id="my_modal_2" class="modal">  
+<!-- <button class="btn" onclick="my_modal_2.showModal()">Help</button> -->
+    <!-- <dialog id="my_modal_2" class="modal">  
       <div class="modal-box">
         <h3 class="font-bold text-lg ">Grid Simulation Page</h3>
         <p class="py-4">The grid simulation page contains an overview of the current 
@@ -110,7 +110,7 @@
       <form method="dialog" class="modal-backdrop">
         <button>close</button>
       </form>
-    </dialog>
+    </dialog> -->
 
    
  

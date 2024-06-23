@@ -102,7 +102,7 @@
   </ul>
 </div>
 
-  <button class="btn" onclick="my_modal_2.showModal()">Help</button>
+  <!-- <button class="btn" onclick="my_modal_2.showModal()">Help</button>
     <dialog id="my_modal_2" class="modal">  
       <div class="modal-box">
         <h3 class="font-bold text-lg ">Dashboard Page</h3>
@@ -113,7 +113,7 @@
       <form method="dialog" class="modal-backdrop">
         <button>close</button>
       </form>
-    </dialog>
+    </dialog> -->
 
 
   <!-- <h1 class="text-2xl font-bold mb-4">Overview</h1>

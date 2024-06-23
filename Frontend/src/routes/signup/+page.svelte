@@ -11,7 +11,15 @@
         //add to database
         if(password == passwordValidate)
         {
-          const res = await fetch("http://localhost:8001/register", {method: "POST", body: JSON.stringify({email,first_name:firstname,last_name: surname, password})})
+          const res = await fetch("http://localhost:8001/register", {
+            method: "POST", 
+            body: JSON.stringify({
+              "email": email,
+              "first_name": firstname,
+              "last_name": surname, 
+              "password": password
+            })
+          })
           const json = await res.json()
           result = JSON.stringify(json)
           if(json.status == "ok")
@@ -22,7 +30,8 @@
           {
             errormess = "Invalid Credentials";
           }
-          //
+        } else {
+          errormess = "Passwords must match"
         }
     }
     
@@ -48,11 +57,11 @@
               </div>
 
               <div class="form-control mt-4">
-                <input type="text" placeholder="first name" class="input input-bordered" required bind:value={firstname}/>
+                <input type="text" placeholder="First name" class="input input-bordered" required bind:value={firstname}/>
               </div>
 
               <div class="form-control mt-4">
-                <input type="text" placeholder="surname" class="input input-bordered" required bind:value={surname}/>
+                <input type="text" placeholder="Surname" class="input input-bordered" required bind:value={surname}/>
               </div>
               
               <div class="form-control mt-4">
@@ -60,8 +69,12 @@
               </div>
 
               <div class="form-control mt-4">
-                <input type="password" placeholder="Re-enter password" class="input input-bordered" required bind:value={password}/>
+                <input type="password" placeholder="Re-enter password" class="input input-bordered" required bind:value={passwordValidate}/>
               </div>
+
+              {#if errormess != ''}
+                <h2 class="text-base font-semibold bg-error"> { errormess } </h2>
+              {/if}
 
               <div class="form-control mt-4">
                 <button class="btn btn-primary" on:click={create}>Create account</button>

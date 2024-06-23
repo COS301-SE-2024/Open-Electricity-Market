@@ -8,7 +8,16 @@
         goto("/signup");
     }
     async function login(){
-        const res = await fetch("http://localhost:8001/login", {method: "POST", body: JSON.stringify({email, password})})
+        const res = await fetch("http://localhost:8001/login", {
+          method: "POST", 
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            "email": email, 
+            "password": password
+          })
+        })
         const json = await res.json()
         //result = JSON.stringify(json)
         if(json.verified == true)

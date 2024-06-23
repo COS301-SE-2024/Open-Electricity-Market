@@ -123,6 +123,6 @@ winget
 
 Frontend/.idea/
 
-Frontend/node_modules/
+**/node_modules/
 
-Frontend/.svelte-kit/
+**/.svelte-kit/

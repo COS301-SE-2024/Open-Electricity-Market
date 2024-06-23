@@ -10,16 +10,16 @@
     $: activebutton = $currentpath;
   </script>
   
-  <style>
-    nav a {
-      margin-right: 1rem;
-    }
-    nav a:focus{
-      font-weight: bold; 
-    }
-    .active{
-      font-weight: bold; 
-    }
+<style>
+  nav a {
+    margin-right: 1rem;
+  }
+  nav a:focus{
+    font-weight: bold; 
+  }
+  .active{
+    font-weight: bold; 
+  }
 
   </style>
 <!--   

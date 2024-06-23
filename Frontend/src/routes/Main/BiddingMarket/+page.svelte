@@ -32,7 +32,24 @@
   }
 
   async function buyFunction(ad_id) {
-    console.log("Buying from advertisement id: " + ad_id);
+    // console.log("Buying from advertisement id: " + ad_id);
+    try {
+      const response = await fetch("http://localhost:8001/purchase",
+        {
+          method: "POST", 
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            "ad_id": ad_id,
+            "email": "email@example.com",
+            "units": 1
+          })
+        },
+      );
+    } catch (error) {
+      console.log("Unable to buy the selected amount.\n" + error)
+    }
   }
 
   async function sellFunction() {
@@ -59,7 +76,7 @@
         // Show that an error occured
       }
     } catch (error) {
-      console.log("Unable to send advertisement.\n" + error)
+      console.log("Unable to send advertisement.\n"/* + error */)
     }
   }
 </script>
@@ -86,7 +103,7 @@
       <div class="card card-compact w-96 bg-base-200 shadow-xl">
         <!-- <figure><img src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg" alt="Shoes" /></figure> -->
         <div class="card-body">
-          <h2 class="card-title">Electricity Producer {ad.advertisement_id}</h2>
+          <h2 class="card-title">Electricity Advertisement {ad.advertisement_id}</h2>
           <p>Offered Units: {ad.offered_units}</p>
           <p>Price: {ad.price}</p>
           <div class="card-actions justify-end">

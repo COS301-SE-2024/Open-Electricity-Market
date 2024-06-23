@@ -1,115 +1,159 @@
 <script>
   import { onMount } from "svelte";
-  import { uid } from "uid";
-  let interval;
-  
-
-  // console.log(uid());
-  let arrayofuids = [];
-  var arrayofpricesbought = [];
-  // const userid = uid();
+  let units, price;
+  let ads = [];
 
   onMount(async () => {
-    await checkMet();
-    interval = setInterval(checkMet, 800);
-
-    //return function runs when the component is unmounted
-    return () => {
-      clearInterval(interval);
-    };
+    await fetchAds();
   });
 
-  function getRandomPrice() {
-    //for demo purposes
-    let random = Math.random();
-    let temp = random * (250.00 - 200.00) + 200.00;
-    return temp.toFixed(2);
-}
+  async function fetchAds() {
+    try {
+      const response = await fetch("http://localhost:8001/get_ads", 
+        {
+          method: "POST", 
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            "num_advertisements": 5
+          })
+        },
+      );
 
+      // console.log(response);
 
-   async function removeelement(element) {
-    for (let i = 0; i < arrayofuids.length; i++) {
-      let tempy = arrayofuids[i];
-      if (tempy == element) {
-        arrayofuids.splice(i, 1);
-      }
+      ads = await response.json();
+      ads = ads.advertisements;
+      console.log(ads);
+    } catch (error) {
+      console.log("Unable to fetch advertisements." + error)
     }
   }
 
-  export function removeelement2(currarray, element) {
-    for (let i = 0; i < currarray.length; i++) {
-      let tempy = currarray[i];
-      if (tempy == element) {
-        return currarray.splice(i, 1);
-      }
+  async function buyFunction(ad_id) {
+    // console.log("Buying from advertisement id: " + ad_id);
+    try {
+      const response = await fetch("http://localhost:8001/purchase",
+        {
+          method: "POST", 
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            "ad_id": ad_id,
+            "email": "email@example.com",
+            "units": 1
+          })
+        },
+      );
+    } catch (error) {
+      console.log("Unable to buy the selected amount.\n" + error)
     }
-    return currarray.clone();
-  };
-
-  async function checkMet() {
-    for (let i = 0; i < arrayofuids.length; i++) {
-      const element = arrayofuids[i];
-      const response = await fetch(`http://localhost:8001/met/${element}`);
-      let text = await response.text();
-      // console.log(text);
-      if (text == "true") {
-        console.log(`Bid met for agent with id of: ${element}`);
-        removeelement(element);
-      }
-    }
-    arrayofuids = arrayofuids;
-  }
-
-  async function bidFunction() {
-    //https://api.coindesk.com/v1/bpi/currentprice.json
-    let id = uid();
-    arrayofuids.push(id);
-    console.log(id);
-    console.log(arrayofuids);
-    const response = await fetch(`http://localhost:8001/bid/1118/100/${id}`); //have to insert endpoint
-    let text = await response.text();
-    console.log(text);
-
-    // data = JSON.parse(text)
   }
 
   async function sellFunction() {
-    //https://api.coindesk.com/v1/bpi/currentprice.json
-    const response = await fetch("http://localhost:8001/sell/1500"); //have to insert endpoint
-    let text = await response.text();
-    console.log(text);
-    // data = JSON.parse(text)
+    try {
+      const response = await fetch("http://localhost:8001/advertise",
+        {
+          method: "POST", 
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            "email": "email@example.com",
+            "units": units,
+            "price": price
+          })
+        },
+      );
+      let res;
+      console.log(res = await response.json());
+
+      if (res.status === "ok") {
+        advertise_modal.close();
+      } else {
+        // Show that an error occured
+      }
+    } catch (error) {
+      console.log("Unable to send advertisement.\n"/* + error */)
+    }
   }
 </script>
 
 <main class="container mx-auto">
-  <h1 class="text-2xl font-bold mb-4">Bidding Market</h1>
-  <div class="overflow-x-auto">
-    <table class="table table-xs">
-      <thead>
-        <tr>
-          <th></th>
-          <th>Id</th>
-          <th>Price</th>
-        </tr>
-      </thead>
+  <h1 class="text-2xl font-bold mb-4">Electricity Marketplace</h1>
+  
+  <!-- <button class="btn btn-secondary mb-3" onclick="help_modal.showModal()">Help</button> -->
+ 
 
-      {#each arrayofuids as id, i (id)}
-        <tbody>
-          <tr>
-            <th>{i+1}</th>
-            <td>{id}</td>
-            <td>R{getRandomPrice()}</td>
-          </tr>
-        </tbody>
+  <div class="grid grid-flow-row grid-cols-3 gap-5 overflow-x-auto">
+
+    <div class="card card-compact w-96 bg-slate-700 shadow-xl">
+      <!-- <figure><img src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg" alt="Shoes" /></figure> -->
+      <div class="card-body">
+        <h2 class="card-title">Advertise Here</h2>
+        <p>Put your power up for sale and contribute to the open market!</p>
+        <div class="card-actions justify-end">
+          <button onclick="advertise_modal.showModal()" class="btn btn-primary">Advertise</button>
+        </div>
+      </div>
+    </div>
+
+    {#if ads.length > 0}
+      {#each ads as ad}
+      <!-- this is not going to display anything until it reads something from the array -->
+      <!-- remember to change the photo after that starts working -->
+      <div class="card card-compact w-96 bg-base-200 shadow-xl">
+        <!-- <figure><img src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg" alt="Shoes" /></figure> -->
+        <div class="card-body">
+          <h2 class="card-title">Electricity Advertisement {ad.advertisement_id}</h2>
+          <p>Offered Units: {ad.offered_units}</p>
+          <p>Price: {ad.price}</p>
+          <div class="card-actions justify-end">
+            <button on:click={buyFunction(ad.advertisement_id)} class="btn btn-primary">Buy Now</button>
+          </div>
+        </div>
+      </div>
       {/each}
-    </table>
+    {/if}
 
-    <div class="absolute bottom-0 left-24 mb-64">
-      <button on:click={bidFunction} class="btn bg-green-600 w-28 h-14">Bid</button>
-      <button on:click={sellFunction} class="btn bg bg-red-700 w-28 h-14 ml-2">Sell</button>
+    <div class="absolute bottom-6 max-w-full ">
+      <!-- <button on:click={bidFunction} class="btn bg-green-600 w-28 h-14">Bid</button> -->
+      <button on:click={fetchAds} class="btn bg btn-outline btn-primary btn-lg btn-wide text-slate-900">Refresh</button>
     </div>
   </div>
+
+  <dialog id="advertise_modal" class="modal">
+    <div class="modal-box">
+      <h3 class="font-bold text-lg">Advertise</h3>
+      <p class="py-4"></p>
+      <div class="card">
+        <form class="card-body" method="dialog">
+          <!-- if there is a button in form, it will close the modal -->
+          <div class="modal-middle">
+            <div class="form-control">
+              <input type="number" class="input input-bordered" placeholder="units" bind:value={units} required/>
+            </div>
+  
+            <div class="form-control mt-4">
+              <input type="number" class="input input-bordered" placeholder="price" bind:value={price} required/>
+            </div>
+          </div>
+
+          <div class="modal-action">
+            <div class="form-control">
+              <button class="btn btn-primary" on:click={sellFunction}>Confirm</button>
+            </div>
+            
+            <div class="form-control">
+              <button class="btn" onclick="advertise_modal.close()">Cancel</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </dialog>
 </main>
 
 

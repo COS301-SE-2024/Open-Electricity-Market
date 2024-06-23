@@ -50,9 +50,14 @@
           })
         },
       );
+      let res;
+      console.log(res = await response.json());
 
-      console.log(await response.json());
-      advertise_modal.close();
+      if (res.status === "ok") {
+        advertise_modal.close();
+      } else {
+        // Show that an error occured
+      }
     } catch (error) {
       console.log("Unable to send advertisement.\n" + error)
     }
@@ -92,19 +97,16 @@
       {/each}
     {/if}
 
-    <div class="absolute bottom-0 left-24 mb-32">
+    <div class="absolute bottom-6 max-w-full ">
       <!-- <button on:click={bidFunction} class="btn bg-green-600 w-28 h-14">Bid</button> -->
-
-
-      <!-- <button on:click={sellFunction} class="btn bg btn-secondary btn-lg btn-wide text-slate-900">Sell</button> -->
-      
+      <button on:click={fetchAds} class="btn bg btn-outline btn-primary btn-lg btn-wide text-slate-900">Refresh</button>
     </div>
   </div>
 
   <dialog id="advertise_modal" class="modal">
     <div class="modal-box">
       <h3 class="font-bold text-lg">Advertise</h3>
-      <p class="py-4">Press ESC key or click the button below to close</p>
+      <p class="py-4"></p>
       <div class="card">
         <form class="card-body" method="dialog">
           <!-- if there is a button in form, it will close the modal -->

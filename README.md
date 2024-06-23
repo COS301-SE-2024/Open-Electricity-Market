@@ -9,9 +9,11 @@ A cutting-edge simulation platform, designed to transform the way we manage ener
 
 ### [Project Board](https://github.com/orgs/COS301-SE-2024/projects/61)
 
-### Demo 1 Video
+### Demo Videos
 [Isidore-Demo1](https://drive.google.com/file/d/1HzBVvMgayBuUu31RuoCGHCz-wTetOyO7/view?usp=drive_link)  
 [Presentation](https://docs.google.com/presentation/d/14n8cinxqoJqJZMrr3GxMGwl2dicc7n-0500KkSDHj4I/edit?usp=sharing)
+
+[Isidore-Demo2](https://drive.google.com/drive/folders/17_B3ULcrNecHhojsvWWrGIfj6PJ3XhKP?usp=sharing)  
 
 ## Documentation
 

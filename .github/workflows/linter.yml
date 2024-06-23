@@ -41,8 +41,10 @@ jobs:
           VALIDATE_RUST_CLIPPY: false # Tries to resolve ssh libraries using the wrong version of libc
           VALIDATE_CSS: false # unreasonable @tailwind errors, doesn't identify a valid library
           VALIDATE_SQLFLUFF: false # requested by Ruan, will probably be configured in the near future
+          VALIDATE_SQL: false # Bug: does not recognise plpgsql, which we use exclusively
           VALIDATE_CHECKOV: false # minor dockerfile hints, will be fixed in the future
           VALIDATE_DOCKERFILE_HADOLINT: false # bunch of warnings, needs configuration
           VALIDATE_JAVASCRIPT_STANDARD: false # should install and run standard --fix
           VALIDATE_MARKDOWN: false # Markdown files are acceptable but still a work in progress
+          VALIDATE_JSCPD: false # checks for duplicated code blocks
           # VALIDATE_HTML: false # It checks for the tabspaces inconsistencies

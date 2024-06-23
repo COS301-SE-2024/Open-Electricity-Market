@@ -5,7 +5,6 @@ pub mod open_em {
         open_em.advertisements (advertisement_id) {
             advertisement_id -> Int8,
             seller_id -> Uuid,
-            created -> Timestamptz,
             offered_units -> Float8,
             price -> Float8,
         }

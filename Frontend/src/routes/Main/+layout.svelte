@@ -34,7 +34,7 @@
   <main class="container mx-auto mt-8">
     <slot />
   </main> -->
-<main>
+<header>
   <div class="navbar bg-black rounded-2xl">
     <div class="navbar-start">  
       <span class="card text-xl px-2">Open Electricity Market</span>
@@ -52,4 +52,8 @@
       <a class="btn bg-slate-800" href="/Main/Dashboard">Profile</a>
     </div>
   </div>
+</header>
+
+<main class="container mx-auto mt-8">
+    <slot />
 </main>

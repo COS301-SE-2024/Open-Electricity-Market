@@ -10,6 +10,7 @@ export const sampleChartConfig = {
     labels: ["1", "2", "3", "4", "5", "6"],
     datasets: [
       {
+
         label: "Graph of phase 1 voltage as a function of time",
         data: [],
         backgroundColor: [
@@ -31,6 +32,7 @@ export const sampleChartConfig = {
         borderWidth: 1,
       },
       {
+
         label: "Graph of Phase 2 voltage as a function of time",
         data: [],
         backgroundColor: [

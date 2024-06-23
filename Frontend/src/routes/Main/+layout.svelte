@@ -59,6 +59,9 @@
     </div>
       
     <div class="navbar-end">
+
+
+
     <button class="btn" on:click={showModal}>Help</button>
     <dialog id="my_modal_dash" class="modal">  
       <div class="modal-box">
@@ -83,6 +86,7 @@
         <button>close</button>
       </form>
     </dialog>
+
       <a class="btn bg-slate-800" href="/Main/Dashboard">Profile</a>
     </div>
   </div>

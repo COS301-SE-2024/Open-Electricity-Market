@@ -81,14 +81,14 @@
 
 <main class="container mx-auto p-4">
 
- <div class="dropdown mr-3 mt-3">
+ <!-- <div class="dropdown mr-3 mt-3">
   <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6a1.5 1.5 0 110 3 1.5 1.5 0 010-3zm0 4.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zm0 4.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3z" />
     </svg>
   </div>
-  <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-  <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+  svelte-ignore a11y-no-noninteractive-tabindex
+   <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
       <li class="flex items-center">
       <label class="cursor-pointer flex items-center space-x-3 w-full hover:bg-gray-600">
         <input type="checkbox" class="checkbox checkbox-primary" on:click={setAdvancedView} />
@@ -96,7 +96,7 @@
       </label>
     </li>
   </ul>
-</div>
+</div> -->
 
 
 <!-- <button class="btn" onclick="my_modal_2.showModal()">Help</button> -->
@@ -111,6 +111,13 @@
         <button>close</button>
       </form>
     </dialog> -->
+
+  <div class="form-control top-right">
+  <label class="label cursor-pointer">
+    <span class="label-text mr-2">Advanced view</span>
+    <input type="checkbox" class="toggle" checked={advancedView} on:change={setAdvancedView} />
+  </label>
+  </div>
 
    
  
@@ -187,5 +194,11 @@
 </main>
 
 <style>
+
+   .top-right {
+    position: absolute;
+    top: 7rem;
+    right: 5rem;
+  }
   
 </style>

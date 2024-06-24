@@ -1,0 +1,35 @@
+services:
+  simulation:
+    build: ./simulation/
+    ports:
+      - "8000:8000"
+  db:
+    build:
+      context: ./
+      dockerfile: db.Dockerfile
+    volumes:
+      - ./var/pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    env_file: "db.env"
+  market-platform:
+    build: ./market-platform/
+    depends_on:
+      - db
+    links:
+      - db
+    environment:
+       DATABASEHOST: db
+    ports:
+      - "8001:8001"
+  agent:
+    build: ./agent/
+    depends_on:
+      - db
+      - simulation
+    links:
+      - db
+      - simulation
+    environment:
+      DATABASEHOST: db
+      GURL: simulation

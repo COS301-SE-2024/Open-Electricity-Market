@@ -17,7 +17,7 @@ A cutting-edge simulation platform, designed to transform the way we manage ener
 
 ## Documentation
 
-### [SRS Document](https://docs.google.com/document/d/1q0eN_kvBIK2naTHsJP90HHkf76mRQr25gNQUesSGvHk/edit#heading=h.rv6hsfad8zu2)
+### [SRS Document](https://docs.google.com/document/d/1bx-V_NvCZ-w1VHZkxBD_Hp1Km_XFPCYWKXvSFr5EZ7g/edit?usp=drive_link)
 
 ### [GitHub Rules and Conventions](https://github.com/COS301-SE-2024/Open-Electricity-Market/blob/feature/documentation/Documentation/GitHub_Rules_and_Conventions.md)
 

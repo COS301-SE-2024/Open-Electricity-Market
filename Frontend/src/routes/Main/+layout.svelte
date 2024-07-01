@@ -65,8 +65,13 @@
     <div class="navbar-end">
 
 
+  <ul class="menu menu-horizontal px-3 ">
+    <!-- <button class="bg-slate-800 " on:click={showModal}>Help</button> -->
+    <!-- svelte-ignore a11y-click-events-have-key-events -->
+    <!-- svelte-ignore a11y-no-static-element-interactions -->
+    <!-- svelte-ignore a11y-missing-attribute -->
+    <li class="px-2"><a class="w-22 bg-slate-800" on:click={showModal}>Help</a></li>
 
-    <button class="btn" on:click={showModal}>Help</button>
     <dialog id="my_modal_dash" class="modal">  
       <div class="modal-box">
         <h3 class="font-bold text-lg ">Dashboard Page</h3>
@@ -91,23 +96,23 @@
       </form>
     </dialog>
 
-     <dialog id="help_modal" class="modal">
-    <div class="modal-box">
-      <h3 class="font-bold text-lg">Help!</h3>
-      <p class="py-4">Click the button on the 'Advertise Here' card to enter the number of units you want to sell, and the price you wish to sell them for.</p>
-      <p class="py-4">You can click the button on any of the advertisements to buy one unit of electricity from them.</p>
-      <div class="modal-action">
-        <form method="dialog">
-          <!-- if there is a button in form, it will close the modal -->
-          <button class="btn">Close</button>
-        </form>
+    <dialog id="help_modal" class="modal">  
+      <div class="modal-box">
+        <h3 class="font-bold text-lg ">Bidding Market Page</h3>
+        <p class="py-4">Click the button on the 'Advertise Here' card to enter the number of units you want to sell, and the price you wish to sell them for.</p>
+        <p class="py-4">You can click the button on any of the advertisements to buy one unit of electricity from them.</p>
       </div>
-    </div>
-  </dialog>
+      <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+      </form>
+    </dialog>
 
-      <a class="btn bg-slate-800" href="/Main/Dashboard">Profile</a>
+    <li class = "px-2"><a class=" bg-slate-800 w-22" href="/Main/Dashboard">Profile</a></li>
+  </ul>
+
     </div>
   </div>
+
 </header>
 
 <main class="container mx-auto mt-8">

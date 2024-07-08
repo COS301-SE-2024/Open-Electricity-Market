@@ -1,4 +1,4 @@
-use crate::grid::consumer::Consumer;
+use crate::grid::load::Consumer;
 use crate::grid::{Resistance, ToJson, Voltage};
 
 #[test]

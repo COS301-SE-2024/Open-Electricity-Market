@@ -1,7 +1,7 @@
 #[macro_use]
 extern crate rocket;
 
-use crate::grid::consumer::Consumer;
+use crate::grid::load::Consumer;
 use crate::grid::generator::Generator;
 use crate::grid::transformer::Transformer;
 use crate::grid::transmission_line::TransmissionLine;

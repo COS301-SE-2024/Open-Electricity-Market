@@ -1,7 +1,6 @@
-use crate::grid::consumer::Consumer;
+use crate::grid::load::Consumer;
 use crate::grid::generator::Generator;
 use crate::grid::transformer::Transformer;
-use crate::grid::transmission_line::TransmissionLine;
 use crate::grid::{Grid, Resistance, ToJson, Voltage};
 
 #[test]

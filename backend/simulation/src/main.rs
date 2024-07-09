@@ -1,10 +1,9 @@
 #[macro_use]
 extern crate rocket;
 
-use crate::grid::load::Consumer;
+use crate::grid::load::{Consumer, TransmissionLine};
 use crate::grid::generator::Generator;
 use crate::grid::transformer::Transformer;
-use crate::grid::transmission_line::TransmissionLine;
 use crate::grid::{Grid, Resistance, ToJson, Voltage};
 use rocket::fairing::{Fairing, Info, Kind};
 use rocket::http::{Header, Method, Status};

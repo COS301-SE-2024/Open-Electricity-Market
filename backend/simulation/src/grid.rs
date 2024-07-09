@@ -18,15 +18,15 @@ pub trait ToJson {
 pub struct Resistance(pub f32);
 pub struct Voltage(pub f32, pub f32, pub f32);
 
-pub struct Grid {
+
+struct Circuit {
     pub(crate) load: Load,
     pub(crate) connections: Vec<Connection>,
     pub(crate) generators: Vec<Generator>,
     pub(crate) transformers: Vec<Transformer>,
-    pub(crate) started: bool,
 }
 
-impl Grid {
+impl Circuit {
     fn calculate_ideal_generator_voltages(&mut self,elapsed_time: f32) {
         for gen in self.generators.iter_mut() {
             gen.voltage.0 = gen.max_voltage
@@ -44,26 +44,94 @@ impl Grid {
         }
     }
 
-    pub fn connect_load_series(&mut self, new: u32,to: u32) {
+    fn calculate_equivalent_resistance(&mut self, load : u32) ->f32 {
+        let mut parrallel = vec![];
+        let mut series = vec![];
         for con in self.connections.iter() {
             match con {
-                Parallel(_, _) => {}
+                Parallel(primary, secondary) => {
+                    if *primary == load {
+                        parrallel.push(secondary.clone())
+                    }
+                }
                 Series(primary, secondary) => {
-                    
+                    if *primary == load {
+                        series.push(secondary.clone())
+                    }
                 }
             }
         }
+        let mut equivalence = 0.0;
+        for res in parrallel {
+            equivalence += 1.0/self.calculate_equivalent_resistance(res);
+        }
+        equivalence = 1.0/ equivalence;
+
+        for res in series {
+            equivalence += self.calculate_equivalent_resistance(res);
+        }
+        equivalence
+    }
+}
+
+pub struct Grid {
+    pub circuits : Vec<Circuit>,
+    pub(crate) started: bool,
+}
+
+impl Grid {
+
+
+    pub fn connect_load_series(&mut self, new: u32,to: u32,circuit: usize) {
+        let mut new_primary = to;
+        for con in self.circuits[circuit].connections.iter() {
+            match con {
+                Parallel(_, _) => {}
+                Series(primary, secondary) => {
+                    if *secondary == new_primary {
+                        new_primary = *primary;
+                    }
+                }
+            }
+        }
+
+        self.circuits[circuit].connections.push(Series(new_primary,new))
     }
 
-    pub fn update(&mut self,elapsed_time: f32){
+
+    pub fn connect_load_parallel(&mut self, new: u32,to: u32,circuit: usize) {
+        let mut new_primary = to;
+        for con in self.circuits[circuit].connections.iter() {
+            match con {
+                Parallel(primary, secondary) => {
+                    if *secondary == new_primary {
+                        new_primary = *primary;
+                    }
+                }
+                Series(_,_) => {}
+            }
+        }
+        self.circuits[circuit].connections.push(Parallel(new_primary,new))
+    }
+
+
+    fn internal_update(&mut self,elapsed_time: f32,circuit: usize){
         // Step 1 Update voltages
-        self.calculate_ideal_generator_voltages(elapsed_time);
-        // Step 2 Work out resistor equivalences
+        self.circuits[circuit].calculate_ideal_generator_voltages(elapsed_time);
+        // Step 2 Calculate Impedance
+
+            // Step 2.1 Work out resistance
+
+            // Step 2.2 Work our reactance
 
         // Step 3 Calculate current
 
         // Step 4 Split resistors (and current) back down
 
         // Step 5 Determine Voltages
+    }
+
+    pub fn update (&mut self,elapsed_time: f32){
+        self.internal_update(elapsed_time,0);
     }
 }

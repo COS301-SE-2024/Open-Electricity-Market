@@ -1,4 +1,4 @@
-use crate::grid::{Resistance, ToJson, Voltage};
+use crate::grid::{Harry, Resistance, ToJson, Voltage};
 use rocket::serde::json::json;
 #[cfg(test)]
 mod tests;
@@ -11,6 +11,30 @@ pub enum Connection {
 pub struct Load {
     pub load_type: LoadType,
     pub id : u32
+}
+
+impl Load {
+    pub fn get_resistance(&self) -> Resistance {
+        return match &self.load_type {
+            LoadType::Consumer(c) => {
+                c.resistance.clone()
+            }
+            LoadType::TransmissionLine(t) => {
+                t.resistance.clone()
+            }
+        }
+    }
+
+    pub fn get_inductance(&self) -> Harry {
+        match &self.load_type {
+            LoadType::Consumer(_) => {
+                return Harry(0.0);
+            }
+            LoadType::TransmissionLine(t) => {
+                return Harry(t.length*t.inductance_per_meter);
+            }
+        }
+    }
 }
 
 pub enum LoadType {
@@ -41,8 +65,9 @@ impl ToJson for Consumer {
 pub struct TransmissionLine {
     pub(crate) id: u32,
     pub(crate) resistance: Resistance,
-    pub(crate) impedance: Resistance,
     pub(crate) voltage: Voltage,
+    pub length : f32,
+    pub inductance_per_meter :f32
 }
 
 impl ToJson for TransmissionLine {

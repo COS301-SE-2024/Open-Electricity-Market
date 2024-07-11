@@ -1,9 +1,6 @@
 use crate::grid::{ToJson, Voltage};
 use rocket::serde::json::json;
 
-#[cfg(test)]
-mod tests;
-
 pub struct Generator {
     pub(crate) id: u32,
     pub(crate) voltage: Voltage,

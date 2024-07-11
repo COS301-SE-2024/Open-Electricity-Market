@@ -1,4 +1,3 @@
-use std::thread::current;
 use crate::grid::load::{Connection, Consumer, Load, TransmissionLine};
 use crate::grid::generator::Generator;
 use crate::grid::transformer::Transformer;
@@ -21,6 +20,22 @@ pub struct Resistance(pub f32);
 pub struct Voltage(pub f32, pub f32, pub f32);
 #[derive(Clone)]
 pub struct Harry(pub f32);
+#[derive(Clone)]
+pub struct Current(pub f32, pub f32, pub f32);
+
+impl Current {
+    fn ohms_law(voltage: Voltage, resistance: Resistance) -> Current {
+        let mut current  = Current(0.0,0.0,0.0);
+        current.0 = voltage.0/resistance.0;
+        current.1 = voltage.1/resistance.0;
+        current.2 = voltage.2/resistance.0;
+        return current;
+    }
+
+    fn scale(&self,factor :f32) -> Current {
+        return Current(self.0*factor,self.1*factor,self.2*factor);
+    }
+}
 
 
 
@@ -51,7 +66,45 @@ impl Circuit {
         return self.generators[0].voltage.clone();
     }
 
-    fn calculate_equivalent_resistance(&mut self, load : usize) ->f32 {
+    fn calculate_equivalent_impedance(&mut self, frequency: f32, load : usize) ->f32 {
+        let mut parallel = vec![];
+        let mut series = vec![];
+        for con in self.connections.iter() {
+            match con {
+                Parallel(primary, secondary) => {
+                    if *primary == load as u32 {
+                        parallel.push(secondary.clone())
+                    }
+                }
+                Series(primary, secondary) => {
+                    if *primary == load as u32 {
+                        series.push(secondary.clone())
+                    }
+                }
+            }
+        }
+
+
+        let mut equivalence = 0.0;
+        if parallel.len() > 0 {
+            equivalence = 1.0/self.loads[load].get_impedance(frequency).0;
+        }
+        for res in parallel {
+            equivalence += 1.0/self.calculate_equivalent_impedance(frequency, res as usize);
+        }
+        equivalence = 1.0/ equivalence;
+
+        if equivalence == 0.0 {
+            equivalence += self.loads[load].get_impedance(frequency).0;
+        }
+        for res in series {
+            equivalence += self.calculate_equivalent_impedance(frequency, res as usize);
+        }
+        equivalence
+    }
+
+
+    fn set_voltages(&mut self,current: Current,frequency:f32,load: usize) {
         let mut parrallel = vec![];
         let mut series = vec![];
         for con in self.connections.iter() {
@@ -70,39 +123,31 @@ impl Circuit {
         }
 
 
-        let mut equivalence = 0.0;
-        if parrallel.len() > 0 {
-            equivalence = 1.0/self.loads[load].get_resistance().0;
+        let mut total = self.loads[load].get_impedance(frequency).0;
+        for par in parrallel.iter() {
+            total += self.calculate_equivalent_impedance(frequency, par.clone() as usize);
         }
-        for res in parrallel {
-            equivalence += 1.0/self.calculate_equivalent_resistance(res as usize);
-        }
-        equivalence = 1.0/ equivalence;
 
-        if equivalence == 0.0 {
-            equivalence += self.loads[load].get_resistance().0;
+        let factor = self.loads[load].get_impedance(frequency).0/total;
+        self.loads[load].set_voltage(current.scale(factor),frequency);
+
+        for par in parrallel.iter() {
+            let factor = self.calculate_equivalent_impedance(frequency, par.clone() as usize)/total;
+            self.set_voltages(current.scale(factor), frequency, par.clone() as usize);
         }
-        for res in series {
-            equivalence += self.calculate_equivalent_resistance(res as usize);
+
+        for ser in series {
+            self.set_voltages(current.clone(), frequency, ser as usize);
         }
-        equivalence
+
+
     }
 
-    fn calculate_positive_reactance(&mut self, frequency:f32) ->f32 {
-        let mut inductance = 0.0;
-        for load in self.loads.iter() {
-            inductance += load.get_inductance().0
-        }
-        return std::f32::consts::FRAC_2_PI*frequency*inductance;
-    }
-
-    fn calculate_negative_reactance(&mut self,frequency:f32) ->f32 {
-        return 0.0;
-    }
 }
 
 pub struct Grid {
     pub circuits : Vec<Circuit>,
+    pub frequency :f32,
     pub(crate) started: bool,
 }
 
@@ -146,17 +191,13 @@ impl Grid {
         // Step 1 Update voltages
         let voltage = self.circuits[circuit].calculate_ideal_generator_voltages(elapsed_time);
         // Step 2 Calculate Impedance
-            // Step 2.1 Work out resistance
-            let resistance = self.circuits[circuit].calculate_equivalent_resistance(0);
-            // Step 2.2 Work our reactance
-            let reactance = self.circuits[circuit].calculate_positive_reactance(50.0)-self.circuits[circuit].calculate_negative_reactance(50.0);
-        let impedance = f32::sqrt(resistance*resistance+reactance*reactance);
-
+        let impedance = Resistance(self.circuits[circuit].calculate_equivalent_impedance(self.frequency, 0));
         // Step 3 Calculate current
-
+        let current = Current::ohms_law(voltage,impedance);
         // Step 4 Split resistors (and current) back down
-
         // Step 5 Determine Voltages
+        self.circuits[circuit].set_voltages(current,self.frequency,0);
+
     }
 
     pub fn update (&mut self,elapsed_time: f32){

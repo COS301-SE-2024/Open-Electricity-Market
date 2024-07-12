@@ -18,6 +18,24 @@ pub trait ToJson {
 pub struct Resistance(pub f32);
 #[derive(Clone)]
 pub struct Voltage(pub f32, pub f32, pub f32);
+impl Voltage {
+    pub fn add_voltage(&self, other: Voltage) -> Voltage {
+        let mut out = other;
+        out.0 += self.0;
+        out.1 += self.1;
+        out.2 += self.2;
+        return out;
+    }
+
+    pub fn subtract_voltage(&self, other: Voltage) -> Voltage {
+        let mut out = self.clone();
+        out.0 -= other.0;
+        out.1 -= other.1;
+        out.2 -= other.2;
+        return out;
+    }
+}
+
 #[derive(Clone)]
 pub struct Harry(pub f32);
 #[derive(Clone)]
@@ -38,6 +56,7 @@ impl Current {
 }
 
 pub struct Circuit {
+    pub(crate) id: u32,
     pub(crate) loads: Vec<Load>,
     pub(crate) connections: Vec<Connection>,
     pub(crate) generators: Vec<Generator>,
@@ -61,7 +80,15 @@ impl Circuit {
                 );
         }
 
-        return self.generators[0].voltage.clone();
+        let mut out = self.generators[0].voltage.clone();
+
+        for transformer in self.transformers.iter() {
+            if transformer.secondary_circuit == self.id {
+                out = out.add_voltage(transformer.secondary_voltage.clone());
+            }
+        }
+
+        return out;
     }
 
     fn calculate_equivalent_impedance(&mut self, frequency: f32, load: usize) -> f32 {
@@ -139,6 +166,57 @@ impl Circuit {
             self.set_voltages(current.clone(), frequency, ser as usize);
         }
     }
+
+    //Operates under assumption that id's correspond to index
+    fn set_transformers_secondary_voltages(&mut self, frequency: f32) {
+        for transformer in self.transformers.iter_mut() {
+            if transformer.primary_circuit == self.id {
+                let prev_load_id = transformer.primary_load;
+                // let prev_load = self.loads[prev_load_id];
+                let mut lane_start = 0;
+                for con in self.connections.iter() {
+                    match con {
+                        Parallel(_, _) => {}
+                        Series(primary, secondary) => {
+                            if *primary == prev_load_id {
+                                lane_start = *primary;
+                                break;
+                            }
+                            if *secondary == prev_load_id {
+                                lane_start = *primary;
+                                break;
+                            }
+                        }
+                    }
+                }
+                let mut lane = vec![lane_start];
+                let mut total_voltage = self.loads[lane_start as usize].get_voltage();
+
+                for con in self.connections.iter() {
+                    match con {
+                        Parallel(_, _) => {}
+                        Series(primary, secondary) => {
+                            if *primary == lane_start {
+                                lane.push(*secondary);
+                                let load = self.loads[secondary.clone() as usize].get_voltage();
+                                total_voltage = total_voltage.add_voltage(load);
+                            }
+                        }
+                    }
+                }
+
+                for load_id in lane {
+                    let load = self.loads[load_id as usize].get_voltage();
+                    total_voltage.subtract_voltage(load);
+                    if load_id == prev_load_id {
+                        transformer.secondary_voltage.0 = total_voltage.0 * transformer.ratio;
+                        transformer.secondary_voltage.1 = total_voltage.1 * transformer.ratio;
+                        transformer.secondary_voltage.2 = total_voltage.2 * transformer.ratio;
+                    }
+                }
+            }
+        }
+    }
 }
 
 pub struct Grid {
@@ -194,6 +272,9 @@ impl Grid {
         // Step 4 Split resistors (and current) back down
         // Step 5 Determine Voltages
         self.circuits[circuit].set_voltages(current, self.frequency, 0);
+
+        //Step 6 Switch to Connected Circuits
+        self.circuits[circuit].set_transformers_secondary_voltages(self.frequency);
     }
 
     pub fn update(&mut self, elapsed_time: f32) {

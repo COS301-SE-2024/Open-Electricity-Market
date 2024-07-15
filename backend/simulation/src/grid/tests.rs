@@ -6,6 +6,7 @@ use crate::grid::{Circuit, Current, Grid, Resistance, ToJson, Voltage};
 
 fn create_sample_circuit() -> Circuit {
     let circuit = Circuit {
+        id: 0,
         loads: vec![
             Load {
                 load_type: LoadType::Consumer(Consumer {

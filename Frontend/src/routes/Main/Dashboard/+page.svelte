@@ -78,25 +78,45 @@
 <main class="container mx-auto">
 
   
-   <div class="form-control top-right">
+   <!-- <div class="form-control top-right">
   <label class="label cursor-pointer">
     <span class="label-text mr-2">Advanced view</span>
     <input type="checkbox" class="toggle" checked={advancedView} on:change={setAdvancedView} />
   </label>
+  </div> -->
+
+  <div class="top-right">
+    <div class="stats stats-vertical shadow">
+      <div class="stat">
+        <div class="stat-title">Available Balance</div>
+        <div class="stat-value">31K</div>
+        <div class="stat-desc">Jul 1st - Aug 1st</div>
+      </div>
+    
+      <div class="stat">
+        <div class="stat-title"></div>
+        <div class="stat-value">4,200</div>
+       
+      </div>
+    
+      <div class="stat">
+        <div class="stat-title">New Registers</div>
+        <div class="stat-value">1,200</div>
+       
+      </div>
+    </div>
   </div>
 
-  <!-- <button class="btn" onclick="my_modal_2.showModal()">Help</button>
+  <button class="btn" onclick="my_modal_2.showModal()">Help</button>
     <dialog id="my_modal_2" class="modal">  
       <div class="modal-box">
         <h3 class="font-bold text-lg ">Dashboard Page</h3>
-        <p class="py-4">The dashboard page contains metrics that you may use in order to help you decide 
-          on when the best time to buy electricity is. 
-        </p>
+        <Chart {data}/>
       </div>
       <form method="dialog" class="modal-backdrop">
         <button>close</button>
       </form>
-    </dialog> -->
+    </dialog>
 
 
   <!-- <h1 class="text-2xl font-bold mb-4">Overview</h1>

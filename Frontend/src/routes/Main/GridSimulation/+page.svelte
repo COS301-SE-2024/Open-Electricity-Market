@@ -2,6 +2,9 @@
 
 <script>
   import { onMount } from "svelte";
+  import Map from '$lib/Components/Map.svelte';
+  import Chart from "$lib/Components/Chart2.svelte";
+ 
 
   let data = {};
   let interval; 
@@ -73,6 +76,10 @@
         Transformers: fdata.Transformers.map(item => JSON.parse(item)),
         "Transmission Lines": fdata["Transmission Lines"].map(item => JSON.parse(item))
       };
+      console.log("Data is this: ");
+      console.log(data);
+      // chartdata = data[Consumers.Voltage.Phase1];
+      
     } catch (error) {
       console.log("There was an error fetching the JSON for the overview:", error);
     }
@@ -121,7 +128,7 @@
 
    
  
-  {#if Object.keys(data).length > 0}
+  <!-- {#if Object.keys(data).length > 0}
     
     <section class="mb-8">
       <h2 class="text-2xl font-bold mb-4">Consumers</h2>
@@ -190,7 +197,11 @@
     </section>
   {:else}
    <span class="loading loading-ring loading-lg ml-6"></span>
-  {/if}
+  {/if} -->
+
+    <Map /> 
+    <Chart {data}/>
+
 </main>
 
 <style>
@@ -202,3 +213,5 @@
   }
   
 </style>
+
+      

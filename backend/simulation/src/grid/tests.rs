@@ -1,3 +1,7 @@
+use std::cell::RefCell;
+use std::rc::Rc;
+use std::sync::Arc;
+use std::sync::Mutex;
 use crate::grid::generator::Generator;
 use crate::grid::load::Connection::{Parallel, Series};
 use crate::grid::load::{Connection, Consumer, Load, LoadType};
@@ -106,7 +110,8 @@ fn create_sample_circuit() -> Circuit {
             frequency: 50.0,
             transmission_line: 0,
         }],
-        transformers: vec![],
+        transformers: vec![
+        ],
     };
 
     return circuit;
@@ -143,3 +148,30 @@ fn set_voltages_when_inductance_and_capacitance_zero() {
     assert_eq!(circuit.loads[3].get_voltage().1, -46.631237);
     assert_eq!(circuit.loads[3].get_voltage().2, 46.631237);
 }
+
+
+#[test]
+fn  set_transformers_secondary_voltages_when_inductance_and_capacitance_zero() {
+    let mut circuit1 = create_sample_circuit();
+    let mut circuit2 = create_sample_circuit();
+    circuit2.id = 1;
+    let  transformer = Transformer {
+        id: 0,
+        ratio: 1.0,
+        primary_circuit: 0,
+        secondary_circuit: 1,
+        primary_load: 0,
+        secondary_voltage: Voltage(0.0,0.0,0.0),
+    };
+    let trans_ref = Arc::new(Mutex::new(transformer));
+    circuit1.transformers.push(trans_ref.clone());
+    circuit2.transformers.push(trans_ref.clone());
+
+    circuit1.loads[0].set_voltage(Current(1.0,1.0,1.0),50.0);
+    circuit1.set_transformers_secondary_voltages(50.0);
+
+    assert_eq!(circuit2.transformers[0].lock().unwrap().secondary_voltage.0,10.0);
+
+}
+
+

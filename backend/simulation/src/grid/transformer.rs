@@ -1,6 +1,7 @@
 use crate::grid::{ToJson, Voltage};
 use rocket::serde::json::json;
 
+#[derive(Clone)]
 pub struct Transformer {
     pub(crate) id: u32,
     pub(crate) ratio: f32,

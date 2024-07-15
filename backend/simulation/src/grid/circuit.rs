@@ -1,3 +1,6 @@
+use std::cell::RefCell;
+use std::rc::Rc;
+use std::sync::{Arc, Mutex};
 use crate::grid::generator::Generator;
 use crate::grid::load::Connection::{Parallel, Series};
 use crate::grid::load::{Connection, Load};
@@ -9,7 +12,7 @@ pub struct Circuit {
     pub(crate) loads: Vec<Load>,
     pub(crate) connections: Vec<Connection>,
     pub(crate) generators: Vec<Generator>,
-    pub(crate) transformers: Vec<Transformer>,
+    pub(crate) transformers: Vec<Arc<Mutex<Transformer>>>,
 }
 
 impl Circuit {
@@ -31,7 +34,9 @@ impl Circuit {
 
         let mut out = self.generators[0].voltage.clone();
 
+
         for transformer in self.transformers.iter() {
+            let transformer =transformer.lock().unwrap();
             if transformer.secondary_circuit == self.id {
                 out = out.add_voltage(transformer.secondary_voltage.clone());
             }
@@ -119,6 +124,7 @@ impl Circuit {
     //Operates under assumption that id's correspond to index
     pub(crate) fn set_transformers_secondary_voltages(&mut self, frequency: f32) {
         for transformer in self.transformers.iter_mut() {
+            let mut transformer = transformer.lock().unwrap();
             if transformer.primary_circuit == self.id {
                 let prev_load_id = transformer.primary_load;
                 // let prev_load = self.loads[prev_load_id];

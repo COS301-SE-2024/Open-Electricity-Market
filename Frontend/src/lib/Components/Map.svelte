@@ -80,36 +80,36 @@
     }
 
     function updateMarkers(){
-        markers.forEach(marker=>marker.remove());
-        markers = [];
+        // markers.forEach(marker=>marker.remove());
+        // markers = [];
 
-        //add consumers
-        data.Consumers.forEach(consumer=>{
-            const marker = lm.marker([consumer.lattitude, consumer.longtitude]).addTo(map);
-            marker.on('click', ()=> showMarkerPopup(marker, consumer));
-            markers.push(marker);
-        });
+        // //add consumers
+        // data.Consumers.forEach(consumer=>{
+        //     const marker = lm.marker([consumer.lattitude, consumer.longtitude]).addTo(map);
+        //     marker.on('click', ()=> showMarkerPopup(marker, consumer));
+        //     markers.push(marker);
+        // });
 
-        //transformers 
-        data.Transformers.forEach(transformer=>{
-            const marker = lm.marker([transformer.lattitude, transformer.longtitude]).addTo(map);
-            marker.on('click', ()=> showMarkerPopup(marker, transformer));
-            markers.push(marker);
-        });
+        // //transformers 
+        // data.Transformers.forEach(transformer=>{
+        //     const marker = lm.marker([transformer.lattitude, transformer.longtitude]).addTo(map);
+        //     marker.on('click', ()=> showMarkerPopup(marker, transformer));
+        //     markers.push(marker);
+        // });
 
-        //generators
-        data.Generators.forEach(generator=>{
-            const marker = lm.marker([generator.lattitude, generator.longtitude]).addTo(map);
-            marker.on('click', ()=> showMarkerPopup(marker, generator));
-            markers.push(marker);
-        });
+        // //generators
+        // data.Generators.forEach(generator=>{
+        //     const marker = lm.marker([generator.lattitude, generator.longtitude]).addTo(map);
+        //     marker.on('click', ()=> showMarkerPopup(marker, generator));
+        //     markers.push(marker);
+        // });
 
-        //generators
-        data["Transmission Lines"].forEach(line=>{
-            const marker = lm.marker([line.lattitude, line.longtitude]).addTo(map);
-            marker.on('click', ()=> showMarkerPopup(marker, line));
-            markers.push(marker);
-        });
+        // //generators
+        // data["Transmission Lines"].forEach(line=>{
+        //     const marker = lm.marker([line.lattitude, line.longtitude]).addTo(map);
+        //     marker.on('click', ()=> showMarkerPopup(marker, line));
+        //     markers.push(marker);
+        // });
 
     }
 

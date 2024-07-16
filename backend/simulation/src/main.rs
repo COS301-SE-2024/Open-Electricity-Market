@@ -4,9 +4,8 @@ extern crate rocket;
 use crate::grid::circuit::Circuit;
 use crate::grid::generator::Generator;
 use crate::grid::load::Connection::{Parallel, Series};
-use crate::grid::load::{Consumer, Load, LoadType, TransmissionLine};
+use crate::grid::load::{Consumer, Load, LoadType};
 use crate::grid::location::Location;
-use crate::grid::transformer::Transformer;
 use crate::grid::{Grid, OscilloscopeDetail, Resistance, Voltage, VoltageWrapper};
 use rocket::fairing::{Fairing, Info, Kind};
 use rocket::http::{Header, Method, Status};
@@ -90,7 +89,7 @@ fn add_consumer(
     grid: &State<Arc<Mutex<Grid>>>,
     data: Json<ConsumerNew>,
 ) -> content::RawJson<String> {
-    let mut g = grid.lock().unwrap();
+    let g = grid.lock().unwrap();
     let id = 0;
     content::RawJson(json!({"id":id}).to_string())
 }
@@ -108,14 +107,14 @@ fn add_generator(
     grid: &State<Arc<Mutex<Grid>>>,
     data: Json<GeneratorNew>,
 ) -> content::RawJson<String> {
-    let mut g = grid.lock().unwrap();
+    let g = grid.lock().unwrap();
     let id = 0;
     content::RawJson(json!({"id":id}).to_string())
 }
 
 #[post("/info", format = "application/json")]
 fn info(grid: &State<Arc<Mutex<Grid>>>) -> content::RawJson<String> {
-    let mut g = grid.lock().unwrap();
+    let g = grid.lock().unwrap();
     let info = serde_json::to_string(g.deref()).unwrap();
     content::RawJson(info)
 }

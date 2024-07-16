@@ -1,6 +1,5 @@
 use crate::grid::location::Location;
-use crate::grid::{Current, CurrentWrapper, Harry, Resistance, Voltage, VoltageWrapper};
-use rocket::serde::json::json;
+use crate::grid::{CurrentWrapper, Harry, Resistance, VoltageWrapper};
 use rocket::serde::Serialize;
 
 #[derive(Serialize)]
@@ -19,25 +18,25 @@ pub struct Load {
 
 impl Load {
     fn get_resistance(&self) -> Resistance {
-        return match &self.load_type {
+        match &self.load_type {
             LoadType::Consumer(c) => c.resistance.clone(),
             LoadType::TransmissionLine(t) => t.resistance.clone(),
-        };
+        }
     }
 
     fn get_positive_reactance(&self, frequency: f32) -> f32 {
-        return std::f32::consts::FRAC_2_PI * frequency * self.get_inductance().0;
+        std::f32::consts::FRAC_2_PI * frequency * self.get_inductance().0
     }
 
     fn get_negative_reactance(&self, frequency: f32) -> f32 {
-        return 0.0;
+        0.0
     }
 
     fn get_inductance(&self) -> Harry {
-        return match &self.load_type {
+        match &self.load_type {
             LoadType::Consumer(_) => Harry(0.0),
             LoadType::TransmissionLine(t) => Harry(t.length * t.inductance_per_meter),
-        };
+        }
     }
 
     pub fn get_impedance(&self, frequency: f32) -> Resistance {
@@ -45,7 +44,7 @@ impl Load {
         let positive_reactance = self.get_positive_reactance(frequency);
         let negative_reactance = self.get_negative_reactance(frequency);
         let reactance = positive_reactance - negative_reactance;
-        return Resistance(f32::sqrt(resistance * resistance + reactance * reactance));
+        Resistance(f32::sqrt(resistance * resistance + reactance * reactance))
     }
 
     pub fn set_voltage(&mut self, current: CurrentWrapper, frequency: f32) {
@@ -73,10 +72,10 @@ impl Load {
     }
 
     pub fn get_voltage(&self) -> VoltageWrapper {
-        return match &self.load_type {
+        match &self.load_type {
             LoadType::Consumer(c) => c.voltage.clone(),
             LoadType::TransmissionLine(t) => t.voltage.clone(),
-        };
+        }
     }
 }
 

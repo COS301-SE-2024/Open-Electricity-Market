@@ -1,9 +1,5 @@
 use crate::grid::circuit::Circuit;
-use crate::grid::generator::Generator;
 use crate::grid::load::Connection::{Parallel, Series};
-use crate::grid::load::{Connection, Consumer, Load, TransmissionLine};
-use crate::grid::transformer::Transformer;
-use rocket::serde::json::json;
 use rocket::serde::Serialize;
 
 pub mod circuit;
@@ -27,7 +23,7 @@ impl Voltage {
         out.0 += self.0;
         out.1 += self.1;
         out.2 += self.2;
-        return out;
+        out
     }
 
     pub fn subtract_voltage(&self, other: Voltage) -> Voltage {
@@ -35,7 +31,7 @@ impl Voltage {
         out.0 -= other.0;
         out.1 -= other.1;
         out.2 -= other.2;
-        return out;
+        out
     }
 }
 
@@ -49,18 +45,18 @@ pub struct VoltageWrapper {
 impl VoltageWrapper {
     pub fn add_voltage(&self, other: VoltageWrapper) -> VoltageWrapper {
         let mut out = self.clone();
-        let mut voltage = out.voltage;
+        let voltage = out.voltage;
         out.voltage = voltage.add_voltage(other.voltage);
         out.oscilloscope_detail.amplitude += other.oscilloscope_detail.amplitude;
-        return out;
+        out
     }
 
     pub fn subtract_voltage(&self, other: VoltageWrapper) -> VoltageWrapper {
         let mut out = self.clone();
-        let mut voltage = out.voltage;
+        let voltage = out.voltage;
         out.voltage = voltage.subtract_voltage(other.voltage);
         out.oscilloscope_detail.amplitude -= other.oscilloscope_detail.amplitude;
-        return out;
+        out
     }
 }
 
@@ -82,11 +78,11 @@ impl Current {
         current.0 = voltage.0 / resistance.0;
         current.1 = voltage.1 / resistance.0;
         current.2 = voltage.2 / resistance.0;
-        return current;
+        current
     }
 
     fn scale(&self, factor: f32) -> Current {
-        return Current(self.0 * factor, self.1 * factor, self.2 * factor);
+        Current(self.0 * factor, self.1 * factor, self.2 * factor)
     }
 }
 #[derive(Clone)]
@@ -97,28 +93,27 @@ pub struct CurrentWrapper {
 
 impl CurrentWrapper {
     fn ohms_law(voltage: VoltageWrapper, resistance: Resistance) -> CurrentWrapper {
-        let mut current = Current::ohms_law(voltage.voltage, resistance.clone());
-        let out = CurrentWrapper {
+        let current = Current::ohms_law(voltage.voltage, resistance.clone());
+
+        CurrentWrapper {
             current,
             oscilloscope_detail: OscilloscopeDetail {
                 frequency: voltage.oscilloscope_detail.frequency,
                 amplitude: voltage.oscilloscope_detail.amplitude / resistance.0,
                 phase: voltage.oscilloscope_detail.phase,
             },
-        };
-        return out;
+        }
     }
 
     fn scale(&self, factor: f32) -> CurrentWrapper {
-        let out = CurrentWrapper {
+        CurrentWrapper {
             current: self.current.scale(factor),
             oscilloscope_detail: OscilloscopeDetail {
                 frequency: self.oscilloscope_detail.frequency,
                 amplitude: self.oscilloscope_detail.frequency * factor,
                 phase: self.oscilloscope_detail.phase,
             },
-        };
-        return out;
+        }
     }
 }
 

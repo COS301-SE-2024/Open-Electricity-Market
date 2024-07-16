@@ -1,6 +1,5 @@
 use crate::grid::location::Location;
-use crate::grid::{Voltage, VoltageWrapper};
-use rocket::serde::json::json;
+use crate::grid::VoltageWrapper;
 use rocket::serde::Serialize;
 
 #[derive(Clone, Serialize)]

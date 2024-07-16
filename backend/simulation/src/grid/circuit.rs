@@ -2,11 +2,8 @@ use crate::grid::generator::Generator;
 use crate::grid::load::Connection::{Parallel, Series};
 use crate::grid::load::{Connection, Load};
 use crate::grid::transformer::Transformer;
-use crate::grid::{Current, CurrentWrapper, Voltage, VoltageWrapper};
-use rocket::serde::json::serde_json::json;
+use crate::grid::{CurrentWrapper, VoltageWrapper};
 use rocket::serde::Serialize;
-use std::cell::RefCell;
-use std::rc::Rc;
 use std::sync::{Arc, Mutex};
 
 #[derive(Serialize)]
@@ -50,7 +47,7 @@ impl Circuit {
             }
         }
 
-        return out;
+        out
     }
 
     pub(crate) fn calculate_equivalent_impedance(&mut self, frequency: f32, load: usize) -> f32 {
@@ -60,19 +57,19 @@ impl Circuit {
             match con {
                 Parallel(primary, secondary) => {
                     if *primary == load as u32 {
-                        parallel.push(secondary.clone())
+                        parallel.push(*secondary)
                     }
                 }
                 Series(primary, secondary) => {
                     if *primary == load as u32 {
-                        series.push(secondary.clone())
+                        series.push(*secondary)
                     }
                 }
             }
         }
 
         let mut equivalence = 0.0;
-        if parallel.len() > 0 {
+        if !parallel.is_empty() {
             equivalence = 1.0 / self.loads[load].get_impedance(frequency).0;
         }
         for res in parallel {
@@ -99,12 +96,12 @@ impl Circuit {
             match con {
                 Parallel(primary, secondary) => {
                     if *primary == load as u32 {
-                        parrallel.push(secondary.clone())
+                        parrallel.push(*secondary)
                     }
                 }
                 Series(primary, secondary) => {
                     if *primary == load as u32 {
-                        series.push(secondary.clone())
+                        series.push(*secondary)
                     }
                 }
             }
@@ -112,16 +109,15 @@ impl Circuit {
 
         let mut total = self.loads[load].get_impedance(frequency).0;
         for par in parrallel.iter() {
-            total += self.calculate_equivalent_impedance(frequency, par.clone() as usize);
+            total += self.calculate_equivalent_impedance(frequency, *par as usize);
         }
 
         let factor = self.loads[load].get_impedance(frequency).0 / total;
         self.loads[load].set_voltage(current.scale(factor), frequency);
 
         for par in parrallel.iter() {
-            let factor =
-                self.calculate_equivalent_impedance(frequency, par.clone() as usize) / total;
-            self.set_voltages(current.scale(factor), frequency, par.clone() as usize);
+            let factor = self.calculate_equivalent_impedance(frequency, *par as usize) / total;
+            self.set_voltages(current.scale(factor), frequency, *par as usize);
         }
 
         for ser in series {
@@ -161,7 +157,7 @@ impl Circuit {
                         Series(primary, secondary) => {
                             if *primary == lane_start {
                                 lane.push(*secondary);
-                                let load = self.loads[secondary.clone() as usize].get_voltage();
+                                let load = self.loads[*secondary as usize].get_voltage();
                                 total_voltage = total_voltage.add_voltage(load);
                             }
                         }

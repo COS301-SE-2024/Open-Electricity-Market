@@ -12,6 +12,7 @@
     let chartdata = [];
     let interval; 
     let data = {};
+    let markers = [];
 
 
     
@@ -28,6 +29,7 @@
     
     lm.on('click', () => showModal());
     
+
 
 
 
@@ -72,17 +74,43 @@
     }
   }
 
-    async function showMarkerPopup(marker){
+    async function showMarkerPopup(marker, agent){
       await tick(); 
-      const popupContent = document.createElement('div');
-      new Chart({
-         target: popupContent,
-         props: {
-            data: [5,5,3],
-            labels: [1,2,3]
-         }
-      });
-      marker.bindPopup(popupContent).openPopup();
+      //change chart {data} to cater for relevant agent 
+    }
+
+    function updateMarkers(){
+        markers.forEach(marker=>marker.remove());
+        markers = [];
+
+        //add consumers
+        data.Consumers.forEach(consumer=>{
+            const marker = lm.marker([consumer.lattitude, consumer.longtitude]).addTo(map);
+            marker.on('click', ()=> showMarkerPopup(marker, consumer));
+            markers.push(marker);
+        });
+
+        //transformers 
+        data.Transformers.forEach(transformer=>{
+            const marker = lm.marker([transformer.lattitude, transformer.longtitude]).addTo(map);
+            marker.on('click', ()=> showMarkerPopup(marker, transformer));
+            markers.push(marker);
+        });
+
+        //generators
+        data.Generators.forEach(generator=>{
+            const marker = lm.marker([generator.lattitude, generator.longtitude]).addTo(map);
+            marker.on('click', ()=> showMarkerPopup(marker, generator));
+            markers.push(marker);
+        });
+
+        //generators
+        data["Transmission Lines"].forEach(line=>{
+            const marker = lm.marker([line.lattitude, line.longtitude]).addTo(map);
+            marker.on('click', ()=> showMarkerPopup(marker, line));
+            markers.push(marker);
+        });
+
     }
 
 

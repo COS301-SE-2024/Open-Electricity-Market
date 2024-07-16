@@ -36,7 +36,7 @@
     
        }
        await fetchData();
-       interval = setInterval(fetchData, 2000);
+       interval = setInterval(fetchData, 10000);
     });
 
     function onClick(e){
@@ -128,6 +128,11 @@
         }
         return chartData; 
     }
+
+    $: if(data){
+        updateMarkers();
+    }
+
 
    
 

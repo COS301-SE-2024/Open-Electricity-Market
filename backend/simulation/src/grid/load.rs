@@ -1,11 +1,17 @@
-use crate::grid::{Current, Harry, Resistance, ToJson, Voltage};
+use crate::grid::location::Location;
+use crate::grid::{Current, CurrentWrapper, Harry, Resistance, Voltage, VoltageWrapper};
 use rocket::serde::json::json;
+use rocket::serde::Serialize;
 
+#[derive(Serialize)]
+#[serde(crate = "rocket::serde")]
 pub enum Connection {
     Parallel(u32, u32),
     Series(u32, u32),
 }
 
+#[derive(Serialize)]
+#[serde(crate = "rocket::serde")]
 pub struct Load {
     pub load_type: LoadType,
     pub id: u32,
@@ -42,23 +48,31 @@ impl Load {
         return Resistance(f32::sqrt(resistance * resistance + reactance * reactance));
     }
 
-    pub fn set_voltage(&mut self, current: Current, frequency: f32) {
+    pub fn set_voltage(&mut self, current: CurrentWrapper, frequency: f32) {
         let impedance = self.get_impedance(frequency);
         match &mut self.load_type {
             LoadType::Consumer(c) => {
-                c.voltage.0 = current.0 * impedance.0;
-                c.voltage.1 = current.1 * impedance.0;
-                c.voltage.2 = current.2 * impedance.0;
+                c.voltage.voltage.0 = current.current.0 * impedance.0;
+                c.voltage.voltage.1 = current.current.1 * impedance.0;
+                c.voltage.voltage.2 = current.current.2 * impedance.0;
+                c.voltage.oscilloscope_detail.frequency = frequency;
+                c.voltage.oscilloscope_detail.amplitude =
+                    current.oscilloscope_detail.amplitude * impedance.0;
+                c.voltage.oscilloscope_detail.phase = current.oscilloscope_detail.phase;
             }
             LoadType::TransmissionLine(t) => {
-                t.voltage.0 = current.0 * impedance.0;
-                t.voltage.1 = current.1 * impedance.0;
-                t.voltage.2 = current.2 * impedance.0;
+                t.voltage.voltage.0 = current.current.0 * impedance.0;
+                t.voltage.voltage.1 = current.current.1 * impedance.0;
+                t.voltage.voltage.2 = current.current.2 * impedance.0;
+                t.voltage.oscilloscope_detail.frequency = frequency;
+                t.voltage.oscilloscope_detail.amplitude =
+                    current.oscilloscope_detail.amplitude * impedance.0;
+                t.voltage.oscilloscope_detail.phase = current.oscilloscope_detail.phase;
             }
         }
     }
 
-    pub fn get_voltage(&self) -> Voltage {
+    pub fn get_voltage(&self) -> VoltageWrapper {
         return match &self.load_type {
             LoadType::Consumer(c) => c.voltage.clone(),
             LoadType::TransmissionLine(t) => t.voltage.clone(),
@@ -66,49 +80,28 @@ impl Load {
     }
 }
 
+#[derive(Serialize)]
+#[serde(crate = "rocket::serde")]
 pub enum LoadType {
     Consumer(Consumer),
     TransmissionLine(TransmissionLine),
 }
-
+#[derive(Serialize)]
+#[serde(crate = "rocket::serde")]
 pub struct Consumer {
     pub(crate) id: u32,
     pub(crate) resistance: Resistance,
-    pub(crate) voltage: Voltage,
+    pub(crate) voltage: VoltageWrapper,
+    pub(crate) location: Location,
 }
 
-impl ToJson for Consumer {
-    fn to_json(&self) -> String {
-        json!({ "ID" : self.id,
-            "Resistance" : self.resistance.0,
-            "Voltage" : {
-                "Phase 1" : self.voltage.0,
-                "Phase 2" : self.voltage.1,
-                "Phase 3" : self.voltage.2,
-            }
-        })
-        .to_string()
-    }
-}
-
+#[derive(Serialize)]
+#[serde(crate = "rocket::serde")]
 pub struct TransmissionLine {
     pub(crate) id: u32,
     pub(crate) resistance: Resistance,
-    pub(crate) voltage: Voltage,
+    pub(crate) voltage: VoltageWrapper,
     pub length: f32,
     pub inductance_per_meter: f32,
-}
-
-impl ToJson for TransmissionLine {
-    fn to_json(&self) -> String {
-        json!({ "ID" : self.id,
-            "Resistance" : self.resistance.0,
-            "Voltage" : {
-                "Phase 1" : self.voltage.0,
-                "Phase 2" : self.voltage.1,
-                "Phase 3" : self.voltage.2,
-            }
-        })
-        .to_string()
-    }
+    pub(crate) location: Location,
 }

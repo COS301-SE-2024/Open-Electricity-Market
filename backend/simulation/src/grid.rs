@@ -4,23 +4,22 @@ use crate::grid::load::Connection::{Parallel, Series};
 use crate::grid::load::{Connection, Consumer, Load, TransmissionLine};
 use crate::grid::transformer::Transformer;
 use rocket::serde::json::json;
+use rocket::serde::Serialize;
 
+pub mod circuit;
 pub mod generator;
 pub mod load;
 pub mod location;
 pub mod transformer;
 
-pub mod circuit;
-
 #[cfg(test)]
 mod tests;
 
-pub trait ToJson {
-    fn to_json(&self) -> String;
-}
-#[derive(Clone)]
+#[derive(Clone, Serialize)]
+#[serde(crate = "rocket::serde")]
 pub struct Resistance(pub f32);
-#[derive(Clone)]
+#[derive(Clone, Serialize)]
+#[serde(crate = "rocket::serde")]
 pub struct Voltage(pub f32, pub f32, pub f32);
 impl Voltage {
     pub fn add_voltage(&self, other: Voltage) -> Voltage {
@@ -40,11 +39,43 @@ impl Voltage {
     }
 }
 
+#[derive(Clone, Serialize)]
+#[serde(crate = "rocket::serde")]
+pub struct VoltageWrapper {
+    pub voltage: Voltage,
+    pub oscilloscope_detail: OscilloscopeDetail,
+}
+
+impl VoltageWrapper {
+    pub fn add_voltage(&self, other: VoltageWrapper) -> VoltageWrapper {
+        let mut out = self.clone();
+        let mut voltage = out.voltage;
+        out.voltage = voltage.add_voltage(other.voltage);
+        out.oscilloscope_detail.amplitude += other.oscilloscope_detail.amplitude;
+        return out;
+    }
+
+    pub fn subtract_voltage(&self, other: VoltageWrapper) -> VoltageWrapper {
+        let mut out = self.clone();
+        let mut voltage = out.voltage;
+        out.voltage = voltage.subtract_voltage(other.voltage);
+        out.oscilloscope_detail.amplitude -= other.oscilloscope_detail.amplitude;
+        return out;
+    }
+}
+
+#[derive(Clone, Serialize)]
+#[serde(crate = "rocket::serde")]
+pub struct OscilloscopeDetail {
+    pub frequency: f32,
+    pub amplitude: f32,
+    pub phase: f32,
+}
+
 #[derive(Clone)]
 pub struct Harry(pub f32);
 #[derive(Clone)]
 pub struct Current(pub f32, pub f32, pub f32);
-
 impl Current {
     fn ohms_law(voltage: Voltage, resistance: Resistance) -> Current {
         let mut current = Current(0.0, 0.0, 0.0);
@@ -58,7 +89,41 @@ impl Current {
         return Current(self.0 * factor, self.1 * factor, self.2 * factor);
     }
 }
+#[derive(Clone)]
+pub struct CurrentWrapper {
+    pub current: Current,
+    pub oscilloscope_detail: OscilloscopeDetail,
+}
 
+impl CurrentWrapper {
+    fn ohms_law(voltage: VoltageWrapper, resistance: Resistance) -> CurrentWrapper {
+        let mut current = Current::ohms_law(voltage.voltage, resistance.clone());
+        let out = CurrentWrapper {
+            current,
+            oscilloscope_detail: OscilloscopeDetail {
+                frequency: voltage.oscilloscope_detail.frequency,
+                amplitude: voltage.oscilloscope_detail.amplitude / resistance.0,
+                phase: voltage.oscilloscope_detail.phase,
+            },
+        };
+        return out;
+    }
+
+    fn scale(&self, factor: f32) -> CurrentWrapper {
+        let out = CurrentWrapper {
+            current: self.current.scale(factor),
+            oscilloscope_detail: OscilloscopeDetail {
+                frequency: self.oscilloscope_detail.frequency,
+                amplitude: self.oscilloscope_detail.frequency * factor,
+                phase: self.oscilloscope_detail.phase,
+            },
+        };
+        return out;
+    }
+}
+
+#[derive(Serialize)]
+#[serde(crate = "rocket::serde")]
 pub struct Grid {
     pub circuits: Vec<Circuit>,
     pub frequency: f32,
@@ -108,7 +173,7 @@ impl Grid {
         let impedance =
             Resistance(self.circuits[circuit].calculate_equivalent_impedance(self.frequency, 0));
         // Step 3 Calculate current
-        let current = Current::ohms_law(voltage, impedance);
+        let current = CurrentWrapper::ohms_law(voltage, impedance);
         // Step 4 Split resistors (and current) back down
         // Step 5 Determine Voltages
         self.circuits[circuit].set_voltages(current, self.frequency, 0);

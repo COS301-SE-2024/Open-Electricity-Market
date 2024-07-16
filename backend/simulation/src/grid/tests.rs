@@ -1,12 +1,15 @@
+use crate::grid::generator::Generator;
+use crate::grid::load::Connection::{Parallel, Series};
+use crate::grid::load::{Connection, Consumer, Load, LoadType};
+use crate::grid::location::Location;
+use crate::grid::transformer::Transformer;
+use crate::grid::{Circuit, Current, Grid, Resistance, ToJson, Voltage};
+use rocket::serde::json::serde_json;
+use rocket::serde::Serialize;
 use std::cell::RefCell;
 use std::rc::Rc;
 use std::sync::Arc;
 use std::sync::Mutex;
-use crate::grid::generator::Generator;
-use crate::grid::load::Connection::{Parallel, Series};
-use crate::grid::load::{Connection, Consumer, Load, LoadType};
-use crate::grid::transformer::Transformer;
-use crate::grid::{Circuit, Current, Grid, Resistance, ToJson, Voltage};
 
 fn create_sample_circuit() -> Circuit {
     let circuit = Circuit {
@@ -17,6 +20,10 @@ fn create_sample_circuit() -> Circuit {
                     id: 0,
                     resistance: Resistance(10.0),
                     voltage: Voltage(0.0, 0.0, 0.0),
+                    location: Location {
+                        latitude: 0.0,
+                        longitude: 0.0,
+                    },
                 }),
                 id: 0,
             },
@@ -25,6 +32,10 @@ fn create_sample_circuit() -> Circuit {
                     id: 1,
                     resistance: Resistance(15.0),
                     voltage: Voltage(0.0, 0.0, 0.0),
+                    location: Location {
+                        latitude: 0.0,
+                        longitude: 0.0,
+                    },
                 }),
                 id: 1,
             },
@@ -33,6 +44,10 @@ fn create_sample_circuit() -> Circuit {
                     id: 2,
                     resistance: Resistance(30.0),
                     voltage: Voltage(0.0, 0.0, 0.0),
+                    location: Location {
+                        latitude: 0.0,
+                        longitude: 0.0,
+                    },
                 }),
                 id: 2,
             },
@@ -41,6 +56,10 @@ fn create_sample_circuit() -> Circuit {
                     id: 3,
                     resistance: Resistance(10.0),
                     voltage: Voltage(0.0, 0.0, 0.0),
+                    location: Location {
+                        latitude: 0.0,
+                        longitude: 0.0,
+                    },
                 }),
                 id: 3,
             },
@@ -49,6 +68,10 @@ fn create_sample_circuit() -> Circuit {
                     id: 4,
                     resistance: Resistance(18.0),
                     voltage: Voltage(0.0, 0.0, 0.0),
+                    location: Location {
+                        latitude: 0.0,
+                        longitude: 0.0,
+                    },
                 }),
                 id: 4,
             },
@@ -57,6 +80,10 @@ fn create_sample_circuit() -> Circuit {
                     id: 5,
                     resistance: Resistance(15.0),
                     voltage: Voltage(0.0, 0.0, 0.0),
+                    location: Location {
+                        latitude: 0.0,
+                        longitude: 0.0,
+                    },
                 }),
                 id: 5,
             },
@@ -65,6 +92,10 @@ fn create_sample_circuit() -> Circuit {
                     id: 6,
                     resistance: Resistance(17.0),
                     voltage: Voltage(0.0, 0.0, 0.0),
+                    location: Location {
+                        latitude: 0.0,
+                        longitude: 0.0,
+                    },
                 }),
                 id: 6,
             },
@@ -73,6 +104,10 @@ fn create_sample_circuit() -> Circuit {
                     id: 7,
                     resistance: Resistance(25.0),
                     voltage: Voltage(0.0, 0.0, 0.0),
+                    location: Location {
+                        latitude: 0.0,
+                        longitude: 0.0,
+                    },
                 }),
                 id: 7,
             },
@@ -81,6 +116,10 @@ fn create_sample_circuit() -> Circuit {
                     id: 8,
                     resistance: Resistance(10.0),
                     voltage: Voltage(0.0, 0.0, 0.0),
+                    location: Location {
+                        latitude: 0.0,
+                        longitude: 0.0,
+                    },
                 }),
                 id: 8,
             },
@@ -89,6 +128,10 @@ fn create_sample_circuit() -> Circuit {
                     id: 9,
                     resistance: Resistance(11.0),
                     voltage: Voltage(0.0, 0.0, 0.0),
+                    location: Location {
+                        latitude: 0.0,
+                        longitude: 0.0,
+                    },
                 }),
                 id: 9,
             },
@@ -109,9 +152,12 @@ fn create_sample_circuit() -> Circuit {
             max_voltage: 240.0,
             frequency: 50.0,
             transmission_line: 0,
+            location: Location {
+                latitude: 0.0,
+                longitude: 0.0,
+            },
         }],
-        transformers: vec![
-        ],
+        transformers: vec![],
     };
 
     return circuit;
@@ -149,29 +195,29 @@ fn set_voltages_when_inductance_and_capacitance_zero() {
     assert_eq!(circuit.loads[3].get_voltage().2, 46.631237);
 }
 
-
 #[test]
-fn  set_transformers_secondary_voltages_when_inductance_and_capacitance_zero() {
+fn set_transformers_secondary_voltages_when_inductance_and_capacitance_zero() {
     let mut circuit1 = create_sample_circuit();
     let mut circuit2 = create_sample_circuit();
     circuit2.id = 1;
-    let  transformer = Transformer {
+    let transformer = Transformer {
         id: 0,
         ratio: 1.0,
         primary_circuit: 0,
         secondary_circuit: 1,
         primary_load: 0,
-        secondary_voltage: Voltage(0.0,0.0,0.0),
+        secondary_voltage: Voltage(0.0, 0.0, 0.0),
     };
+
     let trans_ref = Arc::new(Mutex::new(transformer));
     circuit1.transformers.push(trans_ref.clone());
     circuit2.transformers.push(trans_ref.clone());
 
-    circuit1.loads[0].set_voltage(Current(1.0,1.0,1.0),50.0);
+    circuit1.loads[0].set_voltage(Current(1.0, 1.0, 1.0), 50.0);
     circuit1.set_transformers_secondary_voltages(50.0);
 
-    assert_eq!(circuit2.transformers[0].lock().unwrap().secondary_voltage.0,10.0);
-
+    assert_eq!(
+        circuit2.transformers[0].lock().unwrap().secondary_voltage.0,
+        10.0
+    );
 }
-
-

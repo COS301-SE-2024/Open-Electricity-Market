@@ -1,12 +1,16 @@
-use std::cell::RefCell;
-use std::rc::Rc;
-use std::sync::{Arc, Mutex};
 use crate::grid::generator::Generator;
 use crate::grid::load::Connection::{Parallel, Series};
 use crate::grid::load::{Connection, Load};
 use crate::grid::transformer::Transformer;
-use crate::grid::{Current, Voltage};
+use crate::grid::{Current, CurrentWrapper, Voltage, VoltageWrapper};
+use rocket::serde::json::serde_json::json;
+use rocket::serde::Serialize;
+use std::cell::RefCell;
+use std::rc::Rc;
+use std::sync::{Arc, Mutex};
 
+#[derive(Serialize)]
+#[serde(crate = "rocket::serde")]
 pub struct Circuit {
     pub(crate) id: u32,
     pub(crate) loads: Vec<Load>,
@@ -16,27 +20,31 @@ pub struct Circuit {
 }
 
 impl Circuit {
-    pub(crate) fn calculate_ideal_generator_voltages(&mut self, elapsed_time: f32) -> Voltage {
+    pub(crate) fn calculate_ideal_generator_voltages(
+        &mut self,
+        elapsed_time: f32,
+    ) -> VoltageWrapper {
         for gen in self.generators.iter_mut() {
-            gen.voltage.0 = gen.max_voltage
+            gen.voltage.voltage.0 = gen.max_voltage
                 * f32::sin(gen.frequency * 2.0 * std::f32::consts::PI * elapsed_time);
-            gen.voltage.1 = gen.max_voltage
+            gen.voltage.voltage.1 = gen.max_voltage
                 * f32::sin(
                     gen.frequency * 2.0 * std::f32::consts::PI * elapsed_time
                         - (2.0 * std::f32::consts::PI / 3.0),
                 );
-            gen.voltage.2 = gen.max_voltage
+            gen.voltage.voltage.2 = gen.max_voltage
                 * f32::sin(
                     gen.frequency * 2.0 * std::f32::consts::PI * elapsed_time
                         - (2.0 * 2.0 * std::f32::consts::PI / 3.0),
                 );
+            gen.voltage.oscilloscope_detail.amplitude = gen.max_voltage;
+            gen.voltage.oscilloscope_detail.frequency = gen.frequency;
         }
 
         let mut out = self.generators[0].voltage.clone();
 
-
         for transformer in self.transformers.iter() {
-            let transformer =transformer.lock().unwrap();
+            let transformer = transformer.lock().unwrap();
             if transformer.secondary_circuit == self.id {
                 out = out.add_voltage(transformer.secondary_voltage.clone());
             }
@@ -84,7 +92,7 @@ impl Circuit {
         equivalence
     }
 
-    pub(crate) fn set_voltages(&mut self, current: Current, frequency: f32, load: usize) {
+    pub(crate) fn set_voltages(&mut self, current: CurrentWrapper, frequency: f32, load: usize) {
         let mut parrallel = vec![];
         let mut series = vec![];
         for con in self.connections.iter() {
@@ -164,9 +172,14 @@ impl Circuit {
                     let load = self.loads[load_id as usize].get_voltage();
                     total_voltage.subtract_voltage(load);
                     if load_id == prev_load_id {
-                        transformer.secondary_voltage.0 = total_voltage.0 * transformer.ratio;
-                        transformer.secondary_voltage.1 = total_voltage.1 * transformer.ratio;
-                        transformer.secondary_voltage.2 = total_voltage.2 * transformer.ratio;
+                        transformer.secondary_voltage.voltage.0 =
+                            total_voltage.voltage.0 * transformer.ratio;
+                        transformer.secondary_voltage.voltage.1 =
+                            total_voltage.voltage.1 * transformer.ratio;
+                        transformer.secondary_voltage.voltage.2 =
+                            total_voltage.voltage.2 * transformer.ratio;
+                        transformer.secondary_voltage.oscilloscope_detail.amplitude =
+                            total_voltage.oscilloscope_detail.amplitude * transformer.ratio;
                     }
                 }
             }

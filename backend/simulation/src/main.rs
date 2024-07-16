@@ -1,16 +1,20 @@
 #[macro_use]
 extern crate rocket;
 
+use crate::grid::circuit::Circuit;
 use crate::grid::generator::Generator;
-use crate::grid::load::{Consumer, TransmissionLine};
+use crate::grid::load::Connection::{Parallel, Series};
+use crate::grid::load::{Consumer, Load, LoadType, TransmissionLine};
+use crate::grid::location::Location;
 use crate::grid::transformer::Transformer;
-use crate::grid::{Grid, Resistance, ToJson, Voltage};
+use crate::grid::{Grid, OscilloscopeDetail, Resistance, Voltage, VoltageWrapper};
 use rocket::fairing::{Fairing, Info, Kind};
 use rocket::http::{Header, Method, Status};
 use rocket::response::content;
 use rocket::serde::json::{json, Json};
 use rocket::serde::{Deserialize, Serialize};
 use rocket::{Request, Response, State};
+use std::ops::Deref;
 use std::sync::{Arc, Mutex};
 use std::time::Instant;
 
@@ -111,7 +115,9 @@ fn add_generator(
 
 #[post("/info", format = "application/json")]
 fn info(grid: &State<Arc<Mutex<Grid>>>) -> content::RawJson<String> {
-    content::RawJson("{}".parse().unwrap())
+    let mut g = grid.lock().unwrap();
+    let info = serde_json::to_string(g.deref()).unwrap();
+    content::RawJson(info)
 }
 
 #[post("/overview", format = "application/json")]
@@ -166,8 +172,231 @@ fn rocket() -> _ {
             ],
         )
         .manage(Arc::new(Mutex::new(Grid {
-            circuits: vec![],
-            frequency: 0.0,
+            circuits: vec![Circuit {
+                id: 0,
+                loads: vec![
+                    Load {
+                        load_type: LoadType::Consumer(Consumer {
+                            id: 0,
+                            resistance: Resistance(10.0),
+                            voltage: VoltageWrapper {
+                                voltage: Voltage(0.0, 0.0, 0.0),
+                                oscilloscope_detail: OscilloscopeDetail {
+                                    frequency: 0.0,
+                                    amplitude: 0.0,
+                                    phase: 0.0,
+                                },
+                            },
+                            location: Location {
+                                latitude: 0.0,
+                                longitude: 0.0,
+                            },
+                        }),
+                        id: 0,
+                    },
+                    Load {
+                        load_type: LoadType::Consumer(Consumer {
+                            id: 1,
+                            resistance: Resistance(15.0),
+                            voltage: VoltageWrapper {
+                                voltage: Voltage(0.0, 0.0, 0.0),
+                                oscilloscope_detail: OscilloscopeDetail {
+                                    frequency: 0.0,
+                                    amplitude: 0.0,
+                                    phase: 0.0,
+                                },
+                            },
+                            location: Location {
+                                latitude: 0.0,
+                                longitude: 0.0,
+                            },
+                        }),
+                        id: 1,
+                    },
+                    Load {
+                        load_type: LoadType::Consumer(Consumer {
+                            id: 2,
+                            resistance: Resistance(30.0),
+                            voltage: VoltageWrapper {
+                                voltage: Voltage(0.0, 0.0, 0.0),
+                                oscilloscope_detail: OscilloscopeDetail {
+                                    frequency: 0.0,
+                                    amplitude: 0.0,
+                                    phase: 0.0,
+                                },
+                            },
+                            location: Location {
+                                latitude: 0.0,
+                                longitude: 0.0,
+                            },
+                        }),
+                        id: 2,
+                    },
+                    Load {
+                        load_type: LoadType::Consumer(Consumer {
+                            id: 3,
+                            resistance: Resistance(10.0),
+                            voltage: VoltageWrapper {
+                                voltage: Voltage(0.0, 0.0, 0.0),
+                                oscilloscope_detail: OscilloscopeDetail {
+                                    frequency: 0.0,
+                                    amplitude: 0.0,
+                                    phase: 0.0,
+                                },
+                            },
+                            location: Location {
+                                latitude: 0.0,
+                                longitude: 0.0,
+                            },
+                        }),
+                        id: 3,
+                    },
+                    Load {
+                        load_type: LoadType::Consumer(Consumer {
+                            id: 4,
+                            resistance: Resistance(18.0),
+                            voltage: VoltageWrapper {
+                                voltage: Voltage(0.0, 0.0, 0.0),
+                                oscilloscope_detail: OscilloscopeDetail {
+                                    frequency: 0.0,
+                                    amplitude: 0.0,
+                                    phase: 0.0,
+                                },
+                            },
+                            location: Location {
+                                latitude: 0.0,
+                                longitude: 0.0,
+                            },
+                        }),
+                        id: 4,
+                    },
+                    Load {
+                        load_type: LoadType::Consumer(Consumer {
+                            id: 5,
+                            resistance: Resistance(15.0),
+                            voltage: VoltageWrapper {
+                                voltage: Voltage(0.0, 0.0, 0.0),
+                                oscilloscope_detail: OscilloscopeDetail {
+                                    frequency: 0.0,
+                                    amplitude: 0.0,
+                                    phase: 0.0,
+                                },
+                            },
+                            location: Location {
+                                latitude: 0.0,
+                                longitude: 0.0,
+                            },
+                        }),
+                        id: 5,
+                    },
+                    Load {
+                        load_type: LoadType::Consumer(Consumer {
+                            id: 6,
+                            resistance: Resistance(17.0),
+                            voltage: VoltageWrapper {
+                                voltage: Voltage(0.0, 0.0, 0.0),
+                                oscilloscope_detail: OscilloscopeDetail {
+                                    frequency: 0.0,
+                                    amplitude: 0.0,
+                                    phase: 0.0,
+                                },
+                            },
+                            location: Location {
+                                latitude: 0.0,
+                                longitude: 0.0,
+                            },
+                        }),
+                        id: 6,
+                    },
+                    Load {
+                        load_type: LoadType::Consumer(Consumer {
+                            id: 7,
+                            resistance: Resistance(25.0),
+                            voltage: VoltageWrapper {
+                                voltage: Voltage(0.0, 0.0, 0.0),
+                                oscilloscope_detail: OscilloscopeDetail {
+                                    frequency: 0.0,
+                                    amplitude: 0.0,
+                                    phase: 0.0,
+                                },
+                            },
+                            location: Location {
+                                latitude: 0.0,
+                                longitude: 0.0,
+                            },
+                        }),
+                        id: 7,
+                    },
+                    Load {
+                        load_type: LoadType::Consumer(Consumer {
+                            id: 8,
+                            resistance: Resistance(10.0),
+                            voltage: VoltageWrapper {
+                                voltage: Voltage(0.0, 0.0, 0.0),
+                                oscilloscope_detail: OscilloscopeDetail {
+                                    frequency: 0.0,
+                                    amplitude: 0.0,
+                                    phase: 0.0,
+                                },
+                            },
+                            location: Location {
+                                latitude: 0.0,
+                                longitude: 0.0,
+                            },
+                        }),
+                        id: 8,
+                    },
+                    Load {
+                        load_type: LoadType::Consumer(Consumer {
+                            id: 9,
+                            resistance: Resistance(11.0),
+                            voltage: VoltageWrapper {
+                                voltage: Voltage(0.0, 0.0, 0.0),
+                                oscilloscope_detail: OscilloscopeDetail {
+                                    frequency: 0.0,
+                                    amplitude: 0.0,
+                                    phase: 0.0,
+                                },
+                            },
+                            location: Location {
+                                latitude: 0.0,
+                                longitude: 0.0,
+                            },
+                        }),
+                        id: 9,
+                    },
+                ],
+                connections: vec![
+                    Parallel(0, 1),
+                    Series(0, 2),
+                    Series(0, 3),
+                    Parallel(0, 4),
+                    Series(4, 5),
+                    Parallel(0, 7),
+                    Series(7, 8),
+                    Series(7, 9),
+                ],
+                generators: vec![Generator {
+                    id: 0,
+                    voltage: VoltageWrapper {
+                        voltage: Voltage(0.0, 0.0, 0.0),
+                        oscilloscope_detail: OscilloscopeDetail {
+                            frequency: 0.0,
+                            amplitude: 0.0,
+                            phase: 0.0,
+                        },
+                    },
+                    max_voltage: 240.0,
+                    frequency: 50.0,
+                    transmission_line: 0,
+                    location: Location {
+                        latitude: 0.0,
+                        longitude: 0.0,
+                    },
+                }],
+                transformers: vec![],
+            }],
+            frequency: 50.0,
             started: false,
         })))
 }

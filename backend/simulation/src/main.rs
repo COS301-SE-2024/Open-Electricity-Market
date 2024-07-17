@@ -10,8 +10,7 @@ use crate::grid::{Grid, OscilloscopeDetail, Resistance, Voltage, VoltageWrapper}
 use rocket::fairing::{Fairing, Info, Kind};
 use rocket::http::{Header, Method, Status};
 use rocket::response::content;
-use rocket::serde::json::{json, Json};
-use rocket::serde::{Deserialize, Serialize};
+use rocket::serde::json::json;
 use rocket::{Request, Response, State};
 use std::ops::Deref;
 use std::sync::{Arc, Mutex};
@@ -48,7 +47,6 @@ impl Fairing for CORS {
 fn index() -> String {
     "Yay".to_string()
 }
-
 
 #[post("/info", format = "application/json")]
 fn info(grid: &State<Arc<Mutex<Grid>>>) -> content::RawJson<String> {
@@ -90,14 +88,7 @@ fn start(grid: &State<Arc<Mutex<Grid>>>) -> String {
 fn rocket() -> _ {
     rocket::build()
         .attach(CORS)
-        .mount(
-            "/",
-            routes![
-                index,
-                start,
-                info,
-            ],
-        )
+        .mount("/", routes![index, start, info,])
         .manage(Arc::new(Mutex::new(Grid {
             circuits: vec![Circuit {
                 id: 0,

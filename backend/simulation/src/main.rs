@@ -49,79 +49,12 @@ fn index() -> String {
     "Yay".to_string()
 }
 
-#[derive(Serialize, Deserialize)]
-#[serde(crate = "rocket::serde")]
-struct GeneratorUpdate {
-    id: u32,
-    supply: f32,
-}
-
-#[post("/produce", format = "application/json", data = "<data>")]
-fn produce(grid: &State<Arc<Mutex<Grid>>>, data: Json<GeneratorUpdate>) -> String {
-    let id = data.id;
-    let supply = data.supply;
-    format!("Production of {id} set to {supply}V").to_string()
-}
-
-#[derive(Serialize, Deserialize)]
-#[serde(crate = "rocket::serde")]
-struct ConsumerUpdate {
-    id: u32,
-    load: f32,
-}
-
-#[post("/consume", format = "application/json", data = "<data>")]
-fn consume(grid: &State<Arc<Mutex<Grid>>>, data: Json<ConsumerUpdate>) -> String {
-    let id = data.id;
-    let load = data.load;
-    format!("Consumption of {id} set to {load}Ω")
-}
-
-#[derive(Serialize, Deserialize)]
-#[serde(crate = "rocket::serde")]
-struct ConsumerNew {
-    resistance: f32,
-    transmission_line: u32,
-}
-
-#[post("/add_consumer", format = "application/json", data = "<data>")]
-fn add_consumer(
-    grid: &State<Arc<Mutex<Grid>>>,
-    data: Json<ConsumerNew>,
-) -> content::RawJson<String> {
-    let g = grid.lock().unwrap();
-    let id = 0;
-    content::RawJson(json!({"id":id}).to_string())
-}
-
-#[derive(Serialize, Deserialize)]
-#[serde(crate = "rocket::serde")]
-struct GeneratorNew {
-    transmission_line: u32,
-    max_voltage: f32,
-    frequency: f32,
-}
-
-#[post("/add_generator", format = "application/json", data = "<data>")]
-fn add_generator(
-    grid: &State<Arc<Mutex<Grid>>>,
-    data: Json<GeneratorNew>,
-) -> content::RawJson<String> {
-    let g = grid.lock().unwrap();
-    let id = 0;
-    content::RawJson(json!({"id":id}).to_string())
-}
 
 #[post("/info", format = "application/json")]
 fn info(grid: &State<Arc<Mutex<Grid>>>) -> content::RawJson<String> {
     let g = grid.lock().unwrap();
     let info = serde_json::to_string(g.deref()).unwrap();
     content::RawJson(info)
-}
-
-#[post("/overview", format = "application/json")]
-fn overview(grid: &State<Arc<Mutex<Grid>>>) -> content::RawJson<String> {
-    content::RawJson("{}".parse().unwrap())
 }
 
 #[post("/start", format = "application/json")]
@@ -161,13 +94,8 @@ fn rocket() -> _ {
             "/",
             routes![
                 index,
-                produce,
-                consume,
                 start,
                 info,
-                overview,
-                add_generator,
-                add_consumer
             ],
         )
         .manage(Arc::new(Mutex::new(Grid {
@@ -187,8 +115,8 @@ fn rocket() -> _ {
                                 },
                             },
                             location: Location {
-                                latitude: 0.0,
-                                longitude: 0.0,
+                                latitude: -26.2044,
+                                longitude: 28.0248,
                             },
                         }),
                         id: 0,
@@ -206,8 +134,8 @@ fn rocket() -> _ {
                                 },
                             },
                             location: Location {
-                                latitude: 0.0,
-                                longitude: 0.0,
+                                latitude: -26.1735,
+                                longitude: 27.9985,
                             },
                         }),
                         id: 1,
@@ -225,8 +153,8 @@ fn rocket() -> _ {
                                 },
                             },
                             location: Location {
-                                latitude: 0.0,
-                                longitude: 0.0,
+                                latitude: -26.2015,
+                                longitude: 28.0336,
                             },
                         }),
                         id: 2,
@@ -244,8 +172,8 @@ fn rocket() -> _ {
                                 },
                             },
                             location: Location {
-                                latitude: 0.0,
-                                longitude: 0.0,
+                                latitude: -26.1886,
+                                longitude: 28.0401,
                             },
                         }),
                         id: 3,
@@ -263,8 +191,8 @@ fn rocket() -> _ {
                                 },
                             },
                             location: Location {
-                                latitude: 0.0,
-                                longitude: 0.0,
+                                latitude: -26.2026,
+                                longitude: 28.0473,
                             },
                         }),
                         id: 4,
@@ -282,8 +210,8 @@ fn rocket() -> _ {
                                 },
                             },
                             location: Location {
-                                latitude: 0.0,
-                                longitude: 0.0,
+                                latitude: -26.2348,
+                                longitude: 28.0139,
                             },
                         }),
                         id: 5,
@@ -301,8 +229,8 @@ fn rocket() -> _ {
                                 },
                             },
                             location: Location {
-                                latitude: 0.0,
-                                longitude: 0.0,
+                                latitude: -26.1980,
+                                longitude: 28.0469,
                             },
                         }),
                         id: 6,
@@ -320,8 +248,8 @@ fn rocket() -> _ {
                                 },
                             },
                             location: Location {
-                                latitude: 0.0,
-                                longitude: 0.0,
+                                latitude: -26.2068,
+                                longitude: 28.0452,
                             },
                         }),
                         id: 7,
@@ -339,8 +267,8 @@ fn rocket() -> _ {
                                 },
                             },
                             location: Location {
-                                latitude: 0.0,
-                                longitude: 0.0,
+                                latitude: -26.1593,
+                                longitude: 28.0302,
                             },
                         }),
                         id: 8,
@@ -358,8 +286,8 @@ fn rocket() -> _ {
                                 },
                             },
                             location: Location {
-                                latitude: 0.0,
-                                longitude: 0.0,
+                                latitude: -26.2369,
+                                longitude: 28.0116,
                             },
                         }),
                         id: 9,

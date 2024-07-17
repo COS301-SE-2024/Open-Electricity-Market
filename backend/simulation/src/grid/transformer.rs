@@ -1,23 +1,15 @@
-use crate::grid::ToJson;
-use rocket::serde::json::json;
+use crate::grid::location::Location;
+use crate::grid::VoltageWrapper;
+use rocket::serde::Serialize;
 
-#[cfg(test)]
-mod tests;
-
+#[derive(Clone, Serialize)]
+#[serde(crate = "rocket::serde")]
 pub struct Transformer {
     pub(crate) id: u32,
     pub(crate) ratio: f32,
-    pub(crate) primary: u32,
-    pub(crate) secondary: u32,
-}
-
-impl ToJson for Transformer {
-    fn to_json(&self) -> String {
-        json!({ "ID" : self.id,
-                "Ratio" : self.ratio,
-                "Primary Transmission Line" : self.primary,
-                "Secondary Transmission Line" : self.secondary
-        })
-        .to_string()
-    }
+    pub(crate) primary_circuit: u32,
+    pub(crate) secondary_circuit: u32,
+    pub(crate) primary_load: u32,
+    pub(crate) secondary_voltage: VoltageWrapper,
+    pub(crate) location: Location,
 }

@@ -28,7 +28,7 @@ impl Load {
         std::f32::consts::FRAC_2_PI * frequency * self.get_inductance().0
     }
 
-    fn get_negative_reactance(&self, frequency: f32) -> f32 {
+    fn get_negative_reactance(&self, _frequency: f32) -> f32 {
         0.0
     }
 

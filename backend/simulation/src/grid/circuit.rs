@@ -126,7 +126,7 @@ impl Circuit {
     }
 
     //Operates under assumption that id's correspond to index
-    pub(crate) fn set_transformers_secondary_voltages(&mut self, frequency: f32) {
+    pub(crate) fn set_transformers_secondary_voltages(&mut self, _frequency: f32) {
         for transformer in self.transformers.iter_mut() {
             let mut transformer = transformer.lock().unwrap();
             if transformer.primary_circuit == self.id {

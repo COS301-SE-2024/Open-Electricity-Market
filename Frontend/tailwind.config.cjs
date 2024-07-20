@@ -65,10 +65,14 @@ module.exports = {
             "background-color": "#1EA1F1",
             "border-color": "#1EA1F1",
           },
-          ".px-2":{
-            "background-color": "#1EA1F1",
-            "border-color": "#1EA1F1",
-          }
+          ".w-28":{
+            "background-color": "white",
+            "border-color": "#1EA1F2",
+          },
+          ".w-22":{
+            "background-color": "white",
+            "border-color": "#1EA1F2",
+          },
         },
       },
     ], // false: only light + dark | true: all themes | array: specific themes like this ["light", "dark", "cupcake"]

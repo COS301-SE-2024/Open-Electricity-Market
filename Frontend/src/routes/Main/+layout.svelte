@@ -48,7 +48,7 @@
   <main class="container mx-auto mt-8">
     <slot />
   </main> -->
-<html lang="en" data-theme="customDarkTheme">
+<html lang="en" >
   <header>
     <div class="navbar bg-black rounded-2xl">
       <div class="navbar-start">  

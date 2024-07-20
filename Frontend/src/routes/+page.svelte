@@ -39,7 +39,7 @@
         goto("/Main/Dashboard");
       }
       else{
-        errormess = "Invalid Credentials";
+        errormessage = "Invalid Credentials";
       }
       //send to main page
     }

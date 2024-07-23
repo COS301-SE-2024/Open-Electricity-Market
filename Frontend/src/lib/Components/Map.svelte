@@ -13,6 +13,7 @@
     let interval; 
     let data = {};
     let markers = [];
+    export let mapdata; 
 
 
     
@@ -29,6 +30,7 @@
     
     lm.on('click', () => showModal());
     
+
 
 
 
@@ -60,14 +62,11 @@
       console.log("Request being sent...");
       const fdata = await response.json();
       console.log("Fetched data:", fdata);
-      data = {
-        ...fdata,
-        Consumers: fdata.Consumers.map(item => JSON.parse(item)),
-        Generators: fdata.Generators.map(item => JSON.parse(item)),
-        Transformers: fdata.Transformers.map(item => JSON.parse(item)),
-        "Transmission Lines": fdata["Transmission Lines"].map(item => JSON.parse(item))
-      };
-      // chartdata = data[Consumers.Voltage.Phase1];
+      data = fdata.circuits[0];
+      console.log("This is circuits...");
+      console.log(data);
+      updateMarkers();
+      
       
     } catch (error) {
       console.log("There was an error fetching the JSON for the overview:", error);
@@ -75,15 +74,15 @@
   }
 
     async function showMarkerPopup(marker, agent){
-      await tick(); 
+      // await tick(); 
       //change chart {data} to cater for relevant agent 
     }
 
     function updateMarkers(){
-        // markers.forEach(marker=>marker.remove());
-        // markers = [];
+        markers.forEach(marker=>marker.remove());
+        markers = [];
 
-        // //add consumers
+        //consumers
         // data.Consumers.forEach(consumer=>{
         //     const marker = lm.marker([consumer.lattitude, consumer.longtitude]).addTo(map);
         //     marker.on('click', ()=> showMarkerPopup(marker, consumer));
@@ -111,6 +110,21 @@
         //     markers.push(marker);
         // });
 
+        data.loads.forEach(load => {
+        if (load.load_type.Consumer) {
+          const consumer = load.load_type.Consumer;
+          const marker = L.marker([consumer.location.latitude, consumer.location.longitude]).addTo(map);
+          // marker.on('click', () => showMarkerPopup(marker, consumer));
+          markers.push(marker);
+          }
+        });
+
+        data.generators.forEach(generator => {
+          const marker = L.marker([generator.location.latitude, generator.location.longitude]).addTo(map);
+          marker.on('click', () => showMarkerPopup(marker, generator));
+          markers.push(marker);
+        });
+
     }
 
 
@@ -129,9 +143,14 @@
         return chartData; 
     }
 
-    $: if(data){
-        updateMarkers();
-    }
+    // $: if(data){
+    //     updateMarkers();
+    // }
+
+     $: if (map && mapdata) {
+    console.log("Reactive if was triggered...");
+    updateMarkers(mapdata);
+  }
 
 
    

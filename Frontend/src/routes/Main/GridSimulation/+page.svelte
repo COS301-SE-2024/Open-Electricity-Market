@@ -11,6 +11,7 @@
   let numDecimals = 2; 
   let advancedView = false; 
   let dropdownViewable = false; 
+  let mapdata; 
 
   function toggleDropdown(){
     dropdownViewable = !dropdownViewable; 
@@ -18,7 +19,7 @@
 
   onMount(async () => {
     await fetchData(); 
-    interval = setInterval(fetchData, 800); 
+    interval = setInterval(fetchData, 10000); 
 
    
     return () => {
@@ -69,15 +70,16 @@
       console.log("Request being sent...");
       const fdata = await response.json();
       console.log("Fetched data:", fdata);
-      data = {
-        ...fdata,
-        Consumers: fdata.Consumers.map(item => JSON.parse(item)),
-        Generators: fdata.Generators.map(item => JSON.parse(item)),
-        Transformers: fdata.Transformers.map(item => JSON.parse(item)),
-        "Transmission Lines": fdata["Transmission Lines"].map(item => JSON.parse(item))
-      };
-      console.log("Data is this: ");
-      console.log(data);
+      mapdata = fdata.circuits[0];
+      // data = {
+      //   ...fdata,
+      //   Consumers: fdata.Consumers.map(item => JSON.parse(item)),
+      //   Generators: fdata.Generators.map(item => JSON.parse(item)),
+      //   Transformers: fdata.Transformers.map(item => JSON.parse(item)),
+      //   "Transmission Lines": fdata["Transmission Lines"].map(item => JSON.parse(item))
+      // };
+      // console.log("Data is this: ");
+      // console.log(data);
       // chartdata = data[Consumers.Voltage.Phase1];
       
     } catch (error) {
@@ -199,7 +201,7 @@
    <span class="loading loading-ring loading-lg ml-6"></span>
   {/if} -->
 
-    <Map /> 
+    <Map {mapdata}/> 
     <Chart {data}/>
 
 </main>

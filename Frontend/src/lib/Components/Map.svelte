@@ -1,7 +1,7 @@
 
 <script>
      
-    import { onMount, onDestroy } from 'svelte';
+    import { onMount, onDestroy, createEventDispatcher } from 'svelte';
     import { browser } from '$app/environment';
     import Chart from './Chart2.svelte';
     import {tick} from 'svelte';
@@ -9,11 +9,12 @@
     let mapContainer;
     let map;
     let lm; 
-    let chartdata = [];
+    
     let interval; 
     let data = {};
     let markers = [];
     export let mapdata; 
+    const dispatch = createEventDispatcher();
 
 
     
@@ -22,10 +23,10 @@
           const leaflet = await import('leaflet');
           map = leaflet.map(mapContainer).setView([-26.1925013,28.0100383], 13);
     
-    // Add the tile layer
+
     leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);
     
-    // Add a marker to the map
+    
     lm = leaflet.marker([-26.1925013,28.0100383]).addTo(map);
     
     lm.on('click', () => showModal());
@@ -41,9 +42,7 @@
        interval = setInterval(fetchData, 10000);
     });
 
-    function onClick(e){
-      e.bindPopup("this is some text");
-    }
+   
     
     onDestroy(async () => {
        if(map) {
@@ -59,26 +58,29 @@
           'Content-Type': 'application/json' 
         }
       });
-      console.log("Request being sent...");
+      //console.log("Request being sent...");
       const fdata = await response.json();
-      console.log("Fetched data:", fdata);
-      data = fdata.circuits[0];
-      console.log("This is circuits...");
-      console.log(data);
+      //console.log("Fetched data:", fdata);
+      data = fdata.circuits[0] || {};
+      //console.log("This is circuits...");
+      //console.log(data);
       updateMarkers();
       
       
     } catch (error) {
-      console.log("There was an error fetching the JSON for the overview:", error);
+      console.log("There was an error fetching the JSON for the info:", error);
     }
   }
 
-    async function showMarkerPopup(marker, agent){
-      // await tick(); 
-      //change chart {data} to cater for relevant agent 
-    }
+    
 
     function updateMarkers(){
+
+          if (!data.loads || !data.generators) {
+            console.log("No loads or generators available");
+            return;
+        }
+
         markers.forEach(marker=>marker.remove());
         markers = [];
 
@@ -114,14 +116,18 @@
         if (load.load_type.Consumer) {
           const consumer = load.load_type.Consumer;
           const marker = L.marker([consumer.location.latitude, consumer.location.longitude]).addTo(map);
+          
+          marker.bindPopup("Consumer "+ (consumer.id+1+"<br>"+consumer.location.latitude + " " + consumer.location.longitude));
           // marker.on('click', () => showMarkerPopup(marker, consumer));
+          //marker.on('click', ()=> updateChart(consumer));
+          marker.on('click', () => {dispatch('markerClick', consumer)});
           markers.push(marker);
           }
         });
 
         data.generators.forEach(generator => {
           const marker = L.marker([generator.location.latitude, generator.location.longitude]).addTo(map);
-          marker.on('click', () => showMarkerPopup(marker, generator));
+          // marker.on('click', () => showMarkerPopup(marker, generator));
           markers.push(marker);
         });
 
@@ -135,13 +141,19 @@
       
     }
 
-    function extractChartData(data){
-        let chartData = [];
-        if(data.Consumers){
-            chartData = data.Consumers[0].Voltage["Phase 1"];
-        }
-        return chartData; 
+    function updateChart(entity){
+      if(entity.voltage.oscilliscope_detail){
+        console.log("This was successful");
+      }
     }
+
+    // function extractChartData(data){
+    //     let chartData = [];
+    //     if(data.Consumers){
+    //         chartData = data.Consumers[0].Voltage["Phase 1"];
+    //     }
+    //     return chartData; 
+    // }
 
     // $: if(data){
     //     updateMarkers();
@@ -152,6 +164,8 @@
     updateMarkers(mapdata);
   }
 
+
+  
 
    
 

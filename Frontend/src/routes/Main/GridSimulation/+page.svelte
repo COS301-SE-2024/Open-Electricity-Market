@@ -12,6 +12,7 @@
   let advancedView = false; 
   let dropdownViewable = false; 
   let mapdata; 
+   let oscilloscopedata = null;
 
   function toggleDropdown(){
     dropdownViewable = !dropdownViewable; 
@@ -19,8 +20,8 @@
 
   onMount(async () => {
     await fetchData(); 
-    interval = setInterval(fetchData, 10000); 
-
+    //interval = setInterval(fetchData, 10000); 
+    
    
     return () => {
       clearInterval(interval);
@@ -39,8 +40,8 @@
     });
         console.log("start being sent...");
         // const response = fetch("http://localhost:8000");
-        const data = await response.json();
-        console.log(data);
+        const startdata = await response.json();
+        console.log(startdata);
         //Voltage 1,2,3 as well as price
         //updateChart(data.Phase1, data.Phase2);
       } catch (error) {
@@ -67,10 +68,11 @@
           'Content-Type': 'application/json' 
         }
       });
-      console.log("Request being sent...");
+      //console.log("Request being sent...");
       const fdata = await response.json();
-      console.log("Fetched data:", fdata);
+      //console.log("Fetched data:", fdata);
       mapdata = fdata.circuits[0];
+      // data = null; 
       // data = {
       //   ...fdata,
       //   Consumers: fdata.Consumers.map(item => JSON.parse(item)),
@@ -86,6 +88,17 @@
       console.log("There was an error fetching the JSON for the overview:", error);
     }
   }
+
+
+  function handleMarkerClick(entity){
+    // console.log(entity.detail.voltage);
+    // data = entity.detail; 
+    const markerData = entity.detail;
+    console.log('Marker clicked:', markerData);  
+    data = { ...markerData.voltage };
+    console.log("Updated data is this: ", data);
+  }
+
 </script>
 
 <main class="container mx-auto p-4">
@@ -201,8 +214,8 @@
    <span class="loading loading-ring loading-lg ml-6"></span>
   {/if} -->
 
-    <Map {mapdata}/> 
-    <Chart {data}/>
+    <Map {mapdata} on:markerClick = {handleMarkerClick} /> 
+    <Chart {data} />
 
 </main>
 

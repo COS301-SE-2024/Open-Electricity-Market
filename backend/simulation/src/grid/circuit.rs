@@ -17,6 +17,11 @@ pub struct Circuit {
 }
 
 impl Circuit {
+    pub(crate) fn set_generater(&mut self, id: u32, max_voltage: f32) {
+        let position = self.generators.iter().position(|x| x.id == id).unwrap();
+        self.generators[position].max_voltage = max_voltage;
+    }
+
     pub(crate) fn calculate_ideal_generator_voltages(
         &mut self,
         elapsed_time: f32,

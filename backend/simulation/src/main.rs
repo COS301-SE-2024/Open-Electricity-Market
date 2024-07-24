@@ -72,6 +72,7 @@ fn start(grid: &State<Arc<Mutex<Grid>>>) -> String {
                 grid.update(elapsed_time)
             }
         });
+        Grid::start_voltage_sync(grid.inner().clone());
         json!({
             "Message": "Started Grid"
         })

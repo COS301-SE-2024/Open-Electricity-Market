@@ -212,7 +212,7 @@ async fn add_funds(add_funds_req: Json<AddFundsReq<'_>>) -> Value {
 
     let mut added_funds = false;
 
-    if add_funds_req.funds > 0 as f64 {
+    if add_funds_req.funds > 0f64 {
         diesel::update(users)
             .filter(email.eq(add_funds_req.email))
             .set(credit.eq(credit+add_funds_req.funds))
@@ -222,6 +222,40 @@ async fn add_funds(add_funds_req: Json<AddFundsReq<'_>>) -> Value {
     }
 
     json!({"status": "ok", "added_funds": added_funds})
+}
+
+#[derive(Serialize,Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct RemoveFundsReq<'r>{
+    email: &'r str,
+    funds: f64
+}
+
+#[post("/remove_funds", format = "application/json", data = "<remove_funds_req>")]
+async fn remove_funds(remove_funds_req: Json<RemoveFundsReq<'_>>) -> Value {
+
+    use self::schema::open_em::users::dsl::*;
+
+    let connection = &mut establish_connection();
+
+    let mut removed_funds = false;
+
+    let user = users
+        .filter(email.eq(remove_funds_req.email))
+        .select(User::as_select())
+        .load::<User>(connection)
+        .expect("User does not exist");
+
+    if remove_funds_req.funds > 0f64 && user[0].credit >= remove_funds_req.funds {
+        diesel::update(users)
+            .filter(user_id.eq(user[0].user_id))
+            .set(credit.eq(credit-remove_funds_req.funds))
+            .execute(connection)
+            .expect("Funds update failed");
+        removed_funds = true;
+    }
+
+    json!({"status": "ok", "removed_funds": removed_funds})
 }
 
 #[derive(Serialize, Deserialize)]
@@ -297,7 +331,7 @@ fn rocket() -> _ {
         .mount(
             "/",
             routes![
-                register, login, sell_order, buy_order, priceview, get_ads, add_funds
+                register, login, sell_order, buy_order, priceview, get_ads, add_funds, remove_funds
             ],
         )
         .configure(rocket::Config::figment().merge(("port", 8001)))

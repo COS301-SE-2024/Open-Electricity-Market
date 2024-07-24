@@ -196,6 +196,34 @@ async fn buy_order(new_buy_order: Json<Offer<'_>>) -> Value {
     json!({"status": "ok", "purchase": purchase})
 }
 
+#[derive(Serialize,Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct AddFundsReq<'r>{
+    email: &'r str,
+    funds: f64
+}
+
+#[post("/add_funds", format = "application/json", data = "<add_funds_req>")]
+async fn add_funds(add_funds_req: Json<AddFundsReq<'_>>) -> Value {
+
+    use self::schema::open_em::users::dsl::*;
+
+    let connection = &mut establish_connection();
+
+    let mut added_funds = false;
+
+    if add_funds_req.funds > 0 as f64 {
+        diesel::update(users)
+            .filter(email.eq(add_funds_req.email))
+            .set(credit.eq(credit+add_funds_req.funds))
+            .execute(connection)
+            .expect("Funds update failed");
+        added_funds = true;
+    }
+
+    json!({"status": "ok", "added_funds": added_funds})
+}
+
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
 struct Credentials<'r> {
@@ -269,7 +297,7 @@ fn rocket() -> _ {
         .mount(
             "/",
             routes![
-                register, login, sell_order, buy_order, priceview, get_ads
+                register, login, sell_order, buy_order, priceview, get_ads, add_funds
             ],
         )
         .configure(rocket::Config::figment().merge(("port", 8001)))

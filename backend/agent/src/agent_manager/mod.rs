@@ -32,6 +32,7 @@ impl ProducerData {
     }
 }
 
+ 
 pub struct ProducerConroller {
     data: ProducerData,
     socket: Receiver<ProducerManagerMessage>,
@@ -53,20 +54,21 @@ impl AgentManager {
             .push(Box::new(ProducerConroller { data :data.clone(), socket: rx }));
 
         thread::spawn(move || {
-            let mut producer_basics = ProducerBasics::create(tx);
             let producer: Box<dyn Producer> = data.producer_type.actualise();
+            
+            let mut producer_basics = ProducerBasics::create(tx);
 
-            let mut start = Instant::now();
-            let mut elasped_time;
+            let mut elasped_time = 0.0;
             let mut accumlited_time = 0.0;
             loop {
-                let duration = start.elapsed();
-                elasped_time = duration.as_secs_f32();
-                start = Instant::now();
+                let start = Instant::now();
                 accumlited_time += elasped_time;
                 if producer.update(elasped_time, accumlited_time, &mut producer_basics) {
                     break;
                 }
+                let duration = start.elapsed();
+                elasped_time = duration.as_secs_f32();
+
             }
         });
     }
@@ -113,9 +115,9 @@ impl AgentManager {
                 },
             }
         }
-        for name in to_delete {
-            self.producers.retain(|producer| producer.data.name != name)
-        }
+        // for name in to_delete {
+        //     self.producers.retain(|producer| producer.data.name != name)
+        // }
     }
 
     pub fn poll_database(&mut self) {

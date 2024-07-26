@@ -1,9 +1,13 @@
-FROM node:18.18.0-alpine AS builder
+FROM node:18.18.0-alpine AS build
 LABEL authors="Christiaan George Strydom"
-WORKDIR /Frontend
-COPY package.json .
-
-RUN npm i
-
+WORKDIR /app/Frontend
+COPY package*.json ./
+RUN npm install
+#RUN rm -rf build
 COPY . .
-CMD ["node", "build"]
+
+EXPOSE 8080
+#RUN npm run build
+#FROM node:18.18.0-alpine AS run
+#ENTRYPOINT [ "node","build" ]
+CMD ["npm","run","build"]

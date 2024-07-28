@@ -57,12 +57,34 @@
     //chart.data.datasets[0].data = [];
  
     const { amplitude, frequency, phase } = data.oscilloscope_detail;
-    const { datasin, labels } = generateSineWaveData(amplitude, frequency, phase);
+    const { datasin, labels } = generateSineWave(amplitude, frequency, phase);
+    const jedandva = ((2*Math.PI)/3);
+
+    const result2 = generateSineWave(amplitude, frequency, jedandva);
+    const result3 = generateSineWave(amplitude, frequency, ((4*Math.PI)/3));  
+    
+    const { datasin: datasin2, labels: labels2 } = result2;
+    const { datasin: datasin3, labels: labels3 } = result3;
+
+    if (!chart.data.datasets || chart.data.datasets.length < 3) {
+      chart.data.datasets = [
+      { label: 'Phase 1', borderColor: 'red', data: [] },
+      { label: 'Phase 2', borderColor: 'green', data: [] },
+      { label: 'Phase 3', borderColor: 'blue', data: [] },
+      ];
+    }
     //console.log("This is the sin data");
     //console.log(sineData);
 
-    chart.data.labels = labels;
+    chart.data.labels = labels; 
     chart.data.datasets[0].data = datasin.map(point => point.y);
+    chart.data.datasets[1].data = datasin2.map(point2 => point2.y);
+    chart.data.datasets[2].data = datasin3.map(point3 => point3.y);
+    chart.data.datasets[1].data.push(1);
+    console.log(datasin2);
+    console.log(datasin3);
+    console.log(datasin);
+    console.log(phase);
     chart.update();
   }
 
@@ -106,7 +128,7 @@
 
 
 
-   function generateSineWaveData(amplitude, frequency, phase, duration = 100, sampleRate = 1000) {
+   function generateSineWave(amplitude, frequency, phase, duration = 4, sampleRate = 1000) {
 
       const datasin = [];
       const labels = [];
@@ -116,11 +138,30 @@
       for (let t = 0; t < duration / 100; t += increment) {
         const value = amplitude * Math.sin(angularfreq * t + phase);
         datasin.push({ x: t * 1000, y: value });
-        labels.push(t * 1000);
+        labels.push((t * 1000).toFixed(0));
       }
 
     return { datasin, labels };
   }
+
+
+  let currentTime = 0; 
+  let duration = 4; 
+
+  function updateChart() {
+    if(chart && chart.data.datasets[0].data!=[]){
+
+      currentTime += 1; 
+      const newData = generateSineWave(400, 0.5, 0, duration, 1000, currentTime);
+      chart.data.labels = newData.labels;
+      chart.data.datasets[0].data = newData.datasin.map(point => point.y);
+      chart.options.scales.x.min = currentTime * 1000;
+      chart.options.scales.x.max = (currentTime + duration) * 1000;
+      chart.update();
+
+    }
+      
+    }
 
 
 

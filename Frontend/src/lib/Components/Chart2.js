@@ -78,6 +78,8 @@ export const sampleChartConfig = {
     scales: {
       y: {
         beginAtZero: true,
+        min: -1500,
+        max: 1500,
       },
     },
   },

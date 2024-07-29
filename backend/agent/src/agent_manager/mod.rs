@@ -115,9 +115,9 @@ impl AgentManager {
                 },
             }
         }
-        // for name in to_delete {
-        //     self.producers.retain(|producer| producer.data.name != name)
-        // }
+        for name in to_delete {
+             self.producers.retain(|producer| producer.data.name != name)
+        }
     }
 
     pub fn poll_database(&mut self) {

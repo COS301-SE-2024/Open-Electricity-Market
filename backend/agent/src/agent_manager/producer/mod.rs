@@ -104,10 +104,11 @@ pub trait Producer {
 
         
         //Every 5 mintues tell grid about my voltages
-        if accumlited_time > 0.1*producer_basics.count {
+        if accumlited_time > 60.0*producer_basics.count {
             producer_basics.count+=1.0;
-            self.sync_grid(voltage, &mut producer_basics.grid_socket);
             println!("a");
+            self.sync_grid(voltage, &mut producer_basics.grid_socket);
+            println!("b");
         }
         return false;
     }

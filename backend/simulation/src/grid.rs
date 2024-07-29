@@ -5,12 +5,14 @@ use std::usize;
 
 use crate::grid::circuit::Circuit;
 use crate::grid::load::Connection::{Parallel, Series};
-use rocket::form::validate::Contains;
+use rocket::form::validate::{with, Contains};
 use rocket::futures::TryFutureExt;
 use rocket::serde::Serialize;
 use serde::Deserialize;
 use tokio::io::AsyncReadExt;
 use tokio::net::{TcpListener, TcpStream};
+
+
 
 pub mod circuit;
 pub mod generator;
@@ -198,63 +200,11 @@ impl Grid {
         self.internal_update(elapsed_time, 0);
     }
 
-    fn handle_genereators(mut stream: TcpStream, grid: Arc<Mutex<Grid>>) {
-        println!("Message");
-        tokio::spawn(async move {
-            loop {
+    pub fn set_generator(&mut self,json : String) {
+        let grid_interface: GridInterface = serde_json::from_str(&json).unwrap();
+        self.circuits[grid_interface.circuit as usize]
+             .set_generater(grid_interface.generator, grid_interface.voltage);
 
-
-                let mut json = String::new();
-                let mut total = 0;
-                while !json.contains("\r\n") {
-                     let mut buf = [0;1024];
-                    
-                     let _ = stream.read(&mut buf).await.unwrap();
-                
-                     let test = String::from_utf8(buf.to_vec()).unwrap();
-                     json.push_str(&test);
-                     println!("{}",json);
-                }
-
-                json = json.trim_matches(char::from(0)).to_string();
-                json = json.trim().to_string();
-            
-                
-
-
-                let grid_interface: GridInterface = match serde_json::from_str(&json){
-                    Ok(v) => {v},
-                    Err(_) => {
-                        println!("error");
-                        continue;},
-                };
-
-                println!("Tcp Recieved: ");
-                println!("{}", json);
-
-                let mut grid = grid.lock().unwrap();
-                grid.circuits[grid_interface.circuit as usize]
-                    .set_generater(grid_interface.generator, grid_interface.voltage);
-
-            }
-        });
     }
 
-    pub fn start_voltage_sync(grid: Arc<Mutex<Grid>>) {
-        tokio::spawn(async move {
-            let server = TcpListener::bind("127.0.0.1:55555").await.unwrap();
-            println!("Producer TCP server started");
-            loop {
-               match server.accept().await{
-                Ok((stream,_)) => {
-                    Grid::handle_genereators(stream, grid.clone());
-                    },
-                Err(_) => {
-                    println!("A connection errord");
-                    },
-            }
-
-         }
-        });
-    }
 }

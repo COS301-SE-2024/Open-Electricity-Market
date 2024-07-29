@@ -9,13 +9,16 @@ A cutting-edge simulation platform, designed to transform the way we manage ener
 
 ### [Project Board](https://github.com/orgs/COS301-SE-2024/projects/61)
 
-### Demo 1 Video
+### Demo Videos
 [Isidore-Demo1](https://drive.google.com/file/d/1HzBVvMgayBuUu31RuoCGHCz-wTetOyO7/view?usp=drive_link)  
 [Presentation](https://docs.google.com/presentation/d/14n8cinxqoJqJZMrr3GxMGwl2dicc7n-0500KkSDHj4I/edit?usp=sharing)
 
+[Isidore-Demo2](https://drive.google.com/drive/folders/17_B3ULcrNecHhojsvWWrGIfj6PJ3XhKP?usp=sharing)  
+[Presentation](https://docs.google.com/presentation/d/1aZw-H_mQlKRyQq-DzCK-zBfPBjCJ_ubs0Uo1ngD80PI/edit?usp=sharing)
+
 ## Documentation
 
-### [SRS Document](https://docs.google.com/document/d/1q0eN_kvBIK2naTHsJP90HHkf76mRQr25gNQUesSGvHk/edit#heading=h.rv6hsfad8zu2)
+### [SRS Document](https://docs.google.com/document/d/1bx-V_NvCZ-w1VHZkxBD_Hp1Km_XFPCYWKXvSFr5EZ7g/edit?usp=sharing)
 
 ### [GitHub Rules and Conventions](https://github.com/COS301-SE-2024/Open-Electricity-Market/blob/feature/documentation/Documentation/GitHub_Rules_and_Conventions.md)
 

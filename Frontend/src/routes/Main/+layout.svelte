@@ -39,13 +39,14 @@
 <header>
   <div class="navbar bg-base-200">
     <div class="navbar-start">  
-      <a class="btn btn-ghost text-xl" href="/">Amplify</a>
+      <a class="btn btn-ghost text-2xl" href="/">Amplify</a>
+      <span class="text-2xl pl-4"> {activebutton == '/Main/GridSimulation' ? "Simulation" : activebutton == '/Main/BiddingMarket' ? "Marketplace" : ""} </span>
     </div>
       
     <div class="navbar-center hidden lg:flex">
       <ul class="menu menu-horizontal px-1">
-        <li class="px-2"><a class="w-28 justify-center {activebutton == '/Main/GridSimulation' ? 'bg-zinc-900' : 'bg-slate-800'}" href="/Main/GridSimulation">Grid</a></li>
-        <li class="px-2"><a class="w-28 justify-center {activebutton == '/Main/BiddingMarket' ? 'bg-zinc-900' : 'bg-slate-800'}" href="/Main/BiddingMarket">Market</a></li>
+        <li class="px-2 text-lg"><a class="w-28 justify-center bg-neutral" href="/Main/GridSimulation">Grid</a></li>
+        <li class="px-2 text-lg"><a class="w-28 justify-center bg-neutral" href="/Main/BiddingMarket">Market</a></li>
       </ul>
     </div>
       
@@ -57,9 +58,9 @@
     <!-- svelte-ignore a11y-click-events-have-key-events -->
     <!-- svelte-ignore a11y-no-static-element-interactions -->
     <!-- svelte-ignore a11y-missing-attribute -->
-    <li class="px-2"><a class="w-22 bg-slate-800" on:click={showModal}>Help</a></li>
+    <li class="px-2 text-lg"><a class="w-22 bg-neutral" on:click={showModal}>Help</a></li>
 
-    <li class = "px-2"><a class=" bg-slate-800 w-22" href="/Main/Dashboard">Dashboard</a></li>
+    <li class = "px-2 text-lg"><a class=" bg-neutral w-22" href="/Main/Dashboard">Dashboard</a></li>
   </ul>
 
     </div>

@@ -3,7 +3,10 @@ extern crate rocket;
 extern crate deadqueue;
 extern crate reqwest;
 
-use crate::models::{NewBuyOrderModel, NewNodeModel, NewProfileModel, NewSellOrderModel, NewUserModel, Node, SellOrder, User};
+use crate::models::{
+    NewBuyOrderModel, NewNodeModel, NewProfileModel, NewSellOrderModel, NewUserModel, Node,
+    SellOrder, User,
+};
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use dotenvy::dotenv;
@@ -215,24 +218,23 @@ fn establish_connection() -> PgConnection {
 //     json!({"status": "ok", "purchase": purchase})
 // }
 
-#[derive(Serialize,Deserialize)]
+#[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
 struct GetNodesReq {
     pub limit: i64,
 }
 
-#[derive(Serialize,Deserialize)]
+#[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
 struct ShortNodeRet {
     node_id: String,
     name: String,
 }
 
-#[post("/get_nodes", format = "application/json", data="<get_nodes_req>")]
+#[post("/get_nodes", format = "application/json", data = "<get_nodes_req>")]
 async fn get_nodes(get_nodes_req: Json<GetNodesReq>, cookie_jar: &CookieJar<'_>) -> Value {
-
-    use self::schema::open_em::users::dsl::*;
     use self::schema::open_em::nodes::dsl::*;
+    use self::schema::open_em::users::dsl::*;
 
     let connection = &mut establish_connection();
 
@@ -253,7 +255,6 @@ async fn get_nodes(get_nodes_req: Json<GetNodesReq>, cookie_jar: &CookieJar<'_>)
     let mut node_list: Vec<ShortNodeRet> = vec![];
 
     if has_cookie {
-
         let user_ret = users
             .filter(session_id.eq(session_id_str))
             .select(User::as_select())
@@ -268,20 +269,18 @@ async fn get_nodes(get_nodes_req: Json<GetNodesReq>, cookie_jar: &CookieJar<'_>)
             .expect("Could not get nodes");
 
         for node in nodes_vec {
-
-            node_list.push(ShortNodeRet{
+            node_list.push(ShortNodeRet {
                 node_id: node.node_id.to_string(),
                 name: node.name,
             })
         }
         message = "List of nodes successfully retrieved"
-
     }
 
     json!({"status": "ok", "message": message, "data": node_list})
 }
 
-#[derive(Serialize,Deserialize)]
+#[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
 struct AddNodeReq<'r> {
     name: &'r str,
@@ -291,9 +290,8 @@ struct AddNodeReq<'r> {
 
 #[post("/add_node", format = "application/json", data = "<add_node_req>")]
 async fn add_node(add_node_req: Json<AddNodeReq<'_>>, cookie_jar: &CookieJar<'_>) -> Value {
-
-    use self::schema::open_em::users::dsl::*;
     use self::schema::open_em::nodes;
+    use self::schema::open_em::users::dsl::*;
 
     let connection = &mut establish_connection();
 
@@ -312,7 +310,6 @@ async fn add_node(add_node_req: Json<AddNodeReq<'_>>, cookie_jar: &CookieJar<'_>
     }
 
     if has_cookie {
-
         let user = users
             .filter(session_id.eq(session_id_str))
             .select(User::as_select())
@@ -332,7 +329,6 @@ async fn add_node(add_node_req: Json<AddNodeReq<'_>>, cookie_jar: &CookieJar<'_>
             .expect("Node Add Failed");
 
         message = "New Node Added"
-
     }
 
     json!({"status": "ok", "message": message})
@@ -384,7 +380,11 @@ struct RemoveFundsReq {
     funds: f64,
 }
 
-#[post("/remove_funds", format = "application/json", data = "<remove_funds_req>" )]
+#[post(
+    "/remove_funds",
+    format = "application/json",
+    data = "<remove_funds_req>"
+)]
 async fn remove_funds(remove_funds_req: Json<RemoveFundsReq>, jar: &CookieJar<'_>) -> Value {
     use self::schema::open_em::users::dsl::*;
 

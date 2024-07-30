@@ -60,7 +60,7 @@ pub struct NewBuyOrderModel<'a> {
     pub price: &'a f64,
 }
 
-#[derive(Queryable,Selectable)]
+#[derive(Queryable, Selectable)]
 #[diesel(table_name = crate::schema::open_em::nodes)]
 pub struct Node {
     pub node_id: Uuid,

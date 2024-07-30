@@ -11,10 +11,11 @@ let units = 0;
 
 <main class="container mx-auto p-4">
   <div class="flex flex-row">
-    <div class="basis-2/3 border-2">
-      <Chart></Chart>
+    <div class="basis-2/3 border-2 mr-5">
+      <h1 class="text-5xl font-bold pt-8">Market</h1>
+      <Chart ></Chart>
     </div>
-    <div class="basis-1/3 border-2">
+    <div class="basis-1/3 border-2 p-2">
         <form>
           <div class="form-control mt-1">
             <label for="buy_price"> Price </label>

@@ -224,7 +224,7 @@ struct UserDetails {
     last_name: String,
 }
 
-#[post("/user_details", format = "application/json")]
+#[post("/user_details")]
 async fn user_details(cookie_jar: &CookieJar<'_>) -> Value {
 
     use self::schema::open_em::users::dsl::*;
@@ -287,24 +287,81 @@ async fn user_details(cookie_jar: &CookieJar<'_>) -> Value {
     json!({"status": "ok", "message": message, "data": data})
 }
 
-// #[derive(Serialize, Deserialize)]
-// #[serde(crate = "rocket::serde")]
-// struct NodeDetails{
-//
-// }
-//
-// #[derive(Serialize, Deserialize)]
-// #[serde(crate = "rocket::serde")]
-// struct NodeDetailsReq{
-//
-// }
-//
-// #[post("/node_details", format = "application/json", data = "<node_details_req>")]
-// async fn node_details(node_details_req: NodeDetailsReq, cookie_jar: &CookieJar<'_>) -> Value {
-//
-//
-//     json!({"status": "ok", "message": message, "data": })
-// }
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct NodeDetails{
+    node_id: String,
+    name: String,
+    location_x: f64,
+    location_y: f64,
+    units_owed: f64,
+    units_owing: f64,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct NodeDetailsReq{
+    node_id: String,
+}
+
+#[post("/node_details", format = "application/json", data = "<node_details_req>")]
+async fn node_details(node_details_req: Json<NodeDetailsReq>, cookie_jar: &CookieJar<'_>) -> Value {
+
+    use self::schema::open_em::nodes::dsl::*;
+    use self::schema::open_em::users::dsl::*;
+
+    let connection = &mut establish_connection();
+
+    let mut message = "Something went wrong";
+
+    let session_cookie = cookie_jar.get("session_id");
+
+    let mut has_cookie = false;
+    let mut session_id_str: String = "".to_string();
+    match session_cookie {
+        None => {}
+        Some(cookie) => {
+            has_cookie = true;
+            session_id_str = cookie.value().parse().unwrap();
+        }
+    }
+
+    let mut data = NodeDetails {
+        node_id: "".to_string(),
+        name: "".to_string(),
+        location_x: 0.0,
+        location_y: 0.0,
+        units_owed: 0.0,
+        units_owing: 0.0,
+    };
+
+    if has_cookie {
+
+        let user_vec = users
+            .filter(session_id.eq(session_id_str))
+            .select(User::as_select())
+            .load::<User>(connection)
+            .expect("User does not exist");
+
+        let node_vec = nodes
+            .filter(node_id.eq(Uuid::parse_str(&*node_details_req.node_id).unwrap()))
+            .filter(node_owner.eq(user_vec[0].user_id))
+            .select(Node::as_select())
+            .load::<Node>(connection)
+            .expect("Couldn't find node");
+
+        data.node_id = String::from(node_vec[0].node_id);
+        data.name = node_vec[0].name.clone();
+        data.location_x = node_vec[0].location_x;
+        data.location_y = node_vec[0].location_y;
+        data.units_owed = node_vec[0].units_generated;
+        data.units_owing = node_vec[0].units_consumed;
+
+        message = "Node details retrieved succesfully"
+    }
+
+    json!({"status": "ok", "message": message, "data": data})
+}
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
@@ -625,6 +682,7 @@ fn rocket() -> _ {
                 add_node,
                 get_nodes,
                 user_details,
+                node_details,
                 // sell_order,
                 // buy_order,
                 // priceview,

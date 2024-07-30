@@ -4,22 +4,22 @@ extern crate deadqueue;
 extern crate reqwest;
 
 use crate::models::{
-    Advertisement, NewAdvertisementModel, NewProfileModel, NewTransactionModel, NewUserModel, User,
+    NewBuyOrderModel, NewProfileModel, NewSellOrderModel, NewUserModel, SellOrder, User,
 };
-use crate::schema::open_em::transactions::bought_units;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use dotenvy::dotenv;
 use pwhash::bcrypt;
+use pwhash::unix::verify;
 use rocket::fairing::{Fairing, Info, Kind};
 use rocket::form::name::NameBuf;
-use rocket::http::{Header, Method, Status};
+use rocket::http::CookieJar;
+use rocket::http::{Cookie, Header, Method, Status};
 use rocket::serde::json::serde_json::json;
 use rocket::serde::json::{Json, Value};
 use rocket::serde::{Deserialize, Serialize};
 use rocket::yansi::Paint;
-use rocket::State;
-use rocket::{Request, Response};
+use rocket::{Request, Response, State};
 use std::env;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::{Arc, Mutex};
@@ -54,14 +54,6 @@ impl Fairing for CORS {
     }
 }
 
-type TaskQueue = deadqueue::unlimited::Queue<(u64, f32, String)>;
-
-const IDEAL_VOLTAGE: f32 = 230.0;
-
-struct MyInfo {
-    price: AtomicU32,
-}
-
 fn establish_connection() -> PgConnection {
     dotenv().ok();
 
@@ -70,198 +62,251 @@ fn establish_connection() -> PgConnection {
         .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
 }
 
-#[get("/")]
-async fn index(state: &State<MyInfo>) -> String {
-    let res = reqwest::get("http://127.0.0.1:8000/").await.unwrap();
-    let body = res.text().await.unwrap();
-    let voltage = body.parse::<f32>().unwrap();
-    let mut price = state.price.load(Ordering::Relaxed);
+// #[derive(Serialize, Deserialize)]
+// #[serde(crate = "rocket::serde")]
+// struct SellOrderReq {
+//     producer_id: Uuid,
+//     units: f64,
+//     price: f64,
+// }
+//
+// #[post("/sell_order", format = "application/json", data = "<new_sell_order>")]
+// async fn sell_order(new_sell_order: Json<SellOrderReq>, jar: CookieJar<'_>) -> Value {
+//     use self::schema::open_em::sell_orders;
+//
+//     use self::schema::open_em::users::dsl::*;
+//
+//     let connection = &mut establish_connection();
+//
+//     let mut message = "Something went wrong";
+//
+//     let session_cookie = jar.get("session_id");
+//
+//     let mut has_cookie = false;
+//     let mut session_id_str: String = "".to_string();
+//     match session_cookie {
+//         None => {}
+//         Some(cookie) => {
+//             has_cookie = true;
+//             session_id_str = cookie.value().parse().unwrap();
+//         }
+//     }
+//
+//     if has_cookie {
+//         let user = users
+//             .filter(session_id.eq(session_id_str))
+//             .select(User::as_select())
+//             .load::<User>(connection)
+//             .expect("Error loading users");
+//
+//         let new_sell_order_insert = NewAdvertisementModel {
+//             seller_id: &user[0].user_id,
+//             offered_units: &new_sell_order.units,
+//             price: &new_sell_order.price,
+//         };
+//     }
+//
+//     let new_ad_ret = diesel::insert_into(sell_orders::table)
+//         .values(&new_advertisement_insert)
+//         .returning(Advertisement::as_returning())
+//         .get_result::<Advertisement>(connection)
+//         .expect("Error adding new advertisement");
+//
+//     json!({ "status": "ok", "advertisement_id": new_ad_ret.advertisement_id })
+// }
 
-    if voltage != 0.0 {
-        if voltage > IDEAL_VOLTAGE {
-            price = state.price.fetch_add(1, Ordering::Relaxed);
-        } else if voltage < IDEAL_VOLTAGE && price > 1 {
-            price = state.price.fetch_sub(1, Ordering::Relaxed);
+// #[derive(Serialize, Deserialize)]
+// #[serde(crate = "rocket::serde")]
+// struct GetAdvertisementReq {
+//     num_advertisements: i64,
+// }
+//
+// #[derive(Serialize, Deserialize)]
+// #[serde(crate = "rocket::serde")]
+// struct RetAdvertisements {
+//     advertisement_id: i64,
+//     offered_units: f64,
+//     price: f64,
+// }
+//
+// #[post("/get_ads", format = "application/json", data = "<ad_req>")]
+// async fn get_ads(ad_req: Json<GetAdvertisementReq>) -> Value {
+//     use self::schema::open_em::advertisements::dsl::*;
+//
+//     let advertisements_vec = advertisements
+//         .filter(offered_units.gt(0.0))
+//         .select(Advertisement::as_select())
+//         .order_by(price.asc())
+//         .limit(ad_req.num_advertisements)
+//         .load::<Advertisement>(&mut establish_connection())
+//         .expect("Error loading advertisements");
+//
+//     let mut advertisements_ret: Vec<RetAdvertisements> = vec![];
+//
+//     for ad in advertisements_vec {
+//         advertisements_ret.push(RetAdvertisements {
+//             advertisement_id: ad.advertisement_id,
+//             offered_units: ad.offered_units,
+//             price: ad.price,
+//         });
+//     }
+//
+//     json!({"status": "ok", "advertisements": advertisements_ret})
+// }
+
+// #[post("/priceview")]
+// async fn priceview() -> Value {
+//     use self::schema::open_em::advertisements::dsl::*;
+//
+//     let price_avg = advertisements
+//         .filter(offered_units.gt(0.0))
+//         .select(diesel::dsl::sql::<diesel::sql_types::Double>("AVG(price)"))
+//         .load::<f64>(&mut establish_connection())
+//         .expect("Error loading average price");
+//
+//     json!({"status":"ok", "price": price_avg[0]})
+// }
+
+// #[derive(Serialize, Deserialize)]
+// #[serde(crate = "rocket::serde")]
+// struct Offer<'r> {
+//     ad_id: i64,
+//     email: &'r str,
+//     units: f64,
+// }
+//
+// #[post("/buy_order", format = "application/json", data = "<new_buy_order>")]
+// async fn buy_order(new_buy_order: Json<Offer<'_>>) -> Value {
+//
+//     use self::schema::open_em::sell_orders::dsl::*;
+//     use self::schema::open_em::transactions;
+//     use self::schema::open_em::users::dsl::*;
+//
+//     let connection = &mut establish_connection();
+//
+//     let user = users
+//         .filter(email.eq(new_buy_order.email))
+//         .select(User::as_select())
+//         .load::<User>(connection)
+//         .expect("Error loading users");
+//
+//     let advertisements_vec = advertisements
+//         .filter(offered_units.gt(0.0))
+//         .select(Advertisement::as_select())
+//         .order_by(price.asc())
+//         .load::<Advertisement>(connection)
+//         .expect("Error loading advertisements");
+//
+//     let mut purchase = false;
+//
+//     if advertisements_vec[0].offered_units >= new_buy_order.units {
+//         let new_transaction_insert = NewTransactionModel {
+//             buyer_id: &user[0].user_id,
+//             advertisement_id: &new_buy_order.ad_id,
+//             bought_units: &new_buy_order.units,
+//         };
+//
+//         diesel::insert_into(transactions::table)
+//             .values(&new_transaction_insert)
+//             .execute(connection)
+//             .expect("Error adding new transaction");
+//
+//         purchase = true;
+//     }
+//
+//     json!({"status": "ok", "purchase": purchase})
+// }
+
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct AddFundsReq {
+    funds: f64,
+}
+
+#[post("/add_funds", format = "application/json", data = "<add_funds_req>")]
+async fn add_funds(add_funds_req: Json<AddFundsReq>, jar: &CookieJar<'_>) -> Value {
+    use self::schema::open_em::users::dsl::*;
+
+    let connection = &mut establish_connection();
+
+    let mut message = "Something went wrong";
+
+    let session_cookie = jar.get("session_id");
+
+    let mut has_cookie = false;
+    let mut session_id_str: String = "".to_string();
+    match session_cookie {
+        None => {}
+        Some(cookie) => {
+            has_cookie = true;
+            session_id_str = cookie.value().parse().unwrap();
         }
     }
 
-    let open = "{";
-    let close = "}";
-    format!("{open}\"Voltage\":\"{voltage}\",\"Price\":\"{price}\"{close}")
-}
-
-#[get("/bid/<amount>/<price>/<id>")]
-async fn bid(state: &State<Arc<TaskQueue>>, amount: u64, price: f32, id: String) -> String {
-    state.push((amount, price, id));
-    let len = state.len();
-    format!("Bids {len}")
-}
-
-#[get("/sell/<amount>")]
-async fn sell(
-    bid_queue: &State<Arc<TaskQueue>>,
-    sold_list: &State<Arc<Mutex<Vec<String>>>>,
-    amount: u64,
-) -> String {
-    let bid = bid_queue.try_pop();
-    match bid {
-        None => "There is no demand".to_string(),
-        Some((bid_amount, price, id)) => {
-            if bid_amount <= amount {
-                sold_list.lock().unwrap().push(id);
-                format!("{bid_amount}")
-            } else {
-                bid_queue.push((bid_amount, price, id));
-                "Could not meet demand".to_string()
-            }
+    if has_cookie {
+        if add_funds_req.funds > 0f64 {
+            diesel::update(users)
+                .filter(session_id.eq(session_id_str))
+                .set(credit.eq(credit + add_funds_req.funds))
+                .execute(connection)
+                .expect("Funds update failed");
+            message = "Funds added";
         }
     }
-}
 
-#[get("/met/<id>")]
-async fn met(sold_list: &State<Arc<Mutex<Vec<String>>>>, id: String) -> String {
-    let mut vec = sold_list.lock().unwrap();
-    if vec.contains(&id) {
-        let index = vec.iter().position(|r| *r == id).unwrap();
-        vec.remove(index);
-        "true".to_string()
-    } else {
-        "false".to_string()
-    }
+    json!({"status": "ok", "message": message})
 }
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct AdvertisementReq<'r> {
-    email: &'r str,
-    units: f64,
-    price: f64,
+struct RemoveFundsReq {
+    funds: f64,
 }
 
-#[post("/advertise", format = "application/json", data = "<new_ad>")]
-async fn advertise(new_ad: Json<AdvertisementReq<'_>>) -> Value {
-    use self::schema::open_em::advertisements;
+#[post(
+    "/remove_funds",
+    format = "application/json",
+    data = "<remove_funds_req>"
+)]
+async fn remove_funds(remove_funds_req: Json<RemoveFundsReq>, jar: &CookieJar<'_>) -> Value {
     use self::schema::open_em::users::dsl::*;
+
     let connection = &mut establish_connection();
 
-    let user = users
-        .filter(email.eq(new_ad.email))
-        .select(User::as_select())
-        .load::<User>(connection)
-        .expect("Error loading users");
+    let mut removed_funds = false;
 
-    let new_advertisement_insert = NewAdvertisementModel {
-        seller_id: &user[0].user_id,
-        offered_units: &new_ad.units,
-        price: &new_ad.price,
-    };
+    let mut message = "Something went wrong";
 
-    let new_ad_ret = diesel::insert_into(advertisements::table)
-        .values(&new_advertisement_insert)
-        .returning(Advertisement::as_returning())
-        .get_result::<Advertisement>(connection)
-        .expect("Error adding new advertisement");
+    let session_cookie = jar.get("session_id");
 
-    json!({ "status": "ok", "advertisement_id": new_ad_ret.advertisement_id })
-}
-
-#[derive(Serialize, Deserialize)]
-#[serde(crate = "rocket::serde")]
-struct GetAdvertisementReq {
-    num_advertisements: i64,
-}
-
-#[derive(Serialize, Deserialize)]
-#[serde(crate = "rocket::serde")]
-struct RetAdvertisements {
-    advertisement_id: i64,
-    offered_units: f64,
-    price: f64,
-}
-
-#[post("/get_ads", format = "application/json", data = "<ad_req>")]
-async fn get_ads(ad_req: Json<GetAdvertisementReq>) -> Value {
-    use self::schema::open_em::advertisements::dsl::*;
-
-    let advertisements_vec = advertisements
-        .filter(offered_units.gt(0.0))
-        .select(Advertisement::as_select())
-        .order_by(price.asc())
-        .limit(ad_req.num_advertisements)
-        .load::<Advertisement>(&mut establish_connection())
-        .expect("Error loading advertisements");
-
-    let mut advertisements_ret: Vec<RetAdvertisements> = vec![];
-
-    for ad in advertisements_vec {
-        advertisements_ret.push(RetAdvertisements {
-            advertisement_id: ad.advertisement_id,
-            offered_units: ad.offered_units,
-            price: ad.price,
-        });
+    let mut has_cookie = false;
+    let mut session_id_str: String = "".to_string();
+    match session_cookie {
+        None => {}
+        Some(cookie) => {
+            has_cookie = true;
+            session_id_str = cookie.value().parse().unwrap();
+        }
     }
 
-    json!({"status": "ok", "advertisements": advertisements_ret})
-}
+    if has_cookie {
+        let user = users
+            .filter(session_id.eq(session_id_str))
+            .select(User::as_select())
+            .load::<User>(connection)
+            .expect("User does not exist");
 
-#[post("/priceview")]
-async fn priceview() -> Value {
-    use self::schema::open_em::advertisements::dsl::*;
-
-    let price_avg = advertisements
-        .filter(offered_units.gt(0.0))
-        .select(diesel::dsl::sql::<diesel::sql_types::Double>("AVG(price)"))
-        .load::<f64>(&mut establish_connection())
-        .expect("Error loading average price");
-
-    json!({"status":"ok", "price": price_avg[0]})
-}
-
-#[derive(Serialize, Deserialize)]
-#[serde(crate = "rocket::serde")]
-struct Offer<'r> {
-    ad_id: i64,
-    email: &'r str,
-    units: f64,
-}
-
-#[post("/purchase", format = "application/json", data = "<new_offer>")]
-async fn purchase(new_offer: Json<Offer<'_>>) -> Value {
-    use self::schema::open_em::advertisements::dsl::*;
-    use self::schema::open_em::transactions;
-    use self::schema::open_em::users::dsl::*;
-    let connection = &mut establish_connection();
-
-    let user = users
-        .filter(email.eq(new_offer.email))
-        .select(User::as_select())
-        .load::<User>(connection)
-        .expect("Error loading users");
-
-    let advertisement = advertisements
-        .filter(advertisement_id.eq(new_offer.ad_id))
-        .select(Advertisement::as_select())
-        .load::<Advertisement>(connection)
-        .expect("Error loading advertisement");
-
-    let mut purchase = false;
-
-    if advertisement[0].offered_units >= new_offer.units {
-        let new_transaction_insert = NewTransactionModel {
-            buyer_id: &user[0].user_id,
-            advertisement_id: &new_offer.ad_id,
-            bought_units: &new_offer.units,
-        };
-
-        diesel::insert_into(transactions::table)
-            .values(&new_transaction_insert)
-            .execute(connection)
-            .expect("Error adding new transaction");
-
-        purchase = true;
+        if remove_funds_req.funds > 0f64 && user[0].credit >= remove_funds_req.funds {
+            diesel::update(users)
+                .filter(user_id.eq(user[0].user_id))
+                .set(credit.eq(credit - remove_funds_req.funds))
+                .execute(connection)
+                .expect("Funds update failed");
+            message = "Funds removed";
+        }
     }
 
-    json!({"status": "ok", "purchase": purchase})
+    json!({"status": "ok", "message": message})
 }
 
 #[derive(Serialize, Deserialize)]
@@ -272,10 +317,12 @@ struct Credentials<'r> {
 }
 
 #[post("/login", format = "application/json", data = "<credentials>")]
-async fn login(credentials: Json<Credentials<'_>>) -> Value {
+async fn login(credentials: Json<Credentials<'_>>, jar: &CookieJar<'_>) -> Value {
     use self::schema::open_em::users::dsl::*;
 
     let connection = &mut establish_connection();
+
+    let mut message = "Something went wrong";
 
     let user = users
         .filter(email.eq(credentials.email))
@@ -285,7 +332,20 @@ async fn login(credentials: Json<Credentials<'_>>) -> Value {
 
     let verify = bcrypt::verify(credentials.password, &*user[0].pass_hash);
 
-    json!({ "status": "ok", "verified": verify })
+    if verify {
+        let h =
+            bcrypt::hash(user[0].user_id.to_string() + &*chrono::Utc::now().to_string()).unwrap();
+        let h2 = h.clone();
+        diesel::update(users)
+            .filter(email.eq(credentials.email))
+            .set(session_id.eq(h2))
+            .execute(connection)
+            .expect("Couldn't update session id");
+        jar.add(("session_id", h));
+        message = "User logged in"
+    }
+
+    json!({ "status": "ok", "message": message })
 }
 
 #[derive(Serialize, Deserialize)]
@@ -298,9 +358,12 @@ struct NewUser<'r> {
 }
 
 #[post("/register", format = "application/json", data = "<new_user>")]
-async fn register(new_user: Json<NewUser<'_>>) -> Value {
+async fn register(new_user: Json<NewUser<'_>>, jar: &CookieJar<'_>) -> Value {
     use self::schema::open_em::profiles;
     use self::schema::open_em::users;
+    use self::schema::open_em::users::dsl::*;
+
+    let mut message = "Something went wrong";
 
     let connection = &mut establish_connection();
     let binding = bcrypt::hash(new_user.password).unwrap();
@@ -317,6 +380,19 @@ async fn register(new_user: Json<NewUser<'_>>) -> Value {
         .get_result::<User>(connection)
         .expect("Error adding new user");
 
+    let binding_2 =
+        bcrypt::hash(new_user_ret.user_id.to_string() + &*new_user_ret.created_at.to_string())
+            .unwrap();
+    let binding_3 = binding_2.clone();
+
+    diesel::update(users)
+        .filter(user_id.eq(new_user_ret.user_id))
+        .set(session_id.eq(binding_3))
+        .execute(connection)
+        .expect("Error making session id");
+
+    jar.add(("session_id", binding_2));
+
     let new_profile_insert = NewProfileModel {
         user_id: &new_user_ret.user_id,
         first_name: new_user.first_name,
@@ -328,7 +404,9 @@ async fn register(new_user: Json<NewUser<'_>>) -> Value {
         .execute(connection)
         .expect("Error adding new profile");
 
-    json!({ "status": "ok", "email": new_user.email })
+    message = "New user added";
+
+    json!({ "status": "ok", "message": message })
 }
 
 #[launch]
@@ -337,14 +415,15 @@ fn rocket() -> _ {
         .mount(
             "/",
             routes![
-                index, bid, sell, met, register, login, advertise, purchase, priceview, get_ads
+                register,
+                login,
+                //sell_order,
+                // buy_order,
+                // priceview,
+                add_funds,
+                remove_funds
             ],
         )
         .configure(rocket::Config::figment().merge(("port", 8001)))
-        .manage(Arc::new(TaskQueue::new()))
-        .manage(MyInfo {
-            price: AtomicU32::new(100),
-        })
-        .manage(Arc::new(Mutex::new(Vec::<String>::new())))
         .attach(CORS)
 }

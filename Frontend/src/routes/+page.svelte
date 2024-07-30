@@ -2,6 +2,7 @@
     import logo from '$lib/assets/Logo.png';
     import {goto} from "$app/navigation";
     import Map from '$lib/Components/MapLanding.svelte';
+    import Chart from '$lib/Components/ChartLanding.svelte';
     let email = '';
     let password = '';
     let errormessage = "";
@@ -55,6 +56,7 @@
             <p class="py-6">Discover a revolutionary platform where you can buy and sell electricity in real-time.</p>
             <p>{errormessage}</p>
             <Map /> 
+            <Chart /> 
           </div>
           
         </div>

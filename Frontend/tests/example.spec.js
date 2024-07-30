@@ -1,19 +1,14 @@
 // @ts-check
-/*const { test, expect } = require('@playwright/test');*/
+//note url port number can change.
 import {test, expect} from '@playwright/test';
-test('has title', async ({ page }) => {
-  await page.goto('https://playwright.dev/');
 
-  // Expect a title "to contain" a substring.
-  await expect(page).toHaveTitle(/Playwright/);
-});
+test('signup', async ({ page }) => {
+  await page.goto('http://127.0.0.1:5173');
 
-test('get started link', async ({ page }) => {
-  await page.goto('https://playwright.dev/');
+  // Click the signup button.
+  await page.getByRole('button', { name: 'Create an account' }).click();
 
-  // Click the get started link.
-  await page.getByRole('link', { name: 'Get started' }).click();
-
-  // Expects page to have a heading with the name of Installation.
-  await expect(page.getByRole('heading', { name: 'Installation' })).toBeVisible();
+  // Expects to be redirected to signup page.
+  //await expect(page).toHaveURL(/\/signup/);
+  await expect(page).toHaveURL('http://127.0.0.1:5173/signup',{timeout:9000});
 });

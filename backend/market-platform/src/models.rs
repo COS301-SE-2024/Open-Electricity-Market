@@ -1,6 +1,6 @@
+use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use uuid::Uuid;
-use chrono::{DateTime, Utc};
 
 #[derive(Queryable, Selectable)]
 #[diesel(table_name = crate::schema::open_em::users)]

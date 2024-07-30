@@ -4,25 +4,25 @@ extern crate deadqueue;
 extern crate reqwest;
 
 use crate::models::{
-    User, NewUserModel, NewProfileModel, SellOrder, NewSellOrderModel, NewBuyOrderModel,
+    NewBuyOrderModel, NewProfileModel, NewSellOrderModel, NewUserModel, SellOrder, User,
 };
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use dotenvy::dotenv;
 use pwhash::bcrypt;
+use pwhash::unix::verify;
 use rocket::fairing::{Fairing, Info, Kind};
 use rocket::form::name::NameBuf;
+use rocket::http::CookieJar;
 use rocket::http::{Cookie, Header, Method, Status};
 use rocket::serde::json::serde_json::json;
 use rocket::serde::json::{Json, Value};
 use rocket::serde::{Deserialize, Serialize};
 use rocket::yansi::Paint;
 use rocket::{Request, Response, State};
-use rocket::http::CookieJar;
 use std::env;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::{Arc, Mutex};
-use pwhash::unix::verify;
 use uuid::Uuid;
 
 mod models;
@@ -64,29 +64,47 @@ fn establish_connection() -> PgConnection {
 
 // #[derive(Serialize, Deserialize)]
 // #[serde(crate = "rocket::serde")]
-// struct SellOrderReq<'r> {
-//     email: &'r str,
+// struct SellOrderReq {
+//     producer_id: Uuid,
 //     units: f64,
 //     price: f64,
 // }
 //
 // #[post("/sell_order", format = "application/json", data = "<new_sell_order>")]
-// async fn sell_order(new_sell_order: Json<SellOrderReq<'_>>) -> Value {
+// async fn sell_order(new_sell_order: Json<SellOrderReq>, jar: CookieJar<'_>) -> Value {
 //     use self::schema::open_em::sell_orders;
+//
 //     use self::schema::open_em::users::dsl::*;
+//
 //     let connection = &mut establish_connection();
 //
-//     let user = users
-//         .filter(email.eq(new_sell_order.email))
-//         .select(User::as_select())
-//         .load::<User>(connection)
-//         .expect("Error loading users");
+//     let mut message = "Something went wrong";
 //
-//     let new_advertisement_insert = NewAdvertisementModel {
-//         seller_id: &user[0].user_id,
-//         offered_units: &new_sell_order.units,
-//         price: &new_sell_order.price,
-//     };
+//     let session_cookie = jar.get("session_id");
+//
+//     let mut has_cookie = false;
+//     let mut session_id_str: String = "".to_string();
+//     match session_cookie {
+//         None => {}
+//         Some(cookie) => {
+//             has_cookie = true;
+//             session_id_str = cookie.value().parse().unwrap();
+//         }
+//     }
+//
+//     if has_cookie {
+//         let user = users
+//             .filter(session_id.eq(session_id_str))
+//             .select(User::as_select())
+//             .load::<User>(connection)
+//             .expect("Error loading users");
+//
+//         let new_sell_order_insert = NewAdvertisementModel {
+//             seller_id: &user[0].user_id,
+//             offered_units: &new_sell_order.units,
+//             price: &new_sell_order.price,
+//         };
+//     }
 //
 //     let new_ad_ret = diesel::insert_into(sell_orders::table)
 //         .values(&new_advertisement_insert)
@@ -199,15 +217,14 @@ fn establish_connection() -> PgConnection {
 //     json!({"status": "ok", "purchase": purchase})
 // }
 
-#[derive(Serialize,Deserialize)]
+#[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct AddFundsReq{
-    funds: f64
+struct AddFundsReq {
+    funds: f64,
 }
 
 #[post("/add_funds", format = "application/json", data = "<add_funds_req>")]
 async fn add_funds(add_funds_req: Json<AddFundsReq>, jar: &CookieJar<'_>) -> Value {
-
     use self::schema::open_em::users::dsl::*;
 
     let connection = &mut establish_connection();
@@ -227,30 +244,31 @@ async fn add_funds(add_funds_req: Json<AddFundsReq>, jar: &CookieJar<'_>) -> Val
     }
 
     if has_cookie {
-
         if add_funds_req.funds > 0f64 {
             diesel::update(users)
                 .filter(session_id.eq(session_id_str))
-                .set(credit.eq(credit+add_funds_req.funds))
+                .set(credit.eq(credit + add_funds_req.funds))
                 .execute(connection)
                 .expect("Funds update failed");
             message = "Funds added";
         }
-
     }
 
     json!({"status": "ok", "message": message})
 }
 
-#[derive(Serialize,Deserialize)]
+#[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct RemoveFundsReq{
-    funds: f64
+struct RemoveFundsReq {
+    funds: f64,
 }
 
-#[post("/remove_funds", format = "application/json", data = "<remove_funds_req>")]
+#[post(
+    "/remove_funds",
+    format = "application/json",
+    data = "<remove_funds_req>"
+)]
 async fn remove_funds(remove_funds_req: Json<RemoveFundsReq>, jar: &CookieJar<'_>) -> Value {
-
     use self::schema::open_em::users::dsl::*;
 
     let connection = &mut establish_connection();
@@ -271,7 +289,7 @@ async fn remove_funds(remove_funds_req: Json<RemoveFundsReq>, jar: &CookieJar<'_
         }
     }
 
-    if has_cookie{
+    if has_cookie {
         let user = users
             .filter(session_id.eq(session_id_str))
             .select(User::as_select())
@@ -281,7 +299,7 @@ async fn remove_funds(remove_funds_req: Json<RemoveFundsReq>, jar: &CookieJar<'_
         if remove_funds_req.funds > 0f64 && user[0].credit >= remove_funds_req.funds {
             diesel::update(users)
                 .filter(user_id.eq(user[0].user_id))
-                .set(credit.eq(credit-remove_funds_req.funds))
+                .set(credit.eq(credit - remove_funds_req.funds))
                 .execute(connection)
                 .expect("Funds update failed");
             message = "Funds removed";
@@ -315,7 +333,8 @@ async fn login(credentials: Json<Credentials<'_>>, jar: &CookieJar<'_>) -> Value
     let verify = bcrypt::verify(credentials.password, &*user[0].pass_hash);
 
     if verify {
-        let h = bcrypt::hash(user[0].user_id.to_string()+ &*chrono::Utc::now().to_string()).unwrap();
+        let h =
+            bcrypt::hash(user[0].user_id.to_string() + &*chrono::Utc::now().to_string()).unwrap();
         let h2 = h.clone();
         diesel::update(users)
             .filter(email.eq(credentials.email))
@@ -361,7 +380,9 @@ async fn register(new_user: Json<NewUser<'_>>, jar: &CookieJar<'_>) -> Value {
         .get_result::<User>(connection)
         .expect("Error adding new user");
 
-    let binding_2 = bcrypt::hash(new_user_ret.user_id.to_string()+ &*new_user_ret.created_at.to_string()).unwrap();
+    let binding_2 =
+        bcrypt::hash(new_user_ret.user_id.to_string() + &*new_user_ret.created_at.to_string())
+            .unwrap();
     let binding_3 = binding_2.clone();
 
     diesel::update(users)
@@ -396,7 +417,7 @@ fn rocket() -> _ {
             routes![
                 register,
                 login,
-                // sell_order,
+                //sell_order,
                 // buy_order,
                 // priceview,
                 add_funds,

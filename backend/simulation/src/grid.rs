@@ -1,6 +1,7 @@
 use crate::grid::circuit::Circuit;
 use crate::grid::load::Connection::{Parallel, Series};
 use rocket::serde::Serialize;
+use serde::Deserialize;
 
 pub mod circuit;
 pub mod generator;
@@ -125,6 +126,13 @@ pub struct Grid {
     pub(crate) started: bool,
 }
 
+#[derive(Deserialize)]
+struct GridInterface {
+    circuit: u32,
+    generator: u32,
+    voltage: f32,
+}
+
 impl Grid {
     pub fn connect_load_series(&mut self, new: u32, to: u32, circuit: usize) {
         let mut new_primary = to;
@@ -179,5 +187,11 @@ impl Grid {
 
     pub fn update(&mut self, elapsed_time: f32) {
         self.internal_update(elapsed_time, 0);
+    }
+
+    pub fn set_generator(&mut self, json: String) {
+        let grid_interface: GridInterface = serde_json::from_str(&json).unwrap();
+        self.circuits[grid_interface.circuit as usize]
+            .set_generater(grid_interface.generator, grid_interface.voltage);
     }
 }

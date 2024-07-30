@@ -17,6 +17,11 @@ pub struct Circuit {
 }
 
 impl Circuit {
+    pub(crate) fn set_generater(&mut self, id: u32, max_voltage: f32) {
+        let position = self.generators.iter().position(|x| x.id == id).unwrap();
+        self.generators[position].max_voltage = max_voltage;
+    }
+
     pub(crate) fn calculate_ideal_generator_voltages(
         &mut self,
         elapsed_time: f32,
@@ -126,7 +131,7 @@ impl Circuit {
     }
 
     //Operates under assumption that id's correspond to index
-    pub(crate) fn set_transformers_secondary_voltages(&mut self, frequency: f32) {
+    pub(crate) fn set_transformers_secondary_voltages(&mut self, _frequency: f32) {
         for transformer in self.transformers.iter_mut() {
             let mut transformer = transformer.lock().unwrap();
             if transformer.primary_circuit == self.id {

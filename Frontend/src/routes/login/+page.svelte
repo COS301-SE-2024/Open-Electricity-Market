@@ -54,7 +54,32 @@
             <p class="py-6">Discover a revolutionary platform where you can buy and sell electricity in real-time.</p>
             <p>{errormessage}</p>
           </div>
-         
+          <div class="card shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
+            <form class="card-body">
+              <h2 class="text-base font-semibold"> Log in to your account </h2>
+
+              <div class="form-control mt-1">
+                <input type="email" placeholder="Email" class="input input-bordered" required bind:value={email}/>
+              </div>
+              <div class="form-control mt-4">
+                <input type="password" placeholder="Password" class="input input-bordered" required bind:value={password}/>
+                <!-- <label class="label" for="">
+                  <a href="#" class="label-text-alt link link-hover">Forgot password?</a>
+                </label> -->
+              </div>
+
+              {#if errormessage != ''}
+                <h2 class="text-base font-semibold text-black bg-error rounded"> { errormessage } </h2>
+              {/if}
+
+              <div class="form-control mt-6">
+                <button class="btn btn-primary" on:click={login}>Login</button>
+              </div>
+              <div class="form-control mt-3"> 
+                <button class="btn btn-primary" on:click={signup}>Create an account</button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
 </main>

@@ -3,7 +3,10 @@ extern crate rocket;
 extern crate deadqueue;
 extern crate reqwest;
 
-use crate::models::{NewBuyOrderModel, NewNodeModel, NewProfileModel, NewSellOrderModel, NewUserModel, Node, Profile, SellOrder, User};
+use crate::models::{
+    NewBuyOrderModel, NewNodeModel, NewProfileModel, NewSellOrderModel, NewUserModel, Node,
+    Profile, SellOrder, User,
+};
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use dotenvy::dotenv;
@@ -226,9 +229,8 @@ struct UserDetails {
 
 #[post("/user_details")]
 async fn user_details(cookie_jar: &CookieJar<'_>) -> Value {
-
-    use self::schema::open_em::users::dsl::*;
     use self::schema::open_em::profiles::dsl::*;
+    use self::schema::open_em::users::dsl::*;
 
     let connection = &mut establish_connection();
 
@@ -246,7 +248,7 @@ async fn user_details(cookie_jar: &CookieJar<'_>) -> Value {
         }
     }
 
-    let mut data = UserDetails{
+    let mut data = UserDetails {
         email: "".to_string(),
         credit: 0.0,
         first_name: "".to_string(),
@@ -254,7 +256,6 @@ async fn user_details(cookie_jar: &CookieJar<'_>) -> Value {
     };
 
     if has_cookie {
-
         let user_ret = users
             .filter(session_id.eq(session_id_str))
             .select(User::as_select())
@@ -273,7 +274,7 @@ async fn user_details(cookie_jar: &CookieJar<'_>) -> Value {
         let user_first_name = profile_ret[0].first_name.clone();
         let user_last_name = profile_ret[0].last_name.clone();
 
-        data = UserDetails{
+        data = UserDetails {
             email: user_email,
             credit: user_ret[0].credit,
             first_name: user_first_name,
@@ -281,7 +282,6 @@ async fn user_details(cookie_jar: &CookieJar<'_>) -> Value {
         };
 
         message = "User details successfully retrieved"
-
     }
 
     json!({"status": "ok", "message": message, "data": data})
@@ -289,7 +289,7 @@ async fn user_details(cookie_jar: &CookieJar<'_>) -> Value {
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct NodeDetails{
+struct NodeDetails {
     node_id: String,
     name: String,
     location_x: f64,
@@ -300,13 +300,16 @@ struct NodeDetails{
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct NodeDetailsReq{
+struct NodeDetailsReq {
     node_id: String,
 }
 
-#[post("/node_details", format = "application/json", data = "<node_details_req>")]
+#[post(
+    "/node_details",
+    format = "application/json",
+    data = "<node_details_req>"
+)]
 async fn node_details(node_details_req: Json<NodeDetailsReq>, cookie_jar: &CookieJar<'_>) -> Value {
-
     use self::schema::open_em::nodes::dsl::*;
     use self::schema::open_em::users::dsl::*;
 
@@ -336,7 +339,6 @@ async fn node_details(node_details_req: Json<NodeDetailsReq>, cookie_jar: &Cooki
     };
 
     if has_cookie {
-
         let user_vec = users
             .filter(session_id.eq(session_id_str))
             .select(User::as_select())
@@ -355,7 +357,7 @@ async fn node_details(node_details_req: Json<NodeDetailsReq>, cookie_jar: &Cooki
         data.location_x = node_vec[0].location_x;
         data.location_y = node_vec[0].location_y;
         data.units_to_produce = node_vec[0].units_generated;
-        data.units_to_consume= node_vec[0].units_consumed;
+        data.units_to_consume = node_vec[0].units_consumed;
 
         message = "Node details retrieved succesfully"
     }

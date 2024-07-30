@@ -7,12 +7,7 @@
 
   const currentpath = derived(page, $page => $page.url.pathname);
 
-  $: activebutton = $currentpath; 
-
-
-  
-
-  
+  $: activebutton = $currentpath;
 
 import { fade } from "svelte/transition";
 import { cubicIn, cubicOut } from "svelte/easing";

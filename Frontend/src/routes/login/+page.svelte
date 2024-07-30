@@ -10,7 +10,10 @@
 
 
     function signup(){
-        goto("/signup");
+      email = '';
+      password = '';
+
+      goto("/signup");
     }
 
     async function login(){
@@ -26,6 +29,7 @@
         method: "POST", 
         headers: {
           "Content-Type": "application/json",
+          "Accept": "application/json",
         },
         body: JSON.stringify({
           "email": email, 

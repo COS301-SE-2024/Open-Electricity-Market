@@ -15,7 +15,7 @@
       chart = createChart(chartCanvas, sampleChartConfig);
       // fetchData(); 
       //updateChart(data);  
-      interval = setInterval(updateChart, 1500);
+      // interval = setInterval(updateChart, 1500);
     }
 
     return () => {
@@ -26,58 +26,14 @@
     };
   });
 
-  
-
-
-
-
-    
-
-  
-
-
-
-
-
-
-   
-
-
-  //let iteration = 0; 
-
   function updateChart() {
-    
+    chart.data.datasets[0].data.push(Math.random(20));
+    chart.data.datasets[1].data.push(Math.random(20));
+    chart.data.datasets[2].data.push(Math.random(20));
+    chart.data.labels.push(chart.data.labels.length + 1);
 
-     
-
-    
-      chart.data.datasets[0].data.push(Math.random(20));
-      chart.data.datasets[1].data.push(Math.random(20));
-      chart.data.datasets[2].data.push(Math.random(20));
-      chart.data.labels.push(chart.data.labels.length + 1);
-      
-      
-      
-      chart.update();
-
-     
-
-
-
-     
-
-
-
-      
-  
-    
-      
-    }
-
-
-
- 
-
+    chart.update();  
+  }
 </script>
 
 <div style="display: flex; max-width: 100%;"> 

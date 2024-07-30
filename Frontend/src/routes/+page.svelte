@@ -1,6 +1,7 @@
 <script>
     import logo from '$lib/assets/Logo.png';
     import {goto} from "$app/navigation";
+    import Map from '$lib/Components/MapLanding.svelte';
     let email = '';
     let password = '';
     let errormessage = "";
@@ -48,13 +49,14 @@
 <main>
     <div class="hero min-h-screen" style="background-image: url(https://images.unsplash.com/photo-1510595256055-e44b27efe497?q=80&w=1700&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D);">
         <div class="hero-overlay bg-opacity-60 "></div>
-        <div class="hero-content flex-col lg:flex-row-reverse rounded-2xl bg-base-100">
+        <div class="hero-content flex-col lg:flex-row-reverse rounded-2xl bg-base-100 p-8">
           <div class="text-center lg:text-left">
             <h1 class="text-5xl font-bold">Open Electricity Market.</h1>
             <p class="py-6">Discover a revolutionary platform where you can buy and sell electricity in real-time.</p>
             <p>{errormessage}</p>
+            <Map /> 
           </div>
-         
+          
         </div>
       </div>
 </main>

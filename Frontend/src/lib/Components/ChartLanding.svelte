@@ -6,7 +6,7 @@
 
   let chart;
   let chartCanvas;
-  export let data = {}; 
+  //export let data = {}; 
   let interval; 
 
   onMount(() => {

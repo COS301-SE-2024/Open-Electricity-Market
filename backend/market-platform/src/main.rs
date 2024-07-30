@@ -220,7 +220,6 @@ fn establish_connection() -> PgConnection {
 
 #[post("/remove_account")]
 async fn remove_account(cookie_jar: &CookieJar<'_>) -> Value {
-
     use self::schema::open_em::users::dsl::*;
 
     let connection = &mut establish_connection();
@@ -240,7 +239,6 @@ async fn remove_account(cookie_jar: &CookieJar<'_>) -> Value {
     }
 
     if has_cookie {
-
         diesel::update(users)
             .filter(session_id.eq(session_id_str))
             .set(active.eq(false))
@@ -248,7 +246,6 @@ async fn remove_account(cookie_jar: &CookieJar<'_>) -> Value {
             .expect("Error making session id");
 
         message = "Account successfully deleted";
-
     }
 
     json!({"status": "ok", "message": message})
@@ -256,17 +253,14 @@ async fn remove_account(cookie_jar: &CookieJar<'_>) -> Value {
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct Price{
+struct Price {
     price: f64,
 }
 
-#[post("/priceview")]
-async fn priceview() -> Value{
-
+#[post("/price_view")]
+async fn price_view() -> Value {
     let mut message = "stub";
-    let mut data = Price{
-        price: 0f64,
-    };
+    let mut data = Price { price: 0f64 };
 
     json!({"status": "ok", "message":message, "data": data})
 }
@@ -738,7 +732,7 @@ fn rocket() -> _ {
                 get_nodes,
                 user_details,
                 node_details,
-                priceview,
+                price_view,
                 remove_account,
                 // sell_order,
                 // buy_order,

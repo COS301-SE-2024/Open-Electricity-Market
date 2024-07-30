@@ -4,6 +4,7 @@
   import { onMount } from "svelte";
   import Map from '$lib/Components/Map.svelte';
   import Chart from "$lib/Components/Chart2.svelte";
+  import GridStats from "../../../lib/Components/GridStats.svelte";
  
 
   let data = {};
@@ -70,7 +71,7 @@
       });
       //console.log("Request being sent...");
       const fdata = await response.json();
-      //console.log("Fetched data:", fdata);
+      console.log("Fetched data:", fdata);
       mapdata = fdata.circuits[0];
       // data = null; 
       // data = {
@@ -216,6 +217,7 @@
 
     <Map {mapdata} on:markerClick = {handleMarkerClick} /> 
     <Chart {data} />
+    <GridStats /> 
 
 </main>
 

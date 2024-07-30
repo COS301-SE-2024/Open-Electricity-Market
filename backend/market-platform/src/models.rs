@@ -60,6 +60,18 @@ pub struct NewBuyOrderModel<'a> {
     pub price: &'a f64,
 }
 
+#[derive(Queryable,Selectable)]
+#[diesel(table_name = crate::schema::open_em::nodes)]
+pub struct Node {
+    pub node_id: Uuid,
+    pub node_owner: Uuid,
+    pub location_x: f64,
+    pub location_y: f64,
+    pub units_consumed: f64,
+    pub units_generated: f64,
+    pub name: String,
+}
+
 #[derive(Insertable)]
 #[diesel(table_name = crate::schema::open_em::nodes)]
 pub struct NewNodeModel<'a> {

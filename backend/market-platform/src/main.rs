@@ -3,7 +3,7 @@ extern crate rocket;
 extern crate deadqueue;
 extern crate reqwest;
 
-use crate::models::{NewBuyOrderModel, NewNodeModel, NewProfileModel, NewSellOrderModel, NewUserModel, SellOrder, User};
+use crate::models::{NewBuyOrderModel, NewNodeModel, NewProfileModel, NewSellOrderModel, NewUserModel, Node, SellOrder, User};
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use dotenvy::dotenv;
@@ -22,8 +22,6 @@ use std::env;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::{Arc, Mutex};
 use uuid::Uuid;
-use crate::schema::open_em::users::dsl::users;
-use crate::schema::open_em::users::session_id;
 
 mod models;
 mod schema;
@@ -219,6 +217,72 @@ fn establish_connection() -> PgConnection {
 
 #[derive(Serialize,Deserialize)]
 #[serde(crate = "rocket::serde")]
+struct GetNodesReq {
+    pub limit: i64,
+}
+
+#[derive(Serialize,Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct ShortNodeRet {
+    node_id: String,
+    name: String,
+}
+
+#[post("/get_nodes", format = "application/json", data="<get_nodes_req>")]
+async fn get_nodes(get_nodes_req: Json<GetNodesReq>, cookie_jar: &CookieJar<'_>) -> Value {
+
+    use self::schema::open_em::users::dsl::*;
+    use self::schema::open_em::nodes::dsl::*;
+
+    let connection = &mut establish_connection();
+
+    let mut message = "Something went wrong";
+
+    let session_cookie = cookie_jar.get("session_id");
+
+    let mut has_cookie = false;
+    let mut session_id_str: String = "".to_string();
+    match session_cookie {
+        None => {}
+        Some(cookie) => {
+            has_cookie = true;
+            session_id_str = cookie.value().parse().unwrap();
+        }
+    }
+
+    let mut node_list: Vec<ShortNodeRet> = vec![];
+
+    if has_cookie {
+
+        let user_ret = users
+            .filter(session_id.eq(session_id_str))
+            .select(User::as_select())
+            .load::<User>(connection)
+            .expect("User does not exist");
+
+        let nodes_vec = nodes
+            .filter(node_owner.eq(user_ret[0].user_id))
+            .select(Node::as_select())
+            .limit(get_nodes_req.limit)
+            .load::<Node>(connection)
+            .expect("Could not get nodes");
+
+        for node in nodes_vec {
+
+            node_list.push(ShortNodeRet{
+                node_id: node.node_id.to_string(),
+                name: node.name,
+            })
+        }
+        message = "List of nodes successfully retrieved"
+
+    }
+
+    json!({"status": "ok", "message": message, "data": node_list})
+}
+
+#[derive(Serialize,Deserialize)]
+#[serde(crate = "rocket::serde")]
 struct AddNodeReq<'r> {
     name: &'r str,
     location_x: f64,
@@ -228,7 +292,7 @@ struct AddNodeReq<'r> {
 #[post("/add_node", format = "application/json", data = "<add_node_req>")]
 async fn add_node(add_node_req: Json<AddNodeReq<'_>>, cookie_jar: &CookieJar<'_>) -> Value {
 
-    use self::schema::open_em::users;
+    use self::schema::open_em::users::dsl::*;
     use self::schema::open_em::nodes;
 
     let connection = &mut establish_connection();
@@ -473,6 +537,7 @@ fn rocket() -> _ {
                 add_funds,
                 remove_funds,
                 add_node,
+                get_nodes,
                 //sell_order,
                 // buy_order,
                 // priceview,

@@ -17,8 +17,8 @@ pub mod open_em {
         open_em.nodes (node_id) {
             node_id -> Uuid,
             node_owner -> Uuid,
-            location_x -> Nullable<Float8>,
-            location_y -> Nullable<Float8>,
+            location_x -> Float8,
+            location_y -> Float8,
             units_consumed -> Float8,
             units_generated -> Float8,
             name -> Text,

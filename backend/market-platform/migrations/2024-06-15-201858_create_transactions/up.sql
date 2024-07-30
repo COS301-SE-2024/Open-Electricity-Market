@@ -1,7 +1,6 @@
 CREATE TABLE buy_orders(
     buy_order_id bigserial PRIMARY KEY,
     buyer_id uuid NOT NULL,
-    node_id uuid NOT NULL,
     sought_units float8 NOT NULL DEFAULT 0,
     filled_units float8 NOT NULL DEFAULT 0,
     price float8 NOT NULL DEFAULT 0,

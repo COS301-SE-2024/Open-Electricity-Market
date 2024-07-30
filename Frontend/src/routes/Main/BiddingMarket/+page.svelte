@@ -27,8 +27,32 @@ let units = 0;
           </div>
 
           <div class="mt-1">
-            <button class="btn btn-success" >Buy</button>
-            <button class="btn btn-error"  >Sell</button>
+            <button class="btn btn-success" onclick="my_modal_1.showModal()">Buy</button>
+            <dialog id="my_modal_1" class="modal">
+              <div class="modal-box">
+                <h3 class="text-lg font-bold">Confirm Buy Order</h3>
+                <p class="py-4">Please confirm your buy order for {units} units at R {price} </p>
+                <div class="modal-action">
+                  <form method="dialog">
+                    <button class="btn">Continue</button>
+                    <button class="btn">Cancel</button>
+                  </form>
+                </div>
+              </div>
+            </dialog>
+            <button class="btn btn-error" onclick="my_modal_2.showModal()">Sell</button>
+            <dialog id="my_modal_2" class="modal">
+              <div class="modal-box">
+                <h3 class="text-lg font-bold">Confirm Sell Order</h3>
+                <p class="py-4">Please confirm your sell order for {units} units at R {price} </p>
+                <div class="modal-action">
+                  <form method="dialog">
+                    <button class="btn">Continue</button>
+                    <button class="btn">Cancel</button>
+                  </form>
+                </div>
+              </div>
+            </dialog>
           </div>
         </form>
 

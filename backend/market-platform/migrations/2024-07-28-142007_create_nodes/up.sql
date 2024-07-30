@@ -9,3 +9,19 @@ CREATE TABLE nodes(
         FOREIGN KEY(node_owner)
         REFERENCES users(user_id)
 );
+
+ALTER TABLE sell_orders
+ADD COLUMN producer_id uuid NOT NULL;
+
+ALTER TABLE sell_orders
+ADD CONSTRAINT fk_order_producer
+    FOREIGN KEY (producer_id)
+    REFERENCES nodes(node_id);
+
+ALTER TABLE buy_orders
+ADD COLUMN consumer_id uuid NOT NULL;
+
+ALTER TABLE buy_orders
+ADD CONSTRAINT fk_order_consumer
+    FOREIGN KEY (consumer_id)
+    REFERENCES nodes(node_id);

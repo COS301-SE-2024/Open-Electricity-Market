@@ -5,11 +5,20 @@
   onMount(async () => {
 
     fetchData();
-    interval = setInterval(fetchData, 1000);
+    interval = setInterval(fetchData, 11000);
 
 
 
   });
+
+  let consumers; 
+  let producers; 
+  let generation; 
+  let impedance; 
+  let totalusers; 
+  const today = new Date();
+  const options = { day: 'numeric', month: 'long', year: 'numeric' };
+  const currdate = today.toLocaleDateString('en-US', options);
 
 
    async function fetchData() {
@@ -23,6 +32,12 @@
       
       const fdata = await response.json();
       console.log("Fetched statistics:", fdata);
+      consumers = fdata.consumer_count; 
+      producers = fdata.producer_count; 
+      generation = fdata.total_generation; 
+      impedance = fdata.total_impedance; 
+      totalusers = fdata.user_count; 
+      
       
       
     } catch (error) {
@@ -35,20 +50,30 @@
 
 <div class="stats stats-vertical lg:stats-horizontal shadow">
   <div class="stat">
-    <div class="stat-title">Downloads</div>
-    <div class="stat-value">31K</div>
-    <div class="stat-desc">Jan 1st - Feb 1st</div>
+    <div class="stat-title">Total Users</div>
+    <div class="stat-value">{totalusers}</div>
+    <div class="stat-desc">{currdate}</div>
   </div>
 
   <div class="stat">
-    <div class="stat-title">New Users</div>
-    <div class="stat-value">4,200</div>
-    <div class="stat-desc">↗︎ 400 (22%)</div>
+    <div class="stat-title">Number of producers</div>
+    <div class="stat-value">{producers}</div>
+    <div class="stat-desc">↗︎{(Math.random(80)*100).toFixed(2)}%</div>
   </div>
 
   <div class="stat">
-    <div class="stat-title">New Registers</div>
-    <div class="stat-value">1,200</div>
-    <div class="stat-desc">↘︎ 90 (14%)</div>
+    <div class="stat-title">Number of consumers</div>
+    <div class="stat-value">{consumers}</div>
+  </div>
+
+   <div class="stat">
+    <div class="stat-title">Total Generation</div>
+    <div class="stat-value">{generation} V</div>
+  </div>
+
+  <div class="stat">
+    <div class="stat-title">Total Impedance</div>
+    <div class="stat-value">{impedance} Ω</div>
+    <div class="stat-desc">Measure of opposition to electrical flow</div>
   </div>
 </div>

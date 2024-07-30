@@ -26,8 +26,8 @@ pub mod open_em {
     }
 
     diesel::table! {
-        open_em.profiles (user_id) {
-            user_id -> Uuid,
+        open_em.profiles (profile_user_id) {
+            profile_user_id -> Uuid,
             first_name -> Text,
             last_name -> Text,
         }
@@ -70,7 +70,7 @@ pub mod open_em {
     diesel::joinable!(buy_orders -> nodes (consumer_id));
     diesel::joinable!(buy_orders -> users (buyer_id));
     diesel::joinable!(nodes -> users (node_owner));
-    diesel::joinable!(profiles -> users (user_id));
+    diesel::joinable!(profiles -> users (profile_user_id));
     diesel::joinable!(sell_orders -> nodes (producer_id));
     diesel::joinable!(sell_orders -> users (seller_id));
     diesel::joinable!(transactions -> buy_orders (buy_order_id));

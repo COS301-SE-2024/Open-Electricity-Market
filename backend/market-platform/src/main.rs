@@ -3,10 +3,7 @@ extern crate rocket;
 extern crate deadqueue;
 extern crate reqwest;
 
-use crate::models::{
-    NewBuyOrderModel, NewNodeModel, NewProfileModel, NewSellOrderModel, NewUserModel, Node,
-    SellOrder, User,
-};
+use crate::models::{NewBuyOrderModel, NewNodeModel, NewProfileModel, NewSellOrderModel, NewUserModel, Node, Profile, SellOrder, User};
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use dotenvy::dotenv;
@@ -220,8 +217,99 @@ fn establish_connection() -> PgConnection {
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
+struct UserDetails {
+    email: String,
+    credit: f64,
+    first_name: String,
+    last_name: String,
+}
+
+#[post("/user_details", format = "application/json")]
+async fn user_details(cookie_jar: &CookieJar<'_>) -> Value {
+
+    use self::schema::open_em::users::dsl::*;
+    use self::schema::open_em::profiles::dsl::*;
+
+    let connection = &mut establish_connection();
+
+    let mut message = "Something went wrong";
+
+    let session_cookie = cookie_jar.get("session_id");
+
+    let mut has_cookie = false;
+    let mut session_id_str: String = "".to_string();
+    match session_cookie {
+        None => {}
+        Some(cookie) => {
+            has_cookie = true;
+            session_id_str = cookie.value().parse().unwrap();
+        }
+    }
+
+    let mut data = UserDetails{
+        email: "".to_string(),
+        credit: 0.0,
+        first_name: "".to_string(),
+        last_name: "".to_string(),
+    };
+
+    if has_cookie {
+
+        let user_ret = users
+            .filter(session_id.eq(session_id_str))
+            .select(User::as_select())
+            .load::<User>(connection)
+            .expect("User does not exist");
+
+        let temp_user_id = user_ret[0].user_id.clone();
+        let user_email = user_ret[0].email.clone();
+
+        let profile_ret = profiles
+            .filter(profile_user_id.eq(temp_user_id))
+            .select(Profile::as_select())
+            .load::<Profile>(connection)
+            .expect("Could not find profile");
+
+        let user_first_name = profile_ret[0].first_name.clone();
+        let user_last_name = profile_ret[0].last_name.clone();
+
+        data = UserDetails{
+            email: user_email,
+            credit: user_ret[0].credit,
+            first_name: user_first_name,
+            last_name: user_last_name,
+        };
+
+        message = "User details successfully retrieved"
+
+    }
+
+    json!({"status": "ok", "message": message, "data": data})
+}
+
+// #[derive(Serialize, Deserialize)]
+// #[serde(crate = "rocket::serde")]
+// struct NodeDetails{
+//
+// }
+//
+// #[derive(Serialize, Deserialize)]
+// #[serde(crate = "rocket::serde")]
+// struct NodeDetailsReq{
+//
+// }
+//
+// #[post("/node_details", format = "application/json", data = "<node_details_req>")]
+// async fn node_details(node_details_req: NodeDetailsReq, cookie_jar: &CookieJar<'_>) -> Value {
+//
+//
+//     json!({"status": "ok", "message": message, "data": })
+// }
+
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
 struct GetNodesReq {
-    pub limit: i64,
+    limit: i64,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -390,8 +478,6 @@ async fn remove_funds(remove_funds_req: Json<RemoveFundsReq>, jar: &CookieJar<'_
 
     let connection = &mut establish_connection();
 
-    let mut removed_funds = false;
-
     let mut message = "Something went wrong";
 
     let session_cookie = jar.get("session_id");
@@ -511,7 +597,7 @@ async fn register(new_user: Json<NewUser<'_>>, jar: &CookieJar<'_>) -> Value {
     jar.add(("session_id", binding_2));
 
     let new_profile_insert = NewProfileModel {
-        user_id: &new_user_ret.user_id,
+        profile_user_id: &new_user_ret.user_id,
         first_name: new_user.first_name,
         last_name: new_user.last_name,
     };
@@ -538,7 +624,8 @@ fn rocket() -> _ {
                 remove_funds,
                 add_node,
                 get_nodes,
-                //sell_order,
+                user_details,
+                // sell_order,
                 // buy_order,
                 // priceview,
             ],

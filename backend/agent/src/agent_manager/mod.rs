@@ -32,7 +32,6 @@ impl ProducerData {
     }
 }
 
- 
 pub struct ProducerConroller {
     data: ProducerData,
     socket: Receiver<ProducerManagerMessage>,
@@ -50,12 +49,14 @@ pub struct AgentManager {
 impl AgentManager {
     fn add_new_producer(&mut self, data: ProducerData) {
         let (tx, rx) = mpsc::channel();
-        self.producers
-            .push(Box::new(ProducerConroller { data :data.clone(), socket: rx }));
+        self.producers.push(Box::new(ProducerConroller {
+            data: data.clone(),
+            socket: rx,
+        }));
 
         thread::spawn(move || {
             let producer: Box<dyn Producer> = data.producer_type.actualise();
-            
+
             let mut producer_basics = ProducerBasics::create(tx);
 
             let mut elasped_time = 0.0;
@@ -68,7 +69,6 @@ impl AgentManager {
                 }
                 let duration = start.elapsed();
                 elasped_time = duration.as_secs_f32();
-
             }
         });
     }
@@ -116,7 +116,7 @@ impl AgentManager {
             }
         }
         for name in to_delete {
-             self.producers.retain(|producer| producer.data.name != name)
+            self.producers.retain(|producer| producer.data.name != name)
         }
     }
 

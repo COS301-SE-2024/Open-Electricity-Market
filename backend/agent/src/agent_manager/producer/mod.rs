@@ -41,14 +41,14 @@ pub struct GridInterface {
 pub struct ProducerBasics {
     manager_socket: Sender<ProducerManagerMessage>,
     grid_socket: TcpStream,
-    count :f32
+    count: f32,
 }
 impl ProducerBasics {
     pub fn create(tx: Sender<ProducerManagerMessage>) -> ProducerBasics {
         return ProducerBasics {
             manager_socket: tx,
             grid_socket: TcpStream::connect("127.0.0.1:55555").unwrap(),
-            count :0.0
+            count: 0.0,
         };
     }
 }
@@ -57,7 +57,7 @@ pub trait Producer {
     fn get_voltage(&self, elasped_time: f32, accumlited_time: f32) -> Voltage;
     fn get_units_sold(&self) -> f32 {
         return 10.0;
-    }  
+    }
     fn send_message_manager(
         &self,
         message: ProducerManagerMessage,
@@ -101,11 +101,9 @@ pub trait Producer {
             self.update_units_sold(voltage);
         }
 
-
-        
         //Every 5 mintues tell grid about my voltages
-        if accumlited_time > 60.0*producer_basics.count {
-            producer_basics.count+=1.0;
+        if accumlited_time > 60.0 * producer_basics.count {
+            producer_basics.count += 1.0;
             println!("a");
             self.sync_grid(voltage, &mut producer_basics.grid_socket);
             println!("b");

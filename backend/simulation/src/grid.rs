@@ -1,18 +1,7 @@
-use std::io::{BufRead, BufReader, Read};
-
-use std::sync::{Arc, Mutex};
-use std::usize;
-
 use crate::grid::circuit::Circuit;
 use crate::grid::load::Connection::{Parallel, Series};
-use rocket::form::validate::{with, Contains};
-use rocket::futures::TryFutureExt;
 use rocket::serde::Serialize;
 use serde::Deserialize;
-use tokio::io::AsyncReadExt;
-use tokio::net::{TcpListener, TcpStream};
-
-
 
 pub mod circuit;
 pub mod generator;
@@ -200,11 +189,9 @@ impl Grid {
         self.internal_update(elapsed_time, 0);
     }
 
-    pub fn set_generator(&mut self,json : String) {
+    pub fn set_generator(&mut self, json: String) {
         let grid_interface: GridInterface = serde_json::from_str(&json).unwrap();
         self.circuits[grid_interface.circuit as usize]
-             .set_generater(grid_interface.generator, grid_interface.voltage);
-
+            .set_generater(grid_interface.generator, grid_interface.voltage);
     }
-
 }

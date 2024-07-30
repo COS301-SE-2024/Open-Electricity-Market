@@ -294,8 +294,8 @@ struct NodeDetails{
     name: String,
     location_x: f64,
     location_y: f64,
-    units_owed: f64,
-    units_owing: f64,
+    units_to_produce: f64,
+    units_to_consume: f64,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -331,8 +331,8 @@ async fn node_details(node_details_req: Json<NodeDetailsReq>, cookie_jar: &Cooki
         name: "".to_string(),
         location_x: 0.0,
         location_y: 0.0,
-        units_owed: 0.0,
-        units_owing: 0.0,
+        units_to_produce: 0.0,
+        units_to_consume: 0.0,
     };
 
     if has_cookie {
@@ -354,8 +354,8 @@ async fn node_details(node_details_req: Json<NodeDetailsReq>, cookie_jar: &Cooki
         data.name = node_vec[0].name.clone();
         data.location_x = node_vec[0].location_x;
         data.location_y = node_vec[0].location_y;
-        data.units_owed = node_vec[0].units_generated;
-        data.units_owing = node_vec[0].units_consumed;
+        data.units_to_produce = node_vec[0].units_generated;
+        data.units_to_consume= node_vec[0].units_consumed;
 
         message = "Node details retrieved succesfully"
     }

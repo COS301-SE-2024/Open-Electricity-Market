@@ -24,6 +24,7 @@
 		"eslint-plugin-svelte": "^2.35.1",
 		"htmlhint": "^1.1.4",
 		"jsdom": "^24.1.0",
+		"leaflet": "^1.9.4",
 		"postcss": "^8.4.38",
 		"svelte": "^4.2.7",
 		"tailwindcss": "^3.4.3",

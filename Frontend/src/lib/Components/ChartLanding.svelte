@@ -54,6 +54,7 @@
       chart.data.datasets[0].data.push(Math.random(20));
       chart.data.datasets[1].data.push(Math.random(20));
       chart.data.datasets[2].data.push(Math.random(20));
+      chart.data.labels.push(chart.data.labels.length + 1);
       
       
       

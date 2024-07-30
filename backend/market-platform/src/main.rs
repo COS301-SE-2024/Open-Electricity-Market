@@ -3,9 +3,7 @@ extern crate rocket;
 extern crate deadqueue;
 extern crate reqwest;
 
-use crate::models::{
-    NewBuyOrderModel, NewProfileModel, NewSellOrderModel, NewUserModel, SellOrder, User,
-};
+use crate::models::{NewBuyOrderModel, NewNodeModel, NewProfileModel, NewSellOrderModel, NewUserModel, SellOrder, User};
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use dotenvy::dotenv;
@@ -24,6 +22,8 @@ use std::env;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::{Arc, Mutex};
 use uuid::Uuid;
+use crate::schema::open_em::users::dsl::users;
+use crate::schema::open_em::users::session_id;
 
 mod models;
 mod schema;
@@ -217,6 +217,63 @@ fn establish_connection() -> PgConnection {
 //     json!({"status": "ok", "purchase": purchase})
 // }
 
+#[derive(Serialize,Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct AddNodeReq<'r> {
+    name: &'r str,
+    location_x: f64,
+    location_y: f64,
+}
+
+#[post("/add_node", format = "application/json", data = "<add_node_req>")]
+async fn add_node(add_node_req: Json<AddNodeReq<'_>>, cookie_jar: &CookieJar<'_>) -> Value {
+
+    use self::schema::open_em::users;
+    use self::schema::open_em::nodes;
+
+    let connection = &mut establish_connection();
+
+    let mut message = "Something went wrong";
+
+    let session_cookie = cookie_jar.get("session_id");
+
+    let mut has_cookie = false;
+    let mut session_id_str: String = "".to_string();
+    match session_cookie {
+        None => {}
+        Some(cookie) => {
+            has_cookie = true;
+            session_id_str = cookie.value().parse().unwrap();
+        }
+    }
+
+    if has_cookie {
+
+        let user = users
+            .filter(session_id.eq(session_id_str))
+            .select(User::as_select())
+            .load::<User>(connection)
+            .expect("User does not exist");
+
+        let new_node_insert = NewNodeModel {
+            node_owner: user[0].user_id,
+            location_x: add_node_req.location_x,
+            location_y: add_node_req.location_y,
+            name: add_node_req.name,
+        };
+
+        diesel::insert_into(nodes::table)
+            .values(&new_node_insert)
+            .execute(connection)
+            .expect("Node Add Failed");
+
+        message = "New Node Added"
+
+    }
+
+    json!({"status": "ok", "message": message})
+}
+
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
 struct AddFundsReq {
@@ -263,11 +320,7 @@ struct RemoveFundsReq {
     funds: f64,
 }
 
-#[post(
-    "/remove_funds",
-    format = "application/json",
-    data = "<remove_funds_req>"
-)]
+#[post("/remove_funds", format = "application/json", data = "<remove_funds_req>" )]
 async fn remove_funds(remove_funds_req: Json<RemoveFundsReq>, jar: &CookieJar<'_>) -> Value {
     use self::schema::open_em::users::dsl::*;
 
@@ -417,11 +470,12 @@ fn rocket() -> _ {
             routes![
                 register,
                 login,
+                add_funds,
+                remove_funds,
+                add_node,
                 //sell_order,
                 // buy_order,
                 // priceview,
-                add_funds,
-                remove_funds
             ],
         )
         .configure(rocket::Config::figment().merge(("port", 8001)))

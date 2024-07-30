@@ -218,6 +218,59 @@ fn establish_connection() -> PgConnection {
 //     json!({"status": "ok", "purchase": purchase})
 // }
 
+#[post("/remove_account")]
+async fn remove_account(cookie_jar: &CookieJar<'_>) -> Value {
+
+    use self::schema::open_em::users::dsl::*;
+
+    let connection = &mut establish_connection();
+
+    let mut message = "Something went wrong";
+
+    let session_cookie = cookie_jar.get("session_id");
+
+    let mut has_cookie = false;
+    let mut session_id_str: String = "".to_string();
+    match session_cookie {
+        None => {}
+        Some(cookie) => {
+            has_cookie = true;
+            session_id_str = cookie.value().parse().unwrap();
+        }
+    }
+
+    if has_cookie {
+
+        diesel::update(users)
+            .filter(session_id.eq(session_id_str))
+            .set(active.eq(false))
+            .execute(connection)
+            .expect("Error making session id");
+
+        message = "Account successfully deleted";
+
+    }
+
+    json!({"status": "ok", "message": message})
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct Price{
+    price: f64,
+}
+
+#[post("/priceview")]
+async fn priceview() -> Value{
+
+    let mut message = "stub";
+    let mut data = Price{
+        price: 0f64,
+    };
+
+    json!({"status": "ok", "message":message, "data": data})
+}
+
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
 struct UserDetails {
@@ -685,9 +738,10 @@ fn rocket() -> _ {
                 get_nodes,
                 user_details,
                 node_details,
+                priceview,
+                remove_account,
                 // sell_order,
                 // buy_order,
-                // priceview,
             ],
         )
         .configure(rocket::Config::figment().merge(("port", 8001)))

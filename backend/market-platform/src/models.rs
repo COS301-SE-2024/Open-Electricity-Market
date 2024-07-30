@@ -21,10 +21,18 @@ pub struct NewUserModel<'a> {
     pub pass_hash: &'a str,
 }
 
+#[derive(Queryable, Selectable)]
+#[diesel(table_name = crate::schema::open_em::profiles)]
+pub struct Profile {
+    pub profile_user_id: Uuid,
+    pub first_name: String,
+    pub last_name: String,
+}
+
 #[derive(Insertable)]
 #[diesel(table_name = crate::schema::open_em::profiles)]
 pub struct NewProfileModel<'a> {
-    pub user_id: &'a Uuid,
+    pub profile_user_id: &'a Uuid,
     pub first_name: &'a str,
     pub last_name: &'a str,
 }

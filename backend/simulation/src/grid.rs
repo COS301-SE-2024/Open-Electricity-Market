@@ -134,12 +134,12 @@ struct GridInterface {
 }
 
 #[derive(Serialize)]
-pub struct GridStats{
-    total_impedance :f32,
-    total_generation :f32,
-    consumer_count :u32,
-    producer_count :u32,
-    user_count : u32
+pub struct GridStats {
+    total_impedance: f32,
+    total_generation: f32,
+    consumer_count: u32,
+    producer_count: u32,
+    user_count: u32,
 }
 
 impl Grid {
@@ -204,7 +204,7 @@ impl Grid {
             .set_generater(grid_interface.generator, grid_interface.voltage);
     }
 
-    pub fn get_grid_stats(&self) -> GridStats{
+    pub fn get_grid_stats(&self) -> GridStats {
         let mut ouput = GridStats {
             total_impedance: 0.0,
             total_generation: 0.0,
@@ -214,27 +214,22 @@ impl Grid {
         };
 
         for cir in self.circuits.iter() {
-
             for load in cir.loads.iter() {
                 ouput.total_impedance += load.get_impedance(self.frequency).0;
                 match load.load_type {
-                    load::LoadType::Consumer(_) => {ouput.consumer_count += 1},
-                    load::LoadType::TransmissionLine(_) => {},
+                    load::LoadType::Consumer(_) => ouput.consumer_count += 1,
+                    load::LoadType::TransmissionLine(_) => {}
                 }
             }
 
             for gen in cir.generators.iter() {
                 ouput.total_generation += gen.voltage.oscilloscope_detail.amplitude;
-                ouput.producer_count+=1;
+                ouput.producer_count += 1;
             }
-
         }
 
-        ouput.user_count = ouput.producer_count+ouput.consumer_count;
+        ouput.user_count = ouput.producer_count + ouput.consumer_count;
 
         ouput
-
-
     }
-
 }

@@ -16,6 +16,8 @@ CREATE TABLE transactions(
     sell_order_id bigserial NOT NULL,
     buy_order_id bigserial NOT NULL,
     transacted_units float8 NOT NULL DEFAULT 0,
+    transacted_price float8 NOT NULL DEFAULT 0,
+    transaction_active bool NOT NULL DEFAULT TRUE,
     created_at timestamptz NOT NULL DEFAULT now(), -- used for lifetime check
     CONSTRAINT fk_so_id
         FOREIGN KEY (sell_order_id)

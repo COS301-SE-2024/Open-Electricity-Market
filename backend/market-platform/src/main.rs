@@ -5,7 +5,7 @@ extern crate reqwest;
 
 use crate::models::{
     NewBuyOrderModel, NewNodeModel, NewProfileModel, NewSellOrderModel, NewUserModel, Node,
-    Profile, SellOrder, User,
+    Profile, SellOrder, Transaction, User,
 };
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
@@ -217,6 +217,130 @@ fn establish_connection() -> PgConnection {
 //
 //     json!({"status": "ok", "purchase": purchase})
 // }
+
+#[post("/list_open_buys")]
+async fn list_open_buys(cookie_jar: &CookieJar<'_>) -> Value {
+    let mut message = "stub";
+
+    json!({"status": "ok", "message": message})
+}
+
+#[post("/list_open_sells")]
+async fn list_open_sells(cookie_jar: &CookieJar<'_>) -> Value {
+    let mut message = "stub";
+
+    json!({"status": "ok", "message": message})
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct BuyOrderRequest {
+    node_id: String,
+    price: f64,
+    units: f64,
+}
+
+#[post(
+    "/buy_order",
+    format = "application/json",
+    data = "<buy_order_request>"
+)]
+async fn buy_order(buy_order_request: Json<BuyOrderRequest>, cookie_jar: &CookieJar<'_>) -> Value {
+    let mut message = "stub";
+
+    json!({"status": "ok", "message": message})
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct SellOrderRequest {
+    node_id: String,
+    price: f64,
+    units: f64,
+}
+
+#[post(
+    "/sell_order",
+    format = "application/json",
+    data = "<sell_order_request>"
+)]
+async fn sell_order(
+    sell_order_request: Json<SellOrderRequest>,
+    cookie_jar: &CookieJar<'_>,
+) -> Value {
+    let mut message = "stub";
+
+    json!({"status": "ok", "message": message})
+}
+
+#[post("/remove_account")]
+async fn remove_account(cookie_jar: &CookieJar<'_>) -> Value {
+    use self::schema::open_em::users::dsl::*;
+
+    let connection = &mut establish_connection();
+
+    let mut message = "Something went wrong";
+
+    let session_cookie = cookie_jar.get("session_id");
+
+    let mut has_cookie = false;
+    let mut session_id_str: String = "".to_string();
+    match session_cookie {
+        None => {}
+        Some(cookie) => {
+            has_cookie = true;
+            session_id_str = cookie.value().parse().unwrap();
+        }
+    }
+
+    if has_cookie {
+        diesel::update(users)
+            .filter(session_id.eq(session_id_str))
+            .set(active.eq(false))
+            .execute(connection)
+            .expect("Error making session id");
+
+        message = "Account successfully deleted";
+    }
+
+    json!({"status": "ok", "message": message})
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct Price {
+    price: f64,
+}
+
+#[post("/price_view")]
+async fn price_view() -> Value {
+    use self::schema::open_em::transactions::dsl::*;
+
+    let connection = &mut establish_connection();
+
+    let mut message = "Something went wrong";
+    let mut data = Price { price: 0f64 };
+
+    let transactions_res = transactions
+        .filter(transaction_active.eq(true))
+        .order_by(created_at.desc())
+        .select(Transaction::as_select())
+        .load::<Transaction>(connection);
+
+    match transactions_res {
+        Ok(transactions_vec) => {
+            if transactions_vec.len() > 0 {
+                message = "Successfully retrieved price";
+                data = Price {
+                    price: transactions_vec[0].transacted_price,
+                };
+            }
+        }
+        Err(_) => {}
+    }
+
+    json!({"status": "ok", "message":message, "data": data})
+}
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
@@ -603,7 +727,7 @@ async fn login(credentials: Json<Credentials<'_>>, jar: &CookieJar<'_>) -> Value
             .set(session_id.eq(h2))
             .execute(connection)
             .expect("Couldn't update session id");
-        jar.add(("session_id", h));
+        jar.add(Cookie::build(("session_id", h)).path("/"));
         message = "User logged in"
     }
 
@@ -653,7 +777,7 @@ async fn register(new_user: Json<NewUser<'_>>, jar: &CookieJar<'_>) -> Value {
         .execute(connection)
         .expect("Error making session id");
 
-    jar.add(("session_id", binding_2));
+    jar.add(Cookie::build(("session_id", binding_2)).path("/"));
 
     let new_profile_insert = NewProfileModel {
         profile_user_id: &new_user_ret.user_id,
@@ -685,9 +809,10 @@ fn rocket() -> _ {
                 get_nodes,
                 user_details,
                 node_details,
+                price_view,
+                remove_account,
                 // sell_order,
                 // buy_order,
-                // priceview,
             ],
         )
         .configure(rocket::Config::figment().merge(("port", 8001)))

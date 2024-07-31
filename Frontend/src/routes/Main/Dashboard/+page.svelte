@@ -7,7 +7,7 @@
   let nodeName = '';
   let nodeLongitude = '';
   let nodeLatitude = '';
-  $: nodes = [1];
+  $: nodes = [];
 
   onMount(async () => {
     await fetchStart();
@@ -29,12 +29,12 @@
 
   async function fetchNodes() {
     try {
-      const response = await fetch("http://localhost:8001/get_node", {
+      const response = await fetch("http://localhost:8001/get_nodes", {
         method: "POST", 
         headers: {
           'Content-Type': 'application/json',
           // there's a chance it complains at you if you do this: 
-          // 'Accept': 'application/json',
+          'Accept': 'application/json',
         },
         credentials: "include", 
         body: JSON.stringify({
@@ -46,9 +46,7 @@
       
       const fdata = await response.json();
       
-      data = fdata.data; 
-      console.log(data);
-      // should be a list of the nodes from the currently signed in user - waiting for a bug fix for the CORS headers from backend
+      nodes = fdata.data;
     } catch (error) {
       console.log("An error occurred while fetching nodes..\n", error);
     }
@@ -66,7 +64,7 @@
     }
 
     try {
-      const response = await fetch("http://localhost:8001/get_node", {
+      const response = await fetch("http://localhost:8001/add_node", {
         method: "POST", 
         headers: {
           'Content-Type': 'application/json',
@@ -75,17 +73,24 @@
         },
         credentials: "include", 
         body: JSON.stringify({
-          limit: 10
+          name: nodeName, 
+          location_x: Number(nodeLatitude), 
+          location_y: Number(nodeLongitude)
         })
       });
       // console.log("request being sent...");
       // console.log(response);
       
       const fdata = await response.json();
+
+      if (fdata.status === 'ok') {
+        document.getElementById("newNodeModal").close();
+        fetchNodes();
+      }
+
     } catch (error) {
       console.log("An error occurred while creating a node..\n", error);
     }
-    document.getElementById("newNodeModal").close();
 
     // submit the new node request and update the nodes dynamic nodes array
   }
@@ -167,7 +172,7 @@
             alt="House node" />
         </figure>
         <div class="card-body">
-          <h2 class="card-title">Node X</h2>
+          <h2 class="card-title">{node.name}</h2>
           <p class="">
             Node type, etc
           </p>

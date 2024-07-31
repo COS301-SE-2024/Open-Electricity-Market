@@ -63,20 +63,159 @@ fn establish_connection() -> PgConnection {
         .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
 }
 
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct OpenBuy{
+    order_id: i64,
+    sought_units: f64,
+    filled_units: f64,
+    price: f64,
+}
+
 #[post("/list_open_buys")]
 async fn list_open_buys(cookie_jar: &CookieJar<'_>) -> Value {
     use self::schema::open_em::users::dsl::*;
+    use self::schema::open_em::buy_orders::dsl::*;
+
+    let connection = &mut establish_connection();
 
     let mut message = "Something went wrong";
+    let mut data = vec![];
 
-    json!({"status": "ok", "message": message})
+    let session_cookie = cookie_jar.get("session_id");
+
+    let mut has_cookie = false;
+    let mut session_id_str: String = "".to_string();
+    match session_cookie {
+        None => message = "Session ID not found",
+        Some(cookie) => {
+            let cookie_value = cookie.value().parse();
+            match cookie_value {
+                Ok(cookie_str) => {
+                    has_cookie = true;
+                    session_id_str = cookie_str;
+                }
+                Err(_) => {}
+            };
+        }
+    }
+
+    if has_cookie {
+        let user_res = users
+            .filter(session_id.eq(session_id_str))
+            .select(User::as_select())
+            .load::<User>(connection);
+
+        match user_res {
+            Ok(user_vec) => {
+                message = "No matching user";
+                if user_vec.len() > 0 {
+                    match buy_orders
+                        .filter(buyer_id.eq(user_vec[0].user_id))
+                        .filter(sought_units.gt(filled_units))
+                        .select(BuyOrder::as_select())
+                        .load::<BuyOrder>(connection) {
+                        Ok(order_vec) => {
+                            message = "No open buy orders";
+                            if order_vec.len() > 0 {
+                                message = "Successfully retrieved open buy orders";
+                                for order in order_vec {
+                                    data.push(OpenBuy{
+                                        order_id: order.buy_order_id,
+                                        sought_units: order.sought_units,
+                                        filled_units: order.filled_units,
+                                        price: order.price,
+                                    })
+                                }
+                            }
+                        }
+                        Err(_) => {}
+                    }
+                }
+            }
+            Err(_) => {}
+        }
+    }
+
+    json!({"status": "ok", "message": message, "data": data})
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct OpenSell{
+    order_id: i64,
+    offered_units: f64,
+    claimed_units: f64,
+    price: f64,
 }
 
 #[post("/list_open_sells")]
 async fn list_open_sells(cookie_jar: &CookieJar<'_>) -> Value {
-    let mut message = "stub";
+    use self::schema::open_em::users::dsl::*;
+    use self::schema::open_em::sell_orders::dsl::*;
 
-    json!({"status": "ok", "message": message})
+    let connection = &mut establish_connection();
+
+    let mut message = "Something went wrong";
+    let mut data = vec![];
+
+    let session_cookie = cookie_jar.get("session_id");
+
+    let mut has_cookie = false;
+    let mut session_id_str: String = "".to_string();
+    match session_cookie {
+        None => message = "Session ID not found",
+        Some(cookie) => {
+            let cookie_value = cookie.value().parse();
+            match cookie_value {
+                Ok(cookie_str) => {
+                    has_cookie = true;
+                    session_id_str = cookie_str;
+                }
+                Err(_) => {}
+            };
+        }
+    }
+
+    if has_cookie {
+        let user_res = users
+            .filter(session_id.eq(session_id_str))
+            .select(User::as_select())
+            .load::<User>(connection);
+
+        match user_res{
+            Ok(user_vec) => {
+                message = "No matching user";
+                if user_vec.len() > 0 {
+                    match sell_orders
+                        .filter(seller_id.eq(user_vec[0].user_id))
+                        .filter(offered_units.gt(claimed_units))
+                        .select(SellOrder::as_select())
+                        .load::<SellOrder>(connection)
+                    {
+                        Ok(order_vec) => {
+                            message = "No open buy orders";
+                            if order_vec.len() > 0 {
+                                message = "Successfully retrieved open buy orders";
+                                for order in order_vec {
+                                    data.push(OpenSell{
+                                        order_id: order.sell_order_id,
+                                        offered_units: order.offered_units,
+                                        claimed_units: order.claimed_units,
+                                        price: order.price,
+                                    })
+                                }
+                            }
+                        }
+                        Err(_) => {}
+                    }
+                }
+            }
+            Err(_) => {}
+        }
+    }
+
+    json!({"status": "ok", "message": message, "data": data})
 }
 
 #[derive(Serialize, Deserialize)]

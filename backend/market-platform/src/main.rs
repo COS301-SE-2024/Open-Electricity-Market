@@ -65,7 +65,7 @@ fn establish_connection() -> PgConnection {
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct OpenBuy{
+struct OpenBuy {
     order_id: i64,
     sought_units: f64,
     filled_units: f64,
@@ -74,8 +74,8 @@ struct OpenBuy{
 
 #[post("/list_open_buys")]
 async fn list_open_buys(cookie_jar: &CookieJar<'_>) -> Value {
-    use self::schema::open_em::users::dsl::*;
     use self::schema::open_em::buy_orders::dsl::*;
+    use self::schema::open_em::users::dsl::*;
 
     let connection = &mut establish_connection();
 
@@ -114,13 +114,14 @@ async fn list_open_buys(cookie_jar: &CookieJar<'_>) -> Value {
                         .filter(buyer_id.eq(user_vec[0].user_id))
                         .filter(sought_units.gt(filled_units))
                         .select(BuyOrder::as_select())
-                        .load::<BuyOrder>(connection) {
+                        .load::<BuyOrder>(connection)
+                    {
                         Ok(order_vec) => {
                             message = "No open buy orders";
                             if order_vec.len() > 0 {
                                 message = "Successfully retrieved open buy orders";
                                 for order in order_vec {
-                                    data.push(OpenBuy{
+                                    data.push(OpenBuy {
                                         order_id: order.buy_order_id,
                                         sought_units: order.sought_units,
                                         filled_units: order.filled_units,
@@ -142,7 +143,7 @@ async fn list_open_buys(cookie_jar: &CookieJar<'_>) -> Value {
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct OpenSell{
+struct OpenSell {
     order_id: i64,
     offered_units: f64,
     claimed_units: f64,
@@ -151,8 +152,8 @@ struct OpenSell{
 
 #[post("/list_open_sells")]
 async fn list_open_sells(cookie_jar: &CookieJar<'_>) -> Value {
-    use self::schema::open_em::users::dsl::*;
     use self::schema::open_em::sell_orders::dsl::*;
+    use self::schema::open_em::users::dsl::*;
 
     let connection = &mut establish_connection();
 
@@ -183,7 +184,7 @@ async fn list_open_sells(cookie_jar: &CookieJar<'_>) -> Value {
             .select(User::as_select())
             .load::<User>(connection);
 
-        match user_res{
+        match user_res {
             Ok(user_vec) => {
                 message = "No matching user";
                 if user_vec.len() > 0 {
@@ -198,7 +199,7 @@ async fn list_open_sells(cookie_jar: &CookieJar<'_>) -> Value {
                             if order_vec.len() > 0 {
                                 message = "Successfully retrieved open buy orders";
                                 for order in order_vec {
-                                    data.push(OpenSell{
+                                    data.push(OpenSell {
                                         order_id: order.sell_order_id,
                                         offered_units: order.offered_units,
                                         claimed_units: order.claimed_units,

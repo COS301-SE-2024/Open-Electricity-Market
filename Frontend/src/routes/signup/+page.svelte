@@ -39,9 +39,9 @@
         const json = await res.json();
         if(json.status == "ok")
         {
-          goto("/");
+          goto("/Main/Dashboard");
           console.log("This is the message from the endpoint", json); 
-          Cookies.set('session_id', '', { expires: 1 });
+          Cookies.set('session_id', json.data.session_id);
         }
         else
         {

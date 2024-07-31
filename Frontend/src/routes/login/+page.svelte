@@ -34,9 +34,13 @@
       })
       const json = await res.json()
       //result = JSON.stringify(json)
+      console.log(json);
       if(json.message == "User logged in")
       {
+
         goto("/Main/Dashboard");
+        Cookies.set('session_id', json.data.session_id);
+        
       }
       else{
         errormessage = "Invalid Credentials";
@@ -57,7 +61,10 @@
           <div class="card shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
             <form class="card-body">
               <h2 class="text-base font-semibold"> Log in to your account </h2>
-
+              
+              <div class="form-control mt-1">
+                <input type="email" placeholder="Email" class="input input-bordered" required bind:value={email}/>
+              </div>
 
               <div class="form-control mt-4">
                 <input type="password" placeholder="Password" class="input input-bordered" required bind:value={password}/>

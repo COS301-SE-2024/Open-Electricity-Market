@@ -1,42 +1,43 @@
 <script>
-    import "../../app.css";
-    import { page } from '$app/stores';
-    import { derived } from "svelte/store";
-    import Cookies from 'js-cookie';
-    import { onMount } from "svelte";
+  import "../../app.css";
+  import { page } from '$app/stores';
+  import { derived } from "svelte/store";
+  import Cookies from 'js-cookie';
+  import { onMount } from "svelte";
 
-    let loggedIn = false; 
+  let loggedIn = false; 
 
-    let activebutton = '';
+  let activebutton = '';
 
-    const currentpath = derived(page, $page => $page.url.pathname);
+  const currentpath = derived(page, $page => $page.url.pathname);
 
-    $: activebutton = $currentpath;
+  $: activebutton = $currentpath;
 
-    function showModal(){
-        if(activebutton=="/Main/GridSimulation"){
-            document.getElementById("my_modal_grid").showModal(); 
-        }
-        else if (activebutton=="/Main/Dashboard"){
-            document.getElementById("my_modal_dash").showModal();
-        }
-        else if(activebutton=="/Main/BiddingMarket"){
-            document.getElementById("help_modal").showModal();
-        }
-
+  function showModal(){
+    if(activebutton=="/Main/GridSimulation"){
+        document.getElementById("my_modal_grid").showModal(); 
+    }
+    else if (activebutton=="/Main/Dashboard"){
+        document.getElementById("my_modal_dash").showModal();
+    }
+    else if(activebutton=="/Main/BiddingMarket"){
+        document.getElementById("help_modal").showModal();
     }
 
-    onMount(() => {
-        const session = Cookies.get('session_id');
-        console.log("Session id is: ", session);
-        if(session){
-          loggedIn = true; 
-        }
-        else{
-          loggedIn = false; 
-        }
-       // loggedIn = session === 'loggedIn';
-    });
+  }
+
+  onMount(() => {
+    const session = Cookies.get('session_id');
+    console.log("Session id is: ", session);
+    if(session){
+      loggedIn = true; 
+    }
+    else{
+      loggedIn = false; 
+      window.location.href = '/login';
+    }
+    // loggedIn = session === 'loggedIn';
+  });
 
   </script>
   
@@ -126,7 +127,7 @@
     <slot />
   {:else}
     <script>
-        window.location.href = '/login';
+        // 
     </script>
   {/if} 
 </main>

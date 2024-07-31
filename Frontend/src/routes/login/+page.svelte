@@ -1,6 +1,7 @@
 <script>
     import logo from '$lib/assets/Logo.png';
     import {goto} from "$app/navigation";
+    import Cookies from 'js-cookie'
     let email = '';
     let password = '';
     let errormessage = "";
@@ -37,10 +38,8 @@
       console.log(json);
       if(json.message == "User logged in")
       {
-
+        Cookies.set('session_id', json.data.session_id, {path: '/'});
         goto("/Main/Dashboard");
-        Cookies.set('session_id', json.data.session_id);
-        
       }
       else{
         errormessage = "Invalid Credentials";

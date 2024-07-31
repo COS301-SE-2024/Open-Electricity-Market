@@ -4,7 +4,7 @@ import Chart from "$lib/Components/Chart.svelte";
 let price = 0;
 let units = 0;
 
-let test_node_id = "002427a4-37f1-4737-a025-636ec872a9b2";
+let test_node_id = sessionStorage.getItem("node_id");
 
 async function place_buy_order() {
   let data = {
@@ -12,18 +12,6 @@ async function place_buy_order() {
     "price": price,
     "units": units
   }
-
-  // var xhttp = new XMLHttpRequest();
-  // xhttp.onreadystatechange = function() {
-  //   if (this.readyState === 4 && this.status === 200) {
-  //     // Typical action to be performed when the document is ready:
-  //     let data = JSON.stringify(this.response);
-  //     console.log(data)
-  //   }
-  // };
-  // xhttp.open("POST","http://localhost:8001/buy_order",true)
-  // xhttp.setRequestHeader("Content-type","application/json")
-  // xhttp.send(JSON.stringify(data))
 
   const response = await fetch("http://localhost:8001/buy_order", {
     method: "POST",
@@ -38,6 +26,25 @@ async function place_buy_order() {
 
 }
 
+async function place_sell_order() {
+  let data = {
+    "node_id": test_node_id,
+    "price": price,
+    "units": units
+  }
+
+  const response = await fetch("http://localhost:8001/sell_order", {
+    method: "POST",
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body : JSON.stringify(data),
+    credentials: 'include'
+  });
+
+  console.log(await response.json())
+
+}
 
 
 
@@ -82,7 +89,7 @@ async function place_buy_order() {
                 <p class="py-4">Please confirm your sell order for {units} units at R {price} </p>
                 <div class="modal-action">
                   <form method="dialog">
-                    <button class="btn">Continue</button>
+                    <button class="btn" on:click={place_sell_order}>Continue</button>
                     <button class="btn">Cancel</button>
                   </form>
                 </div>

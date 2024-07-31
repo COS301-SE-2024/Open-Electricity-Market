@@ -7,6 +7,7 @@
   let interval; 
   let advancedView = false; 
   let numDecimals = 2; 
+  $: nodes = [1,2,3,4,5,6];
 
   onMount(async () => {
     await fetchStart();
@@ -64,9 +65,9 @@
 
 </script>
 
-<main class="container mx-auto w-full flex">
+<main class="container mx-auto w-full flex justify-center">
 
-  <div class="max-w-min">
+  <div class="max-w-min mx-20">
     <div class="stats stats-vertical shadow"> 
       <div class="stat">
         <div class="stat-title">Available Credit</div>
@@ -81,40 +82,46 @@
     </div>
   </div>
 
-  <div class="w-96 min-h-fit ">
-    <div class="card bg-neutral w-60 m-2">
-    <figure class="px-10 pt-10">
-      <img
-        src="../src/images/add-node.png"
-        alt="Shoes"
-        class="rounded-xl" />
-    </figure>
-    <div class="card-body items-center text-center">
-      <!-- <h2 class="card-title">New Node</h2> -->
-        <div class="card-actions items-center text-center">
-          <button class="btn btn-primary text-lg" on:click={createModal}>Add a Node</button>
-        </div>
-      </div>
-    </div>
+  <div class="min-w-max min-h-fit mx-10">
 
-    <div class="card card-side w-full bg-base-300 shadow-x m-2">
-      <figure>
-        <img
-          src="https://img.daisyui.com/images/stock/photo-1635805737707-575885ab0820.webp"
-          alt="Movie" />
-      </figure>
-      <div class="card-body">
-        <h2 class="card-title">Node 1</h2>
-        <p>Current consumption: ...<br/>
-        Other stats: ...
-        </p>
-        <div class="card-actions justify-end">
-          <button class="btn btn-primary">Transact</button>
+    <span class="text-3xl pt-8">Your Nodes</span> <br>
+    {#each nodes as node}
+      <div class="card card-side min-w-full bg-base-300 my-2">
+        <figure class="w-2/5 p-10">
+          <img
+            src="../src/images/house.png"
+            alt="House node" />
+        </figure>
+        <div class="card-body">
+          <h2 class="card-title">Node {node}</h2>
+          <p>Current consumption: ...<br/>
+          Other stats: ...
+          </p>
+          <div class="card-actions justify-end">
+            <button class="btn btn-primary">Transact</button>
+          </div>
         </div>
       </div>
-    </div>
+      
+    {/each}
+
+    <button class="btn btn-primary text-lg" on:click={createModal}>Add a Node</button>
 
     
+  </div>
+  <div class="max-w-min mx-10">
+    <div class="stats stats-vertical shadow"> 
+      <div class="stat">
+        <div class="stat-title">Available Credit</div>
+        <div class="stat-value">R31,000</div>
+      </div>
+    
+      <div class="stat">
+        <div class="stat-title">Pending Transactions</div>
+        <div class="stat-value">5</div>
+        
+      </div>
+    </div>
   </div>
 
 </main>

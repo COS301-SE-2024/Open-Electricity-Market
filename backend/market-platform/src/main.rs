@@ -4,8 +4,8 @@ extern crate deadqueue;
 extern crate reqwest;
 
 use crate::models::{
-    BuyOrder, NewBuyOrder, NewBuyOrderModel, NewNodeModel, NewProfileModel, NewSellOrderModel,
-    NewUserModel, Node, Profile, SellOrder, Transaction, User,
+    BuyOrder, NewBuyOrder, NewNodeModel, NewProfileModel, NewSellOrder, NewUserModel, Node,
+    Profile, SellOrder, Transaction, User,
 };
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
@@ -322,7 +322,9 @@ async fn sell_order(
     sell_order_request: Json<SellOrderRequest>,
     cookie_jar: &CookieJar<'_>,
 ) -> Value {
-    use self::schema::open_em::sell_orders;
+    use self::schema::open_em::nodes::dsl::*;
+    use self::schema::open_em::sell_orders::dsl::*;
+    use self::schema::open_em::users::dsl::*;
 
     let connection = &mut establish_connection();
 
@@ -335,12 +337,61 @@ async fn sell_order(
     match session_cookie {
         None => message = "Session ID not found",
         Some(cookie) => {
-            has_cookie = true;
-            session_id_str = cookie.value().parse().unwrap();
+            let cookie_value = cookie.value().parse();
+            match cookie_value {
+                Ok(cookie_str) => {
+                    has_cookie = true;
+                    session_id_str = cookie_str;
+                }
+                Err(_) => {}
+            };
         }
     }
 
-    if has_cookie {}
+    if has_cookie {
+        let user_res = users
+            .filter(session_id.eq(session_id_str))
+            .select(User::as_select())
+            .load::<User>(connection);
+
+        match user_res {
+            Ok(user_vec) => {
+                message = "No matching user";
+                if user_vec.len() > 0 {
+                    message = "No matching node";
+                    let node_res = nodes
+                        .filter(node_owner.eq(user_vec[0].user_id))
+                        .select(Node::as_select())
+                        .load::<Node>(connection);
+                    match node_res {
+                        Ok(node_vec) => {
+                            if node_vec.len() > 0 {
+                                let new_sell_order = NewSellOrder {
+                                    seller_id: user_vec[0].user_id,
+                                    offered_units: sell_order_request.units,
+                                    price: sell_order_request.price,
+                                    producer_id: node_vec[0].node_id,
+                                };
+                                message = "Failed to add new sell order";
+                                match diesel::insert_into(sell_orders)
+                                    .values(new_sell_order)
+                                    .returning(SellOrder::as_returning())
+                                    .get_result(connection)
+                                {
+                                    Ok(order) => {
+                                        message = "Sell order created successfully";
+                                    }
+                                    Err(_) => {}
+                                }
+                            }
+                        }
+                        Err(_) => {}
+                    }
+                }
+            }
+            Err(_) => {}
+        }
+    }
 
     json!({"status": "ok", "message": message})
 }
@@ -825,15 +876,15 @@ async fn login(credentials: Json<Credentials<'_>>, jar: &CookieJar<'_>) -> Value
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct NewUser<'r> {
-    email: &'r str,
-    first_name: &'r str,
-    last_name: &'r str,
-    password: &'r str,
+struct NewUserReq {
+    email: String,
+    first_name: String,
+    last_name: String,
+    password: String,
 }
 
 #[post("/register", format = "application/json", data = "<new_user>")]
-async fn register(new_user: Json<NewUser<'_>>, jar: &CookieJar<'_>) -> Value {
+async fn register(new_user: Json<NewUserReq>, jar: &CookieJar<'_>) -> Value {
     use self::schema::open_em::profiles;
     use self::schema::open_em::users;
     use self::schema::open_em::users::dsl::*;
@@ -841,46 +892,59 @@ async fn register(new_user: Json<NewUser<'_>>, jar: &CookieJar<'_>) -> Value {
     let mut message = "Something went wrong";
 
     let connection = &mut establish_connection();
-    let binding = bcrypt::hash(new_user.password).unwrap();
-    let h = binding.as_str();
+
+    let binding = bcrypt::hash(new_user.password.clone()).unwrap();
 
     let new_user_insert = NewUserModel {
-        email: new_user.email,
-        pass_hash: h,
+        email: new_user.email.clone(),
+        pass_hash: binding,
     };
 
-    let new_user_ret = diesel::insert_into(users::table)
+    let mut ret_session_id = "".to_string();
+
+    message = "Failed to create new user";
+    match diesel::insert_into(users::table)
         .values(&new_user_insert)
         .returning(User::as_returning())
         .get_result::<User>(connection)
-        .expect("Error adding new user");
-
-    let binding_2 =
-        bcrypt::hash(new_user_ret.user_id.to_string() + &*new_user_ret.created_at.to_string())
-            .unwrap();
-    let binding_3 = binding_2.clone();
-    let ret_session_id = binding_2.clone();
-
-    diesel::update(users)
-        .filter(user_id.eq(new_user_ret.user_id))
-        .set(session_id.eq(binding_3))
-        .execute(connection)
-        .expect("Error making session id");
-
-    jar.add(Cookie::build(("session_id", binding_2)).path("/"));
-
-    let new_profile_insert = NewProfileModel {
-        profile_user_id: &new_user_ret.user_id,
-        first_name: new_user.first_name,
-        last_name: new_user.last_name,
-    };
-
-    diesel::insert_into(profiles::table)
-        .values(&new_profile_insert)
-        .execute(connection)
-        .expect("Error adding new profile");
-
-    message = "New user added";
+    {
+        Ok(user) => {
+            message = "Failed to update Session ID";
+            let binding_2 =
+                bcrypt::hash(user.user_id.to_string() + &*user.created_at.to_string()).unwrap();
+            match diesel::update(users)
+                .filter(user_id.eq(user.user_id))
+                .set(session_id.eq(binding_2))
+                .returning(User::as_returning())
+                .get_result(connection)
+            {
+                Ok(user_up) => {
+                    message = "Failed to add user profile";
+                    let new_profile_insert = NewProfileModel {
+                        profile_user_id: user.user_id,
+                        first_name: new_user.first_name.clone(),
+                        last_name: new_user.last_name.clone(),
+                    };
+                    match diesel::insert_into(profiles::table)
+                        .values(&new_profile_insert)
+                        .execute(connection)
+                    {
+                        Ok(_) => {
+                            message = "New user added";
+                            ret_session_id = user_up.session_id.clone().unwrap();
+                            jar.add(
+                                Cookie::build(("session_id", user_up.session_id.unwrap()))
+                                    .path("/"),
+                            );
+                        }
+                        Err(_) => {}
+                    }
+                }
+                Err(_) => {}
+            }
+        }
+        Err(_) => {}
+    }
 
     json!({ "status": "ok", "message": message, "data": {"session_id": ret_session_id}})
 }

@@ -4,7 +4,8 @@ extern crate deadqueue;
 extern crate reqwest;
 
 use crate::models::{
-    NewBuyOrderModel, NewProfileModel, NewSellOrderModel, NewUserModel, SellOrder, User,
+    NewBuyOrderModel, NewNodeModel, NewProfileModel, NewSellOrderModel, NewUserModel, Node,
+    Profile, SellOrder, Transaction, User,
 };
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
@@ -154,19 +155,6 @@ fn establish_connection() -> PgConnection {
 //     json!({"status": "ok", "advertisements": advertisements_ret})
 // }
 
-// #[post("/priceview")]
-// async fn priceview() -> Value {
-//     use self::schema::open_em::advertisements::dsl::*;
-//
-//     let price_avg = advertisements
-//         .filter(offered_units.gt(0.0))
-//         .select(diesel::dsl::sql::<diesel::sql_types::Double>("AVG(price)"))
-//         .load::<f64>(&mut establish_connection())
-//         .expect("Error loading average price");
-//
-//     json!({"status":"ok", "price": price_avg[0]})
-// }
-
 // #[derive(Serialize, Deserialize)]
 // #[serde(crate = "rocket::serde")]
 // struct Offer<'r> {
@@ -216,6 +204,425 @@ fn establish_connection() -> PgConnection {
 //
 //     json!({"status": "ok", "purchase": purchase})
 // }
+
+#[post("/list_open_buys")]
+async fn list_open_buys(cookie_jar: &CookieJar<'_>) -> Value {
+    let mut message = "stub";
+
+    json!({"status": "ok", "message": message})
+}
+
+#[post("/list_open_sells")]
+async fn list_open_sells(cookie_jar: &CookieJar<'_>) -> Value {
+    let mut message = "stub";
+
+    json!({"status": "ok", "message": message})
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct BuyOrderRequest {
+    node_id: String,
+    price: f64,
+    units: f64,
+}
+
+#[post(
+    "/buy_order",
+    format = "application/json",
+    data = "<buy_order_request>"
+)]
+async fn buy_order(buy_order_request: Json<BuyOrderRequest>, cookie_jar: &CookieJar<'_>) -> Value {
+    let connection = &mut establish_connection();
+
+    let mut message = "Something went wrong";
+
+    let session_cookie = cookie_jar.get("session_id");
+
+    let mut has_cookie = false;
+    let mut session_id_str: String = "".to_string();
+    match session_cookie {
+        None => message = "Session ID not found",
+        Some(cookie) => {
+            has_cookie = true;
+            session_id_str = cookie.value().parse().unwrap();
+        }
+    }
+
+    if has_cookie {}
+
+    json!({"status": "ok", "message": message})
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct SellOrderRequest {
+    node_id: String,
+    price: f64,
+    units: f64,
+}
+
+#[post(
+    "/sell_order",
+    format = "application/json",
+    data = "<sell_order_request>"
+)]
+async fn sell_order(
+    sell_order_request: Json<SellOrderRequest>,
+    cookie_jar: &CookieJar<'_>,
+) -> Value {
+    let connection = &mut establish_connection();
+
+    let mut message = "Something went wrong";
+
+    let session_cookie = cookie_jar.get("session_id");
+
+    let mut has_cookie = false;
+    let mut session_id_str: String = "".to_string();
+    match session_cookie {
+        None => message = "Session ID not found",
+        Some(cookie) => {
+            has_cookie = true;
+            session_id_str = cookie.value().parse().unwrap();
+        }
+    }
+
+    if has_cookie {}
+
+    json!({"status": "ok", "message": message})
+}
+
+#[post("/remove_account")]
+async fn remove_account(cookie_jar: &CookieJar<'_>) -> Value {
+    use self::schema::open_em::users::dsl::*;
+
+    let connection = &mut establish_connection();
+
+    let mut message = "Something went wrong";
+
+    let session_cookie = cookie_jar.get("session_id");
+
+    let mut has_cookie = false;
+    let mut session_id_str: String = "".to_string();
+    match session_cookie {
+        None => {}
+        Some(cookie) => {
+            has_cookie = true;
+            session_id_str = cookie.value().parse().unwrap();
+        }
+    }
+
+    if has_cookie {
+        diesel::update(users)
+            .filter(session_id.eq(session_id_str))
+            .set(active.eq(false))
+            .execute(connection)
+            .expect("Error making session id");
+
+        message = "Account successfully deleted";
+    }
+
+    json!({"status": "ok", "message": message})
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct Price {
+    price: f64,
+}
+
+#[post("/price_view")]
+async fn price_view() -> Value {
+    use self::schema::open_em::transactions::dsl::*;
+
+    let connection = &mut establish_connection();
+
+    let mut message = "Something went wrong";
+    let mut data = Price { price: 0f64 };
+
+    let transactions_res = transactions
+        .filter(transaction_active.eq(true))
+        .order_by(created_at.desc())
+        .select(Transaction::as_select())
+        .load::<Transaction>(connection);
+
+    match transactions_res {
+        Ok(transactions_vec) => {
+            if transactions_vec.len() > 0 {
+                message = "Successfully retrieved price";
+                data = Price {
+                    price: transactions_vec[0].transacted_price,
+                };
+            }
+        }
+        Err(_) => {}
+    }
+
+    json!({"status": "ok", "message":message, "data": data})
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct UserDetails {
+    email: String,
+    credit: f64,
+    first_name: String,
+    last_name: String,
+}
+
+#[post("/user_details")]
+async fn user_details(cookie_jar: &CookieJar<'_>) -> Value {
+    use self::schema::open_em::profiles::dsl::*;
+    use self::schema::open_em::users::dsl::*;
+
+    let connection = &mut establish_connection();
+
+    let mut message = "Something went wrong";
+
+    let session_cookie = cookie_jar.get("session_id");
+
+    let mut has_cookie = false;
+    let mut session_id_str: String = "".to_string();
+    match session_cookie {
+        None => {}
+        Some(cookie) => {
+            has_cookie = true;
+            session_id_str = cookie.value().parse().unwrap();
+        }
+    }
+
+    let mut data = UserDetails {
+        email: "".to_string(),
+        credit: 0.0,
+        first_name: "".to_string(),
+        last_name: "".to_string(),
+    };
+
+    if has_cookie {
+        let user_ret = users
+            .filter(session_id.eq(session_id_str))
+            .select(User::as_select())
+            .load::<User>(connection)
+            .expect("User does not exist");
+
+        let temp_user_id = user_ret[0].user_id.clone();
+        let user_email = user_ret[0].email.clone();
+
+        let profile_ret = profiles
+            .filter(profile_user_id.eq(temp_user_id))
+            .select(Profile::as_select())
+            .load::<Profile>(connection)
+            .expect("Could not find profile");
+
+        let user_first_name = profile_ret[0].first_name.clone();
+        let user_last_name = profile_ret[0].last_name.clone();
+
+        data = UserDetails {
+            email: user_email,
+            credit: user_ret[0].credit,
+            first_name: user_first_name,
+            last_name: user_last_name,
+        };
+
+        message = "User details successfully retrieved"
+    }
+
+    json!({"status": "ok", "message": message, "data": data})
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct NodeDetails {
+    node_id: String,
+    name: String,
+    location_x: f64,
+    location_y: f64,
+    units_to_produce: f64,
+    units_to_consume: f64,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct NodeDetailsReq {
+    node_id: String,
+}
+
+#[post(
+    "/node_details",
+    format = "application/json",
+    data = "<node_details_req>"
+)]
+async fn node_details(node_details_req: Json<NodeDetailsReq>, cookie_jar: &CookieJar<'_>) -> Value {
+    use self::schema::open_em::nodes::dsl::*;
+    use self::schema::open_em::users::dsl::*;
+
+    let connection = &mut establish_connection();
+
+    let mut message = "Something went wrong";
+
+    let session_cookie = cookie_jar.get("session_id");
+
+    let mut has_cookie = false;
+    let mut session_id_str: String = "".to_string();
+    match session_cookie {
+        None => {}
+        Some(cookie) => {
+            has_cookie = true;
+            session_id_str = cookie.value().parse().unwrap();
+        }
+    }
+
+    let mut data = NodeDetails {
+        node_id: "".to_string(),
+        name: "".to_string(),
+        location_x: 0.0,
+        location_y: 0.0,
+        units_to_produce: 0.0,
+        units_to_consume: 0.0,
+    };
+
+    if has_cookie {
+        let user_vec = users
+            .filter(session_id.eq(session_id_str))
+            .select(User::as_select())
+            .load::<User>(connection)
+            .expect("User does not exist");
+
+        let node_vec = nodes
+            .filter(node_id.eq(Uuid::parse_str(&*node_details_req.node_id).unwrap()))
+            .filter(node_owner.eq(user_vec[0].user_id))
+            .select(Node::as_select())
+            .load::<Node>(connection)
+            .expect("Couldn't find node");
+
+        data.node_id = String::from(node_vec[0].node_id);
+        data.name = node_vec[0].name.clone();
+        data.location_x = node_vec[0].location_x;
+        data.location_y = node_vec[0].location_y;
+        data.units_to_produce = node_vec[0].units_generated;
+        data.units_to_consume = node_vec[0].units_consumed;
+
+        message = "Node details retrieved succesfully"
+    }
+
+    json!({"status": "ok", "message": message, "data": data})
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct GetNodesReq {
+    limit: i64,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct ShortNodeRet {
+    node_id: String,
+    name: String,
+}
+
+#[post("/get_nodes", format = "application/json", data = "<get_nodes_req>")]
+async fn get_nodes(get_nodes_req: Json<GetNodesReq>, cookie_jar: &CookieJar<'_>) -> Value {
+    use self::schema::open_em::nodes::dsl::*;
+    use self::schema::open_em::users::dsl::*;
+
+    let connection = &mut establish_connection();
+
+    let mut message = "Something went wrong";
+
+    let session_cookie = cookie_jar.get("session_id");
+
+    let mut has_cookie = false;
+    let mut session_id_str: String = "".to_string();
+    match session_cookie {
+        None => {}
+        Some(cookie) => {
+            has_cookie = true;
+            session_id_str = cookie.value().parse().unwrap();
+        }
+    }
+
+    let mut node_list: Vec<ShortNodeRet> = vec![];
+
+    if has_cookie {
+        let user_ret = users
+            .filter(session_id.eq(session_id_str))
+            .select(User::as_select())
+            .load::<User>(connection)
+            .expect("User does not exist");
+
+        let nodes_vec = nodes
+            .filter(node_owner.eq(user_ret[0].user_id))
+            .select(Node::as_select())
+            .limit(get_nodes_req.limit)
+            .load::<Node>(connection)
+            .expect("Could not get nodes");
+
+        for node in nodes_vec {
+            node_list.push(ShortNodeRet {
+                node_id: node.node_id.to_string(),
+                name: node.name,
+            })
+        }
+        message = "List of nodes successfully retrieved"
+    }
+
+    json!({"status": "ok", "message": message, "data": node_list})
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct AddNodeReq<'r> {
+    name: &'r str,
+    location_x: f64,
+    location_y: f64,
+}
+
+#[post("/add_node", format = "application/json", data = "<add_node_req>")]
+async fn add_node(add_node_req: Json<AddNodeReq<'_>>, cookie_jar: &CookieJar<'_>) -> Value {
+    use self::schema::open_em::nodes;
+    use self::schema::open_em::users::dsl::*;
+
+    let connection = &mut establish_connection();
+
+    let mut message = "Something went wrong";
+
+    let session_cookie = cookie_jar.get("session_id");
+
+    let mut has_cookie = false;
+    let mut session_id_str: String = "".to_string();
+    match session_cookie {
+        None => {}
+        Some(cookie) => {
+            has_cookie = true;
+            session_id_str = cookie.value().parse().unwrap();
+        }
+    }
+
+    if has_cookie {
+        let user = users
+            .filter(session_id.eq(session_id_str))
+            .select(User::as_select())
+            .load::<User>(connection)
+            .expect("User does not exist");
+
+        let new_node_insert = NewNodeModel {
+            node_owner: user[0].user_id,
+            location_x: add_node_req.location_x,
+            location_y: add_node_req.location_y,
+            name: add_node_req.name,
+        };
+
+        diesel::insert_into(nodes::table)
+            .values(&new_node_insert)
+            .execute(connection)
+            .expect("Node Add Failed");
+
+        message = "New Node Added"
+    }
+
+    json!({"status": "ok", "message": message})
+}
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
@@ -273,8 +680,6 @@ async fn remove_funds(remove_funds_req: Json<RemoveFundsReq>, jar: &CookieJar<'_
 
     let connection = &mut establish_connection();
 
-    let mut removed_funds = false;
-
     let mut message = "Something went wrong";
 
     let session_cookie = jar.get("session_id");
@@ -324,28 +729,45 @@ async fn login(credentials: Json<Credentials<'_>>, jar: &CookieJar<'_>) -> Value
 
     let mut message = "Something went wrong";
 
-    let user = users
+    let mut ret_session_id = "".to_string();
+
+    let user_result = users
         .filter(email.eq(credentials.email))
         .select(User::as_select())
-        .load::<User>(connection)
-        .expect("Error loading users");
+        .load::<User>(connection);
 
-    let verify = bcrypt::verify(credentials.password, &*user[0].pass_hash);
-
-    if verify {
-        let h =
-            bcrypt::hash(user[0].user_id.to_string() + &*chrono::Utc::now().to_string()).unwrap();
-        let h2 = h.clone();
-        diesel::update(users)
-            .filter(email.eq(credentials.email))
-            .set(session_id.eq(h2))
-            .execute(connection)
-            .expect("Couldn't update session id");
-        jar.add(("session_id", h));
-        message = "User logged in"
+    match user_result {
+        Ok(user) => {
+            message = "User does not exist";
+            if user.len() > 0 {
+                let verify = bcrypt::verify(credentials.password, &*user[0].pass_hash);
+                if verify {
+                    let h = bcrypt::hash(
+                        user[0].user_id.to_string() + &*chrono::Utc::now().to_string(),
+                    )
+                    .unwrap();
+                    let h2 = h.clone();
+                    let h3 = h.clone();
+                    match diesel::update(users)
+                        .filter(email.eq(credentials.email))
+                        .set(session_id.eq(h2))
+                        .execute(connection)
+                    {
+                        Ok(_) => {
+                            message = "User logged in";
+                            ret_session_id = h3;
+                            jar.add(Cookie::build(("session_id", h)).path("/"));
+                        }
+                        Err(_) => message = "Failed to update session id",
+                    };
+                }
+                message = "Invalid password"
+            }
+        }
+        Err(_) => {}
     }
 
-    json!({ "status": "ok", "message": message })
+    json!({ "status": "ok", "message": message, "data": { "session_id": ret_session_id}})
 }
 
 #[derive(Serialize, Deserialize)]
@@ -384,6 +806,7 @@ async fn register(new_user: Json<NewUser<'_>>, jar: &CookieJar<'_>) -> Value {
         bcrypt::hash(new_user_ret.user_id.to_string() + &*new_user_ret.created_at.to_string())
             .unwrap();
     let binding_3 = binding_2.clone();
+    let ret_session_id = binding_2.clone();
 
     diesel::update(users)
         .filter(user_id.eq(new_user_ret.user_id))
@@ -391,10 +814,10 @@ async fn register(new_user: Json<NewUser<'_>>, jar: &CookieJar<'_>) -> Value {
         .execute(connection)
         .expect("Error making session id");
 
-    jar.add(("session_id", binding_2));
+    jar.add(Cookie::build(("session_id", binding_2)).path("/"));
 
     let new_profile_insert = NewProfileModel {
-        user_id: &new_user_ret.user_id,
+        profile_user_id: &new_user_ret.user_id,
         first_name: new_user.first_name,
         last_name: new_user.last_name,
     };
@@ -406,7 +829,7 @@ async fn register(new_user: Json<NewUser<'_>>, jar: &CookieJar<'_>) -> Value {
 
     message = "New user added";
 
-    json!({ "status": "ok", "message": message })
+    json!({ "status": "ok", "message": message, "data": {"session_id": ret_session_id}})
 }
 
 #[launch]
@@ -417,11 +840,18 @@ fn rocket() -> _ {
             routes![
                 register,
                 login,
-                //sell_order,
-                // buy_order,
-                // priceview,
                 add_funds,
-                remove_funds
+                remove_funds,
+                add_node,
+                get_nodes,
+                user_details,
+                node_details,
+                price_view,
+                remove_account,
+                sell_order,
+                buy_order,
+                list_open_sells,
+                list_open_buys,
             ],
         )
         .configure(rocket::Config::figment().merge(("port", 8001)))

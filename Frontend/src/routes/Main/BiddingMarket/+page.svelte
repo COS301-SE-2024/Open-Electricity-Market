@@ -1,10 +1,48 @@
 <script>
 import Chart from "$lib/Components/Chart.svelte";
+import {onMount} from "svelte";
 
 let price = 0;
 let units = 0;
 
+let data = {};
 
+
+onMount(async () => {
+  fetchData();
+  let interval = setInterval(fetchData, 1000);
+
+  //return function runs when the component is unmounted
+  return() => {
+    clearInterval(interval);
+
+  };
+
+  async function fetchData() {
+
+    try {
+      const response = await fetch("http://localhost:8001/price_view", {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json'
+        }
+
+      });
+
+
+      // const response = fetch("http://localhost:8000");
+      const fdata = await response.json();
+
+      data = fdata.data
+      console.log(data)
+
+    } catch (error) {
+      console.log("There was an error fetching the JSON for the overview..", error);
+    }
+  }
+
+
+});
 
 
 </script>
@@ -13,7 +51,7 @@ let units = 0;
   <div class="flex flex-row">
     <div class="basis-2/3 border-2 mr-5">
       <h1 class="text-5xl font-bold pt-8">Market</h1>
-      <Chart ></Chart>
+      <Chart {data}  ></Chart>
     </div>
     <div class="basis-1/3 border-2 p-2">
         <form>

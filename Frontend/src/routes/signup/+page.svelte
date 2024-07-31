@@ -41,7 +41,8 @@
       const json = await res.json();
       if(json.status == "ok")
       {
-        goto("/");
+        Cookies.set('session_id', json.data.session_id, {path: '/'});
+        goto("/Main/Dashboard");
       }
       else
       {

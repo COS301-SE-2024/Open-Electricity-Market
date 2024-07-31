@@ -10,7 +10,7 @@ let data = {};
 
 onMount(async () => {
   fetchData();
-  let interval = setInterval(fetchData, 1000);
+  let interval = setInterval(fetchData, 2000);
 
   //return function runs when the component is unmounted
   return() => {
@@ -49,11 +49,11 @@ onMount(async () => {
 
 <main class="container mx-auto p-4">
   <div class="flex flex-row">
-    <div class="basis-2/3 border-2 mr-5">
+    <div class="basis-2/3 border mr-5 p-4">
       <h1 class="text-5xl font-bold pt-8">Market</h1>
-      <Chart {data}  ></Chart>
+      <Chart {data} />
     </div>
-    <div class="basis-1/3 border-2 p-2">
+    <div class="basis-1/3 border p-4">
         <form>
           <div class="form-control mt-1">
             <label for="buy_price"> Price </label>
@@ -73,8 +73,8 @@ onMount(async () => {
                 <p class="py-4">Please confirm your buy order for {units} units at R {price} </p>
                 <div class="modal-action">
                   <form method="dialog">
-                    <button class="btn">Continue</button>
-                    <button class="btn">Cancel</button>
+                    <button class="btn bg-green-700">Continue</button>
+                    <button class="btn bg-red-600">Cancel</button>
                   </form>
                 </div>
               </div>
@@ -83,11 +83,11 @@ onMount(async () => {
             <dialog id="my_modal_2" class="modal">
               <div class="modal-box">
                 <h3 class="text-lg font-bold">Confirm Sell Order</h3>
-                <p class="py-4">Please confirm your sell order for {units} units at R {price} </p>
+                <p class="py-4">Please confirm your sell order for {units} units at R{price} </p>
                 <div class="modal-action">
                   <form method="dialog">
-                    <button class="btn">Continue</button>
-                    <button class="btn">Cancel</button>
+                    <button class="btn bg-green-700">Continue</button>
+                    <button class="btn bg-red-600">Cancel</button>
                   </form>
                 </div>
               </div>

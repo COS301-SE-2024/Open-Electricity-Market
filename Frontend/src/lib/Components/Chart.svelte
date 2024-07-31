@@ -12,45 +12,25 @@
     
     if (typeof window !== 'undefined') { // Check if running in the browser
       chart = createChart(chartCanvas, sampleChartConfig);
-      // fetchData(); 
-      updateChart();
-      // interval = setInterval(updateChart, 1000);
+      
+      
     }
 
     return () => {
       if (chart) {
         chart.destroy();
       }
-      // clearInterval(interval);
+     
     };
   });
 
   
 
-  // async function fetchData() {
-
-  //     try {
-  //       const response = await fetch("http://localhost:8000/overview", {
-  //     method: "POST", 
-  //     headers: {
-  //       'Content-Type': 'application/json' 
-  //     }
-
-  //   });
-  //       console.log("request being sent...");
-  //       // const response = fetch("http://localhost:8000");
-  //       const data = await response.json();
-  //       console.log(data);
-  //       //Voltage 1,2,3 as well as price
-  //       updateChart(data.Phase1, data.Phase2);
-  //     } catch (error) {
-  //       console.log("There was an error fetching the JSON for the chart..", error);
-  //     }
-  // };
+  
 
     $: if (chart && Object.keys(data).length) {
       console.log("Reactive if was triggered...");
-    updateChart();
+      updateChart();
   }
 
   //  $: if (chart ) {
@@ -61,6 +41,7 @@
 
     //this will have to check for price once endpoint changes *************
     if(chart && data){
+      console.log("This is data: ", data);
       console.log("UPDate chart is reactive on chart js.....");
       if (chart.data.datasets[0].data.length > 21) {
         chart.data.datasets[0].data.shift();

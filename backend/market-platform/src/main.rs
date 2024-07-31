@@ -50,7 +50,10 @@ impl Fairing for CORS {
             response.set_header(Header::new("Access-Control-Allow-Headers", "content-type"));
         }
 
-        response.set_header(Header::new("Access-Control-Allow-Origin", "http://localhost:5173"));
+        response.set_header(Header::new(
+            "Access-Control-Allow-Origin",
+            "http://localhost:5173",
+        ));
         response.set_header(Header::new("Access-Control-Allow-Credentials", "true"));
     }
 }

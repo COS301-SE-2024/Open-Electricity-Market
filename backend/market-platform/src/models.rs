@@ -88,3 +88,15 @@ pub struct NewNodeModel<'a> {
     pub location_y: f64,
     pub name: &'a str,
 }
+
+#[derive(Queryable, Selectable)]
+#[diesel(table_name = crate::schema::open_em::transactions)]
+pub struct Transaction {
+    pub transaction_id: i64,
+    pub sell_order_id: i64,
+    pub buy_order_id: i64,
+    pub transacted_units: f64,
+    pub transacted_price: f64,
+    pub transaction_active: bool,
+    pub created_at: DateTime<Utc>,
+}

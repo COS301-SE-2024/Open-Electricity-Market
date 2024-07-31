@@ -51,6 +51,8 @@ pub mod open_em {
             sell_order_id -> Int8,
             buy_order_id -> Int8,
             transacted_units -> Float8,
+            transacted_price -> Float8,
+            transaction_active -> Bool,
             created_at -> Timestamptz,
         }
     }

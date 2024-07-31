@@ -4,20 +4,14 @@
   
 
   let data = {};
-  let interval; 
-  let advancedView = false; 
-  let numDecimals = 2; 
-  $: nodes = [1,2,3,4,5,6];
+  let nodeName = '';
+  let nodeLongitude = '';
+  let nodeLatitude = '';
+  $: nodes = [1];
 
   onMount(async () => {
     await fetchStart();
-    await fetchData();
-    interval = setInterval(fetchData, 10000);
-
-    //return function runs when the component is unmounted 
-    return() => {
-      clearInterval(interval);
-    };
+    await fetchNodes();
   }); 
 
   async function fetchStart() {
@@ -28,29 +22,35 @@
         'Content-Type': 'application/json' 
       }
     });
-  }
-    catch(error){
-      console.log("There was an error sending a post to /start endpoint.");
+    } catch(error){
+      console.log("An error occurred sending a post to /start endpoint.");
     }
   };
- async function fetchData() {
 
+  async function fetchNodes() {
     try {
-      const response = await fetch("http://localhost:8000/overview", {
+      const response = await fetch("http://localhost:8001/get_node", {
         method: "POST", 
         headers: {
-          'Content-Type': 'application/json', 
-          'Accept': 'application/json',
-        }
+          'Content-Type': 'application/json',
+          // there's a chance it complains at you if you do this: 
+          // 'Accept': 'application/json',
+        },
+        credentials: "include", 
+        body: JSON.stringify({
+          limit: 10
+        })
       });
       // console.log("request being sent...");
       // console.log(response);
+      
       const fdata = await response.json();
+      
+      data = fdata.data; 
       console.log(data);
-      //Voltage 1,2,3 as well as price
-      data = fdata; 
+      // should be a list of the nodes from the currently signed in user - waiting for a bug fix for the CORS headers from backend
     } catch (error) {
-      console.log("There was an error fetching the JSON for the overview..", error);
+      console.log("An error occurred while fetching nodes..\n", error);
     }
   };
 
@@ -58,8 +58,33 @@
     document.getElementById("newNodeModal").showModal();
   }
 
-  function createNode() {
-    // if all fields filled in
+  async function createNode() {
+    // only proceed if all fields filled in
+    if (nodeName == '' || nodeLatitude == '' || nodeLongitude == '') {
+      // maybe show an error
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:8001/get_node", {
+        method: "POST", 
+        headers: {
+          'Content-Type': 'application/json',
+          // might also complain here, have Content-Type be your only header 
+          // 'Accept': 'application/json',
+        },
+        credentials: "include", 
+        body: JSON.stringify({
+          limit: 10
+        })
+      });
+      // console.log("request being sent...");
+      // console.log(response);
+      
+      const fdata = await response.json();
+    } catch (error) {
+      console.log("An error occurred while creating a node..\n", error);
+    }
     document.getElementById("newNodeModal").close();
 
     // submit the new node request and update the nodes dynamic nodes array
@@ -113,13 +138,13 @@
         <h3 class="font-bold text-lg ">Add a Node</h3>
         <form class="">
           <div class="form-control mt-4">
-            <input class="input input-bordered" type="text" placeholder="Name">
+            <input class="input input-bordered" type="text" placeholder="Name" bind:value={nodeName}>
           </div>
           <div class="form-control mt-4">
-            <input class="input input-bordered" type="text" placeholder="Latitude">
+            <input class="input input-bordered" type="text" placeholder="Latitude" bind:value={nodeLatitude}>
           </div>
           <div class="form-control mt-4">
-            <input class="input input-bordered" type="text" placeholder="Longtitude">
+            <input class="input input-bordered" type="text" placeholder="Longtitude" bind:value={nodeLongitude}>
           </div>
           <div class="form-control mt-4">
             <button class="btn btn-primary" on:click={createNode}>Confirm</button>
@@ -142,7 +167,7 @@
             alt="House node" />
         </figure>
         <div class="card-body">
-          <h2 class="card-title">Node {node}</h2>
+          <h2 class="card-title">Node X</h2>
           <p class="">
             Node type, etc
           </p>

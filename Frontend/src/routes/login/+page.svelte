@@ -60,6 +60,8 @@
 
 
               <div class="form-control mt-4">
+                <input type="email" placeholder="Email" class="input input-bordered" required bind:value={email}/>
+
                 <input type="password" placeholder="Password" class="input input-bordered" required bind:value={password}/>
                 <!-- <label class="label" for="">
                   <a href="#" class="label-text-alt link link-hover">Forgot password?</a>

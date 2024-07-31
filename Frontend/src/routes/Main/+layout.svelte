@@ -47,8 +47,8 @@
       
     <div class="navbar-center hidden lg:flex">
       <ul class="menu menu-horizontal px-1">
-        <li class="px-2"><a class="w-28 justify-center bg-neutral" href="/Main/GridSimulation">Grid</a></li>
-        <li class="px-2"><a class="w-28 justify-center bg-neutral" href="/Main/BiddingMarket">Market</a></li>
+        <li class="px-2"><a class="w-28 justify-center btn-ghost" href="/Main/GridSimulation">Grid</a></li>
+        <li class="px-2"><a class="w-28 justify-center btn-ghost" href="/Main/BiddingMarket">Market</a></li>
       </ul>
     </div>
       
@@ -60,9 +60,9 @@
     <!-- svelte-ignore a11y-click-events-have-key-events -->
     <!-- svelte-ignore a11y-no-static-element-interactions -->
     <!-- svelte-ignore a11y-missing-attribute -->
-    <li class="px-2"><a class="w-22 bg-neutral" on:click={showModal}>Help</a></li>
+    <li class="px-2"><a class="w-22 btn-ghost" on:click={showModal}>Help</a></li>
 
-    <li class = "px-2"><a class=" bg-neutral w-22" href="/Main/Dashboard">Dashboard</a></li>
+    <li class = "px-2"><a class=" btn-ghost w-22" href="/Main/Dashboard">Dashboard</a></li>
   </ul>
 
     </div>

@@ -18,7 +18,7 @@
     return() => {
       clearInterval(interval);
     };
-  });
+  }); 
 
   async function fetchStart() {
     try {
@@ -70,7 +70,7 @@
 <main class="container mx-auto w-full flex justify-center">
 
   <div class="max-w-min mx-20">
-    <div class="stats stats-vertical shadow"> 
+    <div class="stats stats-vertical"> 
       <div class="stat">
         <div class="stat-title">Available Credit</div>
         <div class="stat-value">R31,000</div>
@@ -79,7 +79,16 @@
       <div class="stat">
         <div class="stat-title">Pending Transactions</div>
         <div class="stat-value">5</div>
-        
+      </div>
+      
+      <div class="stat">
+        <div class="stat-title">Total Comsumption</div>
+        <div class="stat-value">1,024W</div>
+      </div>
+    
+      <div class="stat">
+        <div class="stat-title">Total Generation</div>
+        <div class="stat-value">5W</div>
       </div>
     </div>
 
@@ -147,22 +156,6 @@
 
 
     
-  </div>
-  <div class="max-w-min mx-10">
-    <div class="stats stats-vertical shadow"> 
-      <div class="stat">
-        <div class="stat-title">Total Comsumption</div>
-        <div class="stat-value">1,024W</div>
-      </div>
-    
-      <div class="stat">
-        <div class="stat-title">Total Generation</div>
-        <div class="stat-value">5W</div>
-        
-      </div>
-    </div>
-
-    <!-- node specific stats go here along with the transaction buttons -->
   </div>
 
 </main>

@@ -13,13 +13,25 @@ async function place_buy_order() {
     "units": units
   }
 
+  // var xhttp = new XMLHttpRequest();
+  // xhttp.onreadystatechange = function() {
+  //   if (this.readyState === 4 && this.status === 200) {
+  //     // Typical action to be performed when the document is ready:
+  //     let data = JSON.stringify(this.response);
+  //     console.log(data)
+  //   }
+  // };
+  // xhttp.open("POST","http://localhost:8001/buy_order",true)
+  // xhttp.setRequestHeader("Content-type","application/json")
+  // xhttp.send(JSON.stringify(data))
 
   const response = await fetch("http://localhost:8001/buy_order", {
     method: "POST",
     headers: {
       'Content-Type': 'application/json'
     },
-    body : JSON.stringify(data)
+    body : JSON.stringify(data),
+    credentials: 'include'
   });
 
   console.log(await response.json())

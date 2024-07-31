@@ -17,19 +17,16 @@
     //return function runs when the component is unmounted 
     return() => {
       clearInterval(interval);
-     
     };
   });
 
   async function fetchStart() {
-
-      try {
-        const response = await fetch("http://localhost:8000/start", {
+    try {
+      const response = await fetch("http://localhost:8000/start", {
       method: "POST", 
       headers: {
         'Content-Type': 'application/json' 
       }
-
     });
   }
     catch(error){
@@ -38,30 +35,35 @@
   };
  async function fetchData() {
 
-      try {
-        const response = await fetch("http://localhost:8000/overview", {
-      method: "POST", 
-      headers: {
-        'Content-Type': 'application/json' 
-      }
-
-    });
-        console.log("request being sent...");
-        console.log(response);
-        // const response = fetch("http://localhost:8000");
-        const fdata = await response.json();
-        console.log(data);
-        //Voltage 1,2,3 as well as price
-        data = fdata; 
-      } catch (error) {
-        console.log("There was an error fetching the JSON for the overview..", error);
-      }
+    try {
+      const response = await fetch("http://localhost:8000/overview", {
+        method: "POST", 
+        headers: {
+          'Content-Type': 'application/json', 
+          'Accept': 'application/json',
+        }
+      });
+      // console.log("request being sent...");
+      // console.log(response);
+      const fdata = await response.json();
+      console.log(data);
+      //Voltage 1,2,3 as well as price
+      data = fdata; 
+    } catch (error) {
+      console.log("There was an error fetching the JSON for the overview..", error);
+    }
   };
 
   function createModal(){
     document.getElementById("newNodeModal").showModal();
   }
 
+  function createNode() {
+    // if all fields filled in
+    document.getElementById("newNodeModal").close();
+
+    // submit the new node request and update the nodes dynamic nodes array
+  }
 
 </script>
 
@@ -89,7 +91,7 @@
   <div class="min-w-max min-h-fit mx-10 flex-row">
 
     <div class="flex-col">
-      <span class="text-3xl justify-start">
+      <span class="text-3xl justify-start pl-2">
         Your Nodes
       </span>
       <span class="justify-end pl-96">
@@ -103,6 +105,15 @@
         <form class="">
           <div class="form-control mt-4">
             <input class="input input-bordered" type="text" placeholder="Name">
+          </div>
+          <div class="form-control mt-4">
+            <input class="input input-bordered" type="text" placeholder="Latitude">
+          </div>
+          <div class="form-control mt-4">
+            <input class="input input-bordered" type="text" placeholder="Longtitude">
+          </div>
+          <div class="form-control mt-4">
+            <button class="btn btn-primary" on:click={createNode}>Confirm</button>
           </div>
         </form>
       </div>

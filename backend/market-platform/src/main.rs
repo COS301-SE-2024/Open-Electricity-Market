@@ -197,7 +197,7 @@ async fn list_open_sells(cookie_jar: &CookieJar<'_>) -> Value {
                         Ok(order_vec) => {
                             message = "No open buy orders";
                             if order_vec.len() > 0 {
-                                message = "Successfully retrieved open buy orders";
+                                message = "Successfully retrieved open sell orders";
                                 for order in order_vec {
                                     data.push(OpenSell {
                                         order_id: order.sell_order_id,

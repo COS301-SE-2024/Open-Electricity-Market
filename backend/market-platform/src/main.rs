@@ -155,19 +155,6 @@ fn establish_connection() -> PgConnection {
 //     json!({"status": "ok", "advertisements": advertisements_ret})
 // }
 
-// #[post("/priceview")]
-// async fn priceview() -> Value {
-//     use self::schema::open_em::advertisements::dsl::*;
-//
-//     let price_avg = advertisements
-//         .filter(offered_units.gt(0.0))
-//         .select(diesel::dsl::sql::<diesel::sql_types::Double>("AVG(price)"))
-//         .load::<f64>(&mut establish_connection())
-//         .expect("Error loading average price");
-//
-//     json!({"status":"ok", "price": price_avg[0]})
-// }
-
 // #[derive(Serialize, Deserialize)]
 // #[serde(crate = "rocket::serde")]
 // struct Offer<'r> {
@@ -246,7 +233,23 @@ struct BuyOrderRequest {
     data = "<buy_order_request>"
 )]
 async fn buy_order(buy_order_request: Json<BuyOrderRequest>, cookie_jar: &CookieJar<'_>) -> Value {
-    let mut message = "stub";
+    let connection = &mut establish_connection();
+
+    let mut message = "Something went wrong";
+
+    let session_cookie = cookie_jar.get("session_id");
+
+    let mut has_cookie = false;
+    let mut session_id_str: String = "".to_string();
+    match session_cookie {
+        None => message = "Session ID not found",
+        Some(cookie) => {
+            has_cookie = true;
+            session_id_str = cookie.value().parse().unwrap();
+        }
+    }
+
+    if has_cookie {}
 
     json!({"status": "ok", "message": message})
 }
@@ -268,7 +271,23 @@ async fn sell_order(
     sell_order_request: Json<SellOrderRequest>,
     cookie_jar: &CookieJar<'_>,
 ) -> Value {
-    let mut message = "stub";
+    let connection = &mut establish_connection();
+
+    let mut message = "Something went wrong";
+
+    let session_cookie = cookie_jar.get("session_id");
+
+    let mut has_cookie = false;
+    let mut session_id_str: String = "".to_string();
+    match session_cookie {
+        None => message = "Session ID not found",
+        Some(cookie) => {
+            has_cookie = true;
+            session_id_str = cookie.value().parse().unwrap();
+        }
+    }
+
+    if has_cookie {}
 
     json!({"status": "ok", "message": message})
 }
@@ -710,28 +729,45 @@ async fn login(credentials: Json<Credentials<'_>>, jar: &CookieJar<'_>) -> Value
 
     let mut message = "Something went wrong";
 
-    let user = users
+    let mut ret_session_id = "".to_string();
+
+    let user_result = users
         .filter(email.eq(credentials.email))
         .select(User::as_select())
-        .load::<User>(connection)
-        .expect("Error loading users");
+        .load::<User>(connection);
 
-    let verify = bcrypt::verify(credentials.password, &*user[0].pass_hash);
-
-    if verify {
-        let h =
-            bcrypt::hash(user[0].user_id.to_string() + &*chrono::Utc::now().to_string()).unwrap();
-        let h2 = h.clone();
-        diesel::update(users)
-            .filter(email.eq(credentials.email))
-            .set(session_id.eq(h2))
-            .execute(connection)
-            .expect("Couldn't update session id");
-        jar.add(Cookie::build(("session_id", h)).path("/"));
-        message = "User logged in"
+    match user_result {
+        Ok(user) => {
+            message = "User does not exist";
+            if user.len() > 0 {
+                let verify = bcrypt::verify(credentials.password, &*user[0].pass_hash);
+                if verify {
+                    let h = bcrypt::hash(
+                        user[0].user_id.to_string() + &*chrono::Utc::now().to_string(),
+                    )
+                    .unwrap();
+                    let h2 = h.clone();
+                    let h3 = h.clone();
+                    match diesel::update(users)
+                        .filter(email.eq(credentials.email))
+                        .set(session_id.eq(h2))
+                        .execute(connection)
+                    {
+                        Ok(_) => {
+                            message = "User logged in";
+                            ret_session_id = h3;
+                            jar.add(Cookie::build(("session_id", h)).path("/"));
+                        }
+                        Err(_) => message = "Failed to update session id",
+                    };
+                }
+                message = "Invalid password"
+            }
+        }
+        Err(_) => {}
     }
 
-    json!({ "status": "ok", "message": message })
+    json!({ "status": "ok", "message": message, "data": { "session_id": ret_session_id}})
 }
 
 #[derive(Serialize, Deserialize)]
@@ -770,6 +806,7 @@ async fn register(new_user: Json<NewUser<'_>>, jar: &CookieJar<'_>) -> Value {
         bcrypt::hash(new_user_ret.user_id.to_string() + &*new_user_ret.created_at.to_string())
             .unwrap();
     let binding_3 = binding_2.clone();
+    let ret_session_id = binding_2.clone();
 
     diesel::update(users)
         .filter(user_id.eq(new_user_ret.user_id))
@@ -792,7 +829,7 @@ async fn register(new_user: Json<NewUser<'_>>, jar: &CookieJar<'_>) -> Value {
 
     message = "New user added";
 
-    json!({ "status": "ok", "message": message })
+    json!({ "status": "ok", "message": message, "data": {"session_id": ret_session_id}})
 }
 
 #[launch]
@@ -811,8 +848,10 @@ fn rocket() -> _ {
                 node_details,
                 price_view,
                 remove_account,
-                // sell_order,
-                // buy_order,
+                sell_order,
+                buy_order,
+                list_open_sells,
+                list_open_buys,
             ],
         )
         .configure(rocket::Config::figment().merge(("port", 8001)))

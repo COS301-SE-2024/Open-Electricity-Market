@@ -4,8 +4,8 @@ extern crate deadqueue;
 extern crate reqwest;
 
 use crate::models::{
-    NewBuyOrderModel, NewNodeModel, NewProfileModel, NewSellOrderModel, NewUserModel, Node,
-    Profile, SellOrder, Transaction, User,
+    BuyOrder, NewBuyOrder, NewBuyOrderModel, NewNodeModel, NewProfileModel, NewSellOrderModel,
+    NewUserModel, Node, Profile, SellOrder, Transaction, User,
 };
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
@@ -233,6 +233,10 @@ struct BuyOrderRequest {
     data = "<buy_order_request>"
 )]
 async fn buy_order(buy_order_request: Json<BuyOrderRequest>, cookie_jar: &CookieJar<'_>) -> Value {
+    use self::schema::open_em::buy_orders::dsl::*;
+    use self::schema::open_em::nodes::dsl::*;
+    use self::schema::open_em::users::dsl::*;
+
     let connection = &mut establish_connection();
 
     let mut message = "Something went wrong";
@@ -244,12 +248,59 @@ async fn buy_order(buy_order_request: Json<BuyOrderRequest>, cookie_jar: &Cookie
     match session_cookie {
         None => message = "Session ID not found",
         Some(cookie) => {
-            has_cookie = true;
-            session_id_str = cookie.value().parse().unwrap();
+            let cookie_value = cookie.value().parse();
+            match cookie_value {
+                Ok(cookie_str) => {
+                    has_cookie = true;
+                    session_id_str = cookie_str;
+                }
+                Err(_) => {}
+            };
         }
     }
 
-    if has_cookie {}
+    if has_cookie {
+        let user_res = users
+            .filter(session_id.eq(session_id_str))
+            .select(User::as_select())
+            .load::<User>(connection);
+
+        match user_res {
+            Ok(user_vec) => {
+                message = "No matching user";
+                if user_vec.len() > 0 {
+                    message = "No matching node";
+                    let node_res = nodes
+                        .filter(node_owner.eq(user_vec[0].user_id))
+                        .select(Node::as_select())
+                        .load::<Node>(connection);
+                    match node_res {
+                        Ok(node_vec) => {
+                            if node_vec.len() > 0 {
+                                let new_buy_order = NewBuyOrder {
+                                    buyer_id: user_vec[0].user_id,
+                                    consumer_id: node_vec[0].node_id,
+                                    sought_units: buy_order_request.units,
+                                    price: buy_order_request.price,
+                                };
+                                message = "Failed to add new buy order";
+                                match diesel::insert_into(buy_orders)
+                                    .values(new_buy_order)
+                                    .returning(BuyOrder::as_returning())
+                                    .get_result(connection)
+                                {
+                                    Ok(order) => message = "Buy order created successfully.",
+                                    Err(_) => {}
+                                };
+                            }
+                        }
+                        Err(_) => {}
+                    }
+                }
+            }
+            Err(_) => {}
+        }
+    }
 
     json!({"status": "ok", "message": message})
 }
@@ -271,6 +322,8 @@ async fn sell_order(
     sell_order_request: Json<SellOrderRequest>,
     cookie_jar: &CookieJar<'_>,
 ) -> Value {
+    use self::schema::open_em::sell_orders;
+
     let connection = &mut establish_connection();
 
     let mut message = "Something went wrong";
@@ -740,6 +793,7 @@ async fn login(credentials: Json<Credentials<'_>>, jar: &CookieJar<'_>) -> Value
         Ok(user) => {
             message = "User does not exist";
             if user.len() > 0 {
+                message = "Invalid password";
                 let verify = bcrypt::verify(credentials.password, &*user[0].pass_hash);
                 if verify {
                     let h = bcrypt::hash(
@@ -761,7 +815,6 @@ async fn login(credentials: Json<Credentials<'_>>, jar: &CookieJar<'_>) -> Value
                         Err(_) => message = "Failed to update session id",
                     };
                 }
-                message = "Invalid password"
             }
         }
         Err(_) => {}

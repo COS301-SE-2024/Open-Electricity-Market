@@ -81,6 +81,27 @@ pub struct Node {
 }
 
 #[derive(Insertable)]
+#[diesel(table_name = crate::schema::open_em::buy_orders)]
+pub struct NewBuyOrder {
+    pub buyer_id: Uuid,
+    pub sought_units: f64,
+    pub price: f64,
+    pub consumer_id: Uuid,
+}
+
+#[derive(Queryable, Selectable)]
+#[diesel(table_name = crate::schema::open_em::buy_orders)]
+pub struct BuyOrder {
+    pub buy_order_id: i64,
+    pub buyer_id: Uuid,
+    pub sought_units: f64,
+    pub filled_units: f64,
+    pub price: f64,
+    pub created_at: DateTime<Utc>,
+    pub consumer_id: Uuid,
+}
+
+#[derive(Insertable)]
 #[diesel(table_name = crate::schema::open_em::nodes)]
 pub struct NewNodeModel<'a> {
     pub node_owner: Uuid,

@@ -11,7 +11,7 @@
   onMount(async () => {
     await fetchStart();
     await fetchData();
-    interval = setInterval(fetchData, 800);
+    interval = setInterval(fetchData, 10000);
 
     //return function runs when the component is unmounted 
     return() => {
@@ -68,7 +68,7 @@
     }
   }
 
-  function toggleHelp(){
+  function createModal(){
     
   }
 
@@ -77,108 +77,47 @@
 
 <main class="container mx-auto">
 
-  
-   <!-- <div class="form-control top-right">
-  <label class="label cursor-pointer">
-    <span class="label-text mr-2">Advanced view</span>
-    <input type="checkbox" class="toggle" checked={advancedView} on:change={setAdvancedView} />
-  </label>
-  </div> -->
-
-  <div class="top-right">
-    <div class="stats stats-vertical shadow">
+  <div class="max-w-min">
+    <div class="stats stats-vertical shadow"> 
       <div class="stat">
-        <div class="stat-title">Available Balance</div>
+        <div class="stat-title">Available Credit</div>
         <div class="stat-value">31K</div>
         <div class="stat-desc">Jul 1st - Aug 1st</div>
       </div>
     
       <div class="stat">
-        <div class="stat-title"></div>
+        <div class="stat-title">My Nodes</div>
         <div class="stat-value">4,200</div>
-       
+        
       </div>
     
       <div class="stat">
-        <div class="stat-title">New Registers</div>
+        <div class="stat-title">Pending Buy Orders</div>
         <div class="stat-value">1,200</div>
-       
+        
       </div>
     </div>
   </div>
 
-  <button class="btn" onclick="my_modal_2.showModal()">Help</button>
-    <dialog id="my_modal_2" class="modal">  
-      <div class="modal-box">
-        <h3 class="font-bold text-lg ">Dashboard Page</h3>
-        <Chart {data}/>
-      </div>
-      <form method="dialog" class="modal-backdrop">
-        <button>close</button>
-      </form>
-    </dialog>
-
-
-  <!-- <h1 class="text-2xl font-bold mb-4">Overview</h1>
-  <p>Here you can overview data about the grid.</p> -->
-  
-
-{#if data}
-    {#each Object.entries(data) as [key, value]}
-      
-        
-        {#if key === "Price"}
-          <div class="stats shadow">
-            <div class="stat place-items-center">
-              <div class="stat-title">Current Price</div>
-              <div class="stat-value">R{value}</div>
-              <div class="stat-desc">Prices are dynamic</div>
-          </div>
+  <div class="max-w-min min-h-fit">
+    <div class="card bg-base-100 w-60  shadow-xl">
+    <figure class="px-10 pt-10">
+      <img
+        src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp"
+        alt="Shoes"
+        class="rounded-xl" />
+    </figure>
+    <div class="card-body items-center text-center">
+      <h2 class="card-title">New Node</h2>
+        <div class="card-actions items-center text-center">
+          <button class="btn btn-primary" on:click={createModal}>Add a Node</button>
         </div>
-        {:else}
-        <div class = "stats shadow">
-          <div class="stat place-items-center">
-            <div class="stat-title">{key} Voltage</div>
-            <div class="stat-value">{value.toFixed(numDecimals)}V</div>
-            <div class="stat-desc text-red-700">90 (14%)</div>
-          </div>
-          </div>
-        {/if}
-      
-    {/each}
-  {:else}
-    <p>Loading...</p>
-  {/if}
-
-  <Chart class = "w-3/5 h-3/5" {data} />
+      </div>
+    </div>
 
 
- 
-
-   
-<!--    -->
-<!--    <div class="stat place-items-center">-->
-<!--      <div class="stat-title">Users</div>-->
-<!--      <div class="stat-value">4,200</div>-->
-<!--      <div class="stat-desc text-green-800">↗︎ 40 (2%)</div>-->
-<!--    </div>-->
     
-    
-    
-<!--  </div>-->
-
-
-
-
+  </div>
 
 </main>
 
-<style>
-
-   .top-right {
-    position: absolute;
-    top: 7rem;
-    right: 5.5rem;
-  }
-  
-</style>

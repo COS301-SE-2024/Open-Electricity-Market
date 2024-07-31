@@ -21,10 +21,18 @@ pub struct NewUserModel<'a> {
     pub pass_hash: &'a str,
 }
 
+#[derive(Queryable, Selectable)]
+#[diesel(table_name = crate::schema::open_em::profiles)]
+pub struct Profile {
+    pub profile_user_id: Uuid,
+    pub first_name: String,
+    pub last_name: String,
+}
+
 #[derive(Insertable)]
 #[diesel(table_name = crate::schema::open_em::profiles)]
 pub struct NewProfileModel<'a> {
-    pub user_id: &'a Uuid,
+    pub profile_user_id: &'a Uuid,
     pub first_name: &'a str,
     pub last_name: &'a str,
 }
@@ -58,4 +66,37 @@ pub struct NewBuyOrderModel<'a> {
     pub consumer_id: &'a Uuid,
     pub sought_units: &'a f64,
     pub price: &'a f64,
+}
+
+#[derive(Queryable, Selectable)]
+#[diesel(table_name = crate::schema::open_em::nodes)]
+pub struct Node {
+    pub node_id: Uuid,
+    pub node_owner: Uuid,
+    pub location_x: f64,
+    pub location_y: f64,
+    pub units_consumed: f64,
+    pub units_generated: f64,
+    pub name: String,
+}
+
+#[derive(Insertable)]
+#[diesel(table_name = crate::schema::open_em::nodes)]
+pub struct NewNodeModel<'a> {
+    pub node_owner: Uuid,
+    pub location_x: f64,
+    pub location_y: f64,
+    pub name: &'a str,
+}
+
+#[derive(Queryable, Selectable)]
+#[diesel(table_name = crate::schema::open_em::transactions)]
+pub struct Transaction {
+    pub transaction_id: i64,
+    pub sell_order_id: i64,
+    pub buy_order_id: i64,
+    pub transacted_units: f64,
+    pub transacted_price: f64,
+    pub transaction_active: bool,
+    pub created_at: DateTime<Utc>,
 }

@@ -17,16 +17,17 @@ pub mod open_em {
         open_em.nodes (node_id) {
             node_id -> Uuid,
             node_owner -> Uuid,
-            location_x -> Nullable<Float8>,
-            location_y -> Nullable<Float8>,
+            location_x -> Float8,
+            location_y -> Float8,
             units_consumed -> Float8,
             units_generated -> Float8,
+            name -> Text,
         }
     }
 
     diesel::table! {
-        open_em.profiles (user_id) {
-            user_id -> Uuid,
+        open_em.profiles (profile_user_id) {
+            profile_user_id -> Uuid,
             first_name -> Text,
             last_name -> Text,
         }
@@ -50,6 +51,8 @@ pub mod open_em {
             sell_order_id -> Int8,
             buy_order_id -> Int8,
             transacted_units -> Float8,
+            transacted_price -> Float8,
+            transaction_active -> Bool,
             created_at -> Timestamptz,
         }
     }
@@ -69,7 +72,7 @@ pub mod open_em {
     diesel::joinable!(buy_orders -> nodes (consumer_id));
     diesel::joinable!(buy_orders -> users (buyer_id));
     diesel::joinable!(nodes -> users (node_owner));
-    diesel::joinable!(profiles -> users (user_id));
+    diesel::joinable!(profiles -> users (profile_user_id));
     diesel::joinable!(sell_orders -> nodes (producer_id));
     diesel::joinable!(sell_orders -> users (seller_id));
     diesel::joinable!(transactions -> buy_orders (buy_order_id));

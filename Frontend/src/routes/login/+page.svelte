@@ -34,12 +34,12 @@
       })
       const json = await res.json()
       //result = JSON.stringify(json)
-      if(json.verified == true)
+      if(json.message == "User logged in")
       {
         goto("/Main/Dashboard");
       }
       else{
-        errormess = "Invalid Credentials";
+        errormessage = "Invalid Credentials";
       }
       //send to main page
     }

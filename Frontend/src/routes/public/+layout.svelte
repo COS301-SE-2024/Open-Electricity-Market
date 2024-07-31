@@ -14,7 +14,7 @@
     $: activebutton = $currentpath;
 
     function showModal(){
-        if(activebutton=="/Main/GridSimulation"){
+        if(activebutton=="/public/GridSimulation"){
             document.getElementById("my_modal_grid").showModal(); 
         }
         else if (activebutton=="/Main/Dashboard"){
@@ -26,17 +26,7 @@
 
     }
 
-    onMount(() => {
-        const session = Cookies.get('session_id');
-        console.log("Session id is: ", session);
-        if(session){
-          loggedIn = true; 
-        }
-        else{
-          loggedIn = false; 
-        }
-       // loggedIn = session === 'loggedIn';
-    });
+    
 
   </script>
   
@@ -119,11 +109,8 @@
 </header>
 
 <main class="container mx-auto mt-8">
-  {#if loggedIn}
+ 
     <slot />
-  {:else}
-    <script>
-        window.location.href = '/login';
-    </script>
-  {/if} 
+  
+    
 </main>

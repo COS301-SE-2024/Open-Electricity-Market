@@ -15,6 +15,7 @@
   $: nodeLatitudeDetail = '';
   $: nodeToProduce = '';
   $: nodeToConsume = '';
+  $: selectedNodeID = '';
 
   $: nodes = [];
   let amount; 
@@ -93,6 +94,7 @@
     nodeLongitudeDetail = data.location_y;
     nodeToProduce = data.units_to_produce;
     nodeToConsume = data.units_to_consume;
+    selectedNodeID = data.node_id;
   }
 
 
@@ -253,9 +255,6 @@
     withdrawamount = '';
     amount = '';
   }
-
-
-  
 
 </script>
 
@@ -455,7 +454,11 @@
         </div>
 
         <div>
-          <button class="btn btn-primary" on:click={}>Transact with this node</button>
+          <button class="btn btn-primary" on:click={() => {
+              sessionStorage.setItem("node_id", selectedNodeID);
+              //reroute to market 
+              goto('../Main/BiddingMarket');
+            }}>Transact with this node</button>
         </div>
       </div>
     </div>

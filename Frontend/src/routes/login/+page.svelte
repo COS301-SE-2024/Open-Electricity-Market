@@ -59,7 +59,7 @@
           <div class="text-center lg:text-left">
             <h1 class="text-5xl font-bold">Open Electricity Market.</h1>
             <p class="py-6">Discover a revolutionary platform where you can buy and sell electricity in real-time.</p>
-            <p>{errormessage}</p>
+            <!--<p>{errormessage}</p>-->
           </div>
           <div class="card shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
             <form class="card-body">

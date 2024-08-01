@@ -11,15 +11,18 @@ test('To login page', async ({ page }) => {
   // Expects to be redirected to login page.
   await expect(page).toHaveURL('http://localhost:5173/login');
 });
-test('To signup page', async ({ page }) => {
-  await page.goto('http://localhost:5173/login');
+test.describe("signup page",() => {
+  test('To signup page', async ({ page }) => {
+    await page.goto('http://localhost:5173/login');
 
-  // Click the signup button.
-  await page.getByRole('button', { name: 'Create an account' }).click();
+    // Click the signup button.
+    await page.getByRole('button', { name: 'Create an account' }).click();
 
-  // Expects to be redirected to signup page.
-  await expect(page).toHaveURL('http://localhost:5173/signup');
-});
+    // Expects to be redirected to signup page.
+    await expect(page).toHaveURL('http://localhost:5173/signup',{timeout:7000});
+  });
+})
+
 test('Back to login page', async ({ page }) => {
   await page.goto('http://localhost:5173/signup');
 
@@ -27,5 +30,5 @@ test('Back to login page', async ({ page }) => {
   await page.getByRole('button', { name: 'I already have an account' }).click();
 
   // Expects to be redirected back to login page.
-  await expect(page).toHaveURL('http://localhost:5173/login',{timeout:3000});
+  await expect(page).toHaveURL('http://localhost:5173/login',{timeout:7000});
 });

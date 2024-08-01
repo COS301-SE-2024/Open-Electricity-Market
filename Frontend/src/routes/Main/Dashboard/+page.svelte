@@ -9,10 +9,14 @@
   let nodeName = '';
   let nodeLongitude = '';
   let nodeLatitude = '';
+
+  $: nodeNameDetail = '';
+  $: nodeLongitudeDetail = '';
+  $: nodeLatitudeDetail = '';
+  $: nodeToProduce = '';
+  $: nodeToConsume = '';
+
   $: nodes = [];
-  let interval; 
-  let advancedView = false; 
-  let numDecimals = 2; 
   let amount; 
   let withdrawamount; 
   let totalamount = 0; 
@@ -20,16 +24,12 @@
   let lastname; 
   let email; 
 
+
+
   onMount(async () => {
     await fetchStart();
     await fetchNodes();
     await getUserDetails();
-    interval = setInterval(fetchData, 10000);
-
-    //return function runs when the component is unmounted 
-    return() => {
-      clearInterval(interval);
-    };
   }); 
 
   async function fetchStart() {
@@ -70,7 +70,34 @@
     }
   };
 
+  async function fetchNodeDetails(node_id_in) {
+    const response = await fetch("http://localhost:8001/node_details", {
+      method: "POST", 
+      headers: {
+        'Content-Type': 'application/json', 
+        'Accept': 'application/json'
+      },
+      credentials: "include", 
+      body: JSON.stringify({
+        node_id: node_id_in
+      })
+    });
+
+    const fdata = await response.json();
+
+    data = fdata.data;
+    console.log(data);
+
+    nodeNameDetail = data.name;
+    nodeLatitudeDetail = data.location_x;
+    nodeLongitudeDetail = data.location_y;
+    nodeToProduce = data.units_to_produce;
+    nodeToConsume = data.units_to_consume;
+  }
+
+
   function createModal(){
+    nodeName = nodeLatitude = nodeLongitude = '';
     document.getElementById("newNodeModal").showModal();
   }
 
@@ -234,7 +261,7 @@
 
 <main class="container mx-auto w-full flex justify-center">
 
-  <div class="max-w-min mx-20">
+  <div class="w-1/6 mx-20">
     
     <!-- change funds buttons and modals -->
     <button class="btn btn-success" onclick="add_modal.showModal()">Add funds</button>
@@ -294,36 +321,35 @@
         <div class="stat-title">Total Generation</div>
         <div class="stat-value">5W</div>
       </div>
+      
+      <h1 class="text-lg">
+        Personal Information
+      </h1>
+  
+      <div class="stat">
+          <div class="stat-title">Firstname</div>
+          <div class="stat-value">{firstname}</div>
+      </div>
+  
+      <div class="stat">
+          <div class="stat-title">Lastname</div>
+          <div class="stat-value">{lastname}</div>
+      </div>
+  
+      <div class="stat">
+          <div class="stat-title">Email</div>
+          <div class="stat-value">{email}</div>
+      </div>
     </div>
-
-    <div class="card">
-      <div class="card-title">Personal Information</div>
-    </div>
-
-    <div class="stat">
-        <div class="stat-title">Firstname</div>
-        <div class="stat-value">{firstname}</div>
-    </div>
-
-    <div class="stat">
-        <div class="stat-title">Lastname</div>
-        <div class="stat-value">{lastname}</div>
-    </div>
-
-    <div class="stat">
-        <div class="stat-title">Email</div>
-        <div class="stat-value">{email}</div>
-    </div>
-    
   </div>
 
-  <div class="min-w-max min-h-fit mx-10 flex-row">
+  <div class="min-w-max min-h-fit mx-4 flex-row">
 
     <div class="flex-col">
       <span class="text-3xl justify-start pl-2">
         Your Nodes
       </span>
-      <span class="justify-end pl-96">
+      <span class="justify-end pl-64">
         <button class="btn btn-primary text-lg " on:click={createModal}>Add a Node</button>
       </span>
     </div>
@@ -390,28 +416,50 @@
         </figure>
         <div class="card-body">
           <h2 class="card-title">{node.name}</h2>
-          <p class="">
-            Node type, etc
-          </p>
           <div class="card-actions justify-end">
-            <button class="btn btn-ghost" on:click={() => {
+            <!-- <button class="btn btn-ghost" on:click={() => {
               sessionStorage.setItem("node_id", node.node_id);
               //reroute to market 
               goto('../Main/BiddingMarket');
-            }}>Details</button>
+            }}>Details</button> -->
+            <button class="btn btn-ghost" on:click={() => {fetchNodeDetails(node.node_id)}}>Details</button>
           </div>
         </div>
       </div>
 
     {/each}
-
-
     
   </div>
 
-  <div class="max-w-min mx-20">
-    
-  </div>
+  {#if nodeNameDetail != ''}
+    <div class="w-1/6 mx-20 ">
+      <div class="stats stats-vertical"> 
+        <div class="stat">
+          <div class="stat-title">Node</div>
+          <div class="stat-value">{nodeNameDetail}</div>
+        </div>
+      
+        <div class="stat">
+          <div class="stat-title">Node Location</div>
+          <div class="stat-value">{nodeLatitudeDetail} E {nodeLongitudeDetail} S</div>
+        </div>
+        
+        <div class="stat">
+          <div class="stat-title">Available Comsumption</div>
+          <div class="stat-value">{nodeToConsume}kWh</div>
+        </div>
+
+        <div class="stat">
+          <div class="stat-title">Pending Generation</div>
+          <div class="stat-value">{nodeToProduce}kWh</div>
+        </div>
+
+        <div>
+          <button class="btn btn-primary" on:click={}>Transact with this node</button>
+        </div>
+      </div>
+    </div>
+  {/if}
 
 
 

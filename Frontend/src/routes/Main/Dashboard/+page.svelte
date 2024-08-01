@@ -353,6 +353,32 @@
         <button>close</button>
       </form>
     </dialog>
+
+    
+    <dialog id="mapModal" class="modal">  
+      <div class="modal-box">
+        <h3 class="font-bold text-lg ">Add a Node</h3>
+        <form class="">
+          <div class="form-control mt-4">
+            <input class="input input-bordered" type="text" placeholder="Name" bind:value={nodeName}>
+          </div>
+          <div class="form-control mt-4">
+            <input class="input input-bordered" type="text" placeholder="Latitude" bind:value={nodeLatitude}>
+          </div>
+          <div class="form-control mt-4">
+            <input class="input input-bordered" type="text" placeholder="Longtitude" bind:value={nodeLongitude}>
+          </div>
+          <div class="form-control mt-4">
+            <button class="btn btn-primary" on:click={createNode}>Confirm</button>
+          </div>
+        </form>
+      </div>
+
+
+      <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+      </form>
+    </dialog>
     
 
     {#each nodes as node}

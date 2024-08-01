@@ -3,6 +3,7 @@
   import Chart from "$lib/Components/Chart.svelte";
   import Cookies from 'js-cookie';
   import {goto} from "$app/navigation";
+  import Map from '$lib/Components/MapDashboard.svelte';
   
 
   let data = {};
@@ -19,11 +20,25 @@
   let firstname; 
   let lastname; 
   let email; 
+  //open buy order variables
+  // let orderid; 
+  // let filledunits; 
+  // let openbuyprice; 
+  // let openbuyunits; 
+  $: buyorders = [];
+  //sell order variables
+  // let orderidsell; 
+  // let opensellprice; 
+  // let offeredunits; 
+  // let claimedunits; 
+  $: sellorders = [];
 
   onMount(async () => {
     await fetchStart();
     await fetchNodes();
     await getUserDetails();
+    await listOpenBuys();
+    await listOpenSells();
     interval = setInterval(fetchData, 10000);
 
     //return function runs when the component is unmounted 
@@ -71,6 +86,7 @@
   };
 
   function createModal(){
+    //*************************** change this to mapModal when implemented*/
     document.getElementById("newNodeModal").showModal();
   }
 
@@ -222,9 +238,68 @@
 
   }
 
-  function nullifyvalues(){
+  function nullifyValues(){
     withdrawamount = '';
     amount = '';
+  }
+
+
+  async function listOpenBuys(){
+
+     try {
+      const response = await fetch("http://localhost:8001/list_open_buys", {
+        method: "POST", 
+        headers: {
+          'Content-Type': 'application/json' 
+        },
+        credentials: "include",
+      });
+      const fdata = await response.json();
+      data = fdata;
+      console.log("Data received from user details is: ", data);
+      
+    } catch (error) {
+      console.log("There was an error fetching user details:", error);
+    }
+
+    if(data.message == "Successfully retrieved open buy orders"){
+      // orderid = data.data.order_id; 
+      // filledunits = data.data.filled_units; 
+      // openbuyprice = data.data.price; 
+      // openbuyunits = data.data.sought_units;
+      buyorders = data.data;  
+    }
+
+  }
+
+  async function listOpenSells(){
+
+    try {
+      const response = await fetch("http://localhost:8001/list_open_sells", {
+        method: "POST", 
+        headers: {
+          'Content-Type': 'application/json' 
+        },
+        credentials: "include",
+      });
+      const fdata = await response.json();
+      data = fdata;
+      console.log("Data received from user details is: ", data);
+      
+    } catch (error) {
+      console.log("There was an error fetching user details:", error);
+    }
+
+    if(data.message == "Successfully retrieved open sell orders"){
+      // orderidsell = data.data.order_id; 
+      // opensellprice = data.data.price; 
+      // offeredunits = data.data.offered_units; 
+      // claimedunits = data.data.claimed_units; 
+      sellorders = data.data; 
+    }
+
+
+
   }
 
 
@@ -362,12 +437,16 @@
           <div class="form-control mt-4">
             <input class="input input-bordered" type="text" placeholder="Name" bind:value={nodeName}>
           </div>
-          <div class="form-control mt-4">
+          <!-- <div class="form-control mt-4">
             <input class="input input-bordered" type="text" placeholder="Latitude" bind:value={nodeLatitude}>
           </div>
           <div class="form-control mt-4">
             <input class="input input-bordered" type="text" placeholder="Longtitude" bind:value={nodeLongitude}>
+          </div> -->
+          <div class="form-control mt-4">
+            <Map />
           </div>
+
           <div class="form-control mt-4">
             <button class="btn btn-primary" on:click={createNode}>Confirm</button>
           </div>
@@ -410,13 +489,79 @@
   </div>
 
 
+  <!-- <div class="max-w-min mx-20">
+    <div class="stats stats-vertical">
+    <div class="card">
+      <div class="card-title">Personal Information</div>
+    </div>
+
+    <div class="stat">
+        <div class="stat-title">Order ID</div>
+        <div class="stat-value">{orderid}</div>
+    </div>
+
+    <div class="stat">
+        <div class="stat-title">Filled units</div>
+        <div class="stat-value">{filledunits}</div>
+    </div>
+
+    <div class="stat">
+        <div class="stat-title">Price</div>
+        <div class="stat-value">{openbuyprice}</div>
+    </div>
+
+    <div class="stat">
+        <div class="stat-title">Sought Units</div>
+        <div class="stat-value">{openbuyunits}</div>
+    </div>
+    
+  </div> -->
+
+    {#each buyorders as buyorder}
+      <div class="card card-side min-w-1/3 bg-base-300 my-2">
+        <div class="card-body">
+          <h2 class="card-title">Buy order</h2>
+          <p>
+           Order ID: {buyorder.order_id} <br> 
+           Filled units: {buyorder.filled_units}<br>
+           Price: {buyorder.price}<br>
+           kW: {buyorder.sought_units}<br>
+          </p>
+          <div class="card-actions ">
+           
+          </div>
+        </div>
+      </div>
+      {/each}
+
+
+      {#each sellorders as sellorder}
+      <div class="card card-side min-w-1/3 bg-base-300 my-2">
+        <div class="card-body">
+          <h2 class="card-title">Sell order</h2>
+          <p>
+           Order ID: {sellorder.order_id} <br> 
+           Offered Units: {sellorder.offered_units}<br>
+           Claimed Units: {sellorder.claimed_units}<br>
+           Price: {sellorder.price}<br>
+          </p>
+          <div class="card-actions ">
+           
+          </div>
+        </div>
+      </div>
+      {/each}
+
+  
+
+
   <dialog id="addfundsconfirmation" class="modal">  
       <div class="modal-box">
         <h3 class="font-bold text-lg ">You have successfully added funds!</h3>
       <p>You have successfully added R{amount} to your account.</p>
       </div>
       <form method="dialog" class="modal-backdrop">
-        <button on:click={nullifyvalues}>close</button>
+        <button on:click={nullifyValues}>close</button>
       </form>
     </dialog>
 
@@ -427,7 +572,7 @@
       <p>You have successfully withdrew R{withdrawamount} from your account.</p>
       </div>
       <form method="dialog" class="modal-backdrop">
-        <button on:click={nullifyvalues}>close</button>
+        <button on:click={nullifyValues}>close</button>
       </form>
     </dialog>
 

@@ -14,7 +14,7 @@
   $: activebutton = $currentpath;
 
   function showModal(){
-    if(activebutton=="/Main/GridSimulation"){
+    if(activebutton=="/public/GridSimulation"){
         document.getElementById("my_modal_grid").showModal(); 
     }
     else if (activebutton=="/Main/Dashboard"){
@@ -81,14 +81,14 @@
   <div class="navbar bg-base-200">
     <div class="navbar-start">  
       <a class="btn btn-ghost text-xl" href="/">Amplify</a>
-      <span class="text-xl pl-4"> {activebutton == '/Main/GridSimulation' ? "Simulation" : 
+      <span class="text-xl pl-4"> {activebutton == '/public/GridSimulation' ? "Simulation" : 
       activebutton == '/Main/BiddingMarket' ? "Marketplace" : 
       activebutton == '/Main/Dashboard' ? "Dashboard" : ""} </span>
     </div>
       
     <div class="navbar-center hidden lg:flex">
       <ul class="menu menu-horizontal px-1">
-        <li class="px-2"><a class="w-28 justify-center btn-ghost" href="/Main/GridSimulation">Grid</a></li>
+        <li class="px-2"><a class="w-28 justify-center btn-ghost" href="/public/GridSimulation">Grid</a></li>
         <li class="px-2"><a class="w-28 justify-center btn-ghost" href="/Main/BiddingMarket">Market</a></li>
       </ul>
     </div>

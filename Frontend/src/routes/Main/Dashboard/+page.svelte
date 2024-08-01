@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import Chart from "$lib/Components/Chart.svelte";
   import Cookies from 'js-cookie';
+  import {goto} from "$app/navigation";
   
 
   let data = {};
@@ -12,7 +13,6 @@
   let interval; 
   let advancedView = false; 
   let numDecimals = 2; 
-  $: nodes = [1,2,3,4,5,6];
   let amount; 
   let withdrawamount; 
   let totalamount = 0; 
@@ -353,6 +353,32 @@
         <button>close</button>
       </form>
     </dialog>
+
+    
+    <dialog id="mapModal" class="modal">  
+      <div class="modal-box">
+        <h3 class="font-bold text-lg ">Add a Node</h3>
+        <form class="">
+          <div class="form-control mt-4">
+            <input class="input input-bordered" type="text" placeholder="Name" bind:value={nodeName}>
+          </div>
+          <div class="form-control mt-4">
+            <input class="input input-bordered" type="text" placeholder="Latitude" bind:value={nodeLatitude}>
+          </div>
+          <div class="form-control mt-4">
+            <input class="input input-bordered" type="text" placeholder="Longtitude" bind:value={nodeLongitude}>
+          </div>
+          <div class="form-control mt-4">
+            <button class="btn btn-primary" on:click={createNode}>Confirm</button>
+          </div>
+        </form>
+      </div>
+
+
+      <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+      </form>
+    </dialog>
     
 
     {#each nodes as node}
@@ -368,7 +394,11 @@
             Node type, etc
           </p>
           <div class="card-actions justify-end">
-            <button class="btn btn-ghost">Details</button>
+            <button class="btn btn-ghost" on:click={() => {
+              sessionStorage.setItem("node_id", node.node_id);
+              //reroute to market 
+              goto('../Main/BiddingMarket');
+            }}>Details</button>
           </div>
         </div>
       </div>

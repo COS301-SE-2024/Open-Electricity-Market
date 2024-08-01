@@ -93,8 +93,8 @@
         <h2 class="text-5xl font-bold  card-title">Amplify</h2>
             <p class="py-6">Discover a revolutionary platform where you can buy and sell electricity in real-time.</p>
             <div class="card-actions">
-                 <a class="btn btn-accent text-xl" href="/login">Sign in</a>
-                 <a class="btn btn-accent text-xl" href="/Main/GridSimulation">Show me the simulation</a>
+                 <a class="btn bg-slate-800 text-xl" href="/login">Sign in</a>
+                 <a class="btn bg-slate-800 text-xl" href="/Main/GridSimulation">Show me the simulation</a>
             </div>
         </div>
     </div>

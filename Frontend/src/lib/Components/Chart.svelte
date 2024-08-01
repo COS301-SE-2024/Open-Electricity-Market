@@ -59,11 +59,12 @@
 
   async function updateChart(){
 
-    if(chart && data.Phase1 && data.Phase2){
+    //this will have to check for price once endpoint changes *************
+    if(chart && data.Phase1 && data.Phase2){     
       console.log("UPDate chart is reactive on chart js.....");
       chart.data.datasets[0].data.push(data.Phase1);
-      chart.data.datasets[1].data.push(data.Phase2);
-      chart.data.datasets[2].data.push(data.Phase3);
+      // chart.data.datasets[1].data.push(data.Phase2);
+      // chart.data.datasets[2].data.push(data.Phase3);
       chart.data.labels.push(chart.data.labels.length + 1); 
       chart.update();
     }
@@ -77,7 +78,7 @@
 
 </script>
 
-<div style="display: flex; max-width: 50%;"> 
+<div style="display: flex;max-width: 80%;">
   <canvas bind:this={chartCanvas} height=240></canvas>
 </div>
 

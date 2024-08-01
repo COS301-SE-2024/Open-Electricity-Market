@@ -4,11 +4,10 @@ services:
     ports:
       - "8000:8000"
   db:
-    build:
-      context: ./
-      dockerfile: db.Dockerfile
+    image: postgres
     volumes:
-      - ./var/pgdata:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     env_file: "db.env"
@@ -33,3 +32,5 @@ services:
     environment:
       DATABASEHOST: db
       GURL: simulation
+volumes:
+  pgdata:

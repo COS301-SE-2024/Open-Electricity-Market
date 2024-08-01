@@ -66,6 +66,14 @@ fn index() -> String {
     "Yay".to_string()
 }
 
+#[post("/stats")]
+fn stats(grid: &State<Arc<Mutex<Grid>>>) -> content::RawJson<String> {
+    let g = grid.lock().unwrap();
+    let stats = g.get_grid_stats();
+    let stats = serde_json::to_string(&stats).unwrap();
+    content::RawJson(stats)
+}
+
 #[post("/info", format = "application/json")]
 fn info(grid: &State<Arc<Mutex<Grid>>>) -> content::RawJson<String> {
     let g = grid.lock().unwrap();
@@ -106,7 +114,7 @@ fn start(grid: &State<Arc<Mutex<Grid>>>) -> String {
 fn rocket() -> _ {
     rocket::build()
         .attach(CORS)
-        .mount("/", routes![index, start, info, echo_channel])
+        .mount("/", routes![index, start, info, echo_channel, stats])
         .manage(Arc::new(Mutex::new(Grid {
             circuits: vec![Circuit {
                 id: 0,

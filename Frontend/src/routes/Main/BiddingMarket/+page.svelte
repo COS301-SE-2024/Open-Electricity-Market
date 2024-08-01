@@ -7,6 +7,47 @@ let units = 0;
 
 let data = {};
 
+let test_node_id = sessionStorage.getItem("node_id");
+
+async function place_buy_order() {
+  let data = {
+    "node_id": test_node_id,
+    "price": price,
+    "units": units
+  }
+
+  const response = await fetch("http://localhost:8001/buy_order", {
+    method: "POST",
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body : JSON.stringify(data),
+    credentials: 'include'
+  });
+
+  console.log(await response.json())
+
+}
+
+async function place_sell_order() {
+  let data = {
+    "node_id": test_node_id,
+    "price": price,
+    "units": units
+  }
+
+  const response = await fetch("http://localhost:8001/sell_order", {
+    method: "POST",
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body : JSON.stringify(data),
+    credentials: 'include'
+  });
+
+  console.log(await response.json())
+
+}
 
 onMount(async () => {
   fetchData();
@@ -73,8 +114,8 @@ onMount(async () => {
                 <p class="py-4">Please confirm your buy order for {units} units at R {price} </p>
                 <div class="modal-action">
                   <form method="dialog">
-                    <button class="btn bg-green-700">Continue</button>
-                    <button class="btn bg-red-600">Cancel</button>
+                    <button class="btn" on:click={place_buy_order} >Continue</button>
+                    <button class="btn">Cancel</button>
                   </form>
                 </div>
               </div>
@@ -86,8 +127,8 @@ onMount(async () => {
                 <p class="py-4">Please confirm your sell order for {units} units at R{price} </p>
                 <div class="modal-action">
                   <form method="dialog">
-                    <button class="btn bg-green-700">Continue</button>
-                    <button class="btn bg-red-600">Cancel</button>
+                    <button class="btn" on:click={place_sell_order}>Continue</button>
+                    <button class="btn">Cancel</button>
                   </form>
                 </div>
               </div>

@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import Chart from "$lib/Components/Chart.svelte";
   import Cookies from 'js-cookie';
+  import {goto} from "$app/navigation";
   
 
   let data = {};
@@ -12,7 +13,6 @@
   let interval; 
   let advancedView = false; 
   let numDecimals = 2; 
-  $: nodes = [1,2,3,4,5,6];
   let amount; 
   let withdrawamount; 
   let totalamount = 0; 
@@ -368,7 +368,11 @@
             Node type, etc
           </p>
           <div class="card-actions justify-end">
-            <button class="btn btn-ghost">Details</button>
+            <button class="btn btn-ghost" on:click={() => {
+              sessionStorage.setItem("node_id", node.node_id);
+              //reroute to market 
+              goto('../Main/BiddingMarket');
+            }}>Details</button>
           </div>
         </div>
       </div>

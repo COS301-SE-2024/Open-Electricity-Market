@@ -1,10 +1,12 @@
 pub mod ideal_producer;
 
-use std::{io::Write, net::TcpStream, sync::mpsc::Sender};
+use std::{env, io::Write, net::TcpStream, sync::mpsc::Sender};
 
 use serde::Serialize;
 
 use self::ideal_producer::IdealProducer;
+
+use tungstenite::{connect, stream::MaybeTlsStream, Message, WebSocket};
 
 #[derive(Clone, Copy)]
 pub struct Voltage(pub f32);
@@ -40,14 +42,34 @@ pub struct GridInterface {
 
 pub struct ProducerBasics {
     manager_socket: Sender<ProducerManagerMessage>,
-    grid_socket: TcpStream,
+    grid_socket: WebSocket<MaybeTlsStream<TcpStream>>,
     count: f32,
 }
 impl ProducerBasics {
     pub fn create(tx: Sender<ProducerManagerMessage>) -> ProducerBasics {
+
+        let url = env::var("GURL").unwrap();
+
+        let (mut socket, response) = connect(format!("ws://{url}:8000/set_generator")).expect("Can't connect");
+        
+        
+
+
+        println!("Connected to the server");
+        println!("Response HTTP code: {}", response.status());
+        println!("Response contains the following headers:");
+        for (ref header, _value) in response.headers() {
+            println!("* {}", header);
+        }
+
+        // socket.send(Message::Text("Hello WebSocket".into())).unwrap();
+        //
+        // let msg = socket.read().expect("Error reading message");
+        // println!("Received: {}", msg);
+
         return ProducerBasics {
             manager_socket: tx,
-            grid_socket: TcpStream::connect("127.0.0.1:55555").unwrap(),
+            grid_socket: socket,
             count: 0.0,
         };
     }
@@ -66,7 +88,7 @@ pub trait Producer {
         let _ = socket.send(message);
     }
     fn update_units_sold(&self, _voltage: Voltage) {}
-    fn sync_grid(&self, voltage: Voltage, socket: &mut TcpStream) {
+    fn sync_grid(&self, voltage: Voltage, socket: &mut WebSocket<MaybeTlsStream<TcpStream>>){
         let grid_interface = GridInterface {
             circuit: 0,
             generator: 0,
@@ -74,8 +96,10 @@ pub trait Producer {
         };
         let mut json = serde_json::to_string(&grid_interface).unwrap();
         json.push_str("\r\n");
-        let n = socket.write(json.as_bytes()).unwrap();
-        println!("Wrote {n}");
+        socket.send(Message::Text(json)).unwrap();
+        let msg = socket.read().expect("Error reading message");
+        println!("Received: {}", msg);
+
     }
     fn update(
         &self,

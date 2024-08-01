@@ -37,6 +37,9 @@
   // let offeredunits; 
   // let claimedunits; 
   $: sellorders = [];
+  //variables for map input
+   let lattitude = '';
+   let longtitude = '';
 
   onMount(async () => {
     await fetchStart();
@@ -114,7 +117,7 @@
   function createModal(){
     //*************************** change this to mapModal when implemented*/
     nodeName = nodeLatitude = nodeLongitude = '';
-    document.getElementById("newNodeModal").showModal();
+    document.getElementById("mapModal").showModal();
   }
 
   async function createNode() {
@@ -135,14 +138,15 @@
         credentials: "include", 
         body: JSON.stringify({
           name: nodeName, 
-          location_x: Number(nodeLatitude), 
-          location_y: Number(nodeLongitude)
+          location_x: Number(lattitude), 
+          location_y: Number(longtitude)
         })
       });
       // console.log("request being sent...");
       // console.log(response);
       
       const fdata = await response.json();
+      console.log(fdata);
 
       if (fdata.status === 'ok') {
         document.getElementById("newNodeModal").close();
@@ -329,6 +333,12 @@
 
   }
 
+  function handleMapClick(lat, lng){
+    lattitude = lat; 
+    longtitude = lng; 
+    console.log("Marker position updated: " + lat + " " + lng);
+  }
+
 
 </script>
 
@@ -468,7 +478,7 @@
             <input class="input input-bordered" type="text" placeholder="Longtitude" bind:value={nodeLongitude}>
           </div> -->
           <div class="form-control mt-4">
-            <Map />
+            <Map onMapClick = {handleMapClick} />
           </div>
 
           <div class="form-control mt-4">

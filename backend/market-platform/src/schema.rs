@@ -21,6 +21,7 @@ pub mod open_em {
             location_y -> Float8,
             units_consumed -> Float8,
             units_generated -> Float8,
+            node_active -> Bool,
             name -> Text,
         }
     }

@@ -99,7 +99,6 @@
         </div>
     </div>
 
-
      <div class="card bg-base-100 shadow-xl mt-4 max-w-lg ">
             <div class="card-body">
                 <h2 class="card-title">Who are we?</h2>

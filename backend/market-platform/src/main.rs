@@ -24,7 +24,7 @@ use rocket::{Request, Response, State};
 use std::env;
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::{Arc, Mutex};
-use uuid::Uuid;
+use uuid::{Error, Uuid};
 
 mod models;
 mod schema;
@@ -61,6 +61,80 @@ fn establish_connection() -> PgConnection {
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     PgConnection::establish(&database_url)
         .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct RemoveNode {
+    node_id: String,
+}
+
+#[post(
+    "/remove_node",
+    format = "application/json",
+    data = "<remove_node_request>"
+)]
+async fn remove_node(remove_node_request: Json<RemoveNode>, cookie_jar: &CookieJar<'_>) -> Value {
+    use self::schema::open_em::nodes::dsl::*;
+    use self::schema::open_em::users::dsl::*;
+
+    let connection = &mut establish_connection();
+
+    let mut message = "Something went wrong";
+
+    let session_cookie = cookie_jar.get("session_id");
+
+    let mut has_cookie = false;
+    let mut session_id_str: String = "".to_string();
+    match session_cookie {
+        None => message = "Session ID not found",
+        Some(cookie) => {
+            let cookie_value = cookie.value().parse();
+            match cookie_value {
+                Ok(cookie_str) => {
+                    has_cookie = true;
+                    session_id_str = cookie_str;
+                }
+                Err(_) => {}
+            };
+        }
+    }
+
+    if has_cookie {
+        let user_result = users
+            .filter(session_id.eq(session_id_str))
+            .select(User::as_select())
+            .load::<User>(connection);
+
+        match user_result {
+            Ok(user_vec) => {
+                message = "No matching user";
+                if user_vec.len() > 0 {
+                    message = "Invalid Node ID";
+                    match Uuid::parse_str(&*remove_node_request.node_id) {
+                        Ok(request_node_id) => {
+                            message = "No matching node";
+                            match diesel::update(nodes)
+                                .filter(node_owner.eq(user_vec[0].user_id))
+                                .filter(node_id.eq(request_node_id))
+                                .set(node_active.eq(false))
+                                .execute(connection)
+                            {
+                                Ok(_) => {
+                                    message = "Node successfully removed";
+                                }
+                                Err(_) => {}
+                            };
+                        }
+                        Err(_) => {}
+                    }
+                }
+            }
+            Err(_) => {}
+        }
+    }
+
+    json!({"status": "ok", "message": message})
 }
 
 #[derive(Serialize, Deserialize)]
@@ -570,9 +644,12 @@ struct NodeDetailsReq {
 #[post(
     "/node_details",
     format = "application/json",
-    data = "<node_details_req>"
+    data = "<node_details_request>"
 )]
-async fn node_details(node_details_req: Json<NodeDetailsReq>, cookie_jar: &CookieJar<'_>) -> Value {
+async fn node_details(
+    node_details_request: Json<NodeDetailsReq>,
+    cookie_jar: &CookieJar<'_>,
+) -> Value {
     use self::schema::open_em::nodes::dsl::*;
     use self::schema::open_em::users::dsl::*;
 
@@ -602,27 +679,46 @@ async fn node_details(node_details_req: Json<NodeDetailsReq>, cookie_jar: &Cooki
     };
 
     if has_cookie {
-        let user_vec = users
+        let user_result = users
             .filter(session_id.eq(session_id_str))
             .select(User::as_select())
-            .load::<User>(connection)
-            .expect("User does not exist");
+            .load::<User>(connection);
 
-        let node_vec = nodes
-            .filter(node_id.eq(Uuid::parse_str(&*node_details_req.node_id).unwrap()))
-            .filter(node_owner.eq(user_vec[0].user_id))
-            .select(Node::as_select())
-            .load::<Node>(connection)
-            .expect("Couldn't find node");
-
-        data.node_id = String::from(node_vec[0].node_id);
-        data.name = node_vec[0].name.clone();
-        data.location_x = node_vec[0].location_x;
-        data.location_y = node_vec[0].location_y;
-        data.units_to_produce = node_vec[0].units_generated;
-        data.units_to_consume = node_vec[0].units_consumed;
-
-        message = "Node details retrieved succesfully"
+        match user_result {
+            Ok(user_vec) => {
+                message = "No matching user";
+                if user_vec.len() > 0 {
+                    message = "Invalid Node ID";
+                    match Uuid::parse_str(&*node_details_request.node_id) {
+                        Ok(request_node_id) => {
+                            match nodes
+                                .filter(node_id.eq(request_node_id))
+                                .filter(node_owner.eq(user_vec[0].user_id))
+                                .filter(node_active.eq(true))
+                                .select(Node::as_select())
+                                .load::<Node>(connection)
+                            {
+                                Ok(node_vec) => {
+                                    message = "No matching node";
+                                    if node_vec.len() > 0 {
+                                        data.node_id = String::from(node_vec[0].node_id);
+                                        data.name = node_vec[0].name.clone();
+                                        data.location_x = node_vec[0].location_x;
+                                        data.location_y = node_vec[0].location_y;
+                                        data.units_to_produce = node_vec[0].units_generated;
+                                        data.units_to_consume = node_vec[0].units_consumed;
+                                        message = "Node details retrieved succesfully";
+                                    }
+                                }
+                                Err(_) => {}
+                            }
+                        }
+                        Err(_) => {}
+                    }
+                }
+            }
+            Err(_) => {}
+        }
     }
 
     json!({"status": "ok", "message": message, "data": data})
@@ -641,8 +737,12 @@ struct ShortNodeRet {
     name: String,
 }
 
-#[post("/get_nodes", format = "application/json", data = "<get_nodes_req>")]
-async fn get_nodes(get_nodes_req: Json<GetNodesReq>, cookie_jar: &CookieJar<'_>) -> Value {
+#[post(
+    "/get_nodes",
+    format = "application/json",
+    data = "<get_nodes_request>"
+)]
+async fn get_nodes(get_nodes_request: Json<GetNodesReq>, cookie_jar: &CookieJar<'_>) -> Value {
     use self::schema::open_em::nodes::dsl::*;
     use self::schema::open_em::users::dsl::*;
 
@@ -655,36 +755,53 @@ async fn get_nodes(get_nodes_req: Json<GetNodesReq>, cookie_jar: &CookieJar<'_>)
     let mut has_cookie = false;
     let mut session_id_str: String = "".to_string();
     match session_cookie {
-        None => {}
+        None => message = "Session ID not found",
         Some(cookie) => {
-            has_cookie = true;
-            session_id_str = cookie.value().parse().unwrap();
+            let cookie_value = cookie.value().parse();
+            match cookie_value {
+                Ok(cookie_str) => {
+                    has_cookie = true;
+                    session_id_str = cookie_str;
+                }
+                Err(_) => {}
+            };
         }
     }
 
     let mut node_list: Vec<ShortNodeRet> = vec![];
 
     if has_cookie {
-        let user_ret = users
+        let user_result = users
             .filter(session_id.eq(session_id_str))
             .select(User::as_select())
-            .load::<User>(connection)
-            .expect("User does not exist");
+            .load::<User>(connection);
 
-        let nodes_vec = nodes
-            .filter(node_owner.eq(user_ret[0].user_id))
-            .select(Node::as_select())
-            .limit(get_nodes_req.limit)
-            .load::<Node>(connection)
-            .expect("Could not get nodes");
-
-        for node in nodes_vec {
-            node_list.push(ShortNodeRet {
-                node_id: node.node_id.to_string(),
-                name: node.name,
-            })
+        match user_result {
+            Ok(user_vec) => {
+                message = "No matching user";
+                if user_vec.len() > 0 {
+                    match nodes
+                        .filter(node_owner.eq(user_vec[0].user_id))
+                        .filter(node_active.eq(true))
+                        .select(Node::as_select())
+                        .limit(get_nodes_request.limit)
+                        .load::<Node>(connection)
+                    {
+                        Ok(node_vec) => {
+                            for node in node_vec {
+                                node_list.push(ShortNodeRet {
+                                    node_id: node.node_id.to_string(),
+                                    name: node.name,
+                                })
+                            }
+                            message = "List of nodes successfully retrieved"
+                        }
+                        Err(_) => {}
+                    }
+                }
+            }
+            Err(_) => {}
         }
-        message = "List of nodes successfully retrieved"
     }
 
     json!({"status": "ok", "message": message, "data": node_list})
@@ -985,6 +1102,7 @@ fn rocket() -> _ {
                 buy_order,
                 list_open_sells,
                 list_open_buys,
+                remove_node,
             ],
         )
         .configure(rocket::Config::figment().merge(("port", 8001)))

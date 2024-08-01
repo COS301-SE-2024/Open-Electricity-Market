@@ -222,33 +222,6 @@
 
   }
 
-
-  async function removeAccount(){
-
-    try {
-      const response = await fetch("http://localhost:8001/remove_account", {
-        method: "POST", 
-        headers: {
-          'Content-Type': 'application/json' 
-        },
-        credentials: "include",
-      });
-      const fdata = await response.json();
-      data = fdata;
-      console.log("Data received from remove account endpoint: ", data);
-      
-    } catch (error) {
-      console.log("There was an error calling remove account:", error);
-    }
-
-    if(data.message = "Account successfully deleted"){
-      Cookies.remove("session_id");
-      window.location.href = '/login';
-    }
-
-
-  }
-
   function nullifyvalues(){
     withdrawamount = '';
     amount = '';
@@ -263,7 +236,6 @@
 
             <button class="btn btn-success" onclick="add_modal.showModal()">Add funds</button>
             <button class="btn btn-error" onclick="remove_modal.showModal()">Withdraw funds</button>
-            <button class="btn btn-error" onclick="removeaccount_modal.showModal()">Remove Account</button>
 
             <dialog id = "add_modal" class="modal">
               <div class="modal-box">
@@ -430,19 +402,7 @@
     </dialog>
 
       
-      <dialog id="removeaccount_modal" class="modal">
-      <div class="modal-box">
-        <h3 class="text-lg font-bold">Delete Account</h3>
-        <p class="py-4">Are you sure you would like to delete your account?</p>
-        <div class="modal-action">
-          <form method="dialog">
-            <!-- if there is a button in form, it will close the modal -->
-            <button class="btn bg-red-500" on:click={removeAccount}>Delete</button>
-            <button class="btn bg-gray-600">Cancel</button>
-          </form>
-        </div>
-      </div>
-    </dialog>
+
 
 </main>
 

@@ -488,10 +488,16 @@ async fn user_details(cookie_jar: &CookieJar<'_>) -> Value {
     let mut has_cookie = false;
     let mut session_id_str: String = "".to_string();
     match session_cookie {
-        None => {}
+        None => message = "Session ID not found",
         Some(cookie) => {
-            has_cookie = true;
-            session_id_str = cookie.value().parse().unwrap();
+            let cookie_value = cookie.value().parse();
+            match cookie_value {
+                Ok(cookie_str) => {
+                    has_cookie = true;
+                    session_id_str = cookie_str;
+                }
+                Err(_) => {}
+            };
         }
     }
 
@@ -503,32 +509,42 @@ async fn user_details(cookie_jar: &CookieJar<'_>) -> Value {
     };
 
     if has_cookie {
-        let user_ret = users
+        let user_result = users
             .filter(session_id.eq(session_id_str))
             .select(User::as_select())
-            .load::<User>(connection)
-            .expect("User does not exist");
+            .load::<User>(connection);
 
-        let temp_user_id = user_ret[0].user_id.clone();
-        let user_email = user_ret[0].email.clone();
-
-        let profile_ret = profiles
-            .filter(profile_user_id.eq(temp_user_id))
-            .select(Profile::as_select())
-            .load::<Profile>(connection)
-            .expect("Could not find profile");
-
-        let user_first_name = profile_ret[0].first_name.clone();
-        let user_last_name = profile_ret[0].last_name.clone();
-
-        data = UserDetails {
-            email: user_email,
-            credit: user_ret[0].credit,
-            first_name: user_first_name,
-            last_name: user_last_name,
-        };
-
-        message = "User details successfully retrieved"
+        match user_result {
+            Ok(user_vec) => {
+                message = "No matching user";
+                if user_vec.len() > 0 {
+                    let temp_user_id = user_vec[0].user_id.clone();
+                    let user_email = user_vec[0].email.clone();
+                    let profile_result = profiles
+                        .filter(profile_user_id.eq(temp_user_id))
+                        .select(Profile::as_select())
+                        .load::<Profile>(connection);
+                    match profile_result {
+                        Ok(profile_vec) => {
+                            message = "No matching user profile";
+                            if profile_vec.len() > 0 {
+                                let user_first_name = profile_vec[0].first_name.clone();
+                                let user_last_name = profile_vec[0].last_name.clone();
+                                data = UserDetails {
+                                    email: user_email,
+                                    credit: user_vec[0].credit,
+                                    first_name: user_first_name,
+                                    last_name: user_last_name,
+                                };
+                                message = "User details successfully retrieved";
+                            }
+                        }
+                        Err(_) => {}
+                    }
+                }
+            }
+            Err(_) => {}
+        }
     }
 
     json!({"status": "ok", "message": message, "data": data})

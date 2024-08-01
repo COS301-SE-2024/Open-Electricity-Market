@@ -234,47 +234,46 @@
 
 <main class="container mx-auto w-full flex justify-center">
 
-            <button class="btn btn-success" onclick="add_modal.showModal()">Add funds</button>
-            <button class="btn btn-error" onclick="remove_modal.showModal()">Withdraw funds</button>
-
-            <dialog id = "add_modal" class="modal">
-              <div class="modal-box">
-                <h3 class="text-lg font-bold">Add funds</h3>
-                <p class="py-4">Please enter an amount you would like to add.</p>
-                    <div class="form-control mt-4">
-                     <input class="input input-bordered" type="number" placeholder="Amount" required bind:value={amount}>
-                    </div>
-             
-                <div class="modal-action">
-                  <form method="dialog">
-                    <button class="btn bg-green-600" on:click="{addFunds}">Continue</button>
-                    <button class="btn bg-red-600">Cancel</button>
-                  </form>
-                </div>
-              </div>
-            </dialog>
-
-
-            <dialog id="remove_modal" class="modal">
-              <div class="modal-box">
-                <h3 class="text-lg font-bold">Withdraw funds</h3>
-                <p>Please ente ran amount you would like to withdraw.</p>
-                 <div class="form-control mt-4">
-                     <input class="input input-bordered" type="number" placeholder="Amount" required bind:value={withdrawamount}>
-                    </div>
-                <div class="modal-action">
-                  <form method="dialog">
-                    <button class="btn bg-green-600" on:click={withdrawFunds}>Continue</button>
-                    <button class="btn bg-red-500">Cancel</button>
-                  </form>
-                </div>
-              </div>
-            </dialog>
-
-
-
-
   <div class="max-w-min mx-20">
+    
+    <!-- change funds buttons and modals -->
+    <button class="btn btn-success" onclick="add_modal.showModal()">Add funds</button>
+    <button class="btn btn-error" onclick="remove_modal.showModal()">Withdraw funds</button>
+
+    <dialog id = "add_modal" class="modal">
+      <div class="modal-box">
+        <h3 class="text-lg font-bold">Add funds</h3>
+        <p class="py-4">Please enter an amount you would like to add.</p>
+        <div class="form-control mt-4">
+          <input class="input input-bordered" type="number" placeholder="Amount" required bind:value={amount}>
+        </div>
+      
+        <div class="modal-action">
+          <form method="dialog">
+            <button class="btn bg-green-600" on:click="{addFunds}">Continue</button>
+            <button class="btn bg-red-600">Cancel</button>
+          </form>
+        </div>
+      </div>
+    </dialog>
+
+
+    <dialog id="remove_modal" class="modal">
+      <div class="modal-box">
+        <h3 class="text-lg font-bold">Withdraw funds</h3>
+        <p>Please ente ran amount you would like to withdraw.</p>
+          <div class="form-control mt-4">
+              <input class="input input-bordered" type="number" placeholder="Amount" required bind:value={withdrawamount}>
+            </div>
+        <div class="modal-action">
+          <form method="dialog">
+            <button class="btn bg-green-600" on:click={withdrawFunds}>Continue</button>
+            <button class="btn bg-red-500">Cancel</button>
+          </form>
+        </div>
+      </div>
+    </dialog>
+
     <div class="stats stats-vertical"> 
       <div class="stat">
         <div class="stat-title">Available Credit</div>
@@ -329,6 +328,7 @@
       </span>
     </div>
 
+    <!-- new node modals -->
     <dialog id="newNodeModal" class="modal">  
       <div class="modal-box">
         <h3 class="font-bold text-lg ">Add a Node</h3>
@@ -409,30 +409,33 @@
     
   </div>
 
+  <div class="max-w-min mx-20">
+    
+  </div>
+
+
+
+<!-- confirm change funds modals -->
 
   <dialog id="addfundsconfirmation" class="modal">  
-      <div class="modal-box">
-        <h3 class="font-bold text-lg ">You have successfully added funds!</h3>
-      <p>You have successfully added R{amount} to your account.</p>
-      </div>
-      <form method="dialog" class="modal-backdrop">
-        <button on:click={nullifyvalues}>close</button>
-      </form>
-    </dialog>
+    <div class="modal-box">
+      <h3 class="font-bold text-lg ">You have successfully added funds!</h3>
+    <p>You have successfully added R{amount} to your account.</p>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button on:click={nullifyvalues}>close</button>
+    </form>
+  </dialog>
 
 
-    <dialog id="removefundsconfirmation" class="modal">  
-      <div class="modal-box">
-        <h3 class="font-bold text-lg ">Withdrawal of funds successful!</h3>
-      <p>You have successfully withdrew R{withdrawamount} from your account.</p>
-      </div>
-      <form method="dialog" class="modal-backdrop">
-        <button on:click={nullifyvalues}>close</button>
-      </form>
-    </dialog>
-
-      
-
-
+  <dialog id="removefundsconfirmation" class="modal">  
+    <div class="modal-box">
+      <h3 class="font-bold text-lg ">Withdrawal of funds successful!</h3>
+    <p>You have successfully withdrew R{withdrawamount} from your account.</p>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button on:click={nullifyvalues}>close</button>
+    </form>
+  </dialog>
 </main>
 

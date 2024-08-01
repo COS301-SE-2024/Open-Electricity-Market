@@ -78,7 +78,7 @@
     <slot />
   </main> -->
 <header>
-  <div class="navbar bg-base-200">
+  <div class="navbar bg-base-100 border-b border-accent">
     <div class="navbar-start">  
       <a class="btn btn-ghost text-xl" href="/">Amplify</a>
       <span class="text-xl pl-4"> {activebutton == '/public/GridSimulation' ? "Simulation" : 

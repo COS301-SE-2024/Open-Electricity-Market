@@ -46,14 +46,34 @@ impl Fairing for CORS {
 #[get("/set_generator")]
 fn echo_channel(ws: ws::WebSocket, grid: &State<Arc<Mutex<Grid>>>) -> ws::Channel<'_> {
     use rocket::futures::{SinkExt, StreamExt};
-    let a = grid;
+
+    let g = grid.inner().clone();
+
 
     ws.channel(move |mut stream| {
         Box::pin(async move {
             while let Some(message) = stream.next().await {
                 let _ = stream.send(ws::Message::Text("Recieved".to_string())).await;
-                let mut b = a.lock().unwrap();
-                b.set_generator(message.unwrap().to_string());
+                let lock = g.clone();
+                let gc = lock.lock();
+
+                match gc {
+                    Ok(mut gca) => {
+                        gca.set_generator(message.unwrap().to_string());
+                    }
+                    ,
+                    Err(err) => {
+                        println!("{}", err);
+                    }
+                    ,
+               }
+                
+
+            
+
+
+
+                 
             }
 
             Ok(())

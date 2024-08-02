@@ -76,8 +76,8 @@ impl AgentManager {
     fn get_new_producers(&self) -> Vec<ProducerData> {
         let from_database = vec![
             ProducerData::new(String::from("a"), ProducerType::Ideal(Voltage(15.0))),
-            ProducerData::new(String::from("b"), ProducerType::Ideal(Voltage(100.0))),
-            ProducerData::new(String::from("c"), ProducerType::Ideal(Voltage(215.0))),
+            // ProducerData::new(String::from("b"), ProducerType::Ideal(Voltage(100.0))),
+            // ProducerData::new(String::from("c"), ProducerType::Ideal(Voltage(215.0))),
         ];
         let mut output = vec![];
         for producer_data in from_database {

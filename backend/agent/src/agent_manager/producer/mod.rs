@@ -1,6 +1,6 @@
 pub mod ideal_producer;
 
-use std::{env, io::Write, net::TcpStream, sync::mpsc::Sender};
+use std::{env, fmt::write, io::Write, net::TcpStream, sync::mpsc::Sender, thread::{sleep, sleep_ms}, time::Duration};
 
 use serde::Serialize;
 
@@ -124,14 +124,18 @@ pub trait Producer {
             //Upadate units sold and tell database
             self.update_units_sold(voltage);
         }
-
         //Every 5 mintues tell grid about my voltages
-        if accumlited_time > 60.0 * producer_basics.count {
-            producer_basics.count += 1.0;
-            println!("a");
+        
+        sleep(Duration::from_millis(10));
+    
+        producer_basics.count += elasped_time;
+        if producer_basics.count > 10.0 {
+            producer_basics.count = 0.0;
             self.sync_grid(voltage, &mut producer_basics.grid_socket);
-            println!("b");
         }
+
+
+        
         return false;
     }
 }

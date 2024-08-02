@@ -194,6 +194,9 @@
       // amount = '';
       totalamount += amount; 
     }
+    else{
+      document.getElementById("addfundsrejection").showModal();
+    }
 
 
   }
@@ -231,6 +234,9 @@
       document.getElementById("removefundsconfirmation").showModal();
       // withdrawamount = '';
       totalamount -= withdrawamount; 
+    }
+    else{
+      document.getElementById("removefundsrejection").showModal();
     }
 
 
@@ -607,6 +613,26 @@
       <div class="modal-box">
         <h3 class="font-bold text-lg ">Withdrawal of funds successful!</h3>
       <p>You have successfully withdrew R{withdrawamount} from your account.</p>
+      </div>
+      <form method="dialog" class="modal-backdrop">
+        <button on:click={nullifyValues}>close</button>
+      </form>
+    </dialog>
+
+    <dialog id="removefundsrejection" class="modal">  
+      <div class="modal-box">
+        <h3 class="font-bold text-lg ">Withdrawal of funds was unsuccessful.</h3>
+      <p>Withdrawal of R{withdrawamount} was unsuccessful. Please check your balance.</p>
+      </div>
+      <form method="dialog" class="modal-backdrop">
+        <button on:click={nullifyValues}>close</button>
+      </form>
+    </dialog>
+
+    <dialog id="addfundsrejection" class="modal">  
+      <div class="modal-box">
+        <h3 class="font-bold text-lg ">Addition of funds unsuccessful.</h3>
+      <p>Addition of R{amount} was unsuccessful. Please enter a valid value.</p>
       </div>
       <form method="dialog" class="modal-backdrop">
         <button on:click={nullifyValues}>close</button>

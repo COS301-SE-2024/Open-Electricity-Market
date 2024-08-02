@@ -114,8 +114,8 @@ onMount(async () => {
                 <p class="py-4">Please confirm your buy order for {units} units at R {price} </p>
                 <div class="modal-action">
                   <form method="dialog">
-                    <button class="btn" on:click={place_buy_order} >Continue</button>
-                    <button class="btn">Cancel</button>
+                    <button class="btn bg-green-600" on:click={place_buy_order} >Continue</button>
+                    <button class="btn bg-red-500">Cancel</button>
                   </form>
                 </div>
               </div>
@@ -127,8 +127,8 @@ onMount(async () => {
                 <p class="py-4">Please confirm your sell order for {units} units at R{price} </p>
                 <div class="modal-action">
                   <form method="dialog">
-                    <button class="btn" on:click={place_sell_order}>Continue</button>
-                    <button class="btn">Cancel</button>
+                    <button class="btn bg-green-600" on:click={place_sell_order}>Continue</button>
+                    <button class="btn bg-red-500">Cancel</button>
                   </form>
                 </div>
               </div>

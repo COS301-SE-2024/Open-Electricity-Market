@@ -17,11 +17,29 @@
 </script>
 
 <main class ="bg-[url('../src/images/background-pylons.jpg')] bg-cover bg-fixed">
+
+
+
+    <span class="flex justify-center h-screen items-center ">
+
+    <div class="card max-w-lg shadow-xl glass">
+    <div class="card-body items-center text-center">
+        <h2 class="text-5xl font-bold  card-title">Transform the way you manage energy.</h2>
+            <div class="card-actions">
+                 <a class="btn bg-slate-800 text-xl" href="/login">Sign in</a>
+                 <a class="btn bg-slate-800 text-xl" href="/public/GridSimulation">Simulation</a>
+            </div>
+        </div>
+    </div>
+
+</span>
+
+
 <section>
   <div bind:this="{element}" bind:clientHeight="{height}" class="flex flex-row">
-    <div class="md:basis-1/4 sm:basis-0">
+    <!-- <div class="md:basis-1/4 sm:basis-0">
 
-    </div>
+    </div> -->
 
 
 
@@ -41,7 +59,7 @@
         </div>
 
 
-        <div class="card md:card-side glass shadow-xl mt-4">
+        <div class="card md:card-side glass shadow-xl mt-4 flex justify-center ">
             <figure class = "max-w-96">
                 <img src="../src/images/pexels-pixabay-163064.jpg" alt="complex network" />
             </figure>
@@ -54,7 +72,7 @@
 
 
 
-        <div class="card md:card-side glass shadow-xl mt-4">
+        <div class="card md:card-side glass shadow-xl mt-7">
             <figure class = "max-w-96 ">
                 <img src="../src/images/troy-bridges-maXnRLszYY0-unsplash.jpg" alt="img" />
             </figure>
@@ -86,30 +104,7 @@
   </div>
 </section>
 
-<span class="block fixed text-center md:left-5 sm:left-1/4 top-16 z-10">
 
-    <div class="card bg-base-100 max-w-lg shadow-xl">
-    <div class="card-body items-center text-center">
-        <h2 class="text-5xl font-bold  card-title">Amplify</h2>
-            <p class="py-6">Discover a revolutionary platform where you can buy and sell electricity in real-time.</p>
-            <div class="card-actions">
-                 <a class="btn bg-slate-800 text-xl" href="/login">Sign in</a>
-                 <a class="btn bg-slate-800 text-xl" href="/public/GridSimulation">Show me the simulation</a>
-            </div>
-        </div>
-    </div>
-
-     <div class="card bg-base-100 shadow-xl mt-4 max-w-lg ">
-            <div class="card-body">
-                <h2 class="card-title">Who are we?</h2>
-                <p>We are a group dedicated to exploring new and better ways of electrical distribution.  </p>
-                <h2 class="card-title">What is Amplify?</h2>
-                <p>
-                    Amplify is a experimental new platform for testing an electrical grid based of a free market
-                </p>
-            </div>
-        </div>
-</span>
 </main>
 
 

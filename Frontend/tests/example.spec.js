@@ -52,3 +52,18 @@ test.describe("signup page",() => {
     await page.waitForURL('**/login');
   });
 });
+test.describe("simulation page",() => {
+  test.beforeEach(async ({page})=>{
+    await page.goto('http://localhost:5173/public/GridSimulation');
+  });
+  test('Back to Landing page', async ({ page }) => {
+    //Wait for page to finish loading
+    //await page.waitForLoadState('networkidle');
+
+    // Click the "I already have an account" button.
+    await page.getByRole('button', { name: 'Amplify' }).click();
+
+    // Expects to be redirected back to login page.
+    await page.waitForURL('**');
+  });
+});

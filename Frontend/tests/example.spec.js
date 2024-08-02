@@ -28,7 +28,7 @@ test.describe("login page",() => {
   test('To signup page', async ({ page }) => {
     //Wait for page to finish loading
     await page.waitForLoadState('networkidle');
-    
+
     // Click the signup button.
     await page.getByRole('button', { name: 'Create an account' }).click();
     
@@ -38,9 +38,10 @@ test.describe("login page",() => {
 });
 
 test.describe("signup page",() => {
-  test('Back to login page', async ({ page }) => {
+  test.beforeEach(async ({page})=>{
     await page.goto('http://localhost:5173/signup');
-
+  });
+  test('Back to login page', async ({ page }) => {
     //Wait for page to finish loading
     await page.waitForLoadState('networkidle');
 

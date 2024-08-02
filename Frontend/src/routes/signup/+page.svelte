@@ -39,7 +39,9 @@
   }
 
   function passwordCreationHelp() {
-
+    if (!password.match(passwordRegex)) {
+      errormessage = "Password requires at least 8 characters, uppercase and lowercase, a symbol and a number"
+    }
   }
 
   function showPassword() {
@@ -106,7 +108,7 @@
 <main>
     <div class="hero min-h-screen" style="background-image: url(https://images.unsplash.com/photo-1510595256055-e44b27efe497?q=80&w=1700&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D);">
         <div class="hero-overlay bg-opacity-60 "></div>
-        <div class="hero-content flex-col lg:flex-row-reverse rounded-2xl bg-base-100">
+        <div class="hero-content max-w-screen-md max-h-min flex-col lg:flex-row-reverse rounded-2xl bg-base-100">
           <div class="text-center lg:text-left">
             <h1 class="text-5xl font-bold">Amplify</h1>
             <p class="py-6">Discover a revolutionary open market platform where you can buy and sell electricity in real-time.</p>
@@ -129,7 +131,7 @@
               </div>
               
               <div class="form-control mt-4">
-                <input id="pw" type="password" placeholder="Password" class="input input-bordered" required bind:value={password} on:input={passwordCreationHelp}/>
+                <input id="pw" type="password" placeholder="Password" class="input input-bordered" required bind:value={password} on:change={passwordCreationHelp}/>
                 
                 <!-- button with icon (this doesnt work) -->
                 <!-- <button type="button" on:click={showPassword} class="absolute inset-y-0 end-0 flex items-center z-20 px-3 cursor-pointer text-gray-400 rounded-e-md focus:outline-none focus:text-blue-600 dark:text-neutral-600 dark:focus:text-blue-500">
@@ -160,10 +162,10 @@
                 <label for="hs-toggle-password-checkbox-2" class="text-sm text-gray-500 ms-3 dark:text-neutral-400">Show</label>
               </div>
 
-                <!-- {#if errormessage != ''}
-                  <h2 class="text-base font-semibold text-black bg-error rounded"> { errormessage } </h2>
-                {/if} -->
-
+              {#if errormessage != ''}
+                <p class="text-base font-semibold text-sm text-error rounded mt-2"> { errormessage } </p>
+              {/if}
+              
               <div class="form-control mt-4">
                 <button class="btn btn-primary" on:click={create}>Create account</button>
               </div>

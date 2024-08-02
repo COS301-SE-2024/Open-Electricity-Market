@@ -35,7 +35,7 @@
         }
         marker = L.marker([lat, lng]).addTo(map);
          if (onMapClick) {
-        onMapClick(lat, lng);
+        onMapClick(lng, lat);
       }
         });
        }

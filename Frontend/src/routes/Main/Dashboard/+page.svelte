@@ -38,7 +38,7 @@
   // let claimedunits; 
   $: sellorders = [];
   //variables for map input
-   let lattitude = '';
+   let latitude = '';
    let longtitude = '';
 
   onMount(async () => {
@@ -122,7 +122,7 @@
 
   async function createNode() {
     // only proceed if all fields filled in
-    if (nodeName == '' || nodeLatitude == '' || nodeLongitude == '') {
+    if (nodeName == '' || latitude == '' || longtitude == '') {
       // maybe show an error
       return;
     }
@@ -138,7 +138,7 @@
         credentials: "include", 
         body: JSON.stringify({
           name: nodeName, 
-          location_x: Number(lattitude), 
+          location_x: Number(latitude), 
           location_y: Number(longtitude)
         })
       });
@@ -149,7 +149,7 @@
       console.log(fdata);
 
       if (fdata.status === 'ok') {
-        document.getElementById("newNodeModal").close();
+        document.getElementById("mapModal").close();
         fetchNodes();
       }
 
@@ -334,7 +334,7 @@
   }
 
   function handleMapClick(lat, lng){
-    lattitude = lat; 
+    latitude = lat; 
     longtitude = lng; 
     console.log("Marker position updated: " + lat + " " + lng);
   }
@@ -528,7 +528,10 @@
       
         <div class="stat">
           <div class="stat-title">Node Location</div>
-          <div class="stat-value">{nodeLatitudeDetail} E {nodeLongitudeDetail} S</div>
+          <div class="stat-value">
+            {nodeLongitudeDetail < 0 ? nodeLongitudeDetail.toFixed(3) * -1 + "S" : nodeLongitudeDetail.toFixed(3) + "N"} 
+            {nodeLatitudeDetail < 0 ? nodeLatitudeDetail.toFixed(3) * -1 + "W": nodeLatitudeDetail.toFixed(3) + "E"}
+          </div>
         </div>
         
         <div class="stat">

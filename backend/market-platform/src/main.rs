@@ -278,7 +278,7 @@ async fn list_open_sells(cookie_jar: &CookieJar<'_>) -> Value {
                         .load::<SellOrder>(connection)
                     {
                         Ok(order_vec) => {
-                            message = "No open buy orders";
+                            message = "No open sell orders";
                             if order_vec.len() > 0 {
                                 message = "Successfully retrieved open sell orders";
                                 for order in order_vec {
@@ -1064,19 +1064,32 @@ async fn remove_funds(remove_funds_req: Json<RemoveFundsReq>, jar: &CookieJar<'_
     }
 
     if has_cookie {
-        let user = users
+        let user_result = users
             .filter(session_id.eq(session_id_str))
             .select(User::as_select())
-            .load::<User>(connection)
-            .expect("User does not exist");
-
-        if remove_funds_req.funds > 0f64 && user[0].credit >= remove_funds_req.funds {
-            diesel::update(users)
-                .filter(user_id.eq(user[0].user_id))
-                .set(credit.eq(credit - remove_funds_req.funds))
-                .execute(connection)
-                .expect("Funds update failed");
-            message = "Funds removed";
+            .load::<User>(connection);
+        message = "No matching user";
+        match user_result {
+            Ok(user_vec) => {
+                if user_vec.len() > 0 {
+                    message = "Insufficient funds or bad request";
+                    if remove_funds_req.funds > 0f64 && user_vec[0].credit >= remove_funds_req.funds
+                    {
+                        message = "Failed to remove funds";
+                        match diesel::update(users)
+                            .filter(user_id.eq(user_vec[0].user_id))
+                            .set(credit.eq(credit - remove_funds_req.funds))
+                            .execute(connection)
+                        {
+                            Ok(_) => {
+                                message = "Funds removed";
+                            }
+                            Err(_) => {}
+                        }
+                    }
+                }
+            }
+            Err(_) => {}
         }
     }
 

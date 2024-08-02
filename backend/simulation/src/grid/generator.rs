@@ -16,12 +16,12 @@ pub struct Generator {
 }
 
 impl Generator {
-    pub fn new(id : u32,frequency : f32,latitude :f32,longitude :f32) -> Generator {
+    pub fn new(id: u32, frequency: f32, latitude: f32, longitude: f32) -> Generator {
         Generator {
             id,
             voltage: VoltageWrapper {
-                voltage: Voltage(0.0,0.0,0.0),
-                oscilloscope_detail: OscilloscopeDetail{
+                voltage: Voltage(0.0, 0.0, 0.0),
+                oscilloscope_detail: OscilloscopeDetail {
                     frequency: 0.0,
                     amplitude: 0.0,
                     phase: 0.0,
@@ -30,7 +30,10 @@ impl Generator {
             max_voltage: 0.0,
             frequency,
             transmission_line: 0,
-            location: Location { latitude, longitude},
+            location: Location {
+                latitude,
+                longitude,
+            },
         }
     }
 }

@@ -10,13 +10,13 @@ use crate::grid::{Grid, OscilloscopeDetail, Resistance, Voltage, VoltageWrapper}
 use rocket::fairing::{Fairing, Info, Kind};
 use rocket::http::{Header, Method, Status};
 use rocket::response::content;
-use rocket::serde::json::json;
+use rocket::serde::json::Json;
+use rocket::serde::json::{json, to_string};
 use rocket::{serde, Request, Response, State};
 use serde::{Deserialize, Serialize};
 use std::ops::Deref;
 use std::sync::{Arc, Mutex};
 use std::time::Instant;
-use rocket::serde::json::Json;
 
 pub struct CORS;
 pub mod grid;
@@ -51,7 +51,6 @@ fn echo_channel(ws: ws::WebSocket, grid: &State<Arc<Mutex<Grid>>>) -> ws::Channe
 
     let g = grid.inner().clone();
 
-
     ws.channel(move |mut stream| {
         Box::pin(async move {
             while let Some(message) = stream.next().await {
@@ -63,19 +62,10 @@ fn echo_channel(ws: ws::WebSocket, grid: &State<Arc<Mutex<Grid>>>) -> ws::Channe
                     Ok(mut gca) => {
                         gca.set_generator(message.unwrap().to_string());
                     }
-                    ,
                     Err(err) => {
                         println!("{}", err);
                     }
-                    ,
-               }
-                
-
-            
-
-
-
-                 
+                }
             }
 
             Ok(())
@@ -89,25 +79,50 @@ fn index() -> String {
 }
 
 #[derive(Deserialize)]
-#[serde(crate="rocket::serde")]
-struct AddGenerator{
-    latitude :f32,
-    longitude : f32
+#[serde(crate = "rocket::serde")]
+struct AddLocation {
+    latitude: f32,
+    longitude: f32,
 }
 
 #[derive(Serialize)]
-#[serde(crate="rocket::serde")]
-struct NewGenerator{
-    circuit :u32,
-    generator : u32
+#[serde(crate = "rocket::serde")]
+struct NewConsumer {
+    circuit: u32,
+    consumer: u32,
 }
 
-#[post("/add_generator",format="application/json",data="<data>")]
-fn add_generator(grid: &State<Arc<Mutex<Grid>>>,data:Json<AddGenerator>) -> content::RawJson<String> {
+#[post("/add_consumer", format = "application/json",data="<data>")]
+fn add_consumer(
+    grid: &State<Arc<Mutex<Grid>>>,
+    data: Json<AddLocation>,
+) -> content::RawJson<String> {
+    let mut g = grid.lock().unwrap();
+    let (consumer,circuit) =g.create_consumer(data.latitude, data.longitude);
+
+    let new_consumer = NewConsumer { circuit, consumer };
+
+    let out = serde_json::to_string(&new_consumer).unwrap();
+
+    content::RawJson(out)
+}
+
+#[derive(Serialize)]
+#[serde(crate = "rocket::serde")]
+struct NewGenerator {
+    circuit: u32,
+    generator: u32,
+}
+
+#[post("/add_generator", format = "application/json", data = "<data>")]
+fn add_generator(
+    grid: &State<Arc<Mutex<Grid>>>,
+    data: Json<AddLocation>,
+) -> content::RawJson<String> {
     let mut g = grid.lock().unwrap();
 
-    let (circuit,generator) = g.create_producer(data.latitude, data.longitude);
-    
+    let (circuit, generator) = g.create_producer(data.latitude, data.longitude);
+
     let new_genenrator = NewGenerator { circuit, generator };
 
     let out = serde_json::to_string(&new_genenrator).unwrap();
@@ -117,7 +132,10 @@ fn add_generator(grid: &State<Arc<Mutex<Grid>>>,data:Json<AddGenerator>) -> cont
 
 #[post("/stats")]
 fn stats(grid: &State<Arc<Mutex<Grid>>>) -> content::RawJson<String> {
-    let g = grid.lock().unwrap();
+    // let g;
+    let g =  grid.lock().unwrap();
+    
+
     let stats = g.get_grid_stats();
     let stats = serde_json::to_string(&stats).unwrap();
     content::RawJson(stats)
@@ -125,9 +143,14 @@ fn stats(grid: &State<Arc<Mutex<Grid>>>) -> content::RawJson<String> {
 
 #[post("/info", format = "application/json")]
 fn info(grid: &State<Arc<Mutex<Grid>>>) -> content::RawJson<String> {
-    let g = grid.lock().unwrap();
-    let info = serde_json::to_string(g.deref()).unwrap();
-    content::RawJson(info)
+    match grid.lock() {
+        Ok(g) => {
+            let info = serde_json::to_string(g.deref()).unwrap();
+            content::RawJson(info)
+        },
+        Err(err) => {content::RawJson(err.to_string())},
+    }
+ 
 }
 
 #[post("/start", format = "application/json")]
@@ -144,7 +167,7 @@ fn start(grid: &State<Arc<Mutex<Grid>>>) -> String {
                 elapsed_time += duration.as_secs_f32();
                 start = Instant::now();
                 let mut grid = clone.lock().unwrap();
-                grid.update(elapsed_time)
+                grid.update(elapsed_time);
             }
         });
         json!({
@@ -163,7 +186,10 @@ fn start(grid: &State<Arc<Mutex<Grid>>>) -> String {
 fn rocket() -> _ {
     rocket::build()
         .attach(CORS)
-        .mount("/", routes![index, start, info, echo_channel, stats,add_generator])
+        .mount(
+            "/",
+            routes![index, start, info, echo_channel, stats, add_generator,add_consumer],
+        )
         .manage(Arc::new(Mutex::new(Grid {
             circuits: vec![Circuit {
                 id: 0,

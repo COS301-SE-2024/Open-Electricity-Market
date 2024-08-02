@@ -5,6 +5,7 @@ CREATE TABLE nodes(
     location_y float8 NOT NULL DEFAULT 0,
     units_consumed float8 NOT NULL DEFAULT 0,
     units_generated float8 NOT NULL DEFAULT 0,
+    node_active bool NOT NULL DEFAULT true,
     CONSTRAINT fk_node_owner
         FOREIGN KEY(node_owner)
         REFERENCES users(user_id)

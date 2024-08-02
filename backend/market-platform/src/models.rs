@@ -46,6 +46,7 @@ pub struct Node {
     pub location_y: f64,
     pub units_consumed: f64,
     pub units_generated: f64,
+    pub node_active: bool,
     pub name: String,
 }
 

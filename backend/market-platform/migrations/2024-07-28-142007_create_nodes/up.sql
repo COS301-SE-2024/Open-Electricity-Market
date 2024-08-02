@@ -3,8 +3,6 @@ CREATE TABLE nodes(
     node_owner uuid NOT NULL,
     location_x float8 NOT NULL DEFAULT 0, -- Potentially replace with location type
     location_y float8 NOT NULL DEFAULT 0,
-    units_consumed float8 NOT NULL DEFAULT 0,
-    units_generated float8 NOT NULL DEFAULT 0,
     node_active bool NOT NULL DEFAULT true,
     CONSTRAINT fk_node_owner
         FOREIGN KEY(node_owner)

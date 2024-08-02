@@ -7,7 +7,8 @@ pub mod open_em {
             buyer_id -> Uuid,
             sought_units -> Float8,
             filled_units -> Float8,
-            price -> Float8,
+            max_price -> Float8,
+            min_price -> Float8,
             created_at -> Timestamptz,
             consumer_id -> Uuid,
         }
@@ -19,8 +20,6 @@ pub mod open_em {
             node_owner -> Uuid,
             location_x -> Float8,
             location_y -> Float8,
-            units_consumed -> Float8,
-            units_generated -> Float8,
             node_active -> Bool,
             name -> Text,
         }
@@ -41,7 +40,8 @@ pub mod open_em {
             created_at -> Timestamptz,
             offered_units -> Float8,
             claimed_units -> Float8,
-            price -> Float8,
+            max_price -> Float8,
+            min_price -> Float8,
             producer_id -> Uuid,
         }
     }
@@ -53,8 +53,10 @@ pub mod open_em {
             buy_order_id -> Int8,
             transacted_units -> Float8,
             transacted_price -> Float8,
-            transaction_active -> Bool,
             created_at -> Timestamptz,
+            transaction_fee -> Float8,
+            units_produced -> Float8,
+            units_consumed -> Float8,
         }
     }
 

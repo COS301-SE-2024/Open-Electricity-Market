@@ -7,6 +7,7 @@ use crate::models::{
     BuyOrder, NewBuyOrder, NewNodeModel, NewProfileModel, NewSellOrder, NewTransaction,
     NewUserModel, Node, Profile, SellOrder, Transaction, User,
 };
+use chrono::{Duration, Utc};
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use dotenvy::dotenv;
@@ -22,7 +23,6 @@ use rocket::serde::{Deserialize, Serialize};
 use rocket::yansi::Paint;
 use rocket::{Request, Response, State};
 use std::env;
-use chrono::{Duration, Utc};
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::{Arc, Mutex};
 use uuid::{Error, Uuid};
@@ -473,8 +473,8 @@ async fn sell_order(
     use self::schema::open_em::buy_orders::dsl::*;
     use self::schema::open_em::nodes::dsl::*;
     use self::schema::open_em::sell_orders::dsl::*;
-    use self::schema::open_em::users::dsl::*;
     use self::schema::open_em::transactions::dsl::*;
+    use self::schema::open_em::users::dsl::*;
 
     let connection = &mut establish_connection();
 

@@ -22,11 +22,14 @@ test.describe("Landing page",() => {
 });
 
 test.describe("login page",() => {
-  test('To signup page', async ({ page }) => {
+  test.beforeEach(async ({page})=>{
     await page.goto('http://localhost:5173/login');
+  });
+  test('To signup page', async ({ page }) => {
+    //Wait for page to finish loading
+    await page.waitForLoadState('networkidle');
     
     // Click the signup button.
-    await page.waitForLoadState('networkidle');
     await page.getByRole('button', { name: 'Create an account' }).click();
     
     // Expects to be redirected to signup page.
@@ -38,9 +41,10 @@ test.describe("signup page",() => {
   test('Back to login page', async ({ page }) => {
     await page.goto('http://localhost:5173/signup');
 
-    // Click the "I already have an account" button.
+    //Wait for page to finish loading
     await page.waitForLoadState('networkidle');
 
+    // Click the "I already have an account" button.
     await page.getByRole('button', { name: 'I already have an account' }).click();
 
     // Expects to be redirected back to login page.

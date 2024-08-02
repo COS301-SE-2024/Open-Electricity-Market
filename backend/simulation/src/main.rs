@@ -11,10 +11,12 @@ use rocket::fairing::{Fairing, Info, Kind};
 use rocket::http::{Header, Method, Status};
 use rocket::response::content;
 use rocket::serde::json::json;
-use rocket::{Request, Response, State};
+use rocket::{serde, Request, Response, State};
+use serde::{Deserialize, Serialize};
 use std::ops::Deref;
 use std::sync::{Arc, Mutex};
 use std::time::Instant;
+use rocket::serde::json::Json;
 
 pub struct CORS;
 pub mod grid;
@@ -86,6 +88,33 @@ fn index() -> String {
     "Yay".to_string()
 }
 
+#[derive(Deserialize)]
+#[serde(crate="rocket::serde")]
+struct AddGenerator{
+    latitude :f32,
+    longitude : f32
+}
+
+#[derive(Serialize)]
+#[serde(crate="rocket::serde")]
+struct NewGenerator{
+    circuit :u32,
+    generator : u32
+}
+
+#[post("/add_generator",format="application/json",data="<data>")]
+fn add_generator(grid: &State<Arc<Mutex<Grid>>>,data:Json<AddGenerator>) -> content::RawJson<String> {
+    let mut g = grid.lock().unwrap();
+
+    let (circuit,generator) = g.create_producer(data.latitude, data.longitude);
+    
+    let new_genenrator = NewGenerator { circuit, generator };
+
+    let out = serde_json::to_string(&new_genenrator).unwrap();
+
+    content::RawJson(out)
+}
+
 #[post("/stats")]
 fn stats(grid: &State<Arc<Mutex<Grid>>>) -> content::RawJson<String> {
     let g = grid.lock().unwrap();
@@ -134,7 +163,7 @@ fn start(grid: &State<Arc<Mutex<Grid>>>) -> String {
 fn rocket() -> _ {
     rocket::build()
         .attach(CORS)
-        .mount("/", routes![index, start, info, echo_channel, stats])
+        .mount("/", routes![index, start, info, echo_channel, stats,add_generator])
         .manage(Arc::new(Mutex::new(Grid {
             circuits: vec![Circuit {
                 id: 0,

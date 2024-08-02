@@ -1,7 +1,11 @@
+use std::usize;
+
 use crate::grid::circuit::Circuit;
 use crate::grid::load::Connection::{Parallel, Series};
 use rocket::serde::Serialize;
 use serde::Deserialize;
+
+use self::generator::Generator;
 
 pub mod circuit;
 pub mod generator;
@@ -143,6 +147,42 @@ pub struct GridStats {
 }
 
 impl Grid {
+
+    pub fn create_producer(&mut self, latitude : f32,longitude:f32) -> (u32,u32) {
+        let mut nearest_circuit = 0;
+        let mut nearst_distance = f32::INFINITY;
+
+        for circuit in self.circuits.iter() {
+            let id = circuit.id;
+            for transformer in circuit.transformers.iter() {
+                let transformer = transformer.lock().unwrap();
+                let trans_latitude = transformer.location.latitude;
+                let trans_longitude = transformer.location.longitude;
+
+                let x = trans_latitude-latitude;
+                let y = trans_longitude-longitude;
+
+
+                let dist = f32::sqrt(x*x+y*y);
+
+                if dist < nearst_distance {
+                    nearest_circuit =id;
+                    nearst_distance = dist
+                }
+            }
+        }
+
+        let index = self.circuits.iter().position(|cur| { cur.id == nearest_circuit}).unwrap();
+
+        let id = self.circuits[index as usize].generators.len()+1;
+
+        self.circuits[index as usize].generators.push(Generator::new(id as u32, 50.0, latitude, longitude));
+
+
+        return (nearest_circuit,id as u32)
+
+    }
+
     pub fn connect_load_series(&mut self, new: u32, to: u32, circuit: usize) {
         let mut new_primary = to;
         for con in self.circuits[circuit].connections.iter() {

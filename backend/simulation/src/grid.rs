@@ -1,232 +1,235 @@
-use crate::grid::consumer::Consumer;
-use crate::grid::generator::Generator;
-use crate::grid::transformer::Transformer;
-use crate::grid::transmission_line::TransmissionLine;
-use rocket::serde::json::json;
+use crate::grid::circuit::Circuit;
+use crate::grid::load::Connection::{Parallel, Series};
+use rocket::serde::Serialize;
+use serde::Deserialize;
 
-pub mod consumer;
+pub mod circuit;
 pub mod generator;
+pub mod load;
+pub mod location;
 pub mod transformer;
-pub mod transmission_line;
 
 #[cfg(test)]
 mod tests;
 
-pub trait ToJson {
-    fn to_json(&self) -> String;
-}
+#[derive(Clone, Serialize)]
+#[serde(crate = "rocket::serde")]
 pub struct Resistance(pub f32);
+#[derive(Clone, Serialize)]
+#[serde(crate = "rocket::serde")]
 pub struct Voltage(pub f32, pub f32, pub f32);
+impl Voltage {
+    pub fn add_voltage(&self, other: Voltage) -> Voltage {
+        let mut out = other;
+        out.0 += self.0;
+        out.1 += self.1;
+        out.2 += self.2;
+        out
+    }
 
+    pub fn subtract_voltage(&self, other: Voltage) -> Voltage {
+        let mut out = self.clone();
+        out.0 -= other.0;
+        out.1 -= other.1;
+        out.2 -= other.2;
+        out
+    }
+}
+
+#[derive(Clone, Serialize)]
+#[serde(crate = "rocket::serde")]
+pub struct VoltageWrapper {
+    pub voltage: Voltage,
+    pub oscilloscope_detail: OscilloscopeDetail,
+}
+
+impl VoltageWrapper {
+    pub fn add_voltage(&self, other: VoltageWrapper) -> VoltageWrapper {
+        let mut out = self.clone();
+        let voltage = out.voltage;
+        out.voltage = voltage.add_voltage(other.voltage);
+        out.oscilloscope_detail.amplitude += other.oscilloscope_detail.amplitude;
+        out
+    }
+
+    pub fn subtract_voltage(&self, other: VoltageWrapper) -> VoltageWrapper {
+        let mut out = self.clone();
+        let voltage = out.voltage;
+        out.voltage = voltage.subtract_voltage(other.voltage);
+        out.oscilloscope_detail.amplitude -= other.oscilloscope_detail.amplitude;
+        out
+    }
+}
+
+#[derive(Clone, Serialize)]
+#[serde(crate = "rocket::serde")]
+pub struct OscilloscopeDetail {
+    pub frequency: f32,
+    pub amplitude: f32,
+    pub phase: f32,
+}
+
+#[derive(Clone)]
+pub struct Harry(pub f32);
+#[derive(Clone)]
+pub struct Current(pub f32, pub f32, pub f32);
+impl Current {
+    fn ohms_law(voltage: Voltage, resistance: Resistance) -> Current {
+        let mut current = Current(0.0, 0.0, 0.0);
+        current.0 = voltage.0 / resistance.0;
+        current.1 = voltage.1 / resistance.0;
+        current.2 = voltage.2 / resistance.0;
+        current
+    }
+
+    fn scale(&self, factor: f32) -> Current {
+        Current(self.0 * factor, self.1 * factor, self.2 * factor)
+    }
+}
+#[derive(Clone)]
+pub struct CurrentWrapper {
+    pub current: Current,
+    pub oscilloscope_detail: OscilloscopeDetail,
+}
+
+impl CurrentWrapper {
+    fn ohms_law(voltage: VoltageWrapper, resistance: Resistance) -> CurrentWrapper {
+        let current = Current::ohms_law(voltage.voltage, resistance.clone());
+
+        CurrentWrapper {
+            current,
+            oscilloscope_detail: OscilloscopeDetail {
+                frequency: voltage.oscilloscope_detail.frequency,
+                amplitude: voltage.oscilloscope_detail.amplitude / resistance.0,
+                phase: voltage.oscilloscope_detail.phase,
+            },
+        }
+    }
+
+    fn scale(&self, factor: f32) -> CurrentWrapper {
+        CurrentWrapper {
+            current: self.current.scale(factor),
+            oscilloscope_detail: OscilloscopeDetail {
+                frequency: self.oscilloscope_detail.frequency,
+                amplitude: self.oscilloscope_detail.frequency * factor,
+                phase: self.oscilloscope_detail.phase,
+            },
+        }
+    }
+}
+
+#[derive(Serialize)]
+#[serde(crate = "rocket::serde")]
 pub struct Grid {
-    pub(crate) consumers: Vec<Consumer>,
-    pub(crate) transmission_lines: Vec<TransmissionLine>,
-    pub(crate) generators: Vec<Generator>,
-    pub(crate) transformers: Vec<Transformer>,
+    pub circuits: Vec<Circuit>,
+    pub frequency: f32,
     pub(crate) started: bool,
 }
 
-impl Grid {
-    pub(crate) fn get_average_line_voltage(&self) -> String {
-        let mut phase1 = 0.0;
-        let mut phase2 = 0.0;
-        let mut phase3 = 0.0;
-        for line in self.transmission_lines.iter() {
-            phase1 += line.voltage.0;
-            phase2 += line.voltage.1;
-            phase3 += line.voltage.2;
-        }
-        phase1 /= self.transmission_lines.len() as f32;
-        phase2 /= self.transmission_lines.len() as f32;
-        phase3 /= self.transmission_lines.len() as f32;
-
-        json!({
-            "Phase1":phase1,
-            "Phase2":phase2,
-            "Phase3":phase3
-        })
-        .to_string()
-    }
-
-    pub(crate) fn add_generator(
-        &mut self,
-        voltage: Voltage,
-        max_voltage: f32,
-        frequency: f32,
-        transmission_line: u32,
-    ) -> u32 {
-        let id: u32 = self.generators.len() as u32;
-        self.generators.push(Generator {
-            id,
-            voltage,
-            max_voltage,
-            frequency,
-            transmission_line,
-        });
-        id
-    }
-
-    pub(crate) fn add_consumer(
-        &mut self,
-        resistance: Resistance,
-        transmission_line: u32,
-        voltage: Voltage,
-    ) -> u32 {
-        let id: u32 = self.consumers.len() as u32;
-        self.consumers.push(Consumer {
-            id,
-            resistance,
-            transmission_line,
-            voltage,
-        });
-        id
-    }
-
-    pub(crate) fn update_generator(&mut self, id: u32, max_voltages: f32) {
-        let index = self.generators.iter().position(|c| c.id == id);
-        match index {
-            None => {}
-            Some(i) => {
-                self.generators[i].max_voltage = max_voltages;
-            }
-        }
-    }
-
-    pub(crate) fn update_consumer(&mut self, id: u32, resistance: Resistance) {
-        let index = self.consumers.iter().position(|c| c.id == id);
-        match index {
-            None => {}
-            Some(i) => {
-                self.consumers[i].resistance.0 = resistance.0;
-            }
-        }
-    }
-
-    pub(crate) fn update_impedance(&mut self) {
-        for line in self.transmission_lines.iter_mut() {
-            let index = self
-                .consumers
-                .iter()
-                .position(|c| c.transmission_line == line.id);
-            match index {
-                None => line.impedance = Resistance(line.resistance.0),
-                Some(i) => {
-                    line.impedance = Resistance(line.resistance.0 + self.consumers[i].resistance.0)
-                }
-            }
-        }
-    }
-
-    pub(crate) fn update_generator_voltages(&mut self, elapsed_time: f32) {
-        for gen in self.generators.iter_mut() {
-            gen.voltage.0 = gen.max_voltage
-                * f32::sin(gen.frequency * std::f32::consts::FRAC_2_PI * elapsed_time);
-            gen.voltage.1 = gen.max_voltage
-                * f32::sin(
-                    gen.frequency * std::f32::consts::FRAC_2_PI * elapsed_time
-                        - (std::f32::consts::FRAC_2_PI / 3.0),
-                );
-            gen.voltage.2 = gen.max_voltage
-                * f32::sin(
-                    gen.frequency * std::f32::consts::FRAC_2_PI * elapsed_time
-                        - (2.0 * std::f32::consts::FRAC_2_PI / 3.0),
-                );
-        }
-    }
-
-    pub(crate) fn sync_voltages(&mut self) {
-        // Gens to lines
-        for gen in self.generators.iter_mut() {
-            let index = self
-                .transmission_lines
-                .iter()
-                .position(|l| l.id == gen.transmission_line);
-            match index {
-                None => {}
-                Some(i) => {
-                    self.transmission_lines[i].voltage.0 = gen.voltage.0;
-                    self.transmission_lines[i].voltage.1 = gen.voltage.1;
-                    self.transmission_lines[i].voltage.2 = gen.voltage.2;
-                }
-            }
-        }
-        // Steps
-        for trans in self.transformers.iter() {
-            let primary_index = self
-                .transmission_lines
-                .iter()
-                .position(|l| l.id == trans.primary);
-            let secondary_index = self
-                .transmission_lines
-                .iter()
-                .position(|l| l.id == trans.secondary);
-            match primary_index {
-                None => {}
-                Some(i) => match secondary_index {
-                    None => {}
-                    Some(j) => {
-                        self.transmission_lines[j].voltage.0 =
-                            self.transmission_lines[i].voltage.0 * trans.ratio;
-                        self.transmission_lines[j].voltage.1 =
-                            self.transmission_lines[i].voltage.1 * trans.ratio;
-                        self.transmission_lines[j].voltage.2 =
-                            self.transmission_lines[i].voltage.2 * trans.ratio;
-                    }
-                },
-            }
-        }
-
-        // Lines to consumers
-        for line in self.transmission_lines.iter_mut() {
-            let index = self
-                .consumers
-                .iter()
-                .position(|c| c.transmission_line == line.id);
-            match index {
-                None => {}
-                Some(i) => {
-                    self.consumers[i].voltage.0 = line.voltage.0;
-                    self.consumers[i].voltage.1 = line.voltage.1;
-                    self.consumers[i].voltage.2 = line.voltage.2;
-                }
-            }
-        }
-    }
+#[derive(Deserialize)]
+struct GridInterface {
+    circuit: u32,
+    generator: u32,
+    voltage: f32,
 }
 
-impl ToJson for Grid {
-    fn to_json(&self) -> String {
-        // consumers : Vec<Consumer>,
-        // transmission_lines: Vec<TransmissionLine>,
-        // generators : Vec<Generator>,
-        // transformers: Vec<Transformer>,
-        // started : bool
-        let mut consumer_strings: Vec<String> = vec![];
-        for consumer in self.consumers.iter() {
-            consumer_strings.push(consumer.to_json());
+#[derive(Serialize)]
+pub struct GridStats {
+    total_impedance: f32,
+    total_generation: f32,
+    consumer_count: u32,
+    producer_count: u32,
+    user_count: u32,
+}
+
+impl Grid {
+    pub fn connect_load_series(&mut self, new: u32, to: u32, circuit: usize) {
+        let mut new_primary = to;
+        for con in self.circuits[circuit].connections.iter() {
+            match con {
+                Parallel(_, _) => {}
+                Series(primary, secondary) => {
+                    if *secondary == new_primary {
+                        new_primary = *primary;
+                    }
+                }
+            }
         }
 
-        let mut transmission_line_strings: Vec<String> = vec![];
-        for lines in self.transmission_lines.iter() {
-            transmission_line_strings.push(lines.to_json());
+        self.circuits[circuit]
+            .connections
+            .push(Series(new_primary, new))
+    }
+
+    pub fn connect_load_parallel(&mut self, new: u32, to: u32, circuit: usize) {
+        let mut new_primary = to;
+        for con in self.circuits[circuit].connections.iter() {
+            match con {
+                Parallel(primary, secondary) => {
+                    if *secondary == new_primary {
+                        new_primary = *primary;
+                    }
+                }
+                Series(_, _) => {}
+            }
+        }
+        self.circuits[circuit]
+            .connections
+            .push(Parallel(new_primary, new))
+    }
+
+    fn internal_update(&mut self, elapsed_time: f32, circuit: usize) {
+        // Step 1 Update voltages
+        let voltage = self.circuits[circuit].calculate_ideal_generator_voltages(elapsed_time);
+        // Step 2 Calculate Impedance
+        let impedance =
+            Resistance(self.circuits[circuit].calculate_equivalent_impedance(self.frequency, 0));
+        // Step 3 Calculate current
+        let current = CurrentWrapper::ohms_law(voltage, impedance);
+        // Step 4 Split resistors (and current) back down
+        // Step 5 Determine Voltages
+        self.circuits[circuit].set_voltages(current, self.frequency, 0);
+
+        //Step 6 Switch to Connected Circuits
+        self.circuits[circuit].set_transformers_secondary_voltages(self.frequency);
+    }
+
+    pub fn update(&mut self, elapsed_time: f32) {
+        self.internal_update(elapsed_time, 0);
+    }
+
+    pub fn set_generator(&mut self, json: String) {
+        let grid_interface: GridInterface = serde_json::from_str(&json).unwrap();
+        self.circuits[grid_interface.circuit as usize]
+            .set_generater(grid_interface.generator, grid_interface.voltage);
+    }
+
+    pub fn get_grid_stats(&self) -> GridStats {
+        let mut ouput = GridStats {
+            total_impedance: 0.0,
+            total_generation: 0.0,
+            consumer_count: 0,
+            producer_count: 0,
+            user_count: 0,
+        };
+
+        for cir in self.circuits.iter() {
+            for load in cir.loads.iter() {
+                ouput.total_impedance += load.get_impedance(self.frequency).0;
+                match load.load_type {
+                    load::LoadType::Consumer(_) => ouput.consumer_count += 1,
+                    load::LoadType::TransmissionLine(_) => {}
+                }
+            }
+
+            for gen in cir.generators.iter() {
+                ouput.total_generation += gen.voltage.oscilloscope_detail.amplitude;
+                ouput.producer_count += 1;
+            }
         }
 
-        let mut generator_strings: Vec<String> = vec![];
-        for gen in self.generators.iter() {
-            generator_strings.push(gen.to_json());
-        }
+        ouput.user_count = ouput.producer_count + ouput.consumer_count;
 
-        let mut transformer_strings: Vec<String> = vec![];
-        for trans in self.transformers.iter() {
-            transformer_strings.push(trans.to_json());
-        }
-
-        json!({"Consumers" : consumer_strings,
-            "Transmission Lines" : transmission_line_strings,
-            "Generators" : generator_strings,
-            "Transformers" : transformer_strings,
-            "Started" : self.started
-        })
-        .to_string()
+        ouput
     }
 }

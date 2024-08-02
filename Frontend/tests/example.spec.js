@@ -12,6 +12,13 @@ test.describe("Landing page",() => {
     // Expects to be redirected to login page.
     await page.waitForURL('**/login');
   });
+  test('To simulation', async ({ page }) => {
+    // Click the sign in button.
+    await page.getByRole('link', { name: 'Show me the simulation' }).click();
+
+    // Expects to be redirected to login page.
+    await page.waitForURL('**/Main/GridSimulation');
+  });
 });
 
 test.describe("login page",() => {

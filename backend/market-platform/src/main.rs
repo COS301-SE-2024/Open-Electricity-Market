@@ -71,17 +71,17 @@ fn establish_connection() -> PgConnection {
         .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
 }
 
-struct UserIDFromCookie {
+struct Claims {
     message: String,
     user_id: Uuid,
 }
 
-fn user_id_from_cookie(cookie_jar: &CookieJar<'_>) -> UserIDFromCookie {
+fn verify_user(cookie_jar: &CookieJar<'_>) -> Claims {
     use self::schema::open_em::users::dsl::*;
 
     let connection = &mut establish_connection();
 
-    let mut response = UserIDFromCookie {
+    let mut response = Claims {
         message: "".to_string(),
         user_id: Uuid::nil(),
     };
@@ -143,7 +143,7 @@ async fn remove_node(remove_node_request: Json<RemoveNode>, cookie_jar: &CookieJ
 
     let mut message = "Something went wrong".to_string();
 
-    let user = user_id_from_cookie(cookie_jar);
+    let user = verify_user(cookie_jar);
 
     message = "No matching user".to_string();
     if user.message == "User found" {
@@ -190,7 +190,7 @@ async fn list_open_buys(cookie_jar: &CookieJar<'_>) -> Value {
     let mut message = "Something went wrong";
     let mut data = vec![];
 
-    let user = user_id_from_cookie(cookie_jar);
+    let user = verify_user(cookie_jar);
 
     message = "No matching user";
     if user.message == "User found" {
@@ -243,7 +243,7 @@ async fn list_open_sells(cookie_jar: &CookieJar<'_>) -> Value {
     let mut message = "Something went wrong";
     let mut data = vec![];
 
-    let user = user_id_from_cookie(cookie_jar);
+    let user = verify_user(cookie_jar);
 
     if user.message == "User found" {
         match sell_orders
@@ -300,7 +300,7 @@ async fn buy_order(buy_order_request: Json<BuyOrderRequest>, cookie_jar: &Cookie
 
     let mut message = "Something went wrong".to_string();
 
-    let user = user_id_from_cookie(cookie_jar);
+    let user = verify_user(cookie_jar);
 
     message = "No matching user".to_string();
     if user.message == "User found" {
@@ -336,9 +336,7 @@ async fn buy_order(buy_order_request: Json<BuyOrderRequest>, cookie_jar: &Cookie
                                             schema::open_em::sell_orders::min_price
                                                 .le(order.max_price),
                                         )
-                                        .order_by(
-                                            schema::open_em::sell_orders::created_at.asc(),
-                                        )
+                                        .order_by(schema::open_em::sell_orders::created_at.asc())
                                         .select(SellOrder::as_select())
                                         .load::<SellOrder>(connection)
                                     {
@@ -379,9 +377,14 @@ async fn buy_order(buy_order_request: Json<BuyOrderRequest>, cookie_jar: &Cookie
                                                         message = error.to_string().clone();
                                                     }
                                                 }
+                                                if order.filled_units == order.sought_units {
+                                                    break;
+                                                }
                                             }
                                             if order_match {
-                                                message = "Buy order created successfully. Order matched".to_string()
+                                                message =
+                                                    "Buy order created successfully. Order matched"
+                                                        .to_string()
                                             }
                                         }
                                         Err(_) => {}
@@ -429,7 +432,7 @@ async fn sell_order(
 
     let mut message = "Something went wrong".to_string();
 
-    let user = user_id_from_cookie(cookie_jar);
+    let user = verify_user(cookie_jar);
 
     message = "No matching user".to_string();
     if user.message == "User found" {
@@ -480,11 +483,11 @@ async fn sell_order(
                                                 if b_order.sought_units - b_order.filled_units
                                                     > order.offered_units - order.claimed_units
                                                 {
-                                                    transaction_units = order.offered_units
-                                                        - order.claimed_units;
+                                                    transaction_units =
+                                                        order.offered_units - order.claimed_units;
                                                 } else {
-                                                    transaction_units = b_order.sought_units
-                                                        - b_order.filled_units;
+                                                    transaction_units =
+                                                        b_order.sought_units - b_order.filled_units;
                                                 }
                                                 let transaction_price = b_order.min_price; // Will be based on the direction the market needs to move for grid stability
                                                 let new_transaction = NewTransaction {
@@ -507,9 +510,14 @@ async fn sell_order(
                                                         message = error.to_string().clone();
                                                     }
                                                 }
+                                                if order.claimed_units == order.offered_units {
+                                                    break;
+                                                }
                                             }
                                             if order_match {
-                                                message = "Sell order created successfully. Order matched".to_string()
+                                                message =
+                                                    "Sell order created successfully. Order matched"
+                                                        .to_string()
                                             }
                                         }
                                         Err(_) => {}
@@ -535,28 +543,23 @@ async fn remove_account(cookie_jar: &CookieJar<'_>) -> Value {
 
     let connection = &mut establish_connection();
 
-    let mut message = "Something went wrong";
+    let mut message: String;
 
-    let session_cookie = cookie_jar.get("session_id");
+    let claims = verify_user(cookie_jar);
+    message = claims.message.clone();
 
-    let mut has_cookie = false;
-    let mut session_id_str: String = "".to_string();
-    match session_cookie {
-        None => {}
-        Some(cookie) => {
-            has_cookie = true;
-            session_id_str = cookie.value().parse().unwrap();
-        }
-    }
-
-    if has_cookie {
-        diesel::update(users)
-            .filter(session_id.eq(session_id_str))
+    if claims.message == "User found" {
+        message = "Something went wrong".to_string();
+        match diesel::update(users)
+            .filter(user_id.eq(claims.user_id))
             .set(active.eq(false))
             .execute(connection)
-            .expect("Error making session id");
-
-        message = "Account successfully deleted";
+        {
+            Ok(_) => {
+                message = "Account successfully deleted".to_string();
+            }
+            Err(_) => {}
+        }
     }
 
     json!({"status": "ok", "message": message})
@@ -616,25 +619,7 @@ async fn user_details(cookie_jar: &CookieJar<'_>) -> Value {
 
     let connection = &mut establish_connection();
 
-    let mut message = "Something went wrong";
-
-    let session_cookie = cookie_jar.get("session_id");
-
-    let mut has_cookie = false;
-    let mut session_id_str: String = "".to_string();
-    match session_cookie {
-        None => message = "Session ID not found",
-        Some(cookie) => {
-            let cookie_value = cookie.value().parse();
-            match cookie_value {
-                Ok(cookie_str) => {
-                    has_cookie = true;
-                    session_id_str = cookie_str;
-                }
-                Err(_) => {}
-            };
-        }
-    }
+    let claims = verify_user(cookie_jar);
 
     let mut data = UserDetails {
         email: "".to_string(),
@@ -643,39 +628,31 @@ async fn user_details(cookie_jar: &CookieJar<'_>) -> Value {
         last_name: "".to_string(),
     };
 
-    if has_cookie {
-        let user_result = users
-            .filter(session_id.eq(session_id_str))
-            .select(User::as_select())
-            .load::<User>(connection);
+    let mut message = claims.message.clone();
 
-        match user_result {
-            Ok(user_vec) => {
-                message = "No matching user";
-                if user_vec.len() > 0 {
-                    let temp_user_id = user_vec[0].user_id.clone();
-                    let user_email = user_vec[0].email.clone();
-                    let profile_result = profiles
-                        .filter(profile_user_id.eq(temp_user_id))
-                        .select(Profile::as_select())
-                        .load::<Profile>(connection);
-                    match profile_result {
-                        Ok(profile_vec) => {
-                            message = "No matching user profile";
-                            if profile_vec.len() > 0 {
-                                let user_first_name = profile_vec[0].first_name.clone();
-                                let user_last_name = profile_vec[0].last_name.clone();
-                                data = UserDetails {
-                                    email: user_email,
-                                    credit: user_vec[0].credit,
-                                    first_name: user_first_name,
-                                    last_name: user_last_name,
-                                };
-                                message = "User details successfully retrieved";
-                            }
-                        }
-                        Err(_) => {}
+    if claims.message == "User found" {
+        match users
+            .filter(user_id.eq(claims.user_id))
+            .select(User::as_select())
+            .first(connection)
+        {
+            Ok(user) => {
+                message = "No matching user profile".to_string();
+                match profiles
+                    .filter(profile_user_id.eq(user.user_id))
+                    .select(Profile::as_select())
+                    .first(connection)
+                {
+                    Ok(profile) => {
+                        data = UserDetails {
+                            email: user.email.clone(),
+                            credit: user.credit,
+                            first_name: profile.first_name.clone(),
+                            last_name: profile.last_name.clone(),
+                        };
+                        message = "User details successfully retrieved".to_string();
                     }
+                    Err(_) => {}
                 }
             }
             Err(_) => {}
@@ -718,9 +695,7 @@ async fn node_details(
 
     let connection = &mut establish_connection();
 
-    let mut message = "Something went wrong".to_string();
-
-    let user = user_id_from_cookie(cookie_jar);
+    let claims = verify_user(cookie_jar);
 
     let mut data = NodeDetails {
         node_id: "".to_string(),
@@ -731,14 +706,14 @@ async fn node_details(
         units_to_consume: 0.0,
     };
 
-    message = "No matching user".to_string();
-    if user.message == "User found" {
+    let mut message = claims.message.clone();
+    if claims.message == "User found" {
         message = "Invalid Node ID".to_string();
         match Uuid::parse_str(&*node_details_request.node_id) {
             Ok(request_node_id) => {
                 match nodes
                     .filter(node_id.eq(request_node_id))
-                    .filter(node_owner.eq(user.user_id))
+                    .filter(node_owner.eq(claims.user_id))
                     .filter(node_active.eq(true))
                     .select(Node::as_select())
                     .load::<Node>(connection)
@@ -840,57 +815,28 @@ async fn get_nodes(get_nodes_request: Json<GetNodesReq>, cookie_jar: &CookieJar<
 
     let connection = &mut establish_connection();
 
-    let mut message = "Something went wrong";
+    let claims = verify_user(cookie_jar);
 
-    let session_cookie = cookie_jar.get("session_id");
-
-    let mut has_cookie = false;
-    let mut session_id_str: String = "".to_string();
-    match session_cookie {
-        None => message = "Session ID not found",
-        Some(cookie) => {
-            let cookie_value = cookie.value().parse();
-            match cookie_value {
-                Ok(cookie_str) => {
-                    has_cookie = true;
-                    session_id_str = cookie_str;
-                }
-                Err(_) => {}
-            };
-        }
-    }
+    let mut message = claims.message.clone();
 
     let mut node_list: Vec<ShortNodeRet> = vec![];
 
-    if has_cookie {
-        let user_result = users
-            .filter(session_id.eq(session_id_str))
-            .select(User::as_select())
-            .load::<User>(connection);
-
-        match user_result {
-            Ok(user_vec) => {
-                message = "No matching user";
-                if user_vec.len() > 0 {
-                    match nodes
-                        .filter(node_owner.eq(user_vec[0].user_id))
-                        .filter(node_active.eq(true))
-                        .select(Node::as_select())
-                        .limit(get_nodes_request.limit)
-                        .load::<Node>(connection)
-                    {
-                        Ok(node_vec) => {
-                            for node in node_vec {
-                                node_list.push(ShortNodeRet {
-                                    node_id: node.node_id.to_string(),
-                                    name: node.name,
-                                })
-                            }
-                            message = "List of nodes successfully retrieved"
-                        }
-                        Err(_) => {}
-                    }
+    if claims.message == "User found" {
+        match nodes
+            .filter(node_owner.eq(claims.user_id))
+            .filter(node_active.eq(true))
+            .select(Node::as_select())
+            .limit(get_nodes_request.limit)
+            .load::<Node>(connection)
+        {
+            Ok(node_vec) => {
+                for node in node_vec {
+                    node_list.push(ShortNodeRet {
+                        node_id: node.node_id.to_string(),
+                        name: node.name,
+                    })
                 }
+                message = "List of nodes successfully retrieved".to_string()
             }
             Err(_) => {}
         }
@@ -914,40 +860,25 @@ async fn add_node(add_node_req: Json<AddNodeReq<'_>>, cookie_jar: &CookieJar<'_>
 
     let connection = &mut establish_connection();
 
-    let mut message = "Something went wrong";
+    let claims = verify_user(cookie_jar);
 
-    let session_cookie = cookie_jar.get("session_id");
+    let mut message = claims.message.clone();
 
-    let mut has_cookie = false;
-    let mut session_id_str: String = "".to_string();
-    match session_cookie {
-        None => {}
-        Some(cookie) => {
-            has_cookie = true;
-            session_id_str = cookie.value().parse().unwrap();
-        }
-    }
-
-    if has_cookie {
-        let user = users
-            .filter(session_id.eq(session_id_str))
-            .select(User::as_select())
-            .load::<User>(connection)
-            .expect("User does not exist");
-
+    if claims.message == "User found" {
         let new_node_insert = NewNodeModel {
-            node_owner: user[0].user_id,
+            node_owner: claims.user_id,
             location_x: add_node_req.location_x,
             location_y: add_node_req.location_y,
             name: add_node_req.name,
         };
 
-        diesel::insert_into(nodes::table)
+        match diesel::insert_into(nodes::table)
             .values(&new_node_insert)
             .execute(connection)
-            .expect("Node Add Failed");
-
-        message = "New Node Added"
+        {
+            Ok(_) => message = "New Node Added".to_string(),
+            Err(_) => message = "Something went wrong".to_string(),
+        }
     }
 
     json!({"status": "ok", "message": message})
@@ -960,33 +891,25 @@ struct AddFundsReq {
 }
 
 #[post("/add_funds", format = "application/json", data = "<add_funds_req>")]
-async fn add_funds(add_funds_req: Json<AddFundsReq>, jar: &CookieJar<'_>) -> Value {
+async fn add_funds(add_funds_req: Json<AddFundsReq>, cookie_jar: &CookieJar<'_>) -> Value {
     use self::schema::open_em::users::dsl::*;
 
     let connection = &mut establish_connection();
 
-    let mut message = "Something went wrong";
+    let claims = verify_user(cookie_jar);
 
-    let session_cookie = jar.get("session_id");
+    let mut message = claims.message.clone();
 
-    let mut has_cookie = false;
-    let mut session_id_str: String = "".to_string();
-    match session_cookie {
-        None => {}
-        Some(cookie) => {
-            has_cookie = true;
-            session_id_str = cookie.value().parse().unwrap();
-        }
-    }
-
-    if has_cookie {
+    if claims.user_id != Uuid::nil() {
         if add_funds_req.funds > 0f64 {
-            diesel::update(users)
-                .filter(session_id.eq(session_id_str))
+            match diesel::update(users)
+                .filter(user_id.eq(claims.user_id))
                 .set(credit.eq(credit + add_funds_req.funds))
                 .execute(connection)
-                .expect("Funds update failed");
-            message = "Funds added";
+            {
+                Ok(_) => message = "Funds added".to_string(),
+                Err(_) => message = "Something went wrong.".to_string(),
+            }
         }
     }
 
@@ -1004,48 +927,32 @@ struct RemoveFundsReq {
     format = "application/json",
     data = "<remove_funds_req>"
 )]
-async fn remove_funds(remove_funds_req: Json<RemoveFundsReq>, jar: &CookieJar<'_>) -> Value {
+async fn remove_funds(remove_funds_req: Json<RemoveFundsReq>, cookie_jar: &CookieJar<'_>) -> Value {
     use self::schema::open_em::users::dsl::*;
 
     let connection = &mut establish_connection();
 
-    let mut message = "Something went wrong";
+    let claims = verify_user(cookie_jar);
 
-    let session_cookie = jar.get("session_id");
+    let mut message = claims.message.clone();
 
-    let mut has_cookie = false;
-    let mut session_id_str: String = "".to_string();
-    match session_cookie {
-        None => {}
-        Some(cookie) => {
-            has_cookie = true;
-            session_id_str = cookie.value().parse().unwrap();
-        }
-    }
-
-    if has_cookie {
-        let user_result = users
-            .filter(session_id.eq(session_id_str))
+    if claims.user_id != Uuid::nil() {
+        match users
+            .filter(user_id.eq(claims.user_id))
             .select(User::as_select())
-            .load::<User>(connection);
-        message = "No matching user";
-        match user_result {
-            Ok(user_vec) => {
-                if user_vec.len() > 0 {
-                    message = "Insufficient funds or bad request";
-                    if remove_funds_req.funds > 0f64 && user_vec[0].credit >= remove_funds_req.funds
+            .first(connection)
+        {
+            Ok(user) => {
+                message = "Insufficient funds".to_string();
+                if remove_funds_req.funds > 0f64 && user.credit >= remove_funds_req.funds {
+                    message = "Failed to remove funds".to_string();
+                    match diesel::update(users)
+                        .filter(user_id.eq(user.user_id))
+                        .set(credit.eq(credit - remove_funds_req.funds))
+                        .execute(connection)
                     {
-                        message = "Failed to remove funds";
-                        match diesel::update(users)
-                            .filter(user_id.eq(user_vec[0].user_id))
-                            .set(credit.eq(credit - remove_funds_req.funds))
-                            .execute(connection)
-                        {
-                            Ok(_) => {
-                                message = "Funds removed";
-                            }
-                            Err(_) => {}
-                        }
+                        Ok(_) => message = "Funds removed".to_string(),
+                        Err(_) => message = "Something went wrong.".to_string(),
                     }
                 }
             }
@@ -1058,55 +965,50 @@ async fn remove_funds(remove_funds_req: Json<RemoveFundsReq>, jar: &CookieJar<'_
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct Credentials<'r> {
-    email: &'r str,
-    password: &'r str,
+struct Credentials {
+    email: String,
+    password: String,
 }
 
 #[post("/login", format = "application/json", data = "<credentials>")]
-async fn login(credentials: Json<Credentials<'_>>, jar: &CookieJar<'_>) -> Value {
+async fn login(credentials: Json<Credentials>, jar: &CookieJar<'_>) -> Value {
     use self::schema::open_em::users::dsl::*;
 
     let connection = &mut establish_connection();
 
-    let mut message = "Something went wrong";
+    let mut message = "Something went wrong".to_string();
 
     let mut ret_session_id = "".to_string();
 
-    let user_result = users
-        .filter(email.eq(credentials.email))
+    match users
+        .filter(email.eq(credentials.email.clone()))
         .select(User::as_select())
-        .load::<User>(connection);
-
-    match user_result {
+        .first(connection)
+    {
         Ok(user) => {
-            message = "User does not exist";
-            if user.len() > 0 {
-                message = "Invalid password";
-                let verify = bcrypt::verify(credentials.password, &*user[0].pass_hash);
-                if verify {
-                    let h = bcrypt::hash(
-                        user[0].user_id.to_string() + &*chrono::Utc::now().to_string(),
-                    )
-                    .unwrap();
-                    let h2 = h.clone();
-                    let h3 = h.clone();
-                    match diesel::update(users)
-                        .filter(email.eq(credentials.email))
-                        .set(session_id.eq(h2))
-                        .execute(connection)
-                    {
-                        Ok(_) => {
-                            message = "User logged in";
-                            ret_session_id = h3;
-                            jar.add(Cookie::build(("session_id", h)).path("/"));
+            message = "Invalid password".to_string();
+            let verify = bcrypt::verify(credentials.password.clone(), &*user.pass_hash);
+            if verify {
+                match bcrypt::hash(user.user_id.to_string() + &*chrono::Utc::now().to_string()) {
+                    Ok(hash) => {
+                        match diesel::update(users)
+                            .filter(email.eq(credentials.email.clone()))
+                            .set(session_id.eq(hash.clone()))
+                            .execute(connection)
+                        {
+                            Ok(_) => {
+                                message = "User logged in".to_string();
+                                ret_session_id = hash.clone();
+                                jar.add(Cookie::build(("session_id", hash)).path("/"))
+                            }
+                            Err(_) => message = "Failed to update session id".to_string(),
                         }
-                        Err(_) => message = "Failed to update session id",
-                    };
+                    }
+                    Err(_) => {}
                 }
             }
         }
-        Err(_) => {}
+        Err(_) => message = "User does not exist".to_string(),
     }
 
     json!({ "status": "ok", "message": message, "data": { "session_id": ret_session_id}})

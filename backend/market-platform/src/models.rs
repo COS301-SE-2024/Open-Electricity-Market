@@ -12,6 +12,7 @@ pub struct User {
     pub credit: f64,
     pub created_at: DateTime<Utc>,
     pub session_id: Option<String>,
+    pub active: bool,
 }
 
 #[derive(Insertable)]

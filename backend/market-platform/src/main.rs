@@ -28,6 +28,11 @@ const FRONTEND_URL: &str = "http://localhost:5173";
 // const TARGET_VOLTAGE: f64 = 240.0;
 // Endpoint for current voltage
 
+const UNIT_PRICE_RATE: f64 = 0.0005;
+const IMPEDANCE_RATE: f64 = 0.00005;
+
+const SUPPLY_DEMAND_RATE: f64 = 0.0005;
+
 mod models;
 mod schema;
 
@@ -114,6 +119,65 @@ fn verify_user(cookie_jar: &CookieJar<'_>) -> Claims {
     }
 
     return response;
+}
+
+fn fee_calc(units: f64, price: f64) -> f64 {
+    return 0f64;
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct UpdateUnits {
+    units: f64,
+    node_id: String,
+}
+
+#[post(
+    "/update_consumed_units",
+    format = "application/json",
+    data = "<update_request>"
+)]
+async fn update_consumed_units(
+    update_request: Json<UpdateUnits>,
+    cookie_jar: &CookieJar<'_>,
+) -> Value {
+    let connection = &mut establish_connection();
+
+    let claims = verify_user(cookie_jar);
+
+    let mut message = claims.message;
+    if claims.user_id != Uuid::nil() {
+        match Uuid::parse_str(&*update_request.node_id) {
+            Ok(request_node_id) => {}
+            Err(_) => {}
+        }
+    }
+
+    json!({"status": "ok", "message": message})
+}
+
+#[post(
+    "/update_produced_units",
+    format = "application/json",
+    data = "<update_request>"
+)]
+async fn update_produced_units(
+    update_request: Json<UpdateUnits>,
+    cookie_jar: &CookieJar<'_>,
+) -> Value {
+    let connection = &mut establish_connection();
+
+    let claims = verify_user(cookie_jar);
+
+    let mut message = claims.message;
+    if claims.user_id != Uuid::nil() {
+        match Uuid::parse_str(&*update_request.node_id) {
+            Ok(request_node_id) => {}
+            Err(_) => {}
+        }
+    }
+
+    json!({"status": "ok", "message": message})
 }
 
 #[derive(Serialize, Deserialize)]
@@ -341,11 +405,14 @@ async fn buy_order(buy_order_request: Json<BuyOrderRequest>, cookie_jar: &Cookie
                                                     s_order.offered_units - s_order.claimed_units;
                                             }
                                             let transaction_price = s_order.min_price; // Will be based on the direction the market needs to move for grid stability
+                                            let fee =
+                                                fee_calc(transaction_units, transaction_price);
                                             let new_transaction = NewTransaction {
                                                 sell_order_id: s_order.sell_order_id,
                                                 buy_order_id: order.buy_order_id,
                                                 transacted_units: transaction_units,
                                                 transacted_price: transaction_price,
+                                                transaction_fee: fee,
                                             };
                                             match diesel::insert_into(transactions)
                                                 .values(new_transaction)
@@ -473,11 +540,14 @@ async fn sell_order(
                                                     b_order.sought_units - b_order.filled_units;
                                             }
                                             let transaction_price = b_order.min_price; // Will be based on the direction the market needs to move for grid stability
+                                            let fee =
+                                                fee_calc(transaction_units, transaction_price);
                                             let new_transaction = NewTransaction {
                                                 buy_order_id: b_order.buy_order_id,
                                                 sell_order_id: order.sell_order_id,
                                                 transacted_units: transaction_units,
                                                 transacted_price: transaction_price,
+                                                transaction_fee: fee,
                                             };
                                             match diesel::insert_into(transactions)
                                                 .values(new_transaction)
@@ -993,7 +1063,17 @@ async fn login(credentials: Json<Credentials>, jar: &CookieJar<'_>) -> Value {
                                 Ok(_) => {
                                     message = "User logged in".to_string();
                                     ret_session_id = hash.clone();
-                                    jar.add(Cookie::build(("session_id", hash)).path("/"))
+                                    jar.add(Cookie::build(("session_id", hash)).path("/"));
+                                    if !user.active {
+                                        match diesel::update(users)
+                                            .filter(user_id.eq(user.user_id))
+                                            .set(active.eq(true))
+                                            .execute(connection)
+                                        {
+                                            Ok(_) => {}
+                                            Err(_) => {}
+                                        }
+                                    }
                                 }
                                 Err(_) => message = "Failed to update session id".to_string(),
                             }
@@ -1011,17 +1091,16 @@ async fn login(credentials: Json<Credentials>, jar: &CookieJar<'_>) -> Value {
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct NewUserReq {
+struct NewUserRequest {
     email: String,
     first_name: String,
     last_name: String,
     password: String,
 }
 
-#[post("/register", format = "application/json", data = "<new_user>")]
-async fn register(new_user: Json<NewUserReq>, jar: &CookieJar<'_>) -> Value {
-    use self::schema::open_em::profiles;
-    use self::schema::open_em::users;
+#[post("/register", format = "application/json", data = "<new_user_request>")]
+async fn register(new_user_request: Json<NewUserRequest>, cookie_jar: &CookieJar<'_>) -> Value {
+    use self::schema::open_em::profiles::dsl::*;
     use self::schema::open_em::users::dsl::*;
 
     let connection = &mut establish_connection();
@@ -1035,7 +1114,7 @@ async fn register(new_user: Json<NewUserReq>, jar: &CookieJar<'_>) -> Value {
         r"^([a-z0-9_+]([a-z0-9_+.]*[a-z0-9_+])?)@([a-z0-9]+([\-.][a-z0-9]+)*\.[a-z]{2,6})",
     ) {
         Ok(regex) => {
-            email_valid = regex.is_match(&*new_user.email);
+            email_valid = regex.is_match(&*new_user_request.email);
             if !email_valid {
                 message = "Invalid email address".to_string()
             }
@@ -1044,22 +1123,22 @@ async fn register(new_user: Json<NewUserReq>, jar: &CookieJar<'_>) -> Value {
     }
 
     let mut password_valid = false;
-    if new_user.password.len() > 8 {
+    if new_user_request.password.len() > 8 {
         password_valid = true
     } else {
         message = "Password too short".to_string()
     }
 
     if email_valid && password_valid {
-        let binding = bcrypt::hash(new_user.password.clone()).unwrap();
+        let binding = bcrypt::hash(new_user_request.password.clone()).unwrap();
 
         let new_user_insert = NewUserModel {
-            email: new_user.email.clone(),
+            email: new_user_request.email.clone(),
             pass_hash: binding,
         };
 
         message = "Failed to create new user".to_string();
-        match diesel::insert_into(users::table)
+        match diesel::insert_into(users)
             .values(&new_user_insert)
             .returning(User::as_returning())
             .get_result::<User>(connection)
@@ -1078,17 +1157,17 @@ async fn register(new_user: Json<NewUserReq>, jar: &CookieJar<'_>) -> Value {
                         message = "Failed to add user profile".to_string();
                         let new_profile_insert = NewProfileModel {
                             profile_user_id: user.user_id,
-                            first_name: new_user.first_name.clone(),
-                            last_name: new_user.last_name.clone(),
+                            first_name: new_user_request.first_name.clone(),
+                            last_name: new_user_request.last_name.clone(),
                         };
-                        match diesel::insert_into(profiles::table)
+                        match diesel::insert_into(profiles)
                             .values(&new_profile_insert)
                             .execute(connection)
                         {
                             Ok(_) => {
                                 message = "New user added".to_string();
                                 ret_session_id = user_up.session_id.clone().unwrap();
-                                jar.add(
+                                cookie_jar.add(
                                     Cookie::build(("session_id", user_up.session_id.unwrap()))
                                         .path("/"),
                                 );
@@ -1127,6 +1206,8 @@ fn rocket() -> _ {
                 list_open_sells,
                 list_open_buys,
                 remove_node,
+                update_consumed_units,
+                update_produced_units,
             ],
         )
         .configure(rocket::Config::figment().merge(("port", 8001)))

@@ -1,11 +1,11 @@
 use std::{
     env,
-    fmt::{format, write},
+    fmt::{format, write}, result,
 };
 
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize,Clone,Copy)]
+#[derive(Serialize, Clone, Copy)]
 struct Location {
     latitude: f32,
     longitude: f32,
@@ -35,11 +35,10 @@ impl GeneratorDetail {
     }
 }
 
-
 #[derive(Deserialize)]
 struct SmartMeterDetail {
-    circuit : u32,
-    consumer : u32
+    circuit: u32,
+    consumer: u32,
 }
 
 impl SmartMeterDetail {
@@ -47,7 +46,7 @@ impl SmartMeterDetail {
         return SmartMeterDetail {
             circuit: 0,
             consumer: 0,
-        }
+        };
     }
 }
 
@@ -74,13 +73,17 @@ enum SmartMeter {
 
 impl SmartMeter {
     pub fn new_acctive(consumption_curve: Box<dyn Curve>) -> SmartMeter {
-        return SmartMeter::Acctive(ActiveSmartMeterCore{ location: Location::new(), grid_detail: SmartMeterDetail::new(), consumption_curve });
+        return SmartMeter::Acctive(ActiveSmartMeterCore {
+            location: Location::new(),
+            grid_detail: SmartMeterDetail::new(),
+            consumption_curve,
+        });
     }
 }
 
 struct ActiveSmartMeterCore {
-    location : Location,
-    grid_detail : SmartMeterDetail,
+    location: Location,
+    grid_detail: SmartMeterDetail,
     consumption_curve: Box<dyn Curve>,
 }
 
@@ -123,7 +126,44 @@ impl Curve for SineCurve {
     }
 }
 
+#[derive(Serialize)]
+struct LoginDetail {
+    email: String,
+    password: String,
+}
+
+#[derive(Serialize)]
+struct RegisterDetail {
+    email: String,
+    first_name: String,
+    last_name: String,
+    password: String,
+}
+
+
+#[derive(Deserialize)]
+struct SessionWrapper {
+    session_id: String,
+}
+
+#[derive(Deserialize)]
+struct LoginResult {
+    data: SessionWrapper,
+    message: String,
+    status: String,
+}
+
+#[derive(Deserialize)]
+struct RegisterResult {
+    data: SessionWrapper,
+    message: String,
+    status: String,
+}
+
 struct Agent {
+    email: String,
+    password: String,
+    session_id: String,
     nodes: Vec<Node>,
     units_bought: f64,
     units_sold: f64,
@@ -132,8 +172,17 @@ struct Agent {
 }
 
 impl Agent {
-    fn new(nodes: Vec<Node>, funds: f64, extarnal_wealth_curve: Box<dyn Curve>) -> Agent {
+    fn new(
+        email: String,
+        password: String,
+        nodes: Vec<Node>,
+        funds: f64,
+        extarnal_wealth_curve: Box<dyn Curve>,
+    ) -> Agent {
         return Agent {
+            email,
+            password,
+            session_id : String::from(""),
             nodes,
             units_bought: 0.0,
             units_sold: 0.0,
@@ -157,7 +206,7 @@ impl Agent {
     }
 
     fn create_consumer_grid(location: Location) -> SmartMeterDetail {
-     // let url = env::var("GURL").unwrap();
+        // let url = env::var("GURL").unwrap();
         let url = "localhost";
         let client = reqwest::blocking::Client::new();
         let res = client
@@ -170,28 +219,56 @@ impl Agent {
         return serde_json::from_str(&text).unwrap();
     }
 
+    fn login_or_register_agent(email: String, password: String) -> String {
+        let login_detail = LoginDetail { email:email.clone(), password:password.clone() };
+        // let url = env::var("GURL").unwrap();
+        let url = "localhost";
+        let client = reqwest::blocking::Client::new();
+        let res = client
+            .post(format!("http://{url}:8001/login"))
+            .json(&login_detail)
+            .send()
+            .unwrap();
+        let result: LoginResult = res.json().unwrap();
+        if result.message == "User logged in" {
+            return result.data.session_id;
+        }
+        let register_detail = RegisterDetail {
+            email,
+            first_name: String::from("Hal"),
+            last_name: String::from("9000"),
+            password,
+        };
+        let res = client
+            .post(format!("http://{url}:8001/register"))
+            .json(&register_detail)
+            .send()
+            .unwrap();
+        let result:RegisterResult = res.json().unwrap();
+        return result.data.session_id;
+    }
+
     fn intialise(&mut self) {
+        self.session_id = Agent::login_or_register_agent(self.email.clone(), self.password.clone());
+        println!("{}",self.session_id.clone());
         for node in self.nodes.iter_mut() {
-         //Create on grid
-         match  &mut node.generator {
-            Generator::Acctive(core) => {
-               core.grid_detail = Agent::create_producer_grid(core.location);
-            },
-            Generator::InAcctive => {},
-        }
+            //Create on grid
+            match &mut node.generator {
+                Generator::Acctive(core) => {
+                    core.grid_detail = Agent::create_producer_grid(core.location);
+                }
+                Generator::InAcctive => {}
+            }
 
-        match &mut node.smart_meter {
-            SmartMeter::Acctive(core) => {
-                core.grid_detail = Agent::create_consumer_grid(core.location);
-            },
-            SmartMeter::InActtive => {},
-        }
-      
-        //Add nodes to market platform
-        }
+            match &mut node.smart_meter {
+                SmartMeter::Acctive(core) => {
+                    core.grid_detail = Agent::create_consumer_grid(core.location);
+                }
+                SmartMeter::InActtive => {}
+            }
 
-
-   
+            //Add nodes to market platform
+        }
     }
 
     fn update(&mut self) -> Result<(), ()> {
@@ -213,6 +290,8 @@ impl Agent {
 
 fn main() {
     let mut agent = Agent::new(
+        String::from("a@example.com"),
+        String::from("my_strong_password"),
         vec![Node::new(
             SmartMeter::new_acctive(Box::new(SineCurve::new())),
             Generator::new_acctive(Box::new(SineCurve::new())),

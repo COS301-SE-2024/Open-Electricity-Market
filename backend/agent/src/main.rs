@@ -111,6 +111,7 @@ struct AcctiveGeneratorCore {
 
 trait Curve {
     fn sample(&mut self, time: f64) -> f64;
+    fn total_in_24_hour(&mut self) -> f64;
 }
 
 struct SineCurve;
@@ -123,7 +124,11 @@ impl SineCurve {
 
 impl Curve for SineCurve {
     fn sample(&mut self, time: f64) -> f64 {
-        return f64::sin(time);
+        return f64::abs(f64::sin(time));
+    }
+
+    fn total_in_24_hour(&mut self) -> f64 {
+        return 86400.0;
     }
 }
 
@@ -577,6 +582,11 @@ impl Agent {
         println!("{}", result.message);
     }
 
+    fn place_buy_order(session_id: String) {
+
+    }
+
+
     fn update(&mut self, accumlated_time: f64) -> Result<(), ()> {
         // get credit
         let credit = Agent::get_credit(self.session_id.clone());
@@ -656,7 +666,21 @@ impl Agent {
             }
 
             // Check if meet 24 hour requirment
-            // buy electricity at market price
+            match &mut node.smart_meter {
+                SmartMeter::Acctive(core) => {
+                    match units_to_consume {
+                        Some(to_consume) => {
+                            let gap =
+                                core.consumption_curve.total_in_24_hour() - (to_consume - consumed);
+                            if gap > 0.0 {
+                                // buy electricity at market price
+                            }
+                        }
+                        None => {},
+                    }
+                }
+                SmartMeter::InActtive => {}
+            }
         }
         return Ok(());
     }

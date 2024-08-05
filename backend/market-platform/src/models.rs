@@ -112,6 +112,7 @@ pub struct NewTransaction {
     pub buy_order_id: i64,
     pub transacted_units: f64,
     pub transacted_price: f64,
+    pub transaction_fee: f64,
 }
 
 #[derive(Queryable, Selectable)]

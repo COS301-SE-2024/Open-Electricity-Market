@@ -61,7 +61,7 @@ BEGIN
         >= NEW.transacted_price
     THEN
         UPDATE users
-            SET credit = credit - NEW.transacted_price
+            SET credit = credit - NEW.transacted_price - NEW.transaction_fee
         WHERE user_id = (SELECT buyer_id FROM buy_orders WHERE buy_order_id = NEW.buy_order_id);
     ELSE
         RAISE EXCEPTION 'Insufficient seller funds';
@@ -82,7 +82,7 @@ AS
 $$
 BEGIN
     UPDATE users
-        SET credit = credit + NEW.transacted_price
+        SET credit = credit + NEW.transacted_price - NEW.transaction_fee
     WHERE user_id = (SELECT seller_id FROM sell_orders WHERE sell_order_id = NEW.sell_order_id);
     RETURN NEW;
 END;

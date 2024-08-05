@@ -19,7 +19,7 @@ services:
       - db
     environment:
        DATABASEHOST: db
-       GRIDURL: simulation
+       GRIDDOMAIN: simulation
     ports:
       - "8001:8001"
   agent:

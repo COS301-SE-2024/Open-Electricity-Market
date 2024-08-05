@@ -97,5 +97,16 @@ test.describe("signup page",() => {
     // Expects to be redirected back to login page.
     await page.waitForURL('**/login');
   });
+  test('Sec:Signup with no Input', async ({ page }) => {
+    //Wait for page to finish loading
+    test.describe.configure({retries:1})
+    await page.waitForLoadState('networkidle');
+
+    // Click the "Create account" button.
+    await page.getByRole('button', { name: 'Create account' }).click();
+
+    //Tests if one can create an account without filling any of the forms.
+    await page.waitForURL('**/login');
+  });
 });
 

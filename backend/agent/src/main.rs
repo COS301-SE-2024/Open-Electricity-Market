@@ -1,5 +1,5 @@
 use std::{
-    env, fmt::{format, write}, result, u32
+    env, fmt::{format, write}, result, thread, time, u32
 };
 
 use reqwest::header;
@@ -189,6 +189,21 @@ struct GetNodeResult {
    status : String
 }
 
+#[derive(Deserialize)]
+struct UserData {
+    credit : f64,
+    email : String,
+    first_name :String,
+    last_name : String,
+}
+
+#[derive(Deserialize)]
+struct UserDetailResult {
+    data : UserData,
+    message : String,
+    status : String
+}
+
 struct Agent {
     email: String,
     password: String,
@@ -374,7 +389,47 @@ impl Agent {
 
     }
 
+    fn get_credit(session_id:String) -> f64 {
+        // let url = env::var("GURL").unwrap();
+        let url = "localhost";
+        let client = reqwest::blocking::Client::new();
+        let res = client
+            .post(format!("http://{url}:8001/user_details"))
+            .header(header::COOKIE, format!("session_id={session_id}"))
+            .send()
+            .unwrap();
+        let result : UserDetailResult = res.json().unwrap();
+        if result.message == "User details successfully retrieved"{
+            println!("Succesfully recieved credit {}",result.data.credit);
+            return result.data.credit;
+        }else {
+            return 0.0;
+        }
+        
+
+    }
+
     fn update(&mut self) -> Result<(), ()> {
+        // get credit
+        let credit = Agent::get_credit(self.session_id.clone());
+        // uppdate credit based on income_curve
+        
+        //foreach node 
+            // Get units_to_consume
+            // Get units_to_produce
+
+            // Update units_to_consume based on consumption curve
+        
+            // Update units_to_produce based on produnction curve
+
+            // Set grid voltage for producer
+
+            // Set grid impdence for consumer
+
+            // Check if meet 24 hour requirment
+                // buy electricity at market price
+
+
         return Ok(());
     }
 
@@ -384,7 +439,7 @@ impl Agent {
             let result = self.update();
 
             match result {
-                Ok(_) => {}
+                Ok(_) => {thread::sleep(time::Duration::from_secs(15))}
                 Err(_) => break,
             }
         }

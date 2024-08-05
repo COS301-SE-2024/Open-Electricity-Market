@@ -562,7 +562,7 @@
   {/if}
 
 {#each buyorders as buyorder}
-      <div class="card card-side min-w-1/3 bg-base-300 my-2">
+      <div class="card card-side min-w-1/3 bg-base-200 my-2">
         <div class="card-body">
           <h2 class="card-title">Buy order</h2>
           <p>
@@ -579,7 +579,7 @@
       {/each}
 
       {#each sellorders as sellorder}
-      <div class="card card-side min-w-1/3 bg-base-300 my-2">
+      <div class="card card-side min-w-1/3 bg-base-200 my-2">
         <div class="card-body">
           <h2 class="card-title">Sell order</h2>
           <p>

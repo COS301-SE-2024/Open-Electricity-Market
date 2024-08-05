@@ -24,6 +24,7 @@ BEGIN
     UPDATE buy_orders
         SET filled_units = filled_units + NEW.transacted_units
     WHERE buy_order_id = NEW.buy_order_id;
+    RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -39,7 +40,7 @@ AS
 $$
 BEGIN
     UPDATE users
-        SET credit = credit - NEW.price
+        SET credit = credit - NEW.transacted_price
     WHERE user_id = (SELECT buyer_id FROM buy_orders WHERE buy_order_id = NEW.buy_order_id);
     RETURN NEW;
 END;
@@ -57,7 +58,7 @@ AS
 $$
 BEGIN
     UPDATE users
-        SET credit = credit + NEW.price
+        SET credit = credit + NEW.transacted_price
     WHERE user_id = (SELECT seller_id FROM sell_orders WHERE sell_order_id = NEW.sell_order_id);
     RETURN NEW;
 END;

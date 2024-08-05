@@ -28,7 +28,7 @@
 
   onMount(() => {
     const session = Cookies.get('session_id');
-    console.log("Session id is: ", session);
+    // console.log("Session id is: ", session);
     if(session){
       loggedIn = true; 
     }
@@ -50,7 +50,7 @@
         credentials: "include",
       });
       data = await response.json();
-      console.log("Data received from remove account endpoint: ", data);
+      // console.log("Data received from remove account endpoint: ", data);
 
     } catch (error) {
       console.log("There was an error calling remove account:", error);

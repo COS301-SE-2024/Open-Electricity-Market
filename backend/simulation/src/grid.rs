@@ -3,7 +3,7 @@ use std::usize;
 use crate::grid::circuit::Circuit;
 use crate::grid::load::Connection::{Parallel, Series};
 use rocket::form::validate::Len;
-use rocket::serde::{self, Serialize,Deserialize};
+use rocket::serde::{self, Deserialize, Serialize};
 
 use self::generator::Generator;
 use self::load::{Load, LoadType, TransmissionLine};
@@ -133,9 +133,17 @@ pub struct Grid {
 
 #[derive(Deserialize)]
 #[serde(crate = "rocket::serde")]
-pub struct GridInterface {
+pub struct GeneratorInterface {
     circuit: u32,
     generator: u32,
+    power: f32,
+}
+
+#[derive(Deserialize)]
+#[serde(crate = "rocket::serde")]
+pub struct ConsumerInterface {
+    circuit: u32,
+    consumer: u32,
     power: f32,
 }
 
@@ -149,7 +157,7 @@ pub struct GridStats {
 }
 
 impl Grid {
-    pub fn create_consumer(&mut self, latitude: f32, longitude: f32) -> (u32,u32) {
+    pub fn create_consumer(&mut self, latitude: f32, longitude: f32) -> (u32, u32) {
         let mut nearest_circuit = 0;
         let mut nearest_transmission_line = 0;
         let mut found = false;
@@ -181,8 +189,7 @@ impl Grid {
         }
 
         if !found {
-           neares_distance = 5.0; 
-
+            neares_distance = 5.0;
         }
 
         let tl_id = self.circuits[nearest_circuit as usize].loads.len();
@@ -208,7 +215,7 @@ impl Grid {
 
         self.connect_load_series(cn_id as u32, tl_id as u32, nearest_circuit as usize);
 
-        return (cn_id as u32,nearest_circuit as u32)
+        return (cn_id as u32, nearest_circuit as u32);
     }
 
     pub fn create_producer(&mut self, latitude: f32, longitude: f32) -> (u32, u32) {
@@ -304,10 +311,16 @@ impl Grid {
         self.internal_update(elapsed_time, 0);
     }
 
-    pub fn set_generator(&mut self, grid_interface : GridInterface) {
+    pub fn set_consumer(&mut self,grid_interface: ConsumerInterface){
+        self.circuits[grid_interface.circuit as usize].set_consumer(grid_interface.consumer,grid_interface.power);
+    }
+
+    pub fn set_generator(&mut self, grid_interface: GeneratorInterface) {
         let stats = self.get_grid_stats();
-        self.circuits[grid_interface.circuit as usize]
-            .set_generater(grid_interface.generator, f32::sqrt(grid_interface.power*stats.total_impedance));
+        self.circuits[grid_interface.circuit as usize].set_generater(
+            grid_interface.generator,
+            f32::sqrt(grid_interface.power * stats.total_impedance),
+        );
     }
 
     pub fn get_grid_stats(&self) -> GridStats {

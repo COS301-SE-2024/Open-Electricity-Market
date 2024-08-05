@@ -23,7 +23,7 @@ impl Location {
     }
 }
 
-#[derive(Deserialize,Clone, Copy)]
+#[derive(Deserialize, Clone, Copy)]
 struct GeneratorDetail {
     circuit: u32,
     generator: u32,
@@ -38,7 +38,7 @@ impl GeneratorDetail {
     }
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone, Copy)]
 struct SmartMeterDetail {
     circuit: u32,
     consumer: u32,
@@ -230,40 +230,52 @@ struct NodeDetailsResult {
 
 #[derive(Serialize)]
 struct UpdateUnitsConsumedDetails {
-    units : f64,
-    node_id : String
+    units: f64,
+    node_id: String,
 }
 
 #[derive(Deserialize)]
 struct UpdateUnitsConsumeResult {
-    message : String,
-    status : String,
+    message: String,
+    status: String,
 }
 #[derive(Serialize)]
 struct UpdateUnitsProducedDetails {
-    units : f64,
-    node_id : String
+    units: f64,
+    node_id: String,
 }
 
 #[derive(Deserialize)]
 struct UpdateUnitsProducedResult {
-    message : String,
-    status : String,
+    message: String,
+    status: String,
 }
 
 #[derive(Serialize)]
 struct VoltageUpdateDetail {
-    circuit : u32,
-    generator : u32,
-    power : f32
+    circuit: u32,
+    generator: u32,
+    power: f32,
 }
 
 #[derive(Deserialize)]
 struct VoltageUpdateResult {
-    message : String,
-    status : String,
+    message: String,
+    status: String,
 }
 
+#[derive(Serialize)]
+struct ImpedanceUpdateDetail {
+    circuit: u32,
+    consumer: u32,
+    power: f32,
+}
+
+#[derive(Deserialize)]
+struct ImpedanceUpdateResult {
+    message: String,
+    status: String,
+}
 
 struct Agent {
     email: String,
@@ -503,7 +515,7 @@ impl Agent {
         }
     }
 
-    fn update_units_consumed(units:f64,session_id: String,node_id: String) {
+    fn update_units_consumed(units: f64, session_id: String, node_id: String) {
         let update_units_consumed_details = UpdateUnitsConsumedDetails { units, node_id };
         let url = "localhost";
         let client = reqwest::blocking::Client::new();
@@ -513,12 +525,12 @@ impl Agent {
             .json(&update_units_consumed_details)
             .send()
             .unwrap();
-        let result : UpdateUnitsConsumeResult = res.json().unwrap();
-        println!("{}",result.message); 
+        let result: UpdateUnitsConsumeResult = res.json().unwrap();
+        println!("{}", result.message);
     }
 
-  fn update_units_produced(units: f64,session_id: String,node_id: String) {
-   let update_units_consumed_details = UpdateUnitsProducedDetails { units, node_id };
+    fn update_units_produced(units: f64, session_id: String, node_id: String) {
+        let update_units_consumed_details = UpdateUnitsProducedDetails { units, node_id };
         let url = "localhost";
         let client = reqwest::blocking::Client::new();
         let res = client
@@ -527,27 +539,42 @@ impl Agent {
             .json(&update_units_consumed_details)
             .send()
             .unwrap();
-        let result : UpdateUnitsProducedResult = res.json().unwrap();
-        println!("{}",result.message); 
-
+        let result: UpdateUnitsProducedResult = res.json().unwrap();
+        println!("{}", result.message);
     }
 
-    fn update_grid_voltage(units:f64,detail : GeneratorDetail) {
-         let voltage_update_detail = VoltageUpdateDetail {
+    fn update_grid_voltage(units: f64, detail: GeneratorDetail) {
+        let voltage_update_detail = VoltageUpdateDetail {
             circuit: detail.circuit,
             generator: detail.generator,
             power: units as f32,
         };
-         let url = "localhost";
-         let client = reqwest::blocking::Client::new();
-         let res = client
-             .post(format!("http://{url}:8000/set_generator"))
-             .json(&voltage_update_detail)
-             .send()
-             .unwrap();
-         let result : UpdateUnitsProducedResult = res.json().unwrap();
-         println!("{}",result.message); 
-  
+        let url = "localhost";
+        let client = reqwest::blocking::Client::new();
+        let res = client
+            .post(format!("http://{url}:8000/set_generator"))
+            .json(&voltage_update_detail)
+            .send()
+            .unwrap();
+        let result: VoltageUpdateResult = res.json().unwrap();
+        println!("{}", result.message);
+    }
+
+    fn update_grid_impedance(units: f64, detail: SmartMeterDetail) {
+        let impedance_update_detail = ImpedanceUpdateDetail {
+            circuit: detail.circuit,
+            consumer: detail.consumer,
+            power: units as f32,
+        };
+        let url = "localhost";
+        let client = reqwest::blocking::Client::new();
+        let res = client
+            .post(format!("http://{url}:8000/set_consumer"))
+            .json(&impedance_update_detail)
+            .send()
+            .unwrap();
+        let result: ImpedanceUpdateResult = res.json().unwrap();
+        println!("{}", result.message);
     }
 
     fn update(&mut self, accumlated_time: f64) -> Result<(), ()> {
@@ -566,59 +593,67 @@ impl Agent {
             );
 
             // Update units_to_consume based on consumption curve
-            let consumed = match &mut node.smart_meter {   
-                SmartMeter::Acctive(core) => {
-                match units_to_consume {
+            let consumed = match &mut node.smart_meter {
+                SmartMeter::Acctive(core) => match units_to_consume {
                     Some(to_consume) => {
                         let sample = core.consumption_curve.sample(accumlated_time);
                         if sample > to_consume {
-                           to_consume
+                            to_consume
                         } else {
                             sample
                         }
-                    },
-                    None => {0.0},
-                }
+                    }
+                    None => 0.0,
                 },
-                SmartMeter::InActtive => {0.0},
+                SmartMeter::InActtive => 0.0,
             };
             // Update units_to_produce based on produnction curve
             let produced = match &mut node.generator {
-                Generator::Acctive(core) => {
-                    match units_to_produce {
-                        Some(to_produce) => {
-                            let sample = core.production_curve.sample(accumlated_time);
-                            if sample > to_produce {
-                                to_produce
-                            } else {
-                                sample
-                            }
-                        },
-                        None => {0.0},
+                Generator::Acctive(core) => match units_to_produce {
+                    Some(to_produce) => {
+                        let sample = core.production_curve.sample(accumlated_time);
+                        if sample > to_produce {
+                            to_produce
+                        } else {
+                            sample
+                        }
                     }
+                    None => 0.0,
                 },
-                Generator::InAcctive => {0.0},
+                Generator::InAcctive => 0.0,
             };
-            
+
             // Update units_to_consume on market
             if consumed > 0.0 {
-            Agent::update_units_consumed(consumed, self.session_id.clone(), node.node_id.clone());
+                Agent::update_units_consumed(
+                    consumed,
+                    self.session_id.clone(),
+                    node.node_id.clone(),
+                );
             }
-                        
+
             // Update units_to_produce on market
             if produced > 0.0 {
-            Agent::update_units_produced(produced, self.session_id.clone(), node.node_id.clone());
+                Agent::update_units_produced(
+                    produced,
+                    self.session_id.clone(),
+                    node.node_id.clone(),
+                );
             }
 
             // Set grid voltage for producer
-            match &node.generator { 
-                Generator::Acctive(core) => {
-                    Agent::update_grid_voltage(produced, core.grid_detail)
-                },
-                Generator::InAcctive => {},
+            match &node.generator {
+                Generator::Acctive(core) => Agent::update_grid_voltage(produced, core.grid_detail),
+                Generator::InAcctive => {}
             }
-            
+
             // Set grid impdence for consumer
+            match &node.smart_meter {
+                SmartMeter::Acctive(core) => {
+                    Agent::update_grid_impedance(consumed, core.grid_detail)
+                }
+                SmartMeter::InActtive => {}
+            }
 
             // Check if meet 24 hour requirment
             // buy electricity at market price

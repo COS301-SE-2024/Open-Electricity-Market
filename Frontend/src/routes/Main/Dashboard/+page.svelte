@@ -160,6 +160,32 @@
     // submit the new node request and update the nodes dynamic nodes array
   }
 
+  async function removeNode(nodeID) {
+    // console.log("removing node: " + nodeID);
+    document.getElementById("removeNodeConfirmation").close();
+    const response = await fetch("http://localhost:8001/remove_node", {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      credentials: "include",
+      body: JSON.stringify ({
+        node_id: nodeID,
+      })
+    })
+
+    const fdata = await response.json();
+
+    if (fdata.message === "Node successfully removed") {
+      // show the user something happened
+      fetchNodes();
+      nodeNameDetail = '';
+    } else {
+      // show the user something went wrong
+    }
+  }
+
   async function addFunds(){
 
     
@@ -193,12 +219,9 @@
       document.getElementById("addfundsconfirmation").showModal();
       // amount = '';
       totalamount += amount; 
-    }
-    else{
+    } else {
       document.getElementById("addfundsrejection").showModal();
     }
-
-
   }
 
 
@@ -234,13 +257,9 @@
       document.getElementById("removefundsconfirmation").showModal();
       // withdrawamount = '';
       totalamount -= withdrawamount; 
-    }
-    else{
+    } else {
       document.getElementById("removefundsrejection").showModal();
     }
-
-
-
   }
 
 
@@ -270,9 +289,6 @@
       firstname = data.data.first_name; 
       lastname = data.data.last_name;
     }
-
-
-
   }
 
   function nullifyValues(){
@@ -551,67 +567,90 @@
         </div>
 
         <div>
-          <button class="btn btn-primary" on:click={() => {
+          <button class="btn btn-primary my-2" on:click={() => {
               sessionStorage.setItem("node_id", selectedNodeID);
               //reroute to market 
               goto('../Main/BiddingMarket');
             }}>Transact with this node</button>
         </div>
+
+        <div>
+          <button class="btn btn-error my-2" on:click={() => {
+              document.getElementById("removeNodeConfirmation").showModal();
+            }}>Remove this node</button>
+        </div>
       </div>
     </div>
   {/if}
 
-{#each buyorders as buyorder}
-      <div class="card card-side min-w-1/3 bg-base-200 my-2">
-        <div class="card-body">
-          <h2 class="card-title">Buy order</h2>
-          <p>
-           Order ID: {buyorder.order_id} <br> 
-           Filled units: {buyorder.filled_units}<br>
-           Price: {buyorder.price}<br>
-           kW: {buyorder.sought_units}<br>
-          </p>
-          <div class="card-actions ">
-           
-          </div>
+  {#each buyorders as buyorder}
+    <div class="card card-side min-w-1/3 bg-base-200 my-2">
+      <div class="card-body">
+        <h2 class="card-title">Buy order</h2>
+        <p>
+          Order ID: {buyorder.order_id} <br> 
+          Filled units: {buyorder.filled_units}<br>
+          Price: {buyorder.price}<br>
+          kW: {buyorder.sought_units}<br>
+        </p>
+        <div class="card-actions ">
+          
         </div>
       </div>
-      {/each}
+    </div>
+  {/each}
 
-      {#each sellorders as sellorder}
-      <div class="card card-side min-w-1/3 bg-base-200 my-2">
-        <div class="card-body">
-          <h2 class="card-title">Sell order</h2>
-          <p>
-           Order ID: {sellorder.order_id} <br> 
-           Offered Units: {sellorder.offered_units}<br>
-           Claimed Units: {sellorder.claimed_units}<br>
-           Price: {sellorder.price}<br>
-          </p>
-          <div class="card-actions ">
-           
-          </div>
+  {#each sellorders as sellorder}
+    <div class="card card-side min-w-1/3 bg-base-200 my-2">
+      <div class="card-body">
+        <h2 class="card-title">Sell order</h2>
+        <p>
+          Order ID: {sellorder.order_id} <br> 
+          Offered Units: {sellorder.offered_units}<br>
+          Claimed Units: {sellorder.claimed_units}<br>
+          Price: {sellorder.price}<br>
+        </p>
+        <div class="card-actions ">
+          
         </div>
       </div>
-      {/each}
+    </div>
+  {/each}
 
+<!-- confirm remove node modal -->
+
+  <dialog id="removeNodeConfirmation" class="modal">  
+    <div class="modal-box">
+      <h3 class="font-bold text-lg ">Confirmation</h3>
+      <p>Are you sure you want to permanently delete this node from your account?</p>
+      <div class="modal-action">
+        <button class="btn btn-error" on:click={removeNode(selectedNodeID)}>Yes</button>
+        <button class="btn btn-outline" on:click={() => {
+            document.getElementById("removeNodeConfirmation").close()
+          }}>No</button>
+      </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button>close</button>
+    </form>
+  </dialog>
 
 <!-- confirm change funds modals -->
 
   <dialog id="addfundsconfirmation" class="modal">  
-      <div class="modal-box">
-        <h3 class="font-bold text-lg ">You have successfully added funds!</h3>
+    <div class="modal-box">
+      <h3 class="font-bold text-lg ">You have successfully added funds!</h3>
       <p>You have successfully added R{amount} to your account.</p>
-      </div>
-      <form method="dialog" class="modal-backdrop">
-        <button on:click={nullifyValues}>close</button>
-      </form>
-    </dialog>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button on:click={nullifyValues}>close</button>
+    </form>
+  </dialog>
 
 
-    <dialog id="removefundsconfirmation" class="modal">  
-      <div class="modal-box">
-        <h3 class="font-bold text-lg ">Withdrawal of funds successful!</h3>
+  <dialog id="removefundsconfirmation" class="modal">  
+    <div class="modal-box">
+      <h3 class="font-bold text-lg ">Withdrawal of funds successful!</h3>
       <p>You have successfully withdrew R{withdrawamount} from your account.</p>
       </div>
       <form method="dialog" class="modal-backdrop">
@@ -639,8 +678,4 @@
       </form>
     </dialog>
 
-      
-
-
 </main>
-

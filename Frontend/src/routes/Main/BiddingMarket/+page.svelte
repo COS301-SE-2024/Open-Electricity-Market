@@ -1,15 +1,20 @@
 <script>
 import Chart from "$lib/Components/Chart.svelte";
+import {onMount} from "svelte";
 
 let price = 0;
 let units = 0;
+
+let data = {};
 
 let test_node_id = sessionStorage.getItem("node_id");
 
 async function place_buy_order() {
   let data = {
     "node_id": test_node_id,
-    "price": price,
+    // "price": price,
+    "min_price": price >= 0.05 ? price - 0.05 : 0.01,
+    "max_price": price + 0.05,
     "units": units
   }
 
@@ -29,7 +34,9 @@ async function place_buy_order() {
 async function place_sell_order() {
   let data = {
     "node_id": test_node_id,
-    "price": price,
+    // "price": price,
+    "min_price": price >= 0.05 ? price - 0.05 : 0.01,
+    "max_price": price + 0.05,
     "units": units
   }
 
@@ -46,17 +53,52 @@ async function place_sell_order() {
 
 }
 
+onMount(async () => {
+  fetchData();
+  let interval = setInterval(fetchData, 2000);
+
+  //return function runs when the component is unmounted
+  return() => {
+    clearInterval(interval);
+
+  };
+
+  async function fetchData() {
+
+    try {
+      const response = await fetch("http://localhost:8001/price_view", {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json'
+        }
+
+      });
+
+
+      // const response = fetch("http://localhost:8000");
+      const fdata = await response.json();
+
+      data = fdata.data
+      console.log(data)
+
+    } catch (error) {
+      console.log("There was an error fetching the JSON for the overview..", error);
+    }
+  }
+
+
+});
 
 
 </script>
 
 <main class="container mx-auto p-4">
   <div class="flex flex-row">
-    <div class="basis-2/3 border-2 mr-5">
+    <div class="basis-2/3 border mr-5 p-4">
       <h1 class="text-5xl font-bold pt-8">Market</h1>
-      <Chart ></Chart>
+      <Chart {data} />
     </div>
-    <div class="basis-1/3 border-2 p-2">
+    <div class="basis-1/3 border p-4">
         <form>
           <div class="form-control mt-1">
             <label for="buy_price"> Price </label>
@@ -86,7 +128,7 @@ async function place_sell_order() {
             <dialog id="my_modal_2" class="modal">
               <div class="modal-box">
                 <h3 class="text-lg font-bold">Confirm Sell Order</h3>
-                <p class="py-4">Please confirm your sell order for {units} units at R {price} </p>
+                <p class="py-4">Please confirm your sell order for {units} units at R{price} </p>
                 <div class="modal-action">
                   <form method="dialog">
                     <button class="btn" on:click={place_sell_order}>Continue</button>

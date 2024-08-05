@@ -3,7 +3,8 @@ CREATE TABLE buy_orders(
     buyer_id uuid NOT NULL,
     sought_units float8 NOT NULL DEFAULT 0,
     filled_units float8 NOT NULL DEFAULT 0,
-    price float8 NOT NULL DEFAULT 0,
+    max_price float8 NOT NULL,
+    min_price float8 NOT NULL,
     created_at timestamptz NOT NULL DEFAULT now(),
     CONSTRAINT fk_buyer_id
         FOREIGN KEY (buyer_id)
@@ -17,8 +18,10 @@ CREATE TABLE transactions(
     buy_order_id bigserial NOT NULL,
     transacted_units float8 NOT NULL DEFAULT 0,
     transacted_price float8 NOT NULL DEFAULT 0,
-    transaction_active bool NOT NULL DEFAULT TRUE,
     created_at timestamptz NOT NULL DEFAULT now(), -- used for lifetime check
+    transaction_fee float8 NOT NULL DEFAULT 0,
+    units_produced float8 NOT NULL DEFAULT 0,
+    units_consumed float8 NOT NULL DEFAULT 0,
     CONSTRAINT fk_so_id
         FOREIGN KEY (sell_order_id)
         REFERENCES sell_orders(sell_order_id)

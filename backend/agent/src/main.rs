@@ -409,10 +409,11 @@ impl Agent {
 
     }
 
-    fn update(&mut self) -> Result<(), ()> {
+    fn update(&mut self,accumlated_time:f64) -> Result<(), ()> {
         // get credit
         let credit = Agent::get_credit(self.session_id.clone());
         // uppdate credit based on income_curve
+        self.funds += self.extarnal_wealth_curve.sample(accumlated_time);
         
         //foreach node 
             // Get units_to_consume
@@ -436,7 +437,8 @@ impl Agent {
     fn run(&mut self) {
         self.intialise();
         loop {
-            let result = self.update();
+            let accumlated_time = 0.0;
+            let result = self.update(accumlated_time);
 
             match result {
                 Ok(_) => {thread::sleep(time::Duration::from_secs(15))}

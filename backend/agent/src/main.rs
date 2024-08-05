@@ -1,8 +1,8 @@
 use std::{
-    env,
-    fmt::{format, write}, result,
+    env, fmt::{format, write}, result
 };
 
+use reqwest::header;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Clone, Copy)]
@@ -52,6 +52,7 @@ impl SmartMeterDetail {
 
 struct Node {
     node_id: String,
+    location: Location,
     smart_meter: SmartMeter,
     generator: Generator,
 }
@@ -60,6 +61,7 @@ impl Node {
     fn new(smart_meter: SmartMeter, generator: Generator) -> Node {
         return Node {
             node_id: String::new(),
+            location: Location::new(),
             smart_meter,
             generator,
         };
@@ -74,7 +76,6 @@ enum SmartMeter {
 impl SmartMeter {
     pub fn new_acctive(consumption_curve: Box<dyn Curve>) -> SmartMeter {
         return SmartMeter::Acctive(ActiveSmartMeterCore {
-            location: Location::new(),
             grid_detail: SmartMeterDetail::new(),
             consumption_curve,
         });
@@ -82,7 +83,6 @@ impl SmartMeter {
 }
 
 struct ActiveSmartMeterCore {
-    location: Location,
     grid_detail: SmartMeterDetail,
     consumption_curve: Box<dyn Curve>,
 }
@@ -95,7 +95,6 @@ enum Generator {
 impl Generator {
     pub fn new_acctive(production_curve: Box<dyn Curve>) -> Generator {
         return Generator::Acctive(AcctiveGeneratorCore {
-            location: Location::new(),
             grid_detail: GeneratorDetail::new(),
             production_curve,
         });
@@ -103,7 +102,6 @@ impl Generator {
 }
 
 struct AcctiveGeneratorCore {
-    location: Location,
     grid_detail: GeneratorDetail,
     production_curve: Box<dyn Curve>,
 }
@@ -160,6 +158,19 @@ struct RegisterResult {
     status: String,
 }
 
+#[derive(Serialize)]
+struct NodeDetail {
+    name : String,
+    location_x : f32,
+    location_y : f32
+}
+
+#[derive(Deserialize)]
+struct NodeResult {
+    message : String,
+    status : String
+}
+
 struct Agent {
     email: String,
     password: String,
@@ -170,6 +181,8 @@ struct Agent {
     funds: f64,
     extarnal_wealth_curve: Box<dyn Curve>,
 }
+
+
 
 impl Agent {
     fn new(
@@ -245,29 +258,57 @@ impl Agent {
             .send()
             .unwrap();
         let result:RegisterResult = res.json().unwrap();
+        if result.message != "New user added" {
+            panic!("Agent could not get session Id");
+        }
         return result.data.session_id;
+    }
+
+    fn add_node(location:Location,name: String,session_id:String){
+        let node_detail = NodeDetail { name, location_x: location.latitude, location_y: location.longitude };
+        // let url = env::var("GURL").unwrap();
+        let url = "localhost";
+        let client = reqwest::blocking::Client::new();
+        let res = client
+            .post(format!("http://{url}:8001/add_node"))
+            .header(header::COOKIE, format!("session_id={session_id}"))
+            .json(&node_detail)
+            .send()
+            .unwrap();
+        let result:NodeResult =res.json().unwrap();
+        if result.message != "New Node Added" {
+            println!("Could not add node")
+        }else {
+            println!("New node added");
+        }
     }
 
     fn intialise(&mut self) {
         self.session_id = Agent::login_or_register_agent(self.email.clone(), self.password.clone());
         println!("{}",self.session_id.clone());
+        let mut has_nodes = false;
+
+
         for node in self.nodes.iter_mut() {
             //Create on grid
             match &mut node.generator {
                 Generator::Acctive(core) => {
-                    core.grid_detail = Agent::create_producer_grid(core.location);
+                    core.grid_detail = Agent::create_producer_grid(node.location);
                 }
                 Generator::InAcctive => {}
             }
 
             match &mut node.smart_meter {
                 SmartMeter::Acctive(core) => {
-                    core.grid_detail = Agent::create_consumer_grid(core.location);
+                    core.grid_detail = Agent::create_consumer_grid(node.location);
                 }
                 SmartMeter::InActtive => {}
             }
 
             //Add nodes to market platform
+            if !has_nodes {
+                Agent::add_node(node.location, String::from("Simulated Node"), self.session_id.clone())
+            }
         }
     }
 

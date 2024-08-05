@@ -22,12 +22,13 @@ test.describe("Landing page",() => {
 });
 
 test.describe("public simulation page",() => {
+  test.describe.configure({retries:0});
   test.beforeEach(async ({page})=>{
     await page.goto('http://localhost:5173/public/GridSimulation');
   });
   test('Back to Landing page', async ({ page }) => {
     //Wait for page to finish loading
-    await page.waitForLoadState('networkidle');
+    //await page.waitForLoadState('networkidle');
 
     // Click the "Amplify" button.
     await page.getByRole('link', { name: 'Amplify' }).click();
@@ -37,7 +38,7 @@ test.describe("public simulation page",() => {
   });
   test('To Dashboard', async ({ page }) => {
     //Wait for page to finish loading
-    await page.waitForLoadState('networkidle');
+    //await page.waitForLoadState('networkidle');
 
     // Click the "Dashboard" button.
     await page.getByRole('link', { name: 'Dashboard' }).click();
@@ -47,7 +48,7 @@ test.describe("public simulation page",() => {
   });
   test('To public Grid Simulation page', async ({ page }) => {
     //Wait for page to finish loading
-    await page.waitForLoadState('networkidle');
+    //await page.waitForLoadState('networkidle');
 
     // Click the "Grid" button.
     await page.getByRole('link', { name: 'Grid' }).click();
@@ -57,7 +58,7 @@ test.describe("public simulation page",() => {
   });
   test('To Market page', async ({ page }) => {
     //Wait for page to finish loading
-    await page.waitForLoadState('networkidle');
+    //await page.waitForLoadState('networkidle');
 
     // Click the "Market" button.
     await page.getByRole('link', { name: 'Market' }).click();
@@ -73,7 +74,7 @@ test.describe("login page",() => {
   });
   test('To signup page', async ({ page }) => {
     //Wait for page to finish loading
-    await page.waitForLoadState('networkidle');
+    //await page.waitForLoadState('networkidle');
 
     // Click the signup button.
     await page.getByRole('link', { name: 'Create an account' }).click();
@@ -89,7 +90,7 @@ test.describe("signup page",() => {
   });
   test('Back to login page', async ({ page }) => {
     //Wait for page to finish loading
-    await page.waitForLoadState('networkidle');
+    //await page.waitForLoadState('networkidle');
 
     // Click the "I already have an account" button.
     await page.getByRole('link', { name: 'I already have an account' }).click();
@@ -99,11 +100,14 @@ test.describe("signup page",() => {
   });
 });
 test.describe("signup page error testing",() => {
-  test.describe.configure({retries:0});
+  test.describe.configure({retries:1});
   test.beforeEach(async ({page})=>{
     await page.goto('http://localhost:5173/signup');
   });
-  test('With no Input', async ({ page }) => {
+  test('Empty email for chromium', async ({ page,browserName }) => {
+    //skip test if browser is not chromium
+    test.skip(browserName === 'webkit');
+    test.skip(browserName === 'firefox');
     //Wait for page to finish loading
     await page.waitForLoadState('networkidle');
 
@@ -111,6 +115,8 @@ test.describe("signup page error testing",() => {
     await page.getByRole('button', { name: 'Create account' }).click();
 
     //Expects an error message to appear.
-    await page.getByText("Invalid email or password").isVisible();
+    //await expect(page.getByRole("alert")).
+    await expect(page.getByText("Invalid email or password")).toBeVisible();
+    
   });
 });

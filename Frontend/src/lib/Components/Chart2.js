@@ -29,6 +29,7 @@ export const sampleChartConfig = {
           "rgba(255, 159, 64, 1)",
         ],
         borderWidth: 1,
+        pointRadius: 0,
       },
       {
         label: "Graph of Phase 2 voltage as a function of time",
@@ -50,6 +51,7 @@ export const sampleChartConfig = {
           "rgba(255, 159, 64, 1)",
         ],
         borderWidth: 1,
+        pointRadius: 0,
       },
       {
         label: "Graph of Phase 3 voltage as a function of time",
@@ -71,6 +73,7 @@ export const sampleChartConfig = {
           "rgba(255, 159, 64, 1)",
         ],
         borderWidth: 1,
+        pointRadius: 0,
       },
     ],
   },
@@ -82,5 +85,11 @@ export const sampleChartConfig = {
         max: 1500,
       },
     },
+    // elements: {
+    //   point: {
+    //     // radius: 0,
+    //   },
+    // },
+    // pointRadius: 0;
   },
 };

@@ -7,19 +7,42 @@
 <script>
   import Map from "$lib/Components/MapLanding.svelte";
   import ChartLanding from "$lib/Components/ChartLanding.svelte";
+  import IntersectionObserver from '$lib/Components/IntersectionObserver.svelte';
 
   let scrollY
   let element
   let height
 
   $: offset = (element && element.offsetTop)
-  $: result = scrollY/(offset+height)*100
+//   $: result = scrollY/(offset+height)*100;
+
+    const options = {
+      threshold: [0.4, 0.8]
+    }
+
+    const callback = (entries) => {
+        entries && entries.forEach(entry => {
+            if(entry.isIntersecting){
+                this.addClassName('visible');
+            }
+            else{
+                this.removeClassName('visible');
+            }
+        }); 
+    }; 
+
+    // const observer = new IntersectionObserver(callback, options);
+
+    // const target = document.querySelector('#Second');
+    // observer.observe(target);
+
+
 </script>
 
-<main class ="bg-[url('../src/images/background-pylons.jpg')] bg-cover bg-fixed">
+<main class ="bg-[url('../src/images/background-pylons.jpg')] bg-cover bg-fixed !scroll-smooth">
 
 
-
+<section id = "First">
     <span class="flex justify-center h-screen items-center ">
 
     <div class="card max-w-lg shadow-xl glass">
@@ -41,7 +64,7 @@
     <path d="M212.24,100.24l-80,80a6,6,0,0,1-8.48,0l-80-80a6,6,0,0,1,8.48-8.48L128,167.51l75.76-75.75a6,6,0,0,1,8.48,8.48Z"></path></svg>
 
     </div>
-        </div>
+    </div>
 
         
         
@@ -51,10 +74,10 @@
     
     
 
-</span>
+    </span>
+</section>
 
-
-<section>
+<section id = "Second">
   <div bind:this="{element}" bind:clientHeight="{height}" class="flex flex-row">
     <!-- <div class="md:basis-1/4 sm:basis-0">
 
@@ -213,6 +236,15 @@
         opacity: 1;
     }
   }
+
+    .section {
+    opacity: 0;
+    transition: opacity 1s ease-out;
+    will-change: opacity;
+    }
+    .section.visible {
+    opacity: 1;
+    }
 
 </style>
 

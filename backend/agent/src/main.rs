@@ -23,7 +23,7 @@ impl Location {
     }
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize,Clone, Copy)]
 struct GeneratorDetail {
     circuit: u32,
     generator: u32,
@@ -250,6 +250,20 @@ struct UpdateUnitsProducedResult {
     message : String,
     status : String,
 }
+
+#[derive(Serialize)]
+struct VoltageUpdateDetail {
+    circuit : u32,
+    generator : u32,
+    power : f32
+}
+
+#[derive(Deserialize)]
+struct VoltageUpdateResult {
+    message : String,
+    status : String,
+}
+
 
 struct Agent {
     email: String,
@@ -503,7 +517,7 @@ impl Agent {
         println!("{}",result.message); 
     }
 
-    fn update_units_produced(units: f64,session_id: String,node_id: String) {
+  fn update_units_produced(units: f64,session_id: String,node_id: String) {
    let update_units_consumed_details = UpdateUnitsProducedDetails { units, node_id };
         let url = "localhost";
         let client = reqwest::blocking::Client::new();
@@ -516,6 +530,24 @@ impl Agent {
         let result : UpdateUnitsProducedResult = res.json().unwrap();
         println!("{}",result.message); 
 
+    }
+
+    fn update_grid_voltage(units:f64,detail : GeneratorDetail) {
+         let voltage_update_detail = VoltageUpdateDetail {
+            circuit: detail.circuit,
+            generator: detail.generator,
+            power: units as f32,
+        };
+         let url = "localhost";
+         let client = reqwest::blocking::Client::new();
+         let res = client
+             .post(format!("http://{url}:8000/set_generator"))
+             .json(&voltage_update_detail)
+             .send()
+             .unwrap();
+         let result : UpdateUnitsProducedResult = res.json().unwrap();
+         println!("{}",result.message); 
+  
     }
 
     fn update(&mut self, accumlated_time: f64) -> Result<(), ()> {
@@ -569,17 +601,23 @@ impl Agent {
             };
             
             // Update units_to_consume on market
-            if consumed > 0 {
+            if consumed > 0.0 {
             Agent::update_units_consumed(consumed, self.session_id.clone(), node.node_id.clone());
             }
                         
             // Update units_to_produce on market
-            if produced > 0 {
+            if produced > 0.0 {
             Agent::update_units_produced(produced, self.session_id.clone(), node.node_id.clone());
             }
 
             // Set grid voltage for producer
-
+            match &node.generator { 
+                Generator::Acctive(core) => {
+                    Agent::update_grid_voltage(produced, core.grid_detail)
+                },
+                Generator::InAcctive => {},
+            }
+            
             // Set grid impdence for consumer
 
             // Check if meet 24 hour requirment

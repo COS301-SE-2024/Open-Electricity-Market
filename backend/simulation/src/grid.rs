@@ -3,8 +3,7 @@ use std::usize;
 use crate::grid::circuit::Circuit;
 use crate::grid::load::Connection::{Parallel, Series};
 use rocket::form::validate::Len;
-use rocket::serde::Serialize;
-use serde::Deserialize;
+use rocket::serde::{self, Serialize,Deserialize};
 
 use self::generator::Generator;
 use self::load::{Load, LoadType, TransmissionLine};
@@ -133,7 +132,8 @@ pub struct Grid {
 }
 
 #[derive(Deserialize)]
-struct GridInterface {
+#[serde(crate = "rocket::serde")]
+pub struct GridInterface {
     circuit: u32,
     generator: u32,
     power: f32,
@@ -304,9 +304,8 @@ impl Grid {
         self.internal_update(elapsed_time, 0);
     }
 
-    pub fn set_generator(&mut self, json: String) {
+    pub fn set_generator(&mut self, grid_interface : GridInterface) {
         let stats = self.get_grid_stats();
-        let grid_interface: GridInterface = serde_json::from_str(&json).unwrap();
         self.circuits[grid_interface.circuit as usize]
             .set_generater(grid_interface.generator, f32::sqrt(grid_interface.power*stats.total_impedance));
     }

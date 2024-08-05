@@ -30,6 +30,7 @@ use std::sync::{Arc, Mutex};
 use uuid::{Error, Uuid};
 
 const TRANSACTION_LIFETIME: i64 = 24; // Lifetime in hours
+const FRONTEND_URL: &str = "http://localhost:5173";
 
 mod models;
 mod schema;
@@ -55,10 +56,7 @@ impl Fairing for CORS {
             response.set_header(Header::new("Access-Control-Allow-Headers", "content-type"));
         }
 
-        response.set_header(Header::new(
-            "Access-Control-Allow-Origin",
-            "http://localhost:5173",
-        ));
+        response.set_header(Header::new("Access-Control-Allow-Origin", FRONTEND_URL));
         response.set_header(Header::new("Access-Control-Allow-Credentials", "true"));
     }
 }
@@ -105,24 +103,20 @@ fn verify_user(cookie_jar: &CookieJar<'_>) -> Claims {
     }
 
     if has_cookie {
-        let user_result = users
+        response.message = "No matching user".to_string();
+        match users
             .filter(session_id.eq(session_id_str))
             .select(User::as_select())
-            .load::<User>(connection);
-
-        match user_result {
-            Ok(user_vec) => {
-                response.message = "No matching user".to_string();
-                if user_vec.len() > 0 {
-                    response.message = "User found".to_string();
-                    response.user_id = user_vec[0].user_id;
-                }
+            .first(connection) {
+            Ok(user) => {
+                response.message = "User found".to_string();
+                response.user_id = user.user_id;
             }
             Err(_) => {}
         }
     }
 
-    return response;
+    return response
 }
 
 #[derive(Serialize, Deserialize)]
@@ -141,29 +135,24 @@ async fn remove_node(remove_node_request: Json<RemoveNode>, cookie_jar: &CookieJ
 
     let connection = &mut establish_connection();
 
-    let mut message = "Something went wrong".to_string();
+    let claims = verify_user(cookie_jar);
 
-    let user = verify_user(cookie_jar);
-
-    message = "No matching user".to_string();
-    if user.message == "User found" {
-        message = "Invalid Node ID".to_string();
+    let mut message = claims.message;
+    if claims.user_id != Uuid::nil() {
         match Uuid::parse_str(&*remove_node_request.node_id) {
             Ok(request_node_id) => {
                 message = "No matching node".to_string();
                 match diesel::update(nodes)
-                    .filter(node_owner.eq(user.user_id))
+                    .filter(node_owner.eq(claims.user_id))
                     .filter(node_id.eq(request_node_id))
                     .set(node_active.eq(false))
                     .execute(connection)
                 {
-                    Ok(_) => {
-                        message = "Node successfully removed".to_string();
-                    }
-                    Err(_) => {}
-                };
+                    Ok(_) => message = "Node successfully removed".to_string(),
+                    Err(_) => message = "Something went wrong.".to_string(),
+                }
             }
-            Err(_) => {}
+            Err(_) => message = "Invalid Node ID".to_string(),
         }
     }
 
@@ -187,23 +176,22 @@ async fn list_open_buys(cookie_jar: &CookieJar<'_>) -> Value {
 
     let connection = &mut establish_connection();
 
-    let mut message = "Something went wrong";
     let mut data = vec![];
 
-    let user = verify_user(cookie_jar);
+    let claims = verify_user(cookie_jar);
 
-    message = "No matching user";
-    if user.message == "User found" {
+    let mut message = claims.message;
+    if claims.user_id != Uuid::nil() {
         match buy_orders
-            .filter(buyer_id.eq(user.user_id))
+            .filter(buyer_id.eq(claims.user_id))
             .filter(sought_units.gt(filled_units))
             .select(BuyOrder::as_select())
             .load::<BuyOrder>(connection)
         {
             Ok(order_vec) => {
-                message = "No open buy orders";
+                message = "No open buy orders".to_string();
                 if order_vec.len() > 0 {
-                    message = "Successfully retrieved open buy orders";
+                    message = "Successfully retrieved open buy orders".to_string();
                     for order in order_vec {
                         data.push(OpenBuy {
                             order_id: order.buy_order_id,
@@ -216,7 +204,7 @@ async fn list_open_buys(cookie_jar: &CookieJar<'_>) -> Value {
                     }
                 }
             }
-            Err(_) => {}
+            Err(_) => message = "Something went wrong.".to_string(),
         }
     }
 
@@ -240,22 +228,22 @@ async fn list_open_sells(cookie_jar: &CookieJar<'_>) -> Value {
 
     let connection = &mut establish_connection();
 
-    let mut message = "Something went wrong";
     let mut data = vec![];
 
-    let user = verify_user(cookie_jar);
+    let claims = verify_user(cookie_jar);
 
-    if user.message == "User found" {
+    let mut message = claims.message;
+    if claims.user_id != Uuid::nil() {
         match sell_orders
-            .filter(seller_id.eq(user.user_id))
+            .filter(seller_id.eq(claims.user_id))
             .filter(offered_units.gt(claimed_units))
             .select(SellOrder::as_select())
             .load::<SellOrder>(connection)
         {
             Ok(order_vec) => {
-                message = "No open sell orders";
+                message = "No open sell orders".to_string();
                 if order_vec.len() > 0 {
-                    message = "Successfully retrieved open sell orders";
+                    message = "Successfully retrieved open sell orders".to_string();
                     for order in order_vec {
                         data.push(OpenSell {
                             order_id: order.sell_order_id,
@@ -268,7 +256,7 @@ async fn list_open_sells(cookie_jar: &CookieJar<'_>) -> Value {
                     }
                 }
             }
-            Err(_) => {}
+            Err(_) => message = "Something went wrong.".to_string(),
         }
     }
 
@@ -298,107 +286,107 @@ async fn buy_order(buy_order_request: Json<BuyOrderRequest>, cookie_jar: &Cookie
 
     let connection = &mut establish_connection();
 
-    let mut message = "Something went wrong".to_string();
+    let claims = verify_user(cookie_jar);
 
-    let user = verify_user(cookie_jar);
-
-    message = "No matching user".to_string();
-    if user.message == "User found" {
+    let mut message = claims.message;
+    if claims.user_id != Uuid::nil() {
         message = "Invalid Node ID".to_string();
         match Uuid::parse_str(&*buy_order_request.node_id.clone()) {
             Ok(request_node_id) => {
-                let node_res = nodes
+                message = "No matching node".to_string();
+                match nodes
                     .filter(node_id.eq(request_node_id))
-                    .filter(node_owner.eq(user.user_id))
+                    .filter(node_owner.eq(claims.user_id))
                     .select(Node::as_select())
-                    .load::<Node>(connection);
-                match node_res {
-                    Ok(node_vec) => {
-                        if node_vec.len() > 0 {
-                            let new_buy_order = NewBuyOrder {
-                                buyer_id: user.user_id,
-                                consumer_id: node_vec[0].node_id,
-                                sought_units: buy_order_request.units,
-                                max_price: buy_order_request.max_price,
-                                min_price: buy_order_request.min_price,
-                            };
-                            message = "Failed to add new buy order".to_string();
-                            match diesel::insert_into(buy_orders)
-                                .values(new_buy_order)
-                                .returning(BuyOrder::as_returning())
-                                .get_result(connection)
-                            {
-                                Ok(mut order) => {
-                                    message = "Buy order created successfully.".to_string();
-                                    match sell_orders
-                                        .filter(offered_units.gt(claimed_units))
-                                        .filter(
-                                            schema::open_em::sell_orders::min_price
-                                                .le(order.max_price),
-                                        )
-                                        .order_by(schema::open_em::sell_orders::created_at.asc())
-                                        .select(SellOrder::as_select())
-                                        .load::<SellOrder>(connection)
-                                    {
-                                        Ok(sell_order_vec) => {
-                                            message =
-                                                "Buy order created successfully. Pending match"
-                                                    .to_string();
-                                            let mut order_match = false;
-                                            for s_order in sell_order_vec {
-                                                let transaction_units: f64;
-                                                if s_order.offered_units - s_order.claimed_units
-                                                    > order.sought_units - order.filled_units
-                                                {
-                                                    transaction_units =
-                                                        order.sought_units - order.filled_units;
-                                                } else {
-                                                    transaction_units = s_order.offered_units
-                                                        - s_order.claimed_units;
+                    .first(connection)
+                {
+                    Ok(node) => {
+                        let new_buy_order = NewBuyOrder {
+                            buyer_id: claims.user_id,
+                            consumer_id: node.node_id,
+                            sought_units: buy_order_request.units,
+                            max_price: buy_order_request.max_price,
+                            min_price: buy_order_request.min_price,
+                        };
+                        message = "Failed to add new buy order".to_string();
+                        match diesel::insert_into(buy_orders)
+                            .values(new_buy_order)
+                            .returning(BuyOrder::as_returning())
+                            .get_result(connection)
+                        {
+                            Ok(mut order) => {
+                                message = "Buy order created successfully.".to_string();
+                                match sell_orders
+                                    .filter(offered_units.gt(claimed_units))
+                                    .filter(
+                                        schema::open_em::sell_orders::min_price.le(order.max_price),
+                                    )
+                                    .filter(
+                                        schema::open_em::sell_orders::min_price.ge(order.min_price),
+                                    )
+                                    .filter(seller_id.ne(order.buyer_id))
+                                    .filter(producer_id.ne(order.consumer_id))
+                                    .order_by(schema::open_em::sell_orders::created_at.asc())
+                                    .select(SellOrder::as_select())
+                                    .load::<SellOrder>(connection)
+                                {
+                                    Ok(sell_order_vec) => {
+                                        message = "Buy order created successfully. Pending match"
+                                            .to_string();
+                                        let mut order_match = false;
+                                        for s_order in sell_order_vec {
+                                            let transaction_units: f64;
+                                            if s_order.offered_units - s_order.claimed_units
+                                                > order.sought_units - order.filled_units
+                                            {
+                                                transaction_units =
+                                                    order.sought_units - order.filled_units;
+                                            } else {
+                                                transaction_units =
+                                                    s_order.offered_units - s_order.claimed_units;
+                                            }
+                                            let transaction_price = s_order.min_price; // Will be based on the direction the market needs to move for grid stability
+                                            let new_transaction = NewTransaction {
+                                                sell_order_id: s_order.sell_order_id,
+                                                buy_order_id: order.buy_order_id,
+                                                transacted_units: transaction_units,
+                                                transacted_price: transaction_price,
+                                            };
+                                            match diesel::insert_into(transactions)
+                                                .values(new_transaction)
+                                                .returning(Transaction::as_returning())
+                                                .get_result(connection)
+                                            {
+                                                Ok(transaction) => {
+                                                    order_match = true;
+                                                    order.filled_units +=
+                                                        transaction.transacted_units;
                                                 }
-                                                let transaction_price = s_order.min_price; // Will be based on the direction the market needs to move for grid stability
-                                                let new_transaction = NewTransaction {
-                                                    sell_order_id: s_order.sell_order_id,
-                                                    buy_order_id: order.buy_order_id,
-                                                    transacted_units: transaction_units,
-                                                    transacted_price: transaction_price,
-                                                };
-                                                match diesel::insert_into(transactions)
-                                                    .values(new_transaction)
-                                                    .returning(Transaction::as_returning())
-                                                    .get_result(connection)
-                                                {
-                                                    Ok(transaction) => {
-                                                        order_match = true;
-                                                        order.filled_units +=
-                                                            transaction.transacted_units;
-                                                    }
-                                                    Err(error) => {
-                                                        message = error.to_string().clone();
-                                                    }
-                                                }
-                                                if order.filled_units == order.sought_units {
-                                                    break;
+                                                Err(error) => {
+                                                    message = error.to_string().clone();
                                                 }
                                             }
-                                            if order_match {
-                                                message =
-                                                    "Buy order created successfully. Order matched"
-                                                        .to_string()
+                                            if order.filled_units == order.sought_units {
+                                                break;
                                             }
                                         }
-                                        Err(_) => {}
+                                        if order_match {
+                                            message =
+                                                "Buy order created successfully. Order matched"
+                                                    .to_string()
+                                        }
                                     }
+                                    Err(_) => {}
                                 }
-                                Err(_) => {}
-                            };
+                            }
+                            Err(_) => {}
                         }
                     }
                     Err(_) => {}
                 }
             }
             Err(_) => {}
-        };
+        }
     }
 
     json!({"status": "ok", "message": message})
@@ -430,101 +418,100 @@ async fn sell_order(
 
     let connection = &mut establish_connection();
 
-    let mut message = "Something went wrong".to_string();
+    let claims = verify_user(cookie_jar);
 
-    let user = verify_user(cookie_jar);
-
-    message = "No matching user".to_string();
-    if user.message == "User found" {
+    let mut message = claims.message;
+    if claims.user_id != Uuid::nil() {
         message = "Invalid Node ID".to_string();
         match Uuid::parse_str(&*sell_order_request.node_id.clone()) {
             Ok(request_node_id) => {
                 message = "No matching node".to_string();
-                let node_res = nodes
+                match nodes
                     .filter(node_id.eq(request_node_id))
-                    .filter(node_owner.eq(user.user_id))
+                    .filter(node_owner.eq(claims.user_id))
                     .select(Node::as_select())
-                    .load::<Node>(connection);
-                match node_res {
-                    Ok(node_vec) => {
-                        if node_vec.len() > 0 {
-                            let new_sell_order = NewSellOrder {
-                                seller_id: user.user_id,
-                                offered_units: sell_order_request.units,
-                                max_price: sell_order_request.max_price,
-                                min_price: sell_order_request.min_price,
-                                producer_id: node_vec[0].node_id,
-                            };
-                            message = "Failed to add new sell order".to_string();
-                            match diesel::insert_into(sell_orders)
-                                .values(new_sell_order)
-                                .returning(SellOrder::as_returning())
-                                .get_result(connection)
-                            {
-                                Ok(mut order) => {
-                                    message = "Sell order created successfully".to_string();
-                                    match buy_orders
-                                        .filter(sought_units.gt(filled_units))
-                                        .filter(
-                                            schema::open_em::buy_orders::min_price
-                                                .le(order.max_price),
-                                        )
-                                        .order_by(schema::open_em::buy_orders::created_at.asc())
-                                        .select(BuyOrder::as_select())
-                                        .load::<BuyOrder>(connection)
-                                    {
-                                        Ok(buy_order_vec) => {
-                                            message =
-                                                "Sell order created successfully. Pending match"
-                                                    .to_string();
-                                            let mut order_match = false;
-                                            for b_order in buy_order_vec {
-                                                let transaction_units: f64;
-                                                if b_order.sought_units - b_order.filled_units
-                                                    > order.offered_units - order.claimed_units
-                                                {
-                                                    transaction_units =
-                                                        order.offered_units - order.claimed_units;
-                                                } else {
-                                                    transaction_units =
-                                                        b_order.sought_units - b_order.filled_units;
+                    .first(connection)
+                {
+                    Ok(node) => {
+                        let new_sell_order = NewSellOrder {
+                            seller_id: claims.user_id,
+                            offered_units: sell_order_request.units,
+                            max_price: sell_order_request.max_price,
+                            min_price: sell_order_request.min_price,
+                            producer_id: node.node_id,
+                        };
+                        message = "Failed to add new sell order".to_string();
+                        match diesel::insert_into(sell_orders)
+                            .values(new_sell_order)
+                            .returning(SellOrder::as_returning())
+                            .get_result(connection)
+                        {
+                            Ok(mut order) => {
+                                message = "Sell order created successfully".to_string();
+                                match buy_orders
+                                    .filter(sought_units.gt(filled_units))
+                                    .filter(
+                                        schema::open_em::buy_orders::min_price.le(order.max_price),
+                                    )
+                                    .filter(
+                                        schema::open_em::buy_orders::min_price.ge(order.min_price),
+                                    )
+                                    .filter(buyer_id.ne(order.seller_id))
+                                    .filter(consumer_id.ne(order.producer_id))
+                                    .order_by(schema::open_em::buy_orders::created_at.asc())
+                                    .select(BuyOrder::as_select())
+                                    .load::<BuyOrder>(connection)
+                                {
+                                    Ok(buy_order_vec) => {
+                                        message = "Sell order created successfully. Pending match"
+                                            .to_string();
+                                        let mut order_match = false;
+                                        for b_order in buy_order_vec {
+                                            let transaction_units: f64;
+                                            if b_order.sought_units - b_order.filled_units
+                                                > order.offered_units - order.claimed_units
+                                            {
+                                                transaction_units =
+                                                    order.offered_units - order.claimed_units;
+                                            } else {
+                                                transaction_units =
+                                                    b_order.sought_units - b_order.filled_units;
+                                            }
+                                            let transaction_price = b_order.min_price; // Will be based on the direction the market needs to move for grid stability
+                                            let new_transaction = NewTransaction {
+                                                buy_order_id: b_order.buy_order_id,
+                                                sell_order_id: order.sell_order_id,
+                                                transacted_units: transaction_units,
+                                                transacted_price: transaction_price,
+                                            };
+                                            match diesel::insert_into(transactions)
+                                                .values(new_transaction)
+                                                .returning(Transaction::as_returning())
+                                                .get_result(connection)
+                                            {
+                                                Ok(transaction) => {
+                                                    order_match = true;
+                                                    order.claimed_units +=
+                                                        transaction.transacted_units;
                                                 }
-                                                let transaction_price = b_order.min_price; // Will be based on the direction the market needs to move for grid stability
-                                                let new_transaction = NewTransaction {
-                                                    buy_order_id: b_order.buy_order_id,
-                                                    sell_order_id: order.sell_order_id,
-                                                    transacted_units: transaction_units,
-                                                    transacted_price: transaction_price,
-                                                };
-                                                match diesel::insert_into(transactions)
-                                                    .values(new_transaction)
-                                                    .returning(Transaction::as_returning())
-                                                    .get_result(connection)
-                                                {
-                                                    Ok(transaction) => {
-                                                        order_match = true;
-                                                        order.claimed_units +=
-                                                            transaction.transacted_units;
-                                                    }
-                                                    Err(error) => {
-                                                        message = error.to_string().clone();
-                                                    }
-                                                }
-                                                if order.claimed_units == order.offered_units {
-                                                    break;
+                                                Err(error) => {
+                                                    message = error.to_string().clone();
                                                 }
                                             }
-                                            if order_match {
-                                                message =
-                                                    "Sell order created successfully. Order matched"
-                                                        .to_string()
+                                            if order.claimed_units == order.offered_units {
+                                                break;
                                             }
                                         }
-                                        Err(_) => {}
+                                        if order_match {
+                                            message =
+                                                "Sell order created successfully. Order matched"
+                                                    .to_string()
+                                        }
                                     }
+                                    Err(_) => {}
                                 }
-                                Err(_) => {}
                             }
+                            Err(_) => {}
                         }
                     }
                     Err(_) => {}
@@ -577,21 +564,19 @@ async fn price_view() -> Value {
 
     let connection = &mut establish_connection();
 
-    let mut message = "Something went wrong";
+    let mut message = "Something went wrong".to_string();
     let mut data = Price { price: 0f64 };
 
     let timestamp = Utc::now() - Duration::hours(TRANSACTION_LIFETIME);
 
-    let transactions_res = transactions
+    match transactions
         .filter(created_at.gt(timestamp))
         .order_by(created_at.desc())
         .select(Transaction::as_select())
-        .load::<Transaction>(connection);
-
-    match transactions_res {
+        .load::<Transaction>(connection) {
         Ok(transactions_vec) => {
             if transactions_vec.len() > 0 {
-                message = "Successfully retrieved price";
+                message = "Successfully retrieved price".to_string();
                 data = Price {
                     price: transactions_vec[0].transacted_price,
                 };

@@ -107,7 +107,8 @@ fn verify_user(cookie_jar: &CookieJar<'_>) -> Claims {
         match users
             .filter(session_id.eq(session_id_str))
             .select(User::as_select())
-            .first(connection) {
+            .first(connection)
+        {
             Ok(user) => {
                 response.message = "User found".to_string();
                 response.user_id = user.user_id;
@@ -116,7 +117,7 @@ fn verify_user(cookie_jar: &CookieJar<'_>) -> Claims {
         }
     }
 
-    return response
+    return response;
 }
 
 #[derive(Serialize, Deserialize)]
@@ -360,10 +361,11 @@ async fn buy_order(buy_order_request: Json<BuyOrderRequest>, cookie_jar: &Cookie
                                                 Ok(transaction) => {
                                                     order_match = true;
                                                     order.filled_units +=
-                                                        transaction.transacted_units;
+                                                        transaction.transacted_units
                                                 }
                                                 Err(error) => {
-                                                    message = error.to_string().clone();
+                                                    message = "Transaction(s) failed".to_string()
+                                                    //message = error.to_string().clone();
                                                 }
                                             }
                                             if order.filled_units == order.sought_units {
@@ -495,7 +497,8 @@ async fn sell_order(
                                                         transaction.transacted_units;
                                                 }
                                                 Err(error) => {
-                                                    message = error.to_string().clone();
+                                                    message = "Transaction(s) failed".to_string()
+                                                    //message = error.to_string().clone();
                                                 }
                                             }
                                             if order.claimed_units == order.offered_units {
@@ -573,7 +576,8 @@ async fn price_view() -> Value {
         .filter(created_at.gt(timestamp))
         .order_by(created_at.desc())
         .select(Transaction::as_select())
-        .load::<Transaction>(connection) {
+        .load::<Transaction>(connection)
+    {
         Ok(transactions_vec) => {
             if transactions_vec.len() > 0 {
                 message = "Successfully retrieved price".to_string();

@@ -228,6 +228,29 @@ struct NodeDetailsResult {
     status: String,
 }
 
+#[derive(Serialize)]
+struct UpdateUnitsConsumedDetails {
+    units : f64,
+    node_id : String
+}
+
+#[derive(Deserialize)]
+struct UpdateUnitsConsumeResult {
+    message : String,
+    status : String,
+}
+#[derive(Serialize)]
+struct UpdateUnitsProducedDetails {
+    units : f64,
+    node_id : String
+}
+
+#[derive(Deserialize)]
+struct UpdateUnitsProducedResult {
+    message : String,
+    status : String,
+}
+
 struct Agent {
     email: String,
     password: String,
@@ -466,6 +489,35 @@ impl Agent {
         }
     }
 
+    fn update_units_consumed(units:f64,session_id: String,node_id: String) {
+        let update_units_consumed_details = UpdateUnitsConsumedDetails { units, node_id };
+        let url = "localhost";
+        let client = reqwest::blocking::Client::new();
+        let res = client
+            .post(format!("http://{url}:8001/update_consumed_units"))
+            .header(header::COOKIE, format!("session_id={session_id}"))
+            .json(&update_units_consumed_details)
+            .send()
+            .unwrap();
+        let result : UpdateUnitsConsumeResult = res.json().unwrap();
+        println!("{}",result.message); 
+    }
+
+    fn update_units_produced(units: f64,session_id: String,node_id: String) {
+   let update_units_consumed_details = UpdateUnitsProducedDetails { units, node_id };
+        let url = "localhost";
+        let client = reqwest::blocking::Client::new();
+        let res = client
+            .post(format!("http://{url}:8001/update_produced_units"))
+            .header(header::COOKIE, format!("session_id={session_id}"))
+            .json(&update_units_consumed_details)
+            .send()
+            .unwrap();
+        let result : UpdateUnitsProducedResult = res.json().unwrap();
+        println!("{}",result.message); 
+
+    }
+
     fn update(&mut self, accumlated_time: f64) -> Result<(), ()> {
         // get credit
         let credit = Agent::get_credit(self.session_id.clone());
@@ -517,8 +569,14 @@ impl Agent {
             };
             
             // Update units_to_consume on market
-            
+            if consumed > 0 {
+            Agent::update_units_consumed(consumed, self.session_id.clone(), node.node_id.clone());
+            }
+                        
             // Update units_to_produce on market
+            if produced > 0 {
+            Agent::update_units_produced(produced, self.session_id.clone(), node.node_id.clone());
+            }
 
             // Set grid voltage for producer
 

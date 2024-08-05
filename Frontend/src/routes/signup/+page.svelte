@@ -39,8 +39,15 @@
   }
 
   function passwordCreationHelp() {
+    var pwElement = document.getElementById("pw");
     if (!password.match(passwordRegex)) {
-      errormessage = "Password requires at least 8 characters, uppercase and lowercase, a symbol and a number"
+      errormessage = "Password requires at least 8 characters, uppercase and lowercase, a symbol and a number";
+      pwElement.classList.add("input-error");
+      validPassword = false;
+    } else {
+      errormessage = "";
+      pwElement.classList.remove("input-error");
+      validPassword = true;
     }
   }
 
@@ -131,7 +138,7 @@
               </div>
               
               <div class="form-control mt-4">
-                <input id="pw" type="password" placeholder="Password" class="input input-bordered" required bind:value={password} on:change={passwordCreationHelp}/>
+                <input id="pw" type="password" placeholder="Password" class="input input-bordered" required bind:value={password} on:input={passwordCreationHelp}/>
                 
                 <!-- button with icon (this doesnt work) -->
                 <!-- <button type="button" on:click={showPassword} class="absolute inset-y-0 end-0 flex items-center z-20 px-3 cursor-pointer text-gray-400 rounded-e-md focus:outline-none focus:text-blue-600 dark:text-neutral-600 dark:focus:text-blue-500">

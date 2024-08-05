@@ -276,7 +276,7 @@
 </script>
 
 <div style="display: flex; max-width: 100%;"> 
-  <canvas bind:this={chartCanvas} height=280></canvas>
+  <canvas bind:this={chartCanvas} height=310></canvas>
 </div>
 
 <style>

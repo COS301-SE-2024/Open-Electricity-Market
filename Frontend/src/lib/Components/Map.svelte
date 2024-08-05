@@ -180,7 +180,7 @@
     <style>
        @import 'leaflet/dist/leaflet.css';
        div {
-       height: 500px;
+       height: 700px;
        }
     </style>
 

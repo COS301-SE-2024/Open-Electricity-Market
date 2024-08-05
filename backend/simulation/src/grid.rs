@@ -136,7 +136,7 @@ pub struct Grid {
 struct GridInterface {
     circuit: u32,
     generator: u32,
-    voltage: f32,
+    power: f32,
 }
 
 #[derive(Serialize)]
@@ -305,9 +305,10 @@ impl Grid {
     }
 
     pub fn set_generator(&mut self, json: String) {
+        let stats = self.get_grid_stats();
         let grid_interface: GridInterface = serde_json::from_str(&json).unwrap();
         self.circuits[grid_interface.circuit as usize]
-            .set_generater(grid_interface.generator, grid_interface.voltage);
+            .set_generater(grid_interface.generator, f32::sqrt(grid_interface.power*stats.total_impedance));
     }
 
     pub fn get_grid_stats(&self) -> GridStats {

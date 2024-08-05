@@ -582,10 +582,7 @@ impl Agent {
         println!("{}", result.message);
     }
 
-    fn place_buy_order(session_id: String) {
-
-    }
-
+    fn place_buy_order(session_id: String) {}
 
     fn update(&mut self, accumlated_time: f64) -> Result<(), ()> {
         // get credit
@@ -676,7 +673,7 @@ impl Agent {
                                 // buy electricity at market price
                             }
                         }
-                        None => {},
+                        None => {}
                     }
                 }
                 SmartMeter::InActtive => {}

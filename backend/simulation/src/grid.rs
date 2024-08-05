@@ -311,8 +311,9 @@ impl Grid {
         self.internal_update(elapsed_time, 0);
     }
 
-    pub fn set_consumer(&mut self,grid_interface: ConsumerInterface){
-        self.circuits[grid_interface.circuit as usize].set_consumer(grid_interface.consumer,grid_interface.power);
+    pub fn set_consumer(&mut self, grid_interface: ConsumerInterface) {
+        self.circuits[grid_interface.circuit as usize]
+            .set_consumer(grid_interface.consumer, grid_interface.power);
     }
 
     pub fn set_generator(&mut self, grid_interface: GeneratorInterface) {

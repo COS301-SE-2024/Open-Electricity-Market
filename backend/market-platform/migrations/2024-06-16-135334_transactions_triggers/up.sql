@@ -81,17 +81,9 @@ RETURNS TRIGGER
 AS
 $$
 BEGIN
-    IF (SELECT credit
-        FROM users
-        WHERE user_id = (SELECT seller_id FROM sell_orders WHERE sell_order_id = NEW.sell_order_id))
-        >= NEW.transacted_price
-    THEN
-        UPDATE users
-            SET credit = credit + NEW.transacted_price
-        WHERE user_id = (SELECT seller_id FROM sell_orders WHERE sell_order_id = NEW.sell_order_id);
-    ELSE
-        RAISE EXCEPTION 'Insufficient seller funds';
-    END IF;
+    UPDATE users
+        SET credit = credit + NEW.transacted_price
+    WHERE user_id = (SELECT seller_id FROM sell_orders WHERE sell_order_id = NEW.sell_order_id);
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;

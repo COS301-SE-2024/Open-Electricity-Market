@@ -14,10 +14,36 @@ test.describe("Landing page",() => {
   });
   test('To simulation', async ({ page }) => {
     // Click the sign in button.
-    await page.getByRole('link', { name: 'Show me the simulation' }).click();
+    await page.getByRole('link', { name: 'Simulation' }).click();
 
     // Expects to be redirected to login page.
-    await page.waitForURL('**/Main/GridSimulation');
+    await page.waitForURL('**/public/GridSimulation');
+  });
+});
+
+test.describe("public simulation page",() => {
+  test.beforeEach(async ({page})=>{
+    await page.goto('http://localhost:5173/public/GridSimulation');
+  });
+  test('Back to Landing page', async ({ page }) => {
+    //Wait for page to finish loading
+    await page.waitForLoadState('networkidle');
+
+    // Click the "Amplify" button.
+    await page.getByRole('link', { name: 'Amplify' }).click();
+
+    // Expects to be redirected back to landing page.
+    await page.waitForURL('http://localhost:5173');
+  });
+  test('To Dashboard', async ({ page }) => {
+    //Wait for page to finish loading
+    await page.waitForLoadState('networkidle');
+
+    // Click the "Amplify" button.
+    await page.getByRole('link', { name: 'Dashboard' }).click();
+
+    // Expects to be redirected back to landing page.
+    await page.waitForURL('**/Main/Dashboard');
   });
 });
 
@@ -30,7 +56,7 @@ test.describe("login page",() => {
     await page.waitForLoadState('networkidle');
 
     // Click the signup button.
-    await page.getByRole('button', { name: 'Create an account' }).click();
+    await page.getByRole('link', { name: 'Create an account' }).click();
     
     // Expects to be redirected to signup page.
     await page.waitForURL('**/signup');
@@ -46,24 +72,10 @@ test.describe("signup page",() => {
     await page.waitForLoadState('networkidle');
 
     // Click the "I already have an account" button.
-    await page.getByRole('button', { name: 'I already have an account' }).click();
+    await page.getByRole('link', { name: 'I already have an account' }).click();
 
     // Expects to be redirected back to login page.
     await page.waitForURL('**/login');
   });
 });
-test.describe("simulation page",() => {
-  test.beforeEach(async ({page})=>{
-    await page.goto('http://localhost:5173/public/GridSimulation');
-  });
-  test('Back to Landing page', async ({ page }) => {
-    //Wait for page to finish loading
-    //await page.waitForLoadState('networkidle');
 
-    // Click the "I already have an account" button.
-    await page.getByRole('button', { name: 'Amplify' }).click();
-
-    // Expects to be redirected back to login page.
-    await page.waitForURL('**');
-  });
-});

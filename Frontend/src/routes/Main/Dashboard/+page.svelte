@@ -37,6 +37,9 @@
   // let offeredunits; 
   // let claimedunits; 
   $: sellorders = [];
+  //variables for map input
+   let latitude = '';
+   let longtitude = '';
 
   onMount(async () => {
     await fetchStart();
@@ -114,12 +117,12 @@
   function createModal(){
     //*************************** change this to mapModal when implemented*/
     nodeName = nodeLatitude = nodeLongitude = '';
-    document.getElementById("newNodeModal").showModal();
+    document.getElementById("mapModal").showModal();
   }
 
   async function createNode() {
     // only proceed if all fields filled in
-    if (nodeName == '' || nodeLatitude == '' || nodeLongitude == '') {
+    if (nodeName == '' || latitude == '' || longtitude == '') {
       // maybe show an error
       return;
     }
@@ -135,17 +138,18 @@
         credentials: "include", 
         body: JSON.stringify({
           name: nodeName, 
-          location_x: Number(nodeLatitude), 
-          location_y: Number(nodeLongitude)
+          location_x: Number(latitude), 
+          location_y: Number(longtitude)
         })
       });
       // console.log("request being sent...");
       // console.log(response);
       
       const fdata = await response.json();
+      console.log(fdata);
 
       if (fdata.status === 'ok') {
-        document.getElementById("newNodeModal").close();
+        document.getElementById("mapModal").close();
         fetchNodes();
       }
 
@@ -190,6 +194,9 @@
       // amount = '';
       totalamount += amount; 
     }
+    else{
+      document.getElementById("addfundsrejection").showModal();
+    }
 
 
   }
@@ -227,6 +234,9 @@
       document.getElementById("removefundsconfirmation").showModal();
       // withdrawamount = '';
       totalamount -= withdrawamount; 
+    }
+    else{
+      document.getElementById("removefundsrejection").showModal();
     }
 
 
@@ -327,6 +337,12 @@
 
 
 
+  }
+
+  function handleMapClick(lat, lng){
+    latitude = lat; 
+    longtitude = lng; 
+    console.log("Marker position updated: " + lat + " " + lng);
   }
 
 
@@ -468,7 +484,7 @@
             <input class="input input-bordered" type="text" placeholder="Longtitude" bind:value={nodeLongitude}>
           </div> -->
           <div class="form-control mt-4">
-            <Map />
+            <Map onMapClick = {handleMapClick} />
           </div>
 
           <div class="form-control mt-4">
@@ -518,7 +534,10 @@
       
         <div class="stat">
           <div class="stat-title">Node Location</div>
-          <div class="stat-value">{nodeLatitudeDetail} E {nodeLongitudeDetail} S</div>
+          <div class="stat-value">
+            {nodeLongitudeDetail < 0 ? nodeLongitudeDetail.toFixed(3) * -1 + "S" : nodeLongitudeDetail.toFixed(3) + "N"} 
+            {nodeLatitudeDetail < 0 ? nodeLatitudeDetail.toFixed(3) * -1 + "W": nodeLatitudeDetail.toFixed(3) + "E"}
+          </div>
         </div>
         
         <div class="stat">
@@ -594,6 +613,26 @@
       <div class="modal-box">
         <h3 class="font-bold text-lg ">Withdrawal of funds successful!</h3>
       <p>You have successfully withdrew R{withdrawamount} from your account.</p>
+      </div>
+      <form method="dialog" class="modal-backdrop">
+        <button on:click={nullifyValues}>close</button>
+      </form>
+    </dialog>
+
+    <dialog id="removefundsrejection" class="modal">  
+      <div class="modal-box">
+        <h3 class="font-bold text-lg ">Withdrawal of funds was unsuccessful.</h3>
+      <p>Withdrawal of R{withdrawamount} was unsuccessful. Please check your balance.</p>
+      </div>
+      <form method="dialog" class="modal-backdrop">
+        <button on:click={nullifyValues}>close</button>
+      </form>
+    </dialog>
+
+    <dialog id="addfundsrejection" class="modal">  
+      <div class="modal-box">
+        <h3 class="font-bold text-lg ">Addition of funds unsuccessful.</h3>
+      <p>Addition of R{amount} was unsuccessful. Please enter a valid value.</p>
       </div>
       <form method="dialog" class="modal-backdrop">
         <button on:click={nullifyValues}>close</button>

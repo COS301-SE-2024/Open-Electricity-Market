@@ -12,6 +12,7 @@ pub struct User {
     pub credit: f64,
     pub created_at: DateTime<Utc>,
     pub session_id: Option<String>,
+    pub active: bool,
 }
 
 #[derive(Insertable)]
@@ -44,8 +45,6 @@ pub struct Node {
     pub node_owner: Uuid,
     pub location_x: f64,
     pub location_y: f64,
-    pub units_consumed: f64,
-    pub units_generated: f64,
     pub node_active: bool,
     pub name: String,
 }
@@ -55,7 +54,8 @@ pub struct Node {
 pub struct NewBuyOrder {
     pub buyer_id: Uuid,
     pub sought_units: f64,
-    pub price: f64,
+    pub max_price: f64,
+    pub min_price: f64,
     pub consumer_id: Uuid,
 }
 
@@ -66,7 +66,8 @@ pub struct BuyOrder {
     pub buyer_id: Uuid,
     pub sought_units: f64,
     pub filled_units: f64,
-    pub price: f64,
+    pub max_price: f64,
+    pub min_price: f64,
     pub created_at: DateTime<Utc>,
     pub consumer_id: Uuid,
 }
@@ -76,7 +77,8 @@ pub struct BuyOrder {
 pub struct NewSellOrder {
     pub seller_id: Uuid,
     pub offered_units: f64,
-    pub price: f64,
+    pub max_price: f64,
+    pub min_price: f64,
     pub producer_id: Uuid,
 }
 
@@ -89,7 +91,8 @@ pub struct SellOrder {
     pub created_at: DateTime<Utc>,
     pub offered_units: f64,
     pub claimed_units: f64,
-    pub price: f64,
+    pub max_price: f64,
+    pub min_price: f64,
     pub producer_id: Uuid,
 }
 
@@ -102,6 +105,15 @@ pub struct NewNodeModel<'a> {
     pub name: &'a str,
 }
 
+#[derive(Insertable)]
+#[diesel(table_name = crate::schema::open_em::transactions)]
+pub struct NewTransaction {
+    pub sell_order_id: i64,
+    pub buy_order_id: i64,
+    pub transacted_units: f64,
+    pub transacted_price: f64,
+}
+
 #[derive(Queryable, Selectable)]
 #[diesel(table_name = crate::schema::open_em::transactions)]
 pub struct Transaction {
@@ -110,6 +122,8 @@ pub struct Transaction {
     pub buy_order_id: i64,
     pub transacted_units: f64,
     pub transacted_price: f64,
-    pub transaction_active: bool,
+    pub transaction_fee: f64,
+    pub units_consumed: f64,
+    pub units_produced: f64,
     pub created_at: DateTime<Utc>,
 }

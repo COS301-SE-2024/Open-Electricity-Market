@@ -12,7 +12,9 @@ let test_node_id = sessionStorage.getItem("node_id");
 async function place_buy_order() {
   let data = {
     "node_id": test_node_id,
-    "price": price,
+    // "price": price,
+    "min_price": price >= 0.05 ? price - 0.05 : 0.01,
+    "max_price": price + 0.05,
     "units": units
   }
 
@@ -32,7 +34,9 @@ async function place_buy_order() {
 async function place_sell_order() {
   let data = {
     "node_id": test_node_id,
-    "price": price,
+    // "price": price,
+    "min_price": price >= 0.05 ? price - 0.05 : 0.01,
+    "max_price": price + 0.05,
     "units": units
   }
 
@@ -114,8 +118,8 @@ onMount(async () => {
                 <p class="py-4">Please confirm your buy order for {units} units at R {price} </p>
                 <div class="modal-action">
                   <form method="dialog">
-                    <button class="btn" on:click={place_buy_order} >Continue</button>
-                    <button class="btn">Cancel</button>
+                    <button class="btn bg-green-600" on:click={place_buy_order} >Continue</button>
+                    <button class="btn bg-red-500">Cancel</button>
                   </form>
                 </div>
               </div>
@@ -127,8 +131,8 @@ onMount(async () => {
                 <p class="py-4">Please confirm your sell order for {units} units at R{price} </p>
                 <div class="modal-action">
                   <form method="dialog">
-                    <button class="btn" on:click={place_sell_order}>Continue</button>
-                    <button class="btn">Cancel</button>
+                    <button class="btn bg-green-600" on:click={place_sell_order}>Continue</button>
+                    <button class="btn bg-red-500">Cancel</button>
                   </form>
                 </div>
               </div>

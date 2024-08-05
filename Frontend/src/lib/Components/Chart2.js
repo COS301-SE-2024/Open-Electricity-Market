@@ -1,4 +1,4 @@
-import { Chart } from "chart.js/auto";
+import { Chart, Colors } from "chart.js/auto";
 
 export function createChart(context, config) {
   return new Chart(context, config);
@@ -10,7 +10,7 @@ export const sampleChartConfig = {
     labels: ["1", "2", "3", "4", "5", "6"],
     datasets: [
       {
-        label: "Graph of phase 1 voltage as a function of time",
+        label: "Phase 1 voltage",
         data: [],
         backgroundColor: [
           "rgba(255, 99, 132, 0.2)",
@@ -29,9 +29,10 @@ export const sampleChartConfig = {
           "rgba(255, 159, 64, 1)",
         ],
         borderWidth: 1,
+        pointRadius: 0,
       },
       {
-        label: "Graph of Phase 2 voltage as a function of time",
+        label: "Phase 2 voltage",
         data: [],
         backgroundColor: [
           "rgba(255, 99, 132, 0.2)",
@@ -50,9 +51,10 @@ export const sampleChartConfig = {
           "rgba(255, 159, 64, 1)",
         ],
         borderWidth: 1,
+        pointRadius: 0,
       },
       {
-        label: "Graph of Phase 3 voltage as a function of time",
+        label: "Phase 3 voltage",
         data: [],
         backgroundColor: [
           "rgba(255, 99, 132, 0.2)",
@@ -71,6 +73,7 @@ export const sampleChartConfig = {
           "rgba(255, 159, 64, 1)",
         ],
         borderWidth: 1,
+        pointRadius: 0,
       },
     ],
   },
@@ -82,5 +85,11 @@ export const sampleChartConfig = {
         max: 1500,
       },
     },
+    // elements: {
+    //   point: {
+    //     // radius: 0,
+    //   },
+    // },
+    // pointRadius: 0;
   },
 };

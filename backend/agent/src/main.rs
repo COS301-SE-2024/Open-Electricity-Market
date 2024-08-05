@@ -482,8 +482,43 @@ impl Agent {
             );
 
             // Update units_to_consume based on consumption curve
-
+            let consumed = match &mut node.smart_meter {   
+                SmartMeter::Acctive(core) => {
+                match units_to_consume {
+                    Some(to_consume) => {
+                        let sample = core.consumption_curve.sample(accumlated_time);
+                        if sample > to_consume {
+                           to_consume
+                        } else {
+                            sample
+                        }
+                    },
+                    None => {0.0},
+                }
+                },
+                SmartMeter::InActtive => {0.0},
+            };
             // Update units_to_produce based on produnction curve
+            let produced = match &mut node.generator {
+                Generator::Acctive(core) => {
+                    match units_to_produce {
+                        Some(to_produce) => {
+                            let sample = core.production_curve.sample(accumlated_time);
+                            if sample > to_produce {
+                                to_produce
+                            } else {
+                                sample
+                            }
+                        },
+                        None => {0.0},
+                    }
+                },
+                Generator::InAcctive => {0.0},
+            };
+            
+            // Update units_to_consume on market
+            
+            // Update units_to_produce on market
 
             // Set grid voltage for producer
 

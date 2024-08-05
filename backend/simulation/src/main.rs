@@ -126,6 +126,7 @@ fn add_generator(
     let new_genenrator = NewGenerator { circuit, generator };
 
     let out = serde_json::to_string(&new_genenrator).unwrap();
+    println!("{generator}");
 
     content::RawJson(out)
 }

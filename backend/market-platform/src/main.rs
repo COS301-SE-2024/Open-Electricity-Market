@@ -7,14 +7,6 @@ use crate::models::{
     BuyOrder, NewBuyOrder, NewNodeModel, NewProfileModel, NewSellOrder, NewTransaction,
     NewUserModel, Node, Profile, SellOrder, Transaction, User,
 };
-use crate::schema::open_em::buy_orders::consumer_id;
-use crate::schema::open_em::buy_orders::dsl::buy_orders;
-use crate::schema::open_em::nodes::dsl::nodes;
-use crate::schema::open_em::nodes::{node_active, node_id, node_owner};
-use crate::schema::open_em::sell_orders::dsl::sell_orders;
-use crate::schema::open_em::sell_orders::producer_id;
-use crate::schema::open_em::transactions::dsl::transactions;
-use crate::schema::open_em::transactions::{transaction_id, units_consumed};
 use chrono::{Duration, Utc};
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
@@ -29,13 +21,14 @@ use rocket::serde::json::{Json, Value};
 use rocket::serde::{Deserialize, Serialize};
 use rocket::{Request, Response};
 use std::env;
+use std::env::VarError;
 use std::ops::Add;
 use uuid::Uuid;
 
 const TRANSACTION_LIFETIME: i64 = 24; // Lifetime in hours
 const FRONTEND_URL: &str = "http://localhost:5173";
 // const TARGET_VOLTAGE: f64 = 240.0;
-// Endpoint for current voltage
+// Endpoint for current_voltage
 
 const UNIT_PRICE_RATE: f64 = 0.0005;
 const IMPEDANCE_RATE: f64 = 0.00005;
@@ -130,8 +123,108 @@ fn verify_user(cookie_jar: &CookieJar<'_>) -> Claims {
     return response;
 }
 
-fn fee_calc(units: f64, price: f64) -> f64 {
-    return 0f64;
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct GridStats {
+    total_impedance: f64,
+    total_generation: f64,
+    consumer_count: i64,
+    producer_count: i64,
+    user_count: i64,
+}
+
+fn buy_fee_calc(units: f64, price: f64) -> f64 {
+    use self::schema::open_em::buy_orders::dsl::*;
+    use self::schema::open_em::sell_orders::dsl::*;
+
+    let connection = &mut establish_connection();
+
+    let mut demand = 0f64;
+
+    match buy_orders
+        .filter(sought_units.gt(filled_units))
+        // .filter(active.eq(true))
+        .execute(connection)
+    {
+        Ok(num_buys) => demand = num_buys as f64,
+        Err(_) => {}
+    }
+
+    let mut supply = 0f64;
+    match sell_orders
+        .filter(offered_units.gt(claimed_units))
+        // .filter(active.eq(true))
+        .execute(connection)
+    {
+        Ok(num_sells) => supply = num_sells as f64,
+        Err(_) => {}
+    }
+
+    let mut impedance = 0f64;
+    match env::var("GRID_URL") {
+        Ok(grid_url) => {
+            let client = reqwest::blocking::Client::new();
+            match client.post(grid_url + "/stats").send() {
+                Ok(response) => {
+                    let grid_stats: GridStats = response.json().unwrap();
+                    impedance = grid_stats.total_impedance;
+                }
+                Err(_) => {}
+            }
+        }
+        Err(_) => {}
+    }
+
+    return units * price * UNIT_PRICE_RATE
+        + ((demand - supply) * SUPPLY_DEMAND_RATE)
+        + (impedance * IMPEDANCE_RATE);
+}
+
+fn sell_fee_calc(units: f64, price: f64) -> f64 {
+    use self::schema::open_em::buy_orders::dsl::*;
+    use self::schema::open_em::sell_orders::dsl::*;
+
+    let connection = &mut establish_connection();
+
+    let mut demand = 0f64;
+
+    match buy_orders
+        .filter(sought_units.gt(filled_units))
+        // .filter(active.eq(true))
+        .execute(connection)
+    {
+        Ok(num_buys) => demand = num_buys as f64,
+        Err(_) => {}
+    }
+
+    let mut supply = 0f64;
+    match sell_orders
+        .filter(offered_units.gt(claimed_units))
+        // .filter(active.eq(true))
+        .execute(connection)
+    {
+        Ok(num_sells) => supply = num_sells as f64,
+        Err(_) => {}
+    }
+
+    let mut impedance = 0f64;
+    match env::var("GRID_URL") {
+        Ok(grid_url) => {
+            let client = reqwest::blocking::Client::new();
+            match client.post(grid_url + "/stats").send() {
+                Ok(response) => {
+                    let grid_stats: GridStats = response.json().unwrap();
+                    impedance = grid_stats.total_impedance;
+                }
+                Err(_) => {}
+            }
+        }
+        Err(_) => {}
+    }
+
+    return (units * price * UNIT_PRICE_RATE)
+        + ((supply - demand) * SUPPLY_DEMAND_RATE)
+        + (impedance * IMPEDANCE_RATE);
 }
 
 #[derive(Serialize, Deserialize)]
@@ -151,6 +244,7 @@ async fn update_consumed_units(
     cookie_jar: &CookieJar<'_>,
 ) -> Value {
     use self::schema::open_em::buy_orders::dsl::*;
+    use self::schema::open_em::nodes::dsl::*;
     use self::schema::open_em::transactions::dsl::*;
 
     let connection = &mut establish_connection();
@@ -245,6 +339,7 @@ async fn update_produced_units(
     mut update_request: Json<UpdateUnits>,
     cookie_jar: &CookieJar<'_>,
 ) -> Value {
+    use self::schema::open_em::nodes::dsl::*;
     use self::schema::open_em::sell_orders::dsl::*;
     use self::schema::open_em::transactions::dsl::*;
 
@@ -557,7 +652,7 @@ async fn buy_order(buy_order_request: Json<BuyOrderRequest>, cookie_jar: &Cookie
                                             }
                                             let transaction_price = s_order.min_price; // Will be based on the direction the market needs to move for grid stability
                                             let fee =
-                                                fee_calc(transaction_units, transaction_price);
+                                                buy_fee_calc(transaction_units, transaction_price);
                                             let new_transaction = NewTransaction {
                                                 sell_order_id: s_order.sell_order_id,
                                                 buy_order_id: order.buy_order_id,
@@ -692,7 +787,7 @@ async fn sell_order(
                                             }
                                             let transaction_price = b_order.min_price; // Will be based on the direction the market needs to move for grid stability
                                             let fee =
-                                                fee_calc(transaction_units, transaction_price);
+                                                sell_fee_calc(transaction_units, transaction_price);
                                             let new_transaction = NewTransaction {
                                                 buy_order_id: b_order.buy_order_id,
                                                 sell_order_id: order.sell_order_id,

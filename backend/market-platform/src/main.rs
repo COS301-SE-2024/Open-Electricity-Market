@@ -15,6 +15,7 @@ use diesel::prelude::*;
 use dotenvy::dotenv;
 use pwhash::bcrypt;
 use pwhash::unix::verify;
+use regex::Regex;
 use rocket::fairing::{Fairing, Info, Kind};
 use rocket::form::name::NameBuf;
 use rocket::http::CookieJar;
@@ -965,39 +966,52 @@ async fn login(credentials: Json<Credentials>, jar: &CookieJar<'_>) -> Value {
 
     let connection = &mut establish_connection();
 
-    let mut message = "Something went wrong".to_string();
-
     let mut ret_session_id = "".to_string();
 
-    match users
-        .filter(email.eq(credentials.email.clone()))
-        .select(User::as_select())
-        .first(connection)
-    {
-        Ok(user) => {
-            message = "Invalid password".to_string();
-            let verify = bcrypt::verify(credentials.password.clone(), &*user.pass_hash);
-            if verify {
-                match bcrypt::hash(user.user_id.to_string() + &*chrono::Utc::now().to_string()) {
-                    Ok(hash) => {
-                        match diesel::update(users)
-                            .filter(email.eq(credentials.email.clone()))
-                            .set(session_id.eq(hash.clone()))
-                            .execute(connection)
-                        {
-                            Ok(_) => {
-                                message = "User logged in".to_string();
-                                ret_session_id = hash.clone();
-                                jar.add(Cookie::build(("session_id", hash)).path("/"))
-                            }
-                            Err(_) => message = "Failed to update session id".to_string(),
-                        }
-                    }
-                    Err(_) => {}
-                }
+    let mut message = "Something went wrong".to_string();
+
+    let mut email_valid = false;
+    match Regex::new(r"^([a-z0-9_+]([a-z0-9_+.]*[a-z0-9_+])?)@([a-z0-9]+([\-.][a-z0-9]+)*\.[a-z]{2,6})") {
+        Ok(regex) => {
+            email_valid = regex.is_match(&*credentials.email);
+            if !email_valid {
+                message = "Invalid email address".to_string()
             }
         }
-        Err(_) => message = "User does not exist".to_string(),
+        Err(_) => {}
+    }
+
+    if email_valid {
+        match users
+            .filter(email.eq(credentials.email.clone()))
+            .select(User::as_select())
+            .first(connection)
+        {
+            Ok(user) => {
+                message = "Invalid password".to_string();
+                let verify = bcrypt::verify(credentials.password.clone(), &*user.pass_hash);
+                if verify {
+                    match bcrypt::hash(user.user_id.to_string() + &*chrono::Utc::now().to_string()) {
+                        Ok(hash) => {
+                            match diesel::update(users)
+                                .filter(email.eq(credentials.email.clone()))
+                                .set(session_id.eq(hash.clone()))
+                                .execute(connection)
+                            {
+                                Ok(_) => {
+                                    message = "User logged in".to_string();
+                                    ret_session_id = hash.clone();
+                                    jar.add(Cookie::build(("session_id", hash)).path("/"))
+                                }
+                                Err(_) => message = "Failed to update session id".to_string(),
+                            }
+                        }
+                        Err(_) => {}
+                    }
+                }
+            }
+            Err(_) => message = "User does not exist".to_string(),
+        }
     }
 
     json!({ "status": "ok", "message": message, "data": { "session_id": ret_session_id}})
@@ -1020,57 +1034,77 @@ async fn register(new_user: Json<NewUserReq>, jar: &CookieJar<'_>) -> Value {
 
     let connection = &mut establish_connection();
 
-    let binding = bcrypt::hash(new_user.password.clone()).unwrap();
-
-    let new_user_insert = NewUserModel {
-        email: new_user.email.clone(),
-        pass_hash: binding,
-    };
-
     let mut ret_session_id = "".to_string();
 
-    let mut message = "Failed to create new user";
-    match diesel::insert_into(users::table)
-        .values(&new_user_insert)
-        .returning(User::as_returning())
-        .get_result::<User>(connection)
-    {
-        Ok(user) => {
-            message = "Failed to update Session ID";
-            let binding_2 =
-                bcrypt::hash(user.user_id.to_string() + &*user.created_at.to_string()).unwrap();
-            match diesel::update(users)
-                .filter(user_id.eq(user.user_id))
-                .set(session_id.eq(binding_2))
-                .returning(User::as_returning())
-                .get_result(connection)
-            {
-                Ok(user_up) => {
-                    message = "Failed to add user profile";
-                    let new_profile_insert = NewProfileModel {
-                        profile_user_id: user.user_id,
-                        first_name: new_user.first_name.clone(),
-                        last_name: new_user.last_name.clone(),
-                    };
-                    match diesel::insert_into(profiles::table)
-                        .values(&new_profile_insert)
-                        .execute(connection)
-                    {
-                        Ok(_) => {
-                            message = "New user added";
-                            ret_session_id = user_up.session_id.clone().unwrap();
-                            jar.add(
-                                Cookie::build(("session_id", user_up.session_id.unwrap()))
-                                    .path("/"),
-                            );
-                        }
-                        Err(_) => {}
-                    }
-                }
-                Err(_) => {}
+    let mut message = "Something went wrong".to_string();
+    let mut email_valid = false;
+    match Regex::new(r"^([a-z0-9_+]([a-z0-9_+.]*[a-z0-9_+])?)@([a-z0-9]+([\-.][a-z0-9]+)*\.[a-z]{2,6})") {
+        Ok(regex) => {
+            email_valid = regex.is_match(&*new_user.email);
+            if !email_valid {
+                message = "Invalid email address".to_string()
             }
         }
         Err(_) => {}
+    }
+
+    let mut password_valid = false;
+    message = "Password too short".to_string();
+    if new_user.password.len() > 8 {
+        password_valid = true
+    }
+
+    if email_valid && password_valid {
+        let binding = bcrypt::hash(new_user.password.clone()).unwrap();
+
+        let new_user_insert = NewUserModel {
+            email: new_user.email.clone(),
+            pass_hash: binding,
+        };
+
+        message = "Failed to create new user".to_string();
+        match diesel::insert_into(users::table)
+            .values(&new_user_insert)
+            .returning(User::as_returning())
+            .get_result::<User>(connection)
+        {
+            Ok(user) => {
+                message = "Failed to update Session ID".to_string();
+                let binding_2 =
+                    bcrypt::hash(user.user_id.to_string() + &*user.created_at.to_string()).unwrap();
+                match diesel::update(users)
+                    .filter(user_id.eq(user.user_id))
+                    .set(session_id.eq(binding_2))
+                    .returning(User::as_returning())
+                    .get_result(connection)
+                {
+                    Ok(user_up) => {
+                        message = "Failed to add user profile".to_string();
+                        let new_profile_insert = NewProfileModel {
+                            profile_user_id: user.user_id,
+                            first_name: new_user.first_name.clone(),
+                            last_name: new_user.last_name.clone(),
+                        };
+                        match diesel::insert_into(profiles::table)
+                            .values(&new_profile_insert)
+                            .execute(connection)
+                        {
+                            Ok(_) => {
+                                message = "New user added".to_string();
+                                ret_session_id = user_up.session_id.clone().unwrap();
+                                jar.add(
+                                    Cookie::build(("session_id", user_up.session_id.unwrap()))
+                                        .path("/"),
+                                );
+                            }
+                            Err(_) => {}
+                        }
+                    }
+                    Err(_) => {}
+                }
+            }
+            Err(_) => {}
+        }
     }
 
     json!({ "status": "ok", "message": message, "data": {"session_id": ret_session_id}})

@@ -7,31 +7,26 @@ use crate::models::{
     BuyOrder, NewBuyOrder, NewNodeModel, NewProfileModel, NewSellOrder, NewTransaction,
     NewUserModel, Node, Profile, SellOrder, Transaction, User,
 };
-use crate::schema::open_em::users::dsl::users;
-use crate::schema::open_em::users::session_id;
 use chrono::{Duration, Utc};
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use dotenvy::dotenv;
 use pwhash::bcrypt;
-use pwhash::unix::verify;
 use regex::Regex;
 use rocket::fairing::{Fairing, Info, Kind};
-use rocket::form::name::NameBuf;
 use rocket::http::CookieJar;
 use rocket::http::{Cookie, Header, Method, Status};
 use rocket::serde::json::serde_json::json;
 use rocket::serde::json::{Json, Value};
 use rocket::serde::{Deserialize, Serialize};
-use rocket::yansi::Paint;
-use rocket::{Request, Response, State};
+use rocket::{Request, Response};
 use std::env;
-use std::sync::atomic::{AtomicU32, Ordering};
-use std::sync::{Arc, Mutex};
-use uuid::{Error, Uuid};
+use uuid::Uuid;
 
 const TRANSACTION_LIFETIME: i64 = 24; // Lifetime in hours
 const FRONTEND_URL: &str = "http://localhost:5173";
+// const TARGET_VOLTAGE: f64 = 240.0;
+// Endpoint for current voltage
 
 mod models;
 mod schema;
@@ -143,7 +138,6 @@ async fn remove_node(remove_node_request: Json<RemoveNode>, cookie_jar: &CookieJ
     if claims.user_id != Uuid::nil() {
         match Uuid::parse_str(&*remove_node_request.node_id) {
             Ok(request_node_id) => {
-                message = "No matching node".to_string();
                 match diesel::update(nodes)
                     .filter(node_owner.eq(claims.user_id))
                     .filter(node_id.eq(request_node_id))
@@ -151,7 +145,7 @@ async fn remove_node(remove_node_request: Json<RemoveNode>, cookie_jar: &CookieJ
                     .execute(connection)
                 {
                     Ok(_) => message = "Node successfully removed".to_string(),
-                    Err(_) => message = "Something went wrong.".to_string(),
+                    Err(_) => message = "No matching node".to_string(),
                 }
             }
             Err(_) => message = "Invalid Node ID".to_string(),
@@ -284,7 +278,6 @@ async fn buy_order(buy_order_request: Json<BuyOrderRequest>, cookie_jar: &Cookie
     use self::schema::open_em::nodes::dsl::*;
     use self::schema::open_em::sell_orders::dsl::*;
     use self::schema::open_em::transactions::dsl::*;
-    use self::schema::open_em::users::dsl::*;
 
     let connection = &mut establish_connection();
 
@@ -364,7 +357,7 @@ async fn buy_order(buy_order_request: Json<BuyOrderRequest>, cookie_jar: &Cookie
                                                     order.filled_units +=
                                                         transaction.transacted_units
                                                 }
-                                                Err(error) => {
+                                                Err(_) => {
                                                     message = "Transaction(s) failed".to_string()
                                                     //message = error.to_string().clone();
                                                 }
@@ -417,7 +410,6 @@ async fn sell_order(
     use self::schema::open_em::nodes::dsl::*;
     use self::schema::open_em::sell_orders::dsl::*;
     use self::schema::open_em::transactions::dsl::*;
-    use self::schema::open_em::users::dsl::*;
 
     let connection = &mut establish_connection();
 
@@ -497,7 +489,7 @@ async fn sell_order(
                                                     order.claimed_units +=
                                                         transaction.transacted_units;
                                                 }
-                                                Err(error) => {
+                                                Err(_) => {
                                                     message = "Transaction(s) failed".to_string()
                                                     //message = error.to_string().clone();
                                                 }
@@ -801,7 +793,6 @@ struct ShortNodeRet {
 )]
 async fn get_nodes(get_nodes_request: Json<GetNodesReq>, cookie_jar: &CookieJar<'_>) -> Value {
     use self::schema::open_em::nodes::dsl::*;
-    use self::schema::open_em::users::dsl::*;
 
     let connection = &mut establish_connection();
 
@@ -846,7 +837,6 @@ struct AddNodeReq<'r> {
 #[post("/add_node", format = "application/json", data = "<add_node_req>")]
 async fn add_node(add_node_req: Json<AddNodeReq<'_>>, cookie_jar: &CookieJar<'_>) -> Value {
     use self::schema::open_em::nodes;
-    use self::schema::open_em::users::dsl::*;
 
     let connection = &mut establish_connection();
 
@@ -935,14 +925,13 @@ async fn remove_funds(remove_funds_req: Json<RemoveFundsReq>, cookie_jar: &Cooki
             Ok(user) => {
                 message = "Insufficient funds".to_string();
                 if remove_funds_req.funds > 0f64 && user.credit >= remove_funds_req.funds {
-                    message = "Failed to remove funds".to_string();
                     match diesel::update(users)
                         .filter(user_id.eq(user.user_id))
                         .set(credit.eq(credit - remove_funds_req.funds))
                         .execute(connection)
                     {
                         Ok(_) => message = "Funds removed".to_string(),
-                        Err(_) => message = "Something went wrong.".to_string(),
+                        Err(_) => message = "Failed to remove funds".to_string(),
                     }
                 }
             }
@@ -971,7 +960,9 @@ async fn login(credentials: Json<Credentials>, jar: &CookieJar<'_>) -> Value {
     let mut message = "Something went wrong".to_string();
 
     let mut email_valid = false;
-    match Regex::new(r"^([a-z0-9_+]([a-z0-9_+.]*[a-z0-9_+])?)@([a-z0-9]+([\-.][a-z0-9]+)*\.[a-z]{2,6})") {
+    match Regex::new(
+        r"^([a-z0-9_+]([a-z0-9_+.]*[a-z0-9_+])?)@([a-z0-9]+([\-.][a-z0-9]+)*\.[a-z]{2,6})",
+    ) {
         Ok(regex) => {
             email_valid = regex.is_match(&*credentials.email);
             if !email_valid {
@@ -991,7 +982,8 @@ async fn login(credentials: Json<Credentials>, jar: &CookieJar<'_>) -> Value {
                 message = "Invalid password".to_string();
                 let verify = bcrypt::verify(credentials.password.clone(), &*user.pass_hash);
                 if verify {
-                    match bcrypt::hash(user.user_id.to_string() + &*chrono::Utc::now().to_string()) {
+                    match bcrypt::hash(user.user_id.to_string() + &*chrono::Utc::now().to_string())
+                    {
                         Ok(hash) => {
                             match diesel::update(users)
                                 .filter(email.eq(credentials.email.clone()))
@@ -1037,8 +1029,11 @@ async fn register(new_user: Json<NewUserReq>, jar: &CookieJar<'_>) -> Value {
     let mut ret_session_id = "".to_string();
 
     let mut message = "Something went wrong".to_string();
+
     let mut email_valid = false;
-    match Regex::new(r"^([a-z0-9_+]([a-z0-9_+.]*[a-z0-9_+])?)@([a-z0-9]+([\-.][a-z0-9]+)*\.[a-z]{2,6})") {
+    match Regex::new(
+        r"^([a-z0-9_+]([a-z0-9_+.]*[a-z0-9_+])?)@([a-z0-9]+([\-.][a-z0-9]+)*\.[a-z]{2,6})",
+    ) {
         Ok(regex) => {
             email_valid = regex.is_match(&*new_user.email);
             if !email_valid {
@@ -1049,9 +1044,10 @@ async fn register(new_user: Json<NewUserReq>, jar: &CookieJar<'_>) -> Value {
     }
 
     let mut password_valid = false;
-    message = "Password too short".to_string();
     if new_user.password.len() > 8 {
         password_valid = true
+    } else {
+        message = "Password too short".to_string()
     }
 
     if email_valid && password_valid {

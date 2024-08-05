@@ -111,7 +111,7 @@ async function fetchData() {
             <dialog id="my_modal_1" class="modal">
               <div class="modal-box">
                 <h3 class="text-lg font-bold">Confirm Buy Order</h3>
-                <p class="py-4">Please confirm your buy order for {units} units at R {price} </p>
+                <p class="py-4">Please confirm your buy order for {units} units at R {selectedPrice} </p>
                 <div class="modal-action">
                   <form method="dialog">
                     <button class="btn bg-green-600" on:click={place_buy_order} >Continue</button>
@@ -124,7 +124,7 @@ async function fetchData() {
             <dialog id="my_modal_2" class="modal">
               <div class="modal-box">
                 <h3 class="text-lg font-bold">Confirm Sell Order</h3>
-                <p class="py-4">Please confirm your sell order for {units} units at R{price} </p>
+                <p class="py-4">Please confirm your sell order for {units} units at R{selectedPrice} </p>
                 <div class="modal-action">
                   <form method="dialog">
                     <button class="btn bg-green-600" on:click={place_sell_order}>Continue</button>

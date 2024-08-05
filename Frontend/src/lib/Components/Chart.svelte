@@ -29,7 +29,7 @@
   
 
     $: if (chart && Object.keys(data).length) {
-      console.log("Reactive if was triggered...");
+      // console.log("Reactive if was triggered...");
       updateChart();
   }
 
@@ -41,11 +41,11 @@
 
     //this will have to check for price once endpoint changes *************
     if(chart && data){
-      console.log("This is data: ", data);
-      console.log("UPDate chart is reactive on chart js.....");
+      // console.log("This is data: ", data);
+      // console.log("UPDate chart is reactive on chart js.....");
       if (chart.data.datasets[0].data.length > 21) {
         chart.data.datasets[0].data.shift();
-        console.log(chart.data.datasets[0].data)
+        // console.log(chart.data.datasets[0].data)
       }
       chart.data.datasets[0].data.push(data.price);
 

@@ -7,6 +7,14 @@ use crate::models::{
     BuyOrder, NewBuyOrder, NewNodeModel, NewProfileModel, NewSellOrder, NewTransaction,
     NewUserModel, Node, Profile, SellOrder, Transaction, User,
 };
+use crate::schema::open_em::buy_orders::consumer_id;
+use crate::schema::open_em::buy_orders::dsl::buy_orders;
+use crate::schema::open_em::nodes::dsl::nodes;
+use crate::schema::open_em::nodes::{node_active, node_id, node_owner};
+use crate::schema::open_em::sell_orders::dsl::sell_orders;
+use crate::schema::open_em::sell_orders::producer_id;
+use crate::schema::open_em::transactions::dsl::transactions;
+use crate::schema::open_em::transactions::{transaction_id, units_consumed};
 use chrono::{Duration, Utc};
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
@@ -21,6 +29,7 @@ use rocket::serde::json::{Json, Value};
 use rocket::serde::{Deserialize, Serialize};
 use rocket::{Request, Response};
 use std::env;
+use std::ops::Add;
 use uuid::Uuid;
 
 const TRANSACTION_LIFETIME: i64 = 24; // Lifetime in hours
@@ -138,9 +147,12 @@ struct UpdateUnits {
     data = "<update_request>"
 )]
 async fn update_consumed_units(
-    update_request: Json<UpdateUnits>,
+    mut update_request: Json<UpdateUnits>,
     cookie_jar: &CookieJar<'_>,
 ) -> Value {
+    use self::schema::open_em::buy_orders::dsl::*;
+    use self::schema::open_em::transactions::dsl::*;
+
     let connection = &mut establish_connection();
 
     let claims = verify_user(cookie_jar);
@@ -148,7 +160,75 @@ async fn update_consumed_units(
     let mut message = claims.message;
     if claims.user_id != Uuid::nil() {
         match Uuid::parse_str(&*update_request.node_id) {
-            Ok(request_node_id) => {}
+            Ok(request_node_id) => {
+                message = "No matching node".to_string();
+                match nodes
+                    .filter(node_id.eq(request_node_id))
+                    .filter(node_owner.eq(claims.user_id))
+                    .filter(node_active.eq(true))
+                    .select(Node::as_select())
+                    .first(connection)
+                {
+                    Ok(node) => {
+                        let timestamp = Utc::now() - Duration::hours(TRANSACTION_LIFETIME);
+
+                        match transactions
+                            .inner_join(
+                                buy_orders.on(schema::open_em::buy_orders::dsl::buy_order_id
+                                    .eq(schema::open_em::transactions::dsl::buy_order_id)),
+                            )
+                            .filter(consumer_id.eq(node.node_id))
+                            .filter(schema::open_em::transactions::created_at.gt(timestamp))
+                            .order_by(schema::open_em::transactions::created_at.asc())
+                            .select((Transaction::as_select(), BuyOrder::as_select()))
+                            .load::<(Transaction, BuyOrder)>(connection)
+                        {
+                            Ok(result_vec) => {
+                                message = "Insufficient available units to consume".to_string();
+                                for (transaction, buy_order) in result_vec {
+                                    if transaction.transacted_units - transaction.units_consumed
+                                        == 0f64
+                                    {
+                                        continue;
+                                    }
+                                    if transaction.transacted_units - transaction.units_consumed
+                                        >= update_request.units
+                                    {
+                                        match diesel::update(transactions)
+                                            .set(
+                                                units_consumed.eq(transaction.units_consumed
+                                                    + update_request.units),
+                                            )
+                                            .filter(transaction_id.eq(transaction.transaction_id))
+                                            .execute(connection)
+                                        {
+                                            Ok(_) => {
+                                                message = "Units updated".to_string();
+                                                break;
+                                            }
+                                            Err(_) => {}
+                                        }
+                                    } else {
+                                        match diesel::update(transactions)
+                                            .set(units_consumed.eq(transaction.transacted_units))
+                                            .filter(transaction_id.eq(transaction.transaction_id))
+                                            .execute(connection)
+                                        {
+                                            Ok(_) => {
+                                                update_request.units -= transaction.transacted_units
+                                                    - transaction.units_consumed
+                                            }
+                                            Err(_) => {}
+                                        }
+                                    }
+                                }
+                            }
+                            Err(_) => {}
+                        }
+                    }
+                    Err(_) => {}
+                }
+            }
             Err(_) => {}
         }
     }
@@ -162,9 +242,12 @@ async fn update_consumed_units(
     data = "<update_request>"
 )]
 async fn update_produced_units(
-    update_request: Json<UpdateUnits>,
+    mut update_request: Json<UpdateUnits>,
     cookie_jar: &CookieJar<'_>,
 ) -> Value {
+    use self::schema::open_em::sell_orders::dsl::*;
+    use self::schema::open_em::transactions::dsl::*;
+
     let connection = &mut establish_connection();
 
     let claims = verify_user(cookie_jar);
@@ -172,7 +255,75 @@ async fn update_produced_units(
     let mut message = claims.message;
     if claims.user_id != Uuid::nil() {
         match Uuid::parse_str(&*update_request.node_id) {
-            Ok(request_node_id) => {}
+            Ok(request_node_id) => {
+                message = "No matching node".to_string();
+                match nodes
+                    .filter(node_id.eq(request_node_id))
+                    .filter(node_owner.eq(claims.user_id))
+                    .filter(node_active.eq(true))
+                    .select(Node::as_select())
+                    .first(connection)
+                {
+                    Ok(node) => {
+                        let timestamp = Utc::now() - Duration::hours(TRANSACTION_LIFETIME);
+
+                        match transactions
+                            .inner_join(
+                                sell_orders.on(schema::open_em::sell_orders::dsl::sell_order_id
+                                    .eq(schema::open_em::transactions::dsl::sell_order_id)),
+                            )
+                            .filter(producer_id.eq(node.node_id))
+                            .filter(schema::open_em::transactions::created_at.gt(timestamp))
+                            .order_by(schema::open_em::transactions::created_at.asc())
+                            .select((Transaction::as_select(), SellOrder::as_select()))
+                            .load::<(Transaction, SellOrder)>(connection)
+                        {
+                            Ok(result_vec) => {
+                                message = "Insufficient available units to consume".to_string();
+                                for (transaction, sell_order) in result_vec {
+                                    if transaction.transacted_units - transaction.units_produced
+                                        == 0f64
+                                    {
+                                        continue;
+                                    }
+                                    if transaction.transacted_units - transaction.units_produced
+                                        >= update_request.units
+                                    {
+                                        match diesel::update(transactions)
+                                            .set(
+                                                units_produced.eq(transaction.units_produced
+                                                    + update_request.units),
+                                            )
+                                            .filter(transaction_id.eq(transaction.transaction_id))
+                                            .execute(connection)
+                                        {
+                                            Ok(_) => {
+                                                message = "Units updated".to_string();
+                                                break;
+                                            }
+                                            Err(_) => {}
+                                        }
+                                    } else {
+                                        match diesel::update(transactions)
+                                            .set(units_produced.eq(transaction.transacted_units))
+                                            .filter(transaction_id.eq(transaction.transaction_id))
+                                            .execute(connection)
+                                        {
+                                            Ok(_) => {
+                                                update_request.units -= transaction.transacted_units
+                                                    - transaction.units_produced
+                                            }
+                                            Err(_) => {}
+                                        }
+                                    }
+                                }
+                            }
+                            Err(_) => {}
+                        }
+                    }
+                    Err(_) => {}
+                }
+            }
             Err(_) => {}
         }
     }

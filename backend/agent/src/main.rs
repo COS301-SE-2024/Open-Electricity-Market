@@ -1,5 +1,5 @@
 use std::{
-    env, fmt::{format, write}, result
+    env, fmt::{format, write}, result, u32
 };
 
 use reqwest::header;
@@ -171,6 +171,24 @@ struct NodeResult {
     status : String
 }
 
+#[derive(Serialize)]
+struct GetNodeDetail {
+  limit:u32
+}
+
+#[derive(Deserialize)]
+struct NodeWrapper {
+  name : String,
+  node_id : String,
+}
+
+#[derive(Deserialize)]
+struct GetNodeResult {
+   data : Vec<NodeWrapper>,
+   message : String,
+   status : String
+}
+
 struct Agent {
     email: String,
     password: String,
@@ -283,11 +301,40 @@ impl Agent {
         }
     }
 
+    fn get_nodes(limit:u32,session_id:String) -> Vec<String>{
+       let get_node_detail = GetNodeDetail { limit };
+        let url = "localhost";
+        let client = reqwest::blocking::Client::new();
+        let res = client
+            .post(format!("http://{url}:8001/get_nodes"))
+            .header(header::COOKIE, format!("session_id={session_id}"))
+            .json(&get_node_detail)
+            .send()
+            .unwrap();
+        let result:GetNodeResult = res.json().unwrap();
+        if result.message == "List of nodes successfully retrieved" {
+            let mut out = vec![];
+
+            for node in result.data {
+                out.push(node.node_id);
+            }
+            return out;
+
+        } else {
+            return vec![];
+        }
+
+    }
+
     fn intialise(&mut self) {
         self.session_id = Agent::login_or_register_agent(self.email.clone(), self.password.clone());
         println!("{}",self.session_id.clone());
-        let mut has_nodes = false;
+        let mut has_nodes = true;
 
+        let mut node_ids = Agent::get_nodes(self.nodes.len() as u32, self.session_id.clone());
+        if node_ids.len() == 0 {
+            has_nodes = false;
+        }
 
         for node in self.nodes.iter_mut() {
             //Create on grid
@@ -310,6 +357,21 @@ impl Agent {
                 Agent::add_node(node.location, String::from("Simulated Node"), self.session_id.clone())
             }
         }
+
+        if !has_nodes {
+            node_ids = Agent::get_nodes(self.nodes.len() as u32, self.session_id.clone());
+        }
+
+        let mut i = 0;
+        for id in node_ids {
+            if i >= self.nodes.len() {
+                break;
+            }
+            self.nodes[i].node_id = id.clone();
+            println!("{id}");
+            i+=1;
+        }
+
     }
 
     fn update(&mut self) -> Result<(), ()> {

@@ -115,7 +115,6 @@
 
 
   function createModal(){
-    //*************************** change this to mapModal when implemented*/
     nodeName = nodeLatitude = nodeLongitude = '';
     document.getElementById("mapModal").showModal();
   }
@@ -132,8 +131,7 @@
         method: "POST", 
         headers: {
           'Content-Type': 'application/json',
-          // might also complain here, have Content-Type be your only header 
-          // 'Accept': 'application/json',
+          'Accept': 'application/json',
         },
         credentials: "include", 
         body: JSON.stringify({
@@ -411,21 +409,6 @@
         <div class="stat-title">Available Credit</div>
         <div class="stat-value">R{totalamount}</div>
       </div>
-    
-      <div class="stat">
-        <div class="stat-title">Pending Transactions</div>
-        <div class="stat-value">5</div>
-      </div>
-      
-      <div class="stat">
-        <div class="stat-title">Total Comsumption</div>
-        <div class="stat-value">1,024W</div>
-      </div>
-    
-      <div class="stat">
-        <div class="stat-title">Total Generation</div>
-        <div class="stat-value">5W</div>
-      </div>
       
       <h1 class="text-lg">
         Personal Information
@@ -454,7 +437,7 @@
       <span class="text-3xl justify-start pl-2">
         Your Nodes
       </span>
-      <span class="justify-end pl-64">
+      <span class="justify-end pl-72  ">
         <button class="btn btn-primary text-lg " on:click={createModal}>Add a Node</button>
       </span>
     </div>

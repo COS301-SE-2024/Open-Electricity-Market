@@ -785,7 +785,7 @@ impl Agent {
                             self.session_id.clone(),
                             node.node_id.clone(),
                             gap,
-                            self.funds + credit,
+                            credit,
                         );
 
                         if spent > credit {
@@ -835,6 +835,8 @@ impl Agent {
 fn main() {
     let mut handels = vec![];
 
+    let password = env::var("PASSWORD");
+
     for i in 1..15 {
         thread::sleep(time::Duration::from_secs(1));
         let handle = thread::spawn(move || {
@@ -845,7 +847,7 @@ fn main() {
                     SmartMeter::new_acctive(Box::new(SineCurve::new())),
                     Generator::new_acctive(Box::new(SineCurve::new())),
                 )],
-                -1.0,
+                0.0,
                 Box::new(SineCurve::new()),
             );
             agent.run();

@@ -128,7 +128,7 @@ impl Curve for SineCurve {
     }
 
     fn total_in_24_hour(&mut self) -> f64 {
-        return 86400.0;
+        return 86.0;
     }
 }
 
@@ -308,13 +308,25 @@ struct BuyOrderResult {
     status: String,
 }
 
+#[derive(Serialize)]
+struct PlaceSellOrderDetail {
+    node_id: String,
+    min_price: f64,
+    max_price: f64,
+    units: f64,
+}
+
+#[derive(Deserialize)]
+struct SellOrderResult {
+    message: String,
+    status: String,
+}
+
 struct Agent {
     email: String,
     password: String,
     session_id: String,
     nodes: Vec<Node>,
-    units_bought: f64,
-    units_sold: f64,
     funds: f64,
     extarnal_wealth_curve: Box<dyn Curve>,
 }
@@ -332,8 +344,6 @@ impl Agent {
             password,
             session_id: String::from(""),
             nodes,
-            units_bought: 0.0,
-            units_sold: 0.0,
             funds,
             extarnal_wealth_curve,
         };
@@ -617,8 +627,7 @@ impl Agent {
             .send()
             .unwrap();
         let result: GetPriceResult = res.json().unwrap();
-        println!("{}", result.message);
-        if result.message == "stub" {
+        if result.message == "Successfully retrieved price" {
             println!("Succesfully recieved price {}", result.data.price);
             return result.data.price;
         } else {
@@ -631,7 +640,6 @@ impl Agent {
 
         let max_price = market_price + 1.0;
 
-    
         let ratio = funds / (max_price * units);
         if ratio < 1.0 {
             units = ratio * units;
@@ -661,6 +669,31 @@ impl Agent {
             return market_price * units;
         } else {
             return 0.0;
+        }
+    }
+
+    fn place_sell_order(session_id: String, node_id: String, units: f64) {
+        let market_price = Agent::get_current_price();
+
+        let detail = PlaceSellOrderDetail {
+            node_id,
+            min_price: market_price - 1.0,
+            max_price: market_price + 1.0,
+            units,
+        };
+        let url = "localhost";
+        let client = reqwest::blocking::Client::new();
+        let res = client
+            .post(format!("http://{url}:8001/sell_order"))
+            .header(header::COOKIE, format!("session_id={session_id}"))
+            .json(&detail)
+            .send()
+            .unwrap();
+        let result: SellOrderResult = res.json().unwrap();
+        if result.message == "Sell order created successfully. Pending match"
+            || result.message == "Sell order created successfully. Order match"
+        {
+            println!("Placed Sell Order for {}", units)
         }
     }
 
@@ -761,19 +794,30 @@ impl Agent {
                         );
 
                         if spent > credit {
-                            self.funds -= spent-credit
+                            let intermediate = spent - credit;
+                            self.funds -= intermediate;
                         }
                     }
                 }
                 SmartMeter::InActtive => {}
             }
 
-
             match &mut node.generator {
                 Generator::Acctive(core) => {
-                    let to_produce = 0.0;
-                },
-                Generator::InAcctive => todo!(),
+                    let to_produce = match units_to_produce {
+                        Some(to_produce) => to_produce,
+                        None => 0.0,
+                    };
+                    let produced = core.production_curve.sample(accumlated_time) - produced;
+                    if produced > to_produce {
+                        Agent::place_sell_order(
+                            self.session_id.clone(),
+                            node.node_id.clone(),
+                            produced - to_produce,
+                        );
+                    }
+                }
+                Generator::InAcctive => {}
             }
         }
         return Ok(());
@@ -794,15 +838,28 @@ impl Agent {
 }
 
 fn main() {
-    let mut agent = Agent::new(
-        String::from("a@example.com"),
-        String::from("my_strong_password"),
-        vec![Node::new(
-            SmartMeter::new_acctive(Box::new(SineCurve::new())),
-            Generator::new_acctive(Box::new(SineCurve::new())),
-        )],
-        0.0,
-        Box::new(SineCurve::new()),
-    );
-    agent.run();
+    let mut handels = vec![];
+
+    for i in 1..15 {
+        thread::sleep(time::Duration::from_secs(1));
+        let handle = thread::spawn(move || {
+            let mut agent = Agent::new(
+                String::from(format!("{i}@example.com")),
+                String::from("my_strong_password"),
+                vec![Node::new(
+                    SmartMeter::new_acctive(Box::new(SineCurve::new())),
+                    Generator::new_acctive(Box::new(SineCurve::new())),
+                )],
+                -1.0,
+                Box::new(SineCurve::new()),
+            );
+            agent.run();
+        });
+        handels.push(handle);
+    }
+
+    for handel in handels {
+        handel.join().unwrap();
+    }
+
 }

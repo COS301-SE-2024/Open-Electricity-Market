@@ -4,8 +4,8 @@
   import { onMount, onDestroy, createEventDispatcher } from 'svelte';
   import { browser } from '$app/environment';
   import Chart from './Chart2.svelte';
-  import {tick} from 'svelte';
-  
+    import { bounds } from 'leaflet';
+
   let mapContainer;
   let map;
   let lm; 
@@ -24,7 +24,8 @@
       
       map = leaflet.map(mapContainer, {
         scrollWheelZoom: false
-      }).setView([-26.1925013,28.0100383], 13);
+      }).setView([-26.2225013,28.0523383], 12);
+
       
       leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);
       
@@ -129,7 +130,7 @@
       const consumer = load.load_type.Consumer;
       const marker = L.marker([consumer.location.latitude, consumer.location.longitude]).addTo(map);
       
-      marker.bindPopup("Consumer "+ (consumer.id+1+"<br>"+consumer.location.latitude + " " + consumer.location.longitude));
+      marker.bindPopup("Consumer "+ (consumer.id + 1 + "<br>" + consumer.location.latitude + " " + consumer.location.longitude));
       // marker.on('click', () => showMarkerPopup(marker, consumer));
       //marker.on('click', ()=> updateChart(consumer));
       marker.on('click', () => {dispatch('markerClick', consumer)});
@@ -145,27 +146,11 @@
 
   }
 
-  async function showModal(){
-    document.getElementById("test_modal").showModal();
-  }
-
   function updateChart(entity){
     if(entity.voltage.oscilliscope_detail){
       console.log("This was successful");
     }
   }
-
-  // function extractChartData(data){
-  //     let chartData = [];
-  //     if(data.Consumers){
-  //         chartData = data.Consumers[0].Voltage["Phase 1"];
-  //     }
-  //     return chartData; 
-  // }
-
-  // $: if(data){
-  //     updateMarkers();
-  // }
 
   $: if (map && mapdata) {
     console.log("Reactive if was triggered...");
@@ -182,6 +167,7 @@
   @import 'leaflet/dist/leaflet.css';
   div {
     height: 400px;
+    padding: 8;
   }
 </style>
 

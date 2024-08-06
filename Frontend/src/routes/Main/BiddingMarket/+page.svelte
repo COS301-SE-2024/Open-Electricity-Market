@@ -6,11 +6,13 @@ let selectedPrice = 0;
 $: price = 0;
 let units = 1;
 
+let selected_node_id = sessionStorage.getItem("node_id");
+
 let data = {};
 
 async function place_buy_order() {
   let data = {
-    "node_id": test_node_id,
+    "node_id": selected_node_id,
     "min_price": selectedPrice > 0.5 ? selectedPrice - 0.5 : 0.01,
     "max_price": selectedPrice + 0.5,
     "units": units
@@ -31,7 +33,7 @@ async function place_buy_order() {
 
 async function place_sell_order() {
   let data = {
-    "node_id": test_node_id,
+    "node_id": selected_node_id,
     "min_price": selectedPrice > 0.5 ? selectedPrice - 0.5 : 0.01,
     "max_price": selectedPrice + 0.5,
     "units": units

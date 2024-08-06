@@ -165,10 +165,10 @@ fn buy_fee_calc(units: f64, price: f64) -> f64 {
         Ok(grid_url) => {
             let client = reqwest::blocking::Client::new();
             match client.post(grid_url + "/stats").send() {
-                Ok(response) => {
-                    let grid_stats: GridStats = response.json().unwrap();
-                    impedance = grid_stats.total_impedance;
-                }
+                Ok(response) => match response.json::<GridStats>() {
+                    Ok(grid_stats) => impedance = grid_stats.total_impedance,
+                    Err(_) => {}
+                },
                 Err(_) => {}
             }
         }
@@ -212,10 +212,10 @@ fn sell_fee_calc(units: f64, price: f64) -> f64 {
         Ok(grid_url) => {
             let client = reqwest::blocking::Client::new();
             match client.post(grid_url + "/stats").send() {
-                Ok(response) => {
-                    let grid_stats: GridStats = response.json().unwrap();
-                    impedance = grid_stats.total_impedance;
-                }
+                Ok(response) => match response.json::<GridStats>() {
+                    Ok(grid_stats) => impedance = grid_stats.total_impedance,
+                    Err(_) => {}
+                },
                 Err(_) => {}
             }
         }
@@ -225,6 +225,48 @@ fn sell_fee_calc(units: f64, price: f64) -> f64 {
     return (units * price * UNIT_PRICE_RATE)
         + ((supply - demand) * SUPPLY_DEMAND_RATE)
         + (impedance * IMPEDANCE_RATE);
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct FeeEstimationRequest {
+    price: f64,
+    units: f64,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct FeeEstimation {
+    fee: f64,
+}
+
+#[post(
+    "/estimate_buy_fee",
+    format = "application/json",
+    data = "<fee_estimation_request>"
+)]
+async fn estimate_buy_fee(fee_estimation_request: Json<FeeEstimationRequest>) -> Value {
+    let message = "Buy fee estimation".to_string();
+
+    let temp = buy_fee_calc(fee_estimation_request.units, fee_estimation_request.price);
+
+    let data = FeeEstimation { fee: temp };
+
+    json!({"status": "ok", "message": message, "data": data})
+}
+
+#[post(
+    "/estimate_sell_fee",
+    format = "application/json",
+    data = "<fee_estimation_request>"
+)]
+async fn estimate_sell_fee(fee_estimation_request: Json<FeeEstimationRequest>) -> Value {
+    let message = "Sell fee estimation".to_string();
+
+    let temp = sell_fee_calc(fee_estimation_request.units, fee_estimation_request.price);
+
+    let data = FeeEstimation { fee: temp };
+    json!({"status": "ok", "message": message, "data": data})
 }
 
 #[derive(Serialize, Deserialize)]
@@ -279,7 +321,7 @@ async fn update_consumed_units(
                         {
                             Ok(result_vec) => {
                                 message = "Insufficient available units to consume".to_string();
-                                for (transaction, buy_order) in result_vec {
+                                for (transaction, _) in result_vec {
                                     if transaction.transacted_units - transaction.units_consumed
                                         == 0f64
                                     {
@@ -374,8 +416,8 @@ async fn update_produced_units(
                             .load::<(Transaction, SellOrder)>(connection)
                         {
                             Ok(result_vec) => {
-                                message = "Insufficient available units to consume".to_string();
-                                for (transaction, sell_order) in result_vec {
+                                message = "Insufficient available units to produce".to_string();
+                                for (transaction, _) in result_vec {
                                     if transaction.transacted_units - transaction.units_produced
                                         == 0f64
                                     {
@@ -892,7 +934,7 @@ async fn price_view() -> Value {
                 message = "Successfully retrieved price".to_string();
                 data = Price {
                     price: transactions_vec[0].transacted_price,
-                };
+                }
             }
         }
         Err(_) => {}
@@ -1454,6 +1496,8 @@ fn rocket() -> _ {
                 remove_node,
                 update_consumed_units,
                 update_produced_units,
+                estimate_buy_fee,
+                estimate_sell_fee,
             ],
         )
         .configure(rocket::Config::figment().merge(("port", 8001)))

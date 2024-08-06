@@ -835,6 +835,8 @@ impl Agent {
 fn main() {
     let mut handels = vec![];
 
+    let password = env::var("PASSWORD");
+
     for i in 1..15 {
         thread::sleep(time::Duration::from_secs(1));
         let handle = thread::spawn(move || {

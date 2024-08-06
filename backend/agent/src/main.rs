@@ -350,8 +350,7 @@ impl Agent {
     }
 
     fn create_producer_grid(location: Location) -> GeneratorDetail {
-        // let url = env::var("GURL").unwrap();
-        let url = "localhost";
+        let url = env::var("GURL").unwrap();
         let client = reqwest::blocking::Client::new();
         let res = client
             .post(format!("http://{url}:8000/add_generator"))
@@ -364,8 +363,7 @@ impl Agent {
     }
 
     fn create_consumer_grid(location: Location) -> SmartMeterDetail {
-        // let url = env::var("GURL").unwrap();
-        let url = "localhost";
+        let url = env::var("GURL").unwrap();
         let client = reqwest::blocking::Client::new();
         let res = client
             .post(format!("http://{url}:8000/add_consumer"))
@@ -382,8 +380,7 @@ impl Agent {
             email: email.clone(),
             password: password.clone(),
         };
-        // let url = env::var("GURL").unwrap();
-        let url = "localhost";
+        let url = env::var("MURL").unwrap();
         let client = reqwest::blocking::Client::new();
         let res = client
             .post(format!("http://{url}:8001/login"))
@@ -418,8 +415,7 @@ impl Agent {
             location_x: location.latitude,
             location_y: location.longitude,
         };
-        // let url = env::var("GURL").unwrap();
-        let url = "localhost";
+        let url = env::var("MURL").unwrap();
         let client = reqwest::blocking::Client::new();
         let res = client
             .post(format!("http://{url}:8001/add_node"))
@@ -437,7 +433,7 @@ impl Agent {
 
     fn get_nodes(limit: u32, session_id: String) -> Vec<String> {
         let get_node_detail = GetNodeDetail { limit };
-        let url = "localhost";
+        let url = env::var("MURL").unwrap();
         let client = reqwest::blocking::Client::new();
         let res = client
             .post(format!("http://{url}:8001/get_nodes"))
@@ -510,8 +506,7 @@ impl Agent {
     }
 
     fn get_credit(session_id: String) -> f64 {
-        // let url = env::var("GURL").unwrap();
-        let url = "localhost";
+        let url = env::var("MURL").unwrap();
         let client = reqwest::blocking::Client::new();
         let res = client
             .post(format!("http://{url}:8001/user_details"))
@@ -532,7 +527,7 @@ impl Agent {
         session_id: String,
     ) -> (Option<f64>, Option<f64>) {
         let node_details_details = NodeDetailsDetails { node_id };
-        let url = "localhost";
+        let url = env::var("MURL").unwrap();
         let client = reqwest::blocking::Client::new();
         let res = client
             .post(format!("http://{url}:8001/node_details"))
@@ -558,7 +553,7 @@ impl Agent {
 
     fn update_units_consumed(units: f64, session_id: String, node_id: String) {
         let update_units_consumed_details = UpdateUnitsConsumedDetails { units, node_id };
-        let url = "localhost";
+        let url = env::var("MURL").unwrap();
         let client = reqwest::blocking::Client::new();
         let res = client
             .post(format!("http://{url}:8001/update_consumed_units"))
@@ -572,7 +567,7 @@ impl Agent {
 
     fn update_units_produced(units: f64, session_id: String, node_id: String) {
         let update_units_consumed_details = UpdateUnitsProducedDetails { units, node_id };
-        let url = "localhost";
+        let url = env::var("MURL").unwrap();
         let client = reqwest::blocking::Client::new();
         let res = client
             .post(format!("http://{url}:8001/update_produced_units"))
@@ -590,7 +585,7 @@ impl Agent {
             generator: detail.generator,
             power: units as f32,
         };
-        let url = "localhost";
+        let url = env::var("GURL").unwrap();
         let client = reqwest::blocking::Client::new();
         let res = client
             .post(format!("http://{url}:8000/set_generator"))
@@ -607,7 +602,7 @@ impl Agent {
             consumer: detail.consumer,
             power: units as f32,
         };
-        let url = "localhost";
+        let url = env::var("GURL").unwrap();
         let client = reqwest::blocking::Client::new();
         let res = client
             .post(format!("http://{url}:8000/set_consumer"))
@@ -620,7 +615,7 @@ impl Agent {
 
     fn get_current_price() -> f64 {
         // let url = env::var("GURL").unwrap();
-        let url = "localhost";
+        let url = env::var("MURL").unwrap();
         let client = reqwest::blocking::Client::new();
         let res = client
             .post(format!("http://{url}:8001/price_view"))
@@ -652,7 +647,7 @@ impl Agent {
             units,
         };
 
-        let url = "localhost";
+        let url = env::var("MURL").unwrap();
         let client = reqwest::blocking::Client::new();
         let res = client
             .post(format!("http://{url}:8001/buy_order"))
@@ -681,7 +676,7 @@ impl Agent {
             max_price: market_price + 1.0,
             units,
         };
-        let url = "localhost";
+        let url = env::var("MURL").unwrap();
         let client = reqwest::blocking::Client::new();
         let res = client
             .post(format!("http://{url}:8001/sell_order"))
@@ -861,5 +856,4 @@ fn main() {
     for handel in handels {
         handel.join().unwrap();
     }
-
 }

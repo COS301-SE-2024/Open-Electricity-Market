@@ -8,4 +8,4 @@ RUN cargo build --release
 
 ENV ROCKET_ADDRESS=0.0.0.0
 
-CMD sleep 30 ; /usr/src/agent/target/release/agent
+CMD /usr/src/agent/target/release/agent

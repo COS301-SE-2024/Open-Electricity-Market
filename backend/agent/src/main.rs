@@ -4,6 +4,7 @@ use std::{
     result, thread, time, u32,
 };
 
+use dotenvy::dotenv;
 use reqwest::header;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -825,7 +826,7 @@ impl Agent {
             let result = self.update(accumlated_time);
 
             match result {
-                Ok(_) => thread::sleep(time::Duration::from_secs(15)),
+                Ok(_) => thread::sleep(time::Duration::from_secs(15*600)),
                 Err(_) => break,
             }
         }
@@ -834,15 +835,15 @@ impl Agent {
 
 fn main() {
     let mut handels = vec![];
-
-    let password = env::var("PASSWORD");
+    dotenv().ok();
+    let password = env::var("PASSWORD").unwrap();
 
     for i in 1..15 {
-        thread::sleep(time::Duration::from_secs(1));
+        let password = password.clone();
         let handle = thread::spawn(move || {
             let mut agent = Agent::new(
                 String::from(format!("{i}@example.com")),
-                String::from("my_strong_password"),
+                password,
                 vec![Node::new(
                     SmartMeter::new_acctive(Box::new(SineCurve::new())),
                     Generator::new_acctive(Box::new(SineCurve::new())),
@@ -853,6 +854,7 @@ fn main() {
             agent.run();
         });
         handels.push(handle);
+        thread::sleep(time::Duration::from_secs(600));
     }
 
     for handel in handels {

@@ -306,60 +306,67 @@ async fn update_consumed_units(
                     .first(connection)
                 {
                     Ok(node) => {
-                        let timestamp = Utc::now() - Duration::hours(TRANSACTION_LIFETIME);
+                        if update_request.units > 0f64 {
+                            let timestamp = Utc::now() - Duration::hours(TRANSACTION_LIFETIME);
 
-                        match transactions
-                            .inner_join(
-                                buy_orders.on(schema::open_em::buy_orders::dsl::buy_order_id
-                                    .eq(schema::open_em::transactions::dsl::buy_order_id)),
-                            )
-                            .filter(consumer_id.eq(node.node_id))
-                            .filter(schema::open_em::transactions::created_at.gt(timestamp))
-                            .order_by(schema::open_em::transactions::created_at.asc())
-                            .select((Transaction::as_select(), BuyOrder::as_select()))
-                            .load::<(Transaction, BuyOrder)>(connection)
-                        {
-                            Ok(result_vec) => {
-                                message = "Insufficient available units to consume".to_string();
-                                for (transaction, _) in result_vec {
-                                    if transaction.transacted_units - transaction.units_consumed
-                                        == 0f64
-                                    {
-                                        continue;
-                                    }
-                                    if transaction.transacted_units - transaction.units_consumed
-                                        >= update_request.units
-                                    {
-                                        match diesel::update(transactions)
-                                            .set(
-                                                units_consumed.eq(transaction.units_consumed
-                                                    + update_request.units),
-                                            )
-                                            .filter(transaction_id.eq(transaction.transaction_id))
-                                            .execute(connection)
+                            match transactions
+                                .inner_join(
+                                    buy_orders.on(schema::open_em::buy_orders::dsl::buy_order_id
+                                        .eq(schema::open_em::transactions::dsl::buy_order_id)),
+                                )
+                                .filter(consumer_id.eq(node.node_id))
+                                .filter(schema::open_em::transactions::created_at.gt(timestamp))
+                                .order_by(schema::open_em::transactions::created_at.asc())
+                                .select((Transaction::as_select(), BuyOrder::as_select()))
+                                .load::<(Transaction, BuyOrder)>(connection)
+                            {
+                                Ok(result_vec) => {
+                                    message = "Insufficient available units to consume".to_string();
+                                    for (transaction, _) in result_vec {
+                                        if transaction.transacted_units - transaction.units_consumed
+                                            == 0f64
                                         {
-                                            Ok(_) => {
-                                                message = "Units updated".to_string();
-                                                break;
-                                            }
-                                            Err(_) => {}
+                                            continue;
                                         }
-                                    } else {
-                                        match diesel::update(transactions)
-                                            .set(units_consumed.eq(transaction.transacted_units))
-                                            .filter(transaction_id.eq(transaction.transaction_id))
-                                            .execute(connection)
+                                        if transaction.transacted_units - transaction.units_consumed
+                                            >= update_request.units
                                         {
-                                            Ok(_) => {
-                                                update_request.units -= transaction.transacted_units
-                                                    - transaction.units_consumed
+                                            match diesel::update(transactions)
+                                                .set(units_consumed.eq(transaction.units_consumed
+                                                    + update_request.units))
+                                                .filter(
+                                                    transaction_id.eq(transaction.transaction_id),
+                                                )
+                                                .execute(connection)
+                                            {
+                                                Ok(_) => {
+                                                    message = "Units updated".to_string();
+                                                    break;
+                                                }
+                                                Err(_) => {}
                                             }
-                                            Err(_) => {}
+                                        } else {
+                                            match diesel::update(transactions)
+                                                .set(
+                                                    units_consumed.eq(transaction.transacted_units),
+                                                )
+                                                .filter(
+                                                    transaction_id.eq(transaction.transaction_id),
+                                                )
+                                                .execute(connection)
+                                            {
+                                                Ok(_) => {
+                                                    update_request.units -= transaction
+                                                        .transacted_units
+                                                        - transaction.units_consumed
+                                                }
+                                                Err(_) => {}
+                                            }
                                         }
                                     }
                                 }
+                                Err(_) => {}
                             }
-                            Err(_) => {}
                         }
                     }
                     Err(_) => {}
@@ -402,60 +409,68 @@ async fn update_produced_units(
                     .first(connection)
                 {
                     Ok(node) => {
-                        let timestamp = Utc::now() - Duration::hours(TRANSACTION_LIFETIME);
+                        if update_request.units > 0f64 {
+                            let timestamp = Utc::now() - Duration::hours(TRANSACTION_LIFETIME);
 
-                        match transactions
-                            .inner_join(
-                                sell_orders.on(schema::open_em::sell_orders::dsl::sell_order_id
-                                    .eq(schema::open_em::transactions::dsl::sell_order_id)),
-                            )
-                            .filter(producer_id.eq(node.node_id))
-                            .filter(schema::open_em::transactions::created_at.gt(timestamp))
-                            .order_by(schema::open_em::transactions::created_at.asc())
-                            .select((Transaction::as_select(), SellOrder::as_select()))
-                            .load::<(Transaction, SellOrder)>(connection)
-                        {
-                            Ok(result_vec) => {
-                                message = "Insufficient available units to produce".to_string();
-                                for (transaction, _) in result_vec {
-                                    if transaction.transacted_units - transaction.units_produced
-                                        == 0f64
-                                    {
-                                        continue;
-                                    }
-                                    if transaction.transacted_units - transaction.units_produced
-                                        >= update_request.units
-                                    {
-                                        match diesel::update(transactions)
-                                            .set(
-                                                units_produced.eq(transaction.units_produced
-                                                    + update_request.units),
-                                            )
-                                            .filter(transaction_id.eq(transaction.transaction_id))
-                                            .execute(connection)
+                            match transactions
+                                .inner_join(
+                                    sell_orders
+                                        .on(schema::open_em::sell_orders::dsl::sell_order_id
+                                            .eq(schema::open_em::transactions::dsl::sell_order_id)),
+                                )
+                                .filter(producer_id.eq(node.node_id))
+                                .filter(schema::open_em::transactions::created_at.gt(timestamp))
+                                .order_by(schema::open_em::transactions::created_at.asc())
+                                .select((Transaction::as_select(), SellOrder::as_select()))
+                                .load::<(Transaction, SellOrder)>(connection)
+                            {
+                                Ok(result_vec) => {
+                                    message = "Insufficient available units to produce".to_string();
+                                    for (transaction, _) in result_vec {
+                                        if transaction.transacted_units - transaction.units_produced
+                                            == 0f64
                                         {
-                                            Ok(_) => {
-                                                message = "Units updated".to_string();
-                                                break;
-                                            }
-                                            Err(_) => {}
+                                            continue;
                                         }
-                                    } else {
-                                        match diesel::update(transactions)
-                                            .set(units_produced.eq(transaction.transacted_units))
-                                            .filter(transaction_id.eq(transaction.transaction_id))
-                                            .execute(connection)
+                                        if transaction.transacted_units - transaction.units_produced
+                                            >= update_request.units
                                         {
-                                            Ok(_) => {
-                                                update_request.units -= transaction.transacted_units
-                                                    - transaction.units_produced
+                                            match diesel::update(transactions)
+                                                .set(units_produced.eq(transaction.units_produced
+                                                    + update_request.units))
+                                                .filter(
+                                                    transaction_id.eq(transaction.transaction_id),
+                                                )
+                                                .execute(connection)
+                                            {
+                                                Ok(_) => {
+                                                    message = "Units updated".to_string();
+                                                    break;
+                                                }
+                                                Err(_) => {}
                                             }
-                                            Err(_) => {}
+                                        } else {
+                                            match diesel::update(transactions)
+                                                .set(
+                                                    units_produced.eq(transaction.transacted_units),
+                                                )
+                                                .filter(
+                                                    transaction_id.eq(transaction.transaction_id),
+                                                )
+                                                .execute(connection)
+                                            {
+                                                Ok(_) => {
+                                                    update_request.units -= transaction
+                                                        .transacted_units
+                                                        - transaction.units_produced
+                                                }
+                                                Err(_) => {}
+                                            }
                                         }
                                     }
                                 }
+                                Err(_) => {}
                             }
-                            Err(_) => {}
                         }
                     }
                     Err(_) => {}
@@ -648,89 +663,101 @@ async fn buy_order(buy_order_request: Json<BuyOrderRequest>, cookie_jar: &Cookie
                     .first(connection)
                 {
                     Ok(node) => {
-                        let new_buy_order = NewBuyOrder {
-                            buyer_id: claims.user_id,
-                            consumer_id: node.node_id,
-                            sought_units: buy_order_request.units,
-                            max_price: buy_order_request.max_price,
-                            min_price: buy_order_request.min_price,
-                        };
-                        message = "Failed to add new buy order".to_string();
-                        match diesel::insert_into(buy_orders)
-                            .values(new_buy_order)
-                            .returning(BuyOrder::as_returning())
-                            .get_result(connection)
+                        message = "Invalid price of units".to_string();
+                        if buy_order_request.max_price > 0f64
+                            && buy_order_request.min_price > 0f64
+                            && buy_order_request.units > 0f64
                         {
-                            Ok(mut order) => {
-                                message = "Buy order created successfully.".to_string();
-                                match sell_orders
-                                    .filter(offered_units.gt(claimed_units))
-                                    .filter(
-                                        schema::open_em::sell_orders::min_price.le(order.max_price),
-                                    )
-                                    .filter(
-                                        schema::open_em::sell_orders::min_price.ge(order.min_price),
-                                    )
-                                    .filter(seller_id.ne(order.buyer_id))
-                                    .filter(producer_id.ne(order.consumer_id))
-                                    .order_by(schema::open_em::sell_orders::created_at.asc())
-                                    .select(SellOrder::as_select())
-                                    .load::<SellOrder>(connection)
-                                {
-                                    Ok(sell_order_vec) => {
-                                        message = "Buy order created successfully. Pending match"
-                                            .to_string();
-                                        let mut order_match = false;
-                                        for s_order in sell_order_vec {
-                                            let transaction_units: f64;
-                                            if s_order.offered_units - s_order.claimed_units
-                                                > order.sought_units - order.filled_units
-                                            {
-                                                transaction_units =
-                                                    order.sought_units - order.filled_units;
-                                            } else {
-                                                transaction_units =
-                                                    s_order.offered_units - s_order.claimed_units;
-                                            }
-                                            let transaction_price = s_order.min_price; // Will be based on the direction the market needs to move for grid stability
-                                            let fee =
-                                                buy_fee_calc(transaction_units, transaction_price);
-                                            let new_transaction = NewTransaction {
-                                                sell_order_id: s_order.sell_order_id,
-                                                buy_order_id: order.buy_order_id,
-                                                transacted_units: transaction_units,
-                                                transacted_price: transaction_price,
-                                                transaction_fee: fee,
-                                            };
-                                            match diesel::insert_into(transactions)
-                                                .values(new_transaction)
-                                                .returning(Transaction::as_returning())
-                                                .get_result(connection)
-                                            {
-                                                Ok(transaction) => {
-                                                    order_match = true;
-                                                    order.filled_units +=
-                                                        transaction.transacted_units
-                                                }
-                                                Err(_) => {
-                                                    message = "Transaction(s) failed".to_string()
-                                                    //message = error.to_string().clone();
-                                                }
-                                            }
-                                            if order.filled_units == order.sought_units {
-                                                break;
-                                            }
-                                        }
-                                        if order_match {
+                            let new_buy_order = NewBuyOrder {
+                                buyer_id: claims.user_id,
+                                consumer_id: node.node_id,
+                                sought_units: buy_order_request.units,
+                                max_price: buy_order_request.max_price,
+                                min_price: buy_order_request.min_price,
+                            };
+                            message = "Failed to add new buy order".to_string();
+                            match diesel::insert_into(buy_orders)
+                                .values(new_buy_order)
+                                .returning(BuyOrder::as_returning())
+                                .get_result(connection)
+                            {
+                                Ok(mut order) => {
+                                    message = "Buy order created successfully.".to_string();
+                                    match sell_orders
+                                        .filter(offered_units.gt(claimed_units))
+                                        .filter(
+                                            schema::open_em::sell_orders::min_price
+                                                .le(order.max_price),
+                                        )
+                                        .filter(
+                                            schema::open_em::sell_orders::min_price
+                                                .ge(order.min_price),
+                                        )
+                                        .filter(seller_id.ne(order.buyer_id))
+                                        .filter(producer_id.ne(order.consumer_id))
+                                        .order_by(schema::open_em::sell_orders::created_at.asc())
+                                        .select(SellOrder::as_select())
+                                        .load::<SellOrder>(connection)
+                                    {
+                                        Ok(sell_order_vec) => {
                                             message =
-                                                "Buy order created successfully. Order matched"
-                                                    .to_string()
+                                                "Buy order created successfully. Pending match"
+                                                    .to_string();
+                                            let mut order_match = false;
+                                            for s_order in sell_order_vec {
+                                                let transaction_units: f64;
+                                                if s_order.offered_units - s_order.claimed_units
+                                                    > order.sought_units - order.filled_units
+                                                {
+                                                    transaction_units =
+                                                        order.sought_units - order.filled_units;
+                                                } else {
+                                                    transaction_units = s_order.offered_units
+                                                        - s_order.claimed_units;
+                                                }
+                                                let transaction_price = s_order.min_price; // Will be based on the direction the market needs to move for grid stability
+                                                let fee = buy_fee_calc(
+                                                    transaction_units,
+                                                    transaction_price,
+                                                );
+                                                let new_transaction = NewTransaction {
+                                                    sell_order_id: s_order.sell_order_id,
+                                                    buy_order_id: order.buy_order_id,
+                                                    transacted_units: transaction_units,
+                                                    transacted_price: transaction_price,
+                                                    transaction_fee: fee,
+                                                };
+                                                match diesel::insert_into(transactions)
+                                                    .values(new_transaction)
+                                                    .returning(Transaction::as_returning())
+                                                    .get_result(connection)
+                                                {
+                                                    Ok(transaction) => {
+                                                        order_match = true;
+                                                        order.filled_units +=
+                                                            transaction.transacted_units
+                                                    }
+                                                    Err(_) => {
+                                                        message =
+                                                            "Transaction(s) failed".to_string()
+                                                        //message = error.to_string().clone();
+                                                    }
+                                                }
+                                                if order.filled_units == order.sought_units {
+                                                    break;
+                                                }
+                                            }
+                                            if order_match {
+                                                message =
+                                                    "Buy order created successfully. Order matched"
+                                                        .to_string()
+                                            }
                                         }
+                                        Err(_) => {}
                                     }
-                                    Err(_) => {}
                                 }
+                                Err(_) => {}
                             }
-                            Err(_) => {}
                         }
                     }
                     Err(_) => {}
@@ -783,89 +810,101 @@ async fn sell_order(
                     .first(connection)
                 {
                     Ok(node) => {
-                        let new_sell_order = NewSellOrder {
-                            seller_id: claims.user_id,
-                            offered_units: sell_order_request.units,
-                            max_price: sell_order_request.max_price,
-                            min_price: sell_order_request.min_price,
-                            producer_id: node.node_id,
-                        };
-                        message = "Failed to add new sell order".to_string();
-                        match diesel::insert_into(sell_orders)
-                            .values(new_sell_order)
-                            .returning(SellOrder::as_returning())
-                            .get_result(connection)
+                        message = "Invalid price or units".to_string();
+                        if sell_order_request.max_price > 0f64
+                            && sell_order_request.min_price > 0f64
+                            && sell_order_request.units > 0f64
                         {
-                            Ok(mut order) => {
-                                message = "Sell order created successfully".to_string();
-                                match buy_orders
-                                    .filter(sought_units.gt(filled_units))
-                                    .filter(
-                                        schema::open_em::buy_orders::min_price.le(order.max_price),
-                                    )
-                                    .filter(
-                                        schema::open_em::buy_orders::min_price.ge(order.min_price),
-                                    )
-                                    .filter(buyer_id.ne(order.seller_id))
-                                    .filter(consumer_id.ne(order.producer_id))
-                                    .order_by(schema::open_em::buy_orders::created_at.asc())
-                                    .select(BuyOrder::as_select())
-                                    .load::<BuyOrder>(connection)
-                                {
-                                    Ok(buy_order_vec) => {
-                                        message = "Sell order created successfully. Pending match"
-                                            .to_string();
-                                        let mut order_match = false;
-                                        for b_order in buy_order_vec {
-                                            let transaction_units: f64;
-                                            if b_order.sought_units - b_order.filled_units
-                                                > order.offered_units - order.claimed_units
-                                            {
-                                                transaction_units =
-                                                    order.offered_units - order.claimed_units;
-                                            } else {
-                                                transaction_units =
-                                                    b_order.sought_units - b_order.filled_units;
-                                            }
-                                            let transaction_price = b_order.min_price; // Will be based on the direction the market needs to move for grid stability
-                                            let fee =
-                                                sell_fee_calc(transaction_units, transaction_price);
-                                            let new_transaction = NewTransaction {
-                                                buy_order_id: b_order.buy_order_id,
-                                                sell_order_id: order.sell_order_id,
-                                                transacted_units: transaction_units,
-                                                transacted_price: transaction_price,
-                                                transaction_fee: fee,
-                                            };
-                                            match diesel::insert_into(transactions)
-                                                .values(new_transaction)
-                                                .returning(Transaction::as_returning())
-                                                .get_result(connection)
-                                            {
-                                                Ok(transaction) => {
-                                                    order_match = true;
-                                                    order.claimed_units +=
-                                                        transaction.transacted_units;
-                                                }
-                                                Err(_) => {
-                                                    message = "Transaction(s) failed".to_string()
-                                                    //message = error.to_string().clone();
-                                                }
-                                            }
-                                            if order.claimed_units == order.offered_units {
-                                                break;
-                                            }
-                                        }
-                                        if order_match {
+                            let new_sell_order = NewSellOrder {
+                                seller_id: claims.user_id,
+                                offered_units: sell_order_request.units,
+                                max_price: sell_order_request.max_price,
+                                min_price: sell_order_request.min_price,
+                                producer_id: node.node_id,
+                            };
+                            message = "Failed to add new sell order".to_string();
+                            match diesel::insert_into(sell_orders)
+                                .values(new_sell_order)
+                                .returning(SellOrder::as_returning())
+                                .get_result(connection)
+                            {
+                                Ok(mut order) => {
+                                    message = "Sell order created successfully".to_string();
+                                    match buy_orders
+                                        .filter(sought_units.gt(filled_units))
+                                        .filter(
+                                            schema::open_em::buy_orders::min_price
+                                                .le(order.max_price),
+                                        )
+                                        .filter(
+                                            schema::open_em::buy_orders::min_price
+                                                .ge(order.min_price),
+                                        )
+                                        .filter(buyer_id.ne(order.seller_id))
+                                        .filter(consumer_id.ne(order.producer_id))
+                                        .order_by(schema::open_em::buy_orders::created_at.asc())
+                                        .select(BuyOrder::as_select())
+                                        .load::<BuyOrder>(connection)
+                                    {
+                                        Ok(buy_order_vec) => {
                                             message =
-                                                "Sell order created successfully. Order matched"
-                                                    .to_string()
+                                                "Sell order created successfully. Pending match"
+                                                    .to_string();
+                                            let mut order_match = false;
+                                            for b_order in buy_order_vec {
+                                                let transaction_units: f64;
+                                                if b_order.sought_units - b_order.filled_units
+                                                    > order.offered_units - order.claimed_units
+                                                {
+                                                    transaction_units =
+                                                        order.offered_units - order.claimed_units;
+                                                } else {
+                                                    transaction_units =
+                                                        b_order.sought_units - b_order.filled_units;
+                                                }
+                                                let transaction_price = b_order.min_price; // Will be based on the direction the market needs to move for grid stability
+                                                let fee = sell_fee_calc(
+                                                    transaction_units,
+                                                    transaction_price,
+                                                );
+                                                let new_transaction = NewTransaction {
+                                                    buy_order_id: b_order.buy_order_id,
+                                                    sell_order_id: order.sell_order_id,
+                                                    transacted_units: transaction_units,
+                                                    transacted_price: transaction_price,
+                                                    transaction_fee: fee,
+                                                };
+                                                match diesel::insert_into(transactions)
+                                                    .values(new_transaction)
+                                                    .returning(Transaction::as_returning())
+                                                    .get_result(connection)
+                                                {
+                                                    Ok(transaction) => {
+                                                        order_match = true;
+                                                        order.claimed_units +=
+                                                            transaction.transacted_units;
+                                                    }
+                                                    Err(_) => {
+                                                        message =
+                                                            "Transaction(s) failed".to_string()
+                                                        //message = error.to_string().clone();
+                                                    }
+                                                }
+                                                if order.claimed_units == order.offered_units {
+                                                    break;
+                                                }
+                                            }
+                                            if order_match {
+                                                message =
+                                                    "Sell order created successfully. Order matched"
+                                                        .to_string()
+                                            }
                                         }
+                                        Err(_) => {}
                                     }
-                                    Err(_) => {}
                                 }
+                                Err(_) => {}
                             }
-                            Err(_) => {}
                         }
                     }
                     Err(_) => {}

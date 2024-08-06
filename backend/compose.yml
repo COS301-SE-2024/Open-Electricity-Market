@@ -27,11 +27,14 @@ services:
     depends_on:
       - db
       - simulation
+      - market-platform
     links:
       - db
       - simulation
+      - market-platform
     environment:
       DATABASEHOST: db
       GURL: simulation
+      MURL: market-platform 
 volumes:
   pgdata:

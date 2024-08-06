@@ -128,7 +128,7 @@ impl Curve for SineCurve {
     }
 
     fn total_in_24_hour(&mut self) -> f64 {
-        return 86400.0;
+        return 86.0;
     }
 }
 
@@ -282,13 +282,51 @@ struct ImpedanceUpdateResult {
     status: String,
 }
 
+#[derive(Deserialize)]
+struct GetPriceData {
+    price: f64,
+}
+
+#[derive(Deserialize)]
+struct GetPriceResult {
+    data: GetPriceData,
+    message: String,
+    status: String,
+}
+
+#[derive(Serialize)]
+struct PlaceBuyOrderDetail {
+    node_id: String,
+    min_price: f64,
+    max_price: f64,
+    units: f64,
+}
+
+#[derive(Deserialize)]
+struct BuyOrderResult {
+    message: String,
+    status: String,
+}
+
+#[derive(Serialize)]
+struct PlaceSellOrderDetail {
+    node_id: String,
+    min_price: f64,
+    max_price: f64,
+    units: f64,
+}
+
+#[derive(Deserialize)]
+struct SellOrderResult {
+    message: String,
+    status: String,
+}
+
 struct Agent {
     email: String,
     password: String,
     session_id: String,
     nodes: Vec<Node>,
-    units_bought: f64,
-    units_sold: f64,
     funds: f64,
     extarnal_wealth_curve: Box<dyn Curve>,
 }
@@ -306,16 +344,13 @@ impl Agent {
             password,
             session_id: String::from(""),
             nodes,
-            units_bought: 0.0,
-            units_sold: 0.0,
             funds,
             extarnal_wealth_curve,
         };
     }
 
     fn create_producer_grid(location: Location) -> GeneratorDetail {
-        // let url = env::var("GURL").unwrap();
-        let url = "localhost";
+        let url = env::var("GURL").unwrap();
         let client = reqwest::blocking::Client::new();
         let res = client
             .post(format!("http://{url}:8000/add_generator"))
@@ -328,8 +363,7 @@ impl Agent {
     }
 
     fn create_consumer_grid(location: Location) -> SmartMeterDetail {
-        // let url = env::var("GURL").unwrap();
-        let url = "localhost";
+        let url = env::var("GURL").unwrap();
         let client = reqwest::blocking::Client::new();
         let res = client
             .post(format!("http://{url}:8000/add_consumer"))
@@ -346,8 +380,7 @@ impl Agent {
             email: email.clone(),
             password: password.clone(),
         };
-        // let url = env::var("GURL").unwrap();
-        let url = "localhost";
+        let url = env::var("MURL").unwrap();
         let client = reqwest::blocking::Client::new();
         let res = client
             .post(format!("http://{url}:8001/login"))
@@ -382,8 +415,7 @@ impl Agent {
             location_x: location.latitude,
             location_y: location.longitude,
         };
-        // let url = env::var("GURL").unwrap();
-        let url = "localhost";
+        let url = env::var("MURL").unwrap();
         let client = reqwest::blocking::Client::new();
         let res = client
             .post(format!("http://{url}:8001/add_node"))
@@ -401,7 +433,7 @@ impl Agent {
 
     fn get_nodes(limit: u32, session_id: String) -> Vec<String> {
         let get_node_detail = GetNodeDetail { limit };
-        let url = "localhost";
+        let url = env::var("MURL").unwrap();
         let client = reqwest::blocking::Client::new();
         let res = client
             .post(format!("http://{url}:8001/get_nodes"))
@@ -474,8 +506,7 @@ impl Agent {
     }
 
     fn get_credit(session_id: String) -> f64 {
-        // let url = env::var("GURL").unwrap();
-        let url = "localhost";
+        let url = env::var("MURL").unwrap();
         let client = reqwest::blocking::Client::new();
         let res = client
             .post(format!("http://{url}:8001/user_details"))
@@ -496,7 +527,7 @@ impl Agent {
         session_id: String,
     ) -> (Option<f64>, Option<f64>) {
         let node_details_details = NodeDetailsDetails { node_id };
-        let url = "localhost";
+        let url = env::var("MURL").unwrap();
         let client = reqwest::blocking::Client::new();
         let res = client
             .post(format!("http://{url}:8001/node_details"))
@@ -522,7 +553,7 @@ impl Agent {
 
     fn update_units_consumed(units: f64, session_id: String, node_id: String) {
         let update_units_consumed_details = UpdateUnitsConsumedDetails { units, node_id };
-        let url = "localhost";
+        let url = env::var("MURL").unwrap();
         let client = reqwest::blocking::Client::new();
         let res = client
             .post(format!("http://{url}:8001/update_consumed_units"))
@@ -536,7 +567,7 @@ impl Agent {
 
     fn update_units_produced(units: f64, session_id: String, node_id: String) {
         let update_units_consumed_details = UpdateUnitsProducedDetails { units, node_id };
-        let url = "localhost";
+        let url = env::var("MURL").unwrap();
         let client = reqwest::blocking::Client::new();
         let res = client
             .post(format!("http://{url}:8001/update_produced_units"))
@@ -554,7 +585,7 @@ impl Agent {
             generator: detail.generator,
             power: units as f32,
         };
-        let url = "localhost";
+        let url = env::var("GURL").unwrap();
         let client = reqwest::blocking::Client::new();
         let res = client
             .post(format!("http://{url}:8000/set_generator"))
@@ -571,7 +602,7 @@ impl Agent {
             consumer: detail.consumer,
             power: units as f32,
         };
-        let url = "localhost";
+        let url = env::var("GURL").unwrap();
         let client = reqwest::blocking::Client::new();
         let res = client
             .post(format!("http://{url}:8000/set_consumer"))
@@ -582,7 +613,84 @@ impl Agent {
         println!("{}", result.message);
     }
 
-    fn place_buy_order(session_id: String) {}
+    fn get_current_price() -> f64 {
+        // let url = env::var("GURL").unwrap();
+        let url = env::var("MURL").unwrap();
+        let client = reqwest::blocking::Client::new();
+        let res = client
+            .post(format!("http://{url}:8001/price_view"))
+            .send()
+            .unwrap();
+        let result: GetPriceResult = res.json().unwrap();
+        if result.message == "Successfully retrieved price" {
+            println!("Succesfully recieved price {}", result.data.price);
+            return result.data.price;
+        } else {
+            return 100.0;
+        }
+    }
+
+    fn place_buy_order(session_id: String, node_id: String, mut units: f64, funds: f64) -> f64 {
+        let market_price = Agent::get_current_price();
+
+        let max_price = market_price + 1.0;
+
+        let ratio = funds / (max_price * units);
+        if ratio < 1.0 {
+            units = ratio * units;
+        }
+
+        let detail = PlaceBuyOrderDetail {
+            node_id,
+            min_price: market_price - 1.0,
+            max_price: market_price + 1.0,
+            units,
+        };
+
+        let url = env::var("MURL").unwrap();
+        let client = reqwest::blocking::Client::new();
+        let res = client
+            .post(format!("http://{url}:8001/buy_order"))
+            .header(header::COOKIE, format!("session_id={session_id}"))
+            .json(&detail)
+            .send()
+            .unwrap();
+        let result: BuyOrderResult = res.json().unwrap();
+
+        if result.message == "Buy order created successfully. Pending match"
+            || result.message == "Buy order created successfully. Order match"
+        {
+            println!("Buy order place for {}", units);
+            return market_price * units;
+        } else {
+            return 0.0;
+        }
+    }
+
+    fn place_sell_order(session_id: String, node_id: String, units: f64) {
+        let market_price = Agent::get_current_price();
+
+        let detail = PlaceSellOrderDetail {
+            node_id,
+            min_price: market_price - 1.0,
+            max_price: market_price + 1.0,
+            units,
+        };
+        let url = env::var("MURL").unwrap();
+        let client = reqwest::blocking::Client::new();
+        let res = client
+            .post(format!("http://{url}:8001/sell_order"))
+            .header(header::COOKIE, format!("session_id={session_id}"))
+            .json(&detail)
+            .send()
+            .unwrap();
+        let result: SellOrderResult = res.json().unwrap();
+        if result.message == "Sell order created successfully. Pending match"
+            || result.message == "Sell order created successfully. Order match"
+        {
+            println!("Placed Sell Order for {}", units)
+        }
+    }
 
     fn update(&mut self, accumlated_time: f64) -> Result<(), ()> {
         // get credit
@@ -665,18 +773,46 @@ impl Agent {
             // Check if meet 24 hour requirment
             match &mut node.smart_meter {
                 SmartMeter::Acctive(core) => {
-                    match units_to_consume {
-                        Some(to_consume) => {
-                            let gap =
-                                core.consumption_curve.total_in_24_hour() - (to_consume - consumed);
-                            if gap > 0.0 {
-                                // buy electricity at market price
-                            }
+                    let to_consume = match units_to_consume {
+                        Some(to_consume) => to_consume,
+                        None => 0.0,
+                    };
+                    let gap = core.consumption_curve.total_in_24_hour() - (to_consume - consumed);
+                    println!("{}", gap);
+                    if gap > 0.0 {
+                        // buy electricity at market price
+                        let spent = Agent::place_buy_order(
+                            self.session_id.clone(),
+                            node.node_id.clone(),
+                            gap,
+                            self.funds + credit,
+                        );
+
+                        if spent > credit {
+                            let intermediate = spent - credit;
+                            self.funds -= intermediate;
                         }
-                        None => {}
                     }
                 }
                 SmartMeter::InActtive => {}
+            }
+
+            match &mut node.generator {
+                Generator::Acctive(core) => {
+                    let to_produce = match units_to_produce {
+                        Some(to_produce) => to_produce,
+                        None => 0.0,
+                    };
+                    let produced = core.production_curve.sample(accumlated_time) - produced;
+                    if produced > to_produce {
+                        Agent::place_sell_order(
+                            self.session_id.clone(),
+                            node.node_id.clone(),
+                            produced - to_produce,
+                        );
+                    }
+                }
+                Generator::InAcctive => {}
             }
         }
         return Ok(());
@@ -685,7 +821,7 @@ impl Agent {
     fn run(&mut self) {
         self.intialise();
         loop {
-            let accumlated_time = 0.0;
+            let accumlated_time = 1.0;
             let result = self.update(accumlated_time);
 
             match result {
@@ -697,15 +833,27 @@ impl Agent {
 }
 
 fn main() {
-    let mut agent = Agent::new(
-        String::from("a@example.com"),
-        String::from("my_strong_password"),
-        vec![Node::new(
-            SmartMeter::new_acctive(Box::new(SineCurve::new())),
-            Generator::new_acctive(Box::new(SineCurve::new())),
-        )],
-        0.0,
-        Box::new(SineCurve::new()),
-    );
-    agent.run();
+    let mut handels = vec![];
+
+    for i in 1..15 {
+        thread::sleep(time::Duration::from_secs(1));
+        let handle = thread::spawn(move || {
+            let mut agent = Agent::new(
+                String::from(format!("{i}@example.com")),
+                String::from("my_strong_password"),
+                vec![Node::new(
+                    SmartMeter::new_acctive(Box::new(SineCurve::new())),
+                    Generator::new_acctive(Box::new(SineCurve::new())),
+                )],
+                -1.0,
+                Box::new(SineCurve::new()),
+            );
+            agent.run();
+        });
+        handels.push(handle);
+    }
+
+    for handel in handels {
+        handel.join().unwrap();
+    }
 }

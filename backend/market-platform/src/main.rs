@@ -306,6 +306,7 @@ async fn update_consumed_units(
                     .first(connection)
                 {
                     Ok(node) => {
+                        message = "Invalid request units".to_string();
                         if update_request.units > 0f64 {
                             let timestamp = Utc::now() - Duration::hours(TRANSACTION_LIFETIME);
 
@@ -409,6 +410,7 @@ async fn update_produced_units(
                     .first(connection)
                 {
                     Ok(node) => {
+                        message = "Invalid request units".to_string();
                         if update_request.units > 0f64 {
                             let timestamp = Utc::now() - Duration::hours(TRANSACTION_LIFETIME);
 

@@ -785,7 +785,7 @@ impl Agent {
                             self.session_id.clone(),
                             node.node_id.clone(),
                             gap,
-                            self.funds + credit,
+                            credit,
                         );
 
                         if spent > credit {
@@ -845,7 +845,7 @@ fn main() {
                     SmartMeter::new_acctive(Box::new(SineCurve::new())),
                     Generator::new_acctive(Box::new(SineCurve::new())),
                 )],
-                -1.0,
+                0.0,
                 Box::new(SineCurve::new()),
             );
             agent.run();

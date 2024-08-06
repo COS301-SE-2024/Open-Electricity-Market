@@ -220,10 +220,10 @@
 <div class="mapsection w-3/5  left-0">
   <Map {mapdata} on:markerClick = {handleMarkerClick} /> 
 
-    <div class="statsection ">
+    <div class="statsection">
         <GridStats /> 
         </div>
-</div>
+    </div>
 
 <div class="chartsection w-2/5 h-full p-5"> 
   <Chart {data} />

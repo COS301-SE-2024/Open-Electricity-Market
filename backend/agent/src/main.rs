@@ -282,6 +282,32 @@ struct ImpedanceUpdateResult {
     status: String,
 }
 
+#[derive(Deserialize)]
+struct GetPriceData {
+    price: f64,
+}
+
+#[derive(Deserialize)]
+struct GetPriceResult {
+    data: GetPriceData,
+    message: String,
+    status: String,
+}
+
+#[derive(Serialize)]
+struct PlaceBuyOrderDetail {
+    node_id: String,
+    min_price: f64,
+    max_price: f64,
+    units: f64,
+}
+
+#[derive(Deserialize)]
+struct BuyOrderResult {
+    message: String,
+    status: String,
+}
+
 struct Agent {
     email: String,
     password: String,
@@ -582,7 +608,61 @@ impl Agent {
         println!("{}", result.message);
     }
 
-    fn place_buy_order(session_id: String) {}
+    fn get_current_price() -> f64 {
+        // let url = env::var("GURL").unwrap();
+        let url = "localhost";
+        let client = reqwest::blocking::Client::new();
+        let res = client
+            .post(format!("http://{url}:8001/price_view"))
+            .send()
+            .unwrap();
+        let result: GetPriceResult = res.json().unwrap();
+        println!("{}", result.message);
+        if result.message == "stub" {
+            println!("Succesfully recieved price {}", result.data.price);
+            return result.data.price;
+        } else {
+            return 100.0;
+        }
+    }
+
+    fn place_buy_order(session_id: String, node_id: String, mut units: f64, funds: f64) -> f64 {
+        let market_price = Agent::get_current_price();
+
+        let max_price = market_price + 1.0;
+
+    
+        let ratio = funds / (max_price * units);
+        if ratio < 1.0 {
+            units = ratio * units;
+        }
+
+        let detail = PlaceBuyOrderDetail {
+            node_id,
+            min_price: market_price - 1.0,
+            max_price: market_price + 1.0,
+            units,
+        };
+
+        let url = "localhost";
+        let client = reqwest::blocking::Client::new();
+        let res = client
+            .post(format!("http://{url}:8001/buy_order"))
+            .header(header::COOKIE, format!("session_id={session_id}"))
+            .json(&detail)
+            .send()
+            .unwrap();
+        let result: BuyOrderResult = res.json().unwrap();
+
+        if result.message == "Buy order created successfully. Pending match"
+            || result.message == "Buy order created successfully. Order match"
+        {
+            println!("Buy order place for {}", units);
+            return market_price * units;
+        } else {
+            return 0.0;
+        }
+    }
 
     fn update(&mut self, accumlated_time: f64) -> Result<(), ()> {
         // get credit
@@ -665,18 +745,35 @@ impl Agent {
             // Check if meet 24 hour requirment
             match &mut node.smart_meter {
                 SmartMeter::Acctive(core) => {
-                    match units_to_consume {
-                        Some(to_consume) => {
-                            let gap =
-                                core.consumption_curve.total_in_24_hour() - (to_consume - consumed);
-                            if gap > 0.0 {
-                                // buy electricity at market price
-                            }
+                    let to_consume = match units_to_consume {
+                        Some(to_consume) => to_consume,
+                        None => 0.0,
+                    };
+                    let gap = core.consumption_curve.total_in_24_hour() - (to_consume - consumed);
+                    println!("{}", gap);
+                    if gap > 0.0 {
+                        // buy electricity at market price
+                        let spent = Agent::place_buy_order(
+                            self.session_id.clone(),
+                            node.node_id.clone(),
+                            gap,
+                            self.funds + credit,
+                        );
+
+                        if spent > credit {
+                            self.funds -= spent-credit
                         }
-                        None => {}
                     }
                 }
                 SmartMeter::InActtive => {}
+            }
+
+
+            match &mut node.generator {
+                Generator::Acctive(core) => {
+                    let to_produce = 0.0;
+                },
+                Generator::InAcctive => todo!(),
             }
         }
         return Ok(());
@@ -685,7 +782,7 @@ impl Agent {
     fn run(&mut self) {
         self.intialise();
         loop {
-            let accumlated_time = 0.0;
+            let accumlated_time = 1.0;
             let result = self.update(accumlated_time);
 
             match result {

@@ -1518,7 +1518,7 @@ async fn register(new_user_request: Json<NewUserRequest>, cookie_jar: &CookieJar
     }
 
     let mut password_valid = false;
-    if new_user_request.password.len() > 8 {
+    if new_user_request.password.len() >= 8 {
         password_valid = true
     } else {
         message = "Password too short".to_string()

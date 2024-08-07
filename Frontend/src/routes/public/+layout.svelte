@@ -27,16 +27,6 @@
   }
 
   onMount(() => {
-    const session = Cookies.get('session_id');
-    console.log("Session id is: ", session);
-    if(session){
-      loggedIn = true; 
-    }
-    else{
-      loggedIn = false; 
-      window.location.href = '/login';
-    }
-    // loggedIn = session === 'loggedIn';
   });
 
   async function removeAccount(){
@@ -60,8 +50,11 @@
       Cookies.remove("session_id");
       window.location.href = '/login';
     }
+  }
 
-
+  function logout() {
+    Cookies.remove("session_id");
+    window.location.href = '/login';
   }
   </script>
   
@@ -94,21 +87,20 @@
     </div>
       
     <div class="navbar-end">
+      <ul class="menu menu-horizontal px-3 ">
+        <!-- <button class="bg-slate-800 " on:click={showModal}>Help</button> -->
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <!-- svelte-ignore a11y-no-static-element-interactions -->
+        <!-- svelte-ignore a11y-missing-attribute -->
+        <li class="px-2"><a class="btn-ghost" on:click={showModal}>Help</a></li>
 
-
-  <ul class="menu menu-horizontal px-3 ">
-    <!-- <button class="bg-slate-800 " on:click={showModal}>Help</button> -->
-    <!-- svelte-ignore a11y-click-events-have-key-events -->
-    <!-- svelte-ignore a11y-no-static-element-interactions -->
-    <!-- svelte-ignore a11y-missing-attribute -->
-    <li class="px-2"><a class="w-22 btn-ghost" on:click={showModal}>Help</a></li>
-
-    <li class = "px-2"><a class=" btn-ghost w-22" href="/Main/Dashboard">Dashboard</a></li>
-  </ul>
+        <li class = "px-2"><a class="btn-ghost" href="/Main/Dashboard">Dashboard</a></li>
+      </ul>
       <div class="dropdown dropdown-end">
         <div tabindex="0" role="button" class="btn btn-ghost rounded-btn">Account</div>
         <ul class="menu dropdown-content bg-base-100 rounded-box z-[1] mt-4 w-52 p-2 shadow">
           <button class="btn" onclick="removeaccount_modal.showModal()">Remove Account</button>
+          <button class="btn" on:click={logout}>Log out</button>
         </ul>
       </div>
 
@@ -131,7 +123,8 @@
   <dialog id="my_modal_grid" class="modal">  
     <div class="modal-box">
       <h3 class="font-bold text-lg ">Grid Simulation Page</h3>
-      <p class="py-4">The grid simulation page contains an overview of the current 
+      <p class="py-4">
+        The grid simulation page contains an overview of the current 
         state of the electrical grid. 
       </p>
     </div>
@@ -153,19 +146,12 @@
 </header>
 
 <main class="container mx-auto mt-8">
-  {#if loggedIn}
-    <slot />
-  {:else}
-    <script>
-        // 
-    </script>
-  {/if}
-
-
+  <slot />
+  
   <dialog id="removeaccount_modal" class="modal">
     <div class="modal-box">
       <h3 class="text-lg font-bold">Delete Account</h3>
-      <p class="py-4">Are you sure you would like to delete your account?</p>
+      <p class="py-4">Are you sure you would like to permanently delete your account?</p>
       <div class="modal-action">
         <form method="dialog">
           <!-- if there is a button in form, it will close the modal -->

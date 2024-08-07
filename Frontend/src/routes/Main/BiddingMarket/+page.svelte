@@ -3,19 +3,19 @@ import Chart from "$lib/Components/Chart.svelte";
 import {onMount} from "svelte";
 import { goto } from '$app/navigation';
 
-let price = 0;
-let units = 0;
+let selectedPrice = 0;
+$: price = 0;
+let units = 1;
+
+let selected_node_id = sessionStorage.getItem("node_id");
 
 let data = {};
 
-let test_node_id = sessionStorage.getItem("node_id");
-
 async function place_buy_order() {
   let data = {
-    "node_id": test_node_id,
-    // "price": price,
-    "min_price": price >= 0.05 ? price - 0.05 : 0.01,
-    "max_price": price + 0.05,
+    "node_id": selected_node_id,
+    "min_price": selectedPrice > 0.5 ? selectedPrice - 0.5 : 0.01,
+    "max_price": selectedPrice + 0.5,
     "units": units
   }
 
@@ -28,18 +28,14 @@ async function place_buy_order() {
     credentials: 'include'
   });
 
-  console.log(await response.json())
-  // goto('../Main/Dashboard'); 
   goto('../Main/Dashboard');
-
 }
 
 async function place_sell_order() {
   let data = {
-    "node_id": test_node_id,
-    // "price": price,
-    "min_price": price >= 0.05 ? price - 0.05 : 0.01,
-    "max_price": price + 0.05,
+    "node_id": selected_node_id,
+    "min_price": selectedPrice > 0.5 ? selectedPrice - 0.5 : 0.01,
+    "max_price": selectedPrice + 0.5,
     "units": units
   }
 
@@ -52,46 +48,43 @@ async function place_sell_order() {
     credentials: 'include'
   });
 
-  console.log(await response.json())
   goto('../Main/Dashboard');
-
-
 }
 
 onMount(async () => {
   fetchData();
-  let interval = setInterval(fetchData, 2000);
+  let interval = setInterval(fetchData, 10000);
+
+  selectedPrice = price;
 
   //return function runs when the component is unmounted
   return() => {
     clearInterval(interval);
   };
-
-  async function fetchData() {
-
-    try {
-      const response = await fetch("http://localhost:8001/price_view", {
-        method: "POST",
-        headers: {
-          'Content-Type': 'application/json'
-        }
-
-      });
-
-
-      // const response = fetch("http://localhost:8000");
-      const fdata = await response.json();
-
-      data = fdata.data
-      console.log(data)
-
-    } catch (error) {
-      console.log("There was an error fetching the JSON for the overview..", error);
-    }
-  }
-
-
 });
+
+async function fetchData() {
+
+  try {
+    const response = await fetch("http://localhost:8001/price_view", {
+      method: "POST",
+      headers: {
+        'Content-Type': 'application/json'
+      }
+
+    });
+
+    const fdata = await response.json();
+
+    data = fdata.data
+    // console.log(data)
+
+    price = data.price;
+
+  } catch (error) {
+    console.log("There was an error fetching the JSON for the overview..", error);
+  }
+}
 
 
 </script>
@@ -106,12 +99,12 @@ onMount(async () => {
         <form>
           <div class="form-control mt-1">
             <label for="buy_price"> Price </label>
-            <input type="number" placeholder="5" class="input input-bordered" name="buy_price" required bind:value={price}/>
+            <input type="number" placeholder="{selectedPrice}" class="input input-bordered" name="buy_price" required bind:value={selectedPrice}/>
           </div>
 
           <div class="form-control mt-1">
             <label for="amount"> Number of units </label>
-            <input type="number" placeholder="5" class="input input-bordered" name="amount" required bind:value={units}/>
+            <input type="number" placeholder="{units}" class="input input-bordered" name="amount" required bind:value={units}/>
           </div>
 
           <div class="mt-1 xs:pt-5">
@@ -119,7 +112,7 @@ onMount(async () => {
             <dialog id="my_modal_1" class="modal">
               <div class="modal-box">
                 <h3 class="text-lg font-bold">Confirm Buy Order</h3>
-                <p class="py-4">Please confirm your buy order for {units} units at R{price} </p>
+                <p class="py-4">Please confirm your buy order for {units} units at R{selectedPrice} </p>
                 <div class="modal-action">
                   <form method="dialog">
                     <button class="btn bg-green-600" on:click={place_buy_order} >Continue</button>
@@ -132,7 +125,7 @@ onMount(async () => {
             <dialog id="my_modal_2" class="modal">
               <div class="modal-box">
                 <h3 class="text-lg font-bold">Confirm Sell Order</h3>
-                <p class="py-4">Please confirm your sell order for {units} units at R{price}</p>
+                <p class="py-4">Please confirm your sell order for {units} units at R{selectedPrice} </p>
                 <div class="modal-action">
                   <form method="dialog">
                     <button class="btn bg-green-600" on:click={place_sell_order}>Continue</button>

@@ -13,7 +13,7 @@
   let advancedView = false; 
   let dropdownViewable = false; 
   let mapdata; 
-   let oscilloscopedata = null;
+  let oscilloscopedata = null;
 
   function toggleDropdown(){
     dropdownViewable = !dropdownViewable; 
@@ -215,17 +215,17 @@
    <span class="loading loading-ring loading-lg ml-6"></span>
   {/if} -->
 
-<div class="fullsection flex flex-row">
+<div class="fullsection flex md:flex-row xs:flex-col">
 
-<div class="mapsection w-3/5  left-0">
-  <Map {mapdata} on:markerClick = {handleMarkerClick} /> 
+<div class="mapsection md:w-3/5  xs:w-full xs:p-0 left-0">
+  <Map {mapdata} on:markerClick = {handleMarkerClick} class="xs:rounded-md"  /> 
 
     <div class="statsection">
         <GridStats /> 
         </div>
     </div>
 
-<div class="chartsection w-2/5 h-full p-5"> 
+<div class="chartsection md:w-2/5 md:h-full p-5 xs:w-full xs:">   
   <Chart {data} />
 
       

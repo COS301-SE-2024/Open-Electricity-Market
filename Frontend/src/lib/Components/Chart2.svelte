@@ -26,6 +26,23 @@
     };
   });
 
+
+
+  // function resizeChart() {
+  //   if (window.innerWidth <= 450) {
+  //     // chart.style.width = '100%';
+  //     chartCanvas.style.height = '300px';
+  //     chartCanvas.style.width = '400px';
+  //     // chartCanvas.style.width = '200px'; 
+  //     console.log("If statement is running...");
+  //   } else {
+  //     chartCanvas.style.height = '700px';
+  //     // chartCanvas.style.width = '900px'; 
+  //     console.log("Else was executed...");
+  //     // chart.style.height = '600px';
+  //   }
+  // }
+
   
 
   // async function fetchData() {
@@ -240,6 +257,7 @@
       // chart.options.scales.x.max += 1;
       
       chart.update();
+      resizeChart();
 
       //chart.data.datasets[0].data = [0,0,0,0]; 
 
@@ -276,7 +294,7 @@
 </script>
 
 <div style="display: flex; max-width: 100%;"> 
-  <canvas bind:this={chartCanvas} height=310></canvas>
+  <canvas bind:this={chartCanvas} height = 310  ></canvas>
 </div>
 
 <style>

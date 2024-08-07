@@ -39,7 +39,9 @@
     
        }
        await fetchData();
+      //  resizeMap(); 
        interval = setInterval(fetchData, 10000);
+      //  setInterval(resizeMap, 10000); 
     });
 
    
@@ -65,6 +67,7 @@
       //console.log("This is circuits...");
       //console.log(data);
       updateMarkers();
+      resizeMap();
       
       
     } catch (error) {
@@ -162,6 +165,24 @@
      $: if (map && mapdata) {
     console.log("Reactive if was triggered...");
     updateMarkers(mapdata);
+  }
+
+
+
+   function resizeMap() {
+    if (window.innerWidth <= 450) {
+      // chart.style.width = '100%';
+      mapContainer.style.height = '350px';
+      mapContainer.style.width = '290px'; 
+      // chartCanvas.style.width = '300px';
+      // chartCanvas.style.width = '200px'; 
+      console.log("If statement is running...");
+    } else {
+      mapContainer.style.height = '700px';
+      // chartCanvas.style.width = '900px'; 
+      console.log("Else was executed...");
+      // chart.style.height = '600px';
+    }
   }
 
 

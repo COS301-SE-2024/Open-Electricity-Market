@@ -8,6 +8,7 @@ use crate::models::{
     NewUserModel, Node, Profile, SellOrder, Transaction, User,
 };
 use chrono::{DateTime, Duration, Utc};
+use diesel::dsl::count;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use dotenvy::dotenv;
@@ -34,6 +35,7 @@ const UNIT_PRICE_RATE: f64 = 0.0005;
 const IMPEDANCE_RATE: f64 = 0.00005;
 
 const SUPPLY_DEMAND_RATE: f64 = 0.0005;
+const TARGET_HISTORY_POINTS: i64 = 100;
 
 mod models;
 mod schema;
@@ -1018,11 +1020,28 @@ async fn price_history(price_history_request: Json<PriceHistoryRequest>) -> Valu
     {
         Ok(transactions_vec) => {
             message = "Successfully retrieved price".to_string();
-            for transaction in transactions_vec {
-                data.push(Price {
-                    price: transaction.transacted_price,
-                    timestamp: transaction.created_at.to_string(),
-                })
+            if transactions_vec.len() as i64 <= TARGET_HISTORY_POINTS {
+                for transaction in transactions_vec {
+                    data.push(Price {
+                        price: transaction.transacted_price,
+                        timestamp: transaction.created_at.to_string(),
+                    })
+                }
+            } else {
+                let interval = transactions_vec.len() / 100;
+                let mut count = 0;
+                let mut interval_count = 0usize;
+                while count < transactions_vec.len() {
+                    if interval_count == interval {
+                        data.push(Price {
+                            price: transactions_vec[count].transacted_price,
+                            timestamp: transactions_vec[count].created_at.to_string(),
+                        });
+                        interval_count = 0;
+                    }
+                    interval_count += 1;
+                    count += 1;
+                }
             }
         }
         Err(_) => {}

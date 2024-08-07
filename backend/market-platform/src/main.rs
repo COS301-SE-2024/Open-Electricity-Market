@@ -540,6 +540,7 @@ struct OpenBuy {
 #[post("/list_open_buys")]
 async fn list_open_buys(cookie_jar: &CookieJar<'_>) -> Value {
     use self::schema::open_em::buy_orders::dsl::*;
+    use self::schema::open_em::transactions::dsl::*;
 
     let connection = &mut establish_connection();
 
@@ -560,13 +561,31 @@ async fn list_open_buys(cookie_jar: &CookieJar<'_>) -> Value {
                 if order_vec.len() > 0 {
                     message = "Successfully retrieved open buy orders".to_string();
                     for order in order_vec {
+                        let timestamp = Utc::now() - Duration::hours(TRANSACTION_LIFETIME);
+                        let mut transaction_price = 0f64;
+                        match transactions
+                            .filter(
+                                schema::open_em::transactions::buy_order_id.eq(order.buy_order_id),
+                            )
+                            .filter(schema::open_em::transactions::created_at.gt(timestamp))
+                            .order_by(schema::open_em::transactions::created_at.desc())
+                            .select(Transaction::as_select())
+                            .load::<Transaction>(connection)
+                        {
+                            Ok(transaction_vec) => {
+                                if transaction_vec.len() > 0 {
+                                    transaction_price = transaction_vec[0].transacted_price
+                                }
+                            }
+                            Err(_) => {}
+                        }
                         data.push(OpenBuy {
                             order_id: order.buy_order_id,
                             sought_units: order.sought_units,
                             filled_units: order.filled_units,
                             max_price: order.max_price,
                             min_price: order.min_price,
-                            last_transacted_price: 0f64,
+                            last_transacted_price: transaction_price,
                         })
                     }
                 }
@@ -592,6 +611,7 @@ struct OpenSell {
 #[post("/list_open_sells")]
 async fn list_open_sells(cookie_jar: &CookieJar<'_>) -> Value {
     use self::schema::open_em::sell_orders::dsl::*;
+    use self::schema::open_em::transactions::dsl::*;
 
     let connection = &mut establish_connection();
 
@@ -612,13 +632,32 @@ async fn list_open_sells(cookie_jar: &CookieJar<'_>) -> Value {
                 if order_vec.len() > 0 {
                     message = "Successfully retrieved open sell orders".to_string();
                     for order in order_vec {
+                        let timestamp = Utc::now() - Duration::hours(TRANSACTION_LIFETIME);
+                        let mut transaction_price = 0f64;
+                        match transactions
+                            .filter(
+                                schema::open_em::transactions::sell_order_id
+                                    .eq(order.sell_order_id),
+                            )
+                            .filter(schema::open_em::transactions::created_at.gt(timestamp))
+                            .order_by(schema::open_em::transactions::created_at.desc())
+                            .select(Transaction::as_select())
+                            .load::<Transaction>(connection)
+                        {
+                            Ok(transaction_vec) => {
+                                if transaction_vec.len() > 0 {
+                                    transaction_price = transaction_vec[0].transacted_price
+                                }
+                            }
+                            Err(_) => {}
+                        }
                         data.push(OpenSell {
                             order_id: order.sell_order_id,
                             offered_units: order.offered_units,
                             claimed_units: order.claimed_units,
                             max_price: order.max_price,
                             min_price: order.min_price,
-                            last_transacted_price: 0f64,
+                            last_transacted_price: transaction_price,
                         })
                     }
                 }
@@ -1518,7 +1557,7 @@ async fn register(new_user_request: Json<NewUserRequest>, cookie_jar: &CookieJar
     }
 
     let mut password_valid = false;
-    if new_user_request.password.len() > 8 {
+    if new_user_request.password.len() >= 8 {
         password_valid = true
     } else {
         message = "Password too short".to_string()

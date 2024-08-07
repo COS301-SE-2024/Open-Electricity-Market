@@ -48,7 +48,7 @@
 
 </script>
 
-<div class="stats stats-vertical lg:stats-horizontal shadow">
+<div class="stats stats-vertical lg:stats-horizontal shadow w-full">
   <div class="stat">
     <div class="stat-title">Total Users</div>
     <div class="stat-value">{totalusers}</div>

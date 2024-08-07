@@ -1,6 +1,7 @@
 <script>
 import Chart from "$lib/Components/Chart.svelte";
 import {onMount} from "svelte";
+import { goto } from '$app/navigation';
 
 let selectedPrice = 0;
 $: price = 0;
@@ -27,8 +28,7 @@ async function place_buy_order() {
     credentials: 'include'
   });
 
-  // console.log(await response.json())
-
+  goto('../Main/Dashboard');
 }
 
 async function place_sell_order() {
@@ -48,8 +48,7 @@ async function place_sell_order() {
     credentials: 'include'
   });
 
-  // console.log(await response.json())
-
+  goto('../Main/Dashboard');
 }
 
 onMount(async () => {
@@ -90,13 +89,13 @@ async function fetchData() {
 
 </script>
 
-<main class="container mx-auto p-4">
-  <div class="flex flex-row">
-    <div class="basis-2/3 border mr-5 p-4">
-      <h1 class="text-5xl font-bold pt-8">Market</h1>
-      <Chart {data} />
+<main class="container mx-auto p-4 ">
+  <div class="md:flex md:flex-row xs: xs: xs: ">
+    <div class="md:basis-2/3 md:border md:mr-5 md:p-4 xs:">
+      <h1 class="md:text-5xl md:font-bold md:pt-8">Market</h1>
+      <Chart {data} class = "" />
     </div>
-    <div class="basis-1/3 border p-4">
+    <div class="md:basis-1/3 md:border md:p-4 xs:pt-10">
         <form>
           <div class="form-control mt-1">
             <label for="buy_price"> Price </label>
@@ -108,12 +107,12 @@ async function fetchData() {
             <input type="number" placeholder="{units}" class="input input-bordered" name="amount" required bind:value={units}/>
           </div>
 
-          <div class="mt-1">
+          <div class="mt-1 xs:pt-5">
             <button class="btn btn-success" onclick="my_modal_1.showModal()">Buy</button>
             <dialog id="my_modal_1" class="modal">
               <div class="modal-box">
                 <h3 class="text-lg font-bold">Confirm Buy Order</h3>
-                <p class="py-4">Please confirm your buy order for {units} units at R {selectedPrice} </p>
+                <p class="py-4">Please confirm your buy order for {units} units at R{selectedPrice} </p>
                 <div class="modal-action">
                   <form method="dialog">
                     <button class="btn bg-green-600" on:click={place_buy_order} >Continue</button>
@@ -135,7 +134,10 @@ async function fetchData() {
                 </div>
               </div>
             </dialog>
+
+             <!-- <button class="btn btn-success" onclick="my_modal_1.showModal()">Buy at market price</button> -->
           </div>
+
         </form>
 
     </div>

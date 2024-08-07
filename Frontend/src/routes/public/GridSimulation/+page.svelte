@@ -13,7 +13,7 @@
   let advancedView = false; 
   let dropdownViewable = false; 
   let mapdata; 
-   let oscilloscopedata = null;
+  let oscilloscopedata = null;
 
   function toggleDropdown(){
     dropdownViewable = !dropdownViewable; 
@@ -135,12 +135,12 @@
       </form>
     </dialog> -->
 
-  <div class="form-control top-right">
+  <!-- <div class="form-control top-right">
   <label class="label cursor-pointer">
     <span class="label-text mr-2">Advanced view</span>
     <input type="checkbox" class="toggle" checked={advancedView} on:change={setAdvancedView} />
   </label>
-  </div>
+  </div> -->
 
    
  
@@ -215,19 +215,37 @@
    <span class="loading loading-ring loading-lg ml-6"></span>
   {/if} -->
 
-    <Map {mapdata} on:markerClick = {handleMarkerClick} /> 
-    <Chart {data} />
-    <GridStats /> 
+<div class="fullsection flex md:flex-row xs:flex-col">
+
+<div class="mapsection md:w-3/5  xs:w-full xs:p-0 left-0">
+  <Map {mapdata} on:markerClick = {handleMarkerClick} class="xs:rounded-md"  /> 
+
+    <div class="statsection">
+        <GridStats /> 
+        </div>
+    </div>
+
+<div class="chartsection md:w-2/5 md:h-full p-5 xs:w-full xs:">   
+  <Chart {data} />
+
+      
+</div>
+
+
+
+
+
+</div>
+
+
+
+
+
 
 </main>
 
 <style>
 
-   .top-right {
-    position: absolute;
-    top: 7rem;
-    right: 5rem;
-  }
   
 </style>
 

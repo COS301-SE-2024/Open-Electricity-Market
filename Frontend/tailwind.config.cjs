@@ -33,8 +33,8 @@ module.exports = {
         logSignup: "url('/src/lib/assets/pylonBack.png')",
       },
       screens: {
-        xs: "375px",
-        ss: "500px",
+        xs: "300px",
+        ss: "640px",
         sm: "768px",
         md: "1060px",
         lg: "1200px",

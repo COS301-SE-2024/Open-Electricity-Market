@@ -81,7 +81,7 @@ RETURNS TRIGGER
 AS
 $$
 BEGIN
-    IF 0 >= ((NEW.transacted_price*NEW.transacted_units) - NEW.transaction_fee)
+    IF 0 <= ((NEW.transacted_price*NEW.transacted_units) - NEW.transaction_fee)
     THEN
         UPDATE users
             SET credit = credit + (NEW.transacted_price*NEW.transacted_units) - NEW.transaction_fee

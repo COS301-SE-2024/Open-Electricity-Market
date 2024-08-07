@@ -81,9 +81,14 @@ RETURNS TRIGGER
 AS
 $$
 BEGIN
-    UPDATE users
-        SET credit = credit + (NEW.transacted_price*NEW.transacted_units) - NEW.transaction_fee
-    WHERE user_id = (SELECT seller_id FROM sell_orders WHERE sell_order_id = NEW.sell_order_id);
+    IF 0 >= ((NEW.transacted_price*NEW.transacted_units) - NEW.transaction_fee)
+    THEN
+        UPDATE users
+            SET credit = credit + (NEW.transacted_price*NEW.transacted_units) - NEW.transaction_fee
+        WHERE user_id = (SELECT seller_id FROM sell_orders WHERE sell_order_id = NEW.sell_order_id);
+    ELSE
+        RAISE EXCEPTION 'Insufficient seller funds';
+    END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;

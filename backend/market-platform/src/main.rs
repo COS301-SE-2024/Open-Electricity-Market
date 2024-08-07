@@ -31,10 +31,9 @@ const FRONTEND_URL: &str = "http://localhost:5173";
 // const TARGET_VOLTAGE: f64 = 240.0;
 // Endpoint for current_voltage
 
-const UNIT_PRICE_RATE: f64 = 0.0005;
-const IMPEDANCE_RATE: f64 = 0.00005;
-
-const SUPPLY_DEMAND_RATE: f64 = 0.0005;
+const UNIT_PRICE_RATE: f64 = 0.005;
+const IMPEDANCE_RATE: f64 = 0.05;
+const SUPPLY_DEMAND_RATE: f64 = 0.00005;
 const TARGET_HISTORY_POINTS: i64 = 100;
 
 mod models;
@@ -179,7 +178,7 @@ fn buy_fee_calc(units: f64, price: f64) -> f64 {
 
     return units * price * UNIT_PRICE_RATE
         + ((demand - supply) * SUPPLY_DEMAND_RATE)
-        + (impedance * IMPEDANCE_RATE);
+        + (f64::log10(impedance) * IMPEDANCE_RATE);
 }
 
 fn sell_fee_calc(units: f64, price: f64) -> f64 {

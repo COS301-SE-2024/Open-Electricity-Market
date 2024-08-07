@@ -7,7 +7,7 @@ use crate::models::{
     BuyOrder, NewBuyOrder, NewNodeModel, NewProfileModel, NewSellOrder, NewTransaction,
     NewUserModel, Node, Profile, SellOrder, Transaction, User,
 };
-use chrono::{Duration, Utc};
+use chrono::{DateTime, Duration, Utc};
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use dotenvy::dotenv;
@@ -951,6 +951,7 @@ async fn remove_account(cookie_jar: &CookieJar<'_>) -> Value {
 #[serde(crate = "rocket::serde")]
 struct Price {
     price: f64,
+    timestamp: String,
 }
 
 #[post("/price_view")]
@@ -960,7 +961,10 @@ async fn price_view() -> Value {
     let connection = &mut establish_connection();
 
     let mut message = "Something went wrong".to_string();
-    let mut data = Price { price: 0f64 };
+    let mut data = Price {
+        price: 0f64,
+        timestamp: Utc::now().to_string(),
+    };
 
     let timestamp = Utc::now() - Duration::hours(TRANSACTION_LIFETIME);
 
@@ -975,7 +979,50 @@ async fn price_view() -> Value {
                 message = "Successfully retrieved price".to_string();
                 data = Price {
                     price: transactions_vec[0].transacted_price,
+                    timestamp: transactions_vec[0].created_at.to_string(),
                 }
+            }
+        }
+        Err(_) => {}
+    }
+
+    json!({"status": "ok", "message":message, "data": data})
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct PriceHistoryRequest {
+    hours: i64,
+}
+
+#[post(
+    "/price_history",
+    format = "application/json",
+    data = "<price_history_request>"
+)]
+async fn price_history(price_history_request: Json<PriceHistoryRequest>) -> Value {
+    use self::schema::open_em::transactions::dsl::*;
+
+    let connection = &mut establish_connection();
+
+    let mut message = "Something went wrong".to_string();
+    let mut data = vec![];
+
+    let timestamp = Utc::now() - Duration::hours(price_history_request.hours);
+
+    match transactions
+        .filter(created_at.gt(timestamp))
+        .order_by(created_at.asc())
+        .select(Transaction::as_select())
+        .load::<Transaction>(connection)
+    {
+        Ok(transactions_vec) => {
+            message = "Successfully retrieved price".to_string();
+            for transaction in transactions_vec {
+                data.push(Price {
+                    price: transaction.transacted_price,
+                    timestamp: transaction.created_at.to_string(),
+                })
             }
         }
         Err(_) => {}
@@ -1539,6 +1586,7 @@ fn rocket() -> _ {
                 update_produced_units,
                 estimate_buy_fee,
                 estimate_sell_fee,
+                price_history
             ],
         )
         .configure(rocket::Config::figment().merge(("port", 8001)))

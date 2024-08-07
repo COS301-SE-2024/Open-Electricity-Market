@@ -407,7 +407,7 @@
       <div class="stat">
         <div class="stat-title">Available Credit</div>
         <div class="stat-value">R{totalamount.toFixed(2)}</div>
-      </div>
+      </div>  
 
       <div class="flex-col min-w-max">
         <button class="btn btn-success mx-2 w-48" onclick="add_modal.showModal()">Add funds</button>

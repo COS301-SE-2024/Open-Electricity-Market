@@ -2,12 +2,18 @@
 
 <script>
   import { onMount } from "svelte";
+  import Map from '$lib/Components/Map.svelte';
+  import Chart from "$lib/Components/Chart2.svelte";
+  import GridStats from "../../../lib/Components/GridStats.svelte";
+ 
 
   let data = {};
   let interval; 
   let numDecimals = 2; 
   let advancedView = false; 
   let dropdownViewable = false; 
+  let mapdata; 
+  let oscilloscopedata = null;
 
   function toggleDropdown(){
     dropdownViewable = !dropdownViewable; 
@@ -15,8 +21,8 @@
 
   onMount(async () => {
     await fetchData(); 
-    interval = setInterval(fetchData, 800); 
-
+    //interval = setInterval(fetchData, 10000); 
+    
    
     return () => {
       clearInterval(interval);
@@ -35,8 +41,8 @@
     });
         console.log("start being sent...");
         // const response = fetch("http://localhost:8000");
-        const data = await response.json();
-        console.log(data);
+        const startdata = await response.json();
+        console.log(startdata);
         //Voltage 1,2,3 as well as price
         //updateChart(data.Phase1, data.Phase2);
       } catch (error) {
@@ -63,20 +69,37 @@
           'Content-Type': 'application/json' 
         }
       });
-      console.log("Request being sent...");
+      //console.log("Request being sent...");
       const fdata = await response.json();
       console.log("Fetched data:", fdata);
-      data = {
-        ...fdata,
-        Consumers: fdata.Consumers.map(item => JSON.parse(item)),
-        Generators: fdata.Generators.map(item => JSON.parse(item)),
-        Transformers: fdata.Transformers.map(item => JSON.parse(item)),
-        "Transmission Lines": fdata["Transmission Lines"].map(item => JSON.parse(item))
-      };
+      mapdata = fdata.circuits[0];
+      // data = null; 
+      // data = {
+      //   ...fdata,
+      //   Consumers: fdata.Consumers.map(item => JSON.parse(item)),
+      //   Generators: fdata.Generators.map(item => JSON.parse(item)),
+      //   Transformers: fdata.Transformers.map(item => JSON.parse(item)),
+      //   "Transmission Lines": fdata["Transmission Lines"].map(item => JSON.parse(item))
+      // };
+      // console.log("Data is this: ");
+      // console.log(data);
+      // chartdata = data[Consumers.Voltage.Phase1];
+      
     } catch (error) {
       console.log("There was an error fetching the JSON for the overview:", error);
     }
   }
+
+
+  function handleMarkerClick(entity){
+    // console.log(entity.detail.voltage);
+    // data = entity.detail; 
+    const markerData = entity.detail;
+    console.log('Marker clicked:', markerData);  
+    data = { ...markerData.voltage };
+    console.log("Updated data is this: ", data);
+  }
+
 </script>
 
 <main class="container mx-auto p-4">
@@ -112,16 +135,16 @@
       </form>
     </dialog> -->
 
-  <div class="form-control top-right">
+  <!-- <div class="form-control top-right">
   <label class="label cursor-pointer">
     <span class="label-text mr-2">Advanced view</span>
     <input type="checkbox" class="toggle" checked={advancedView} on:change={setAdvancedView} />
   </label>
-  </div>
+  </div> -->
 
    
  
-  {#if Object.keys(data).length > 0}
+  <!-- {#if Object.keys(data).length > 0}
     
     <section class="mb-8">
       <h2 class="text-2xl font-bold mb-4">Consumers</h2>
@@ -190,15 +213,40 @@
     </section>
   {:else}
    <span class="loading loading-ring loading-lg ml-6"></span>
-  {/if}
+  {/if} -->
+
+<div class="fullsection flex md:flex-row xs:flex-col">
+
+<div class="mapsection md:w-3/5  xs:w-full xs:p-0 left-0">
+  <Map {mapdata} on:markerClick = {handleMarkerClick} class="xs:rounded-md"  /> 
+
+    <div class="statsection">
+        <GridStats /> 
+        </div>
+    </div>
+
+<div class="chartsection md:w-2/5 md:h-full p-5 xs:w-full xs:">   
+  <Chart {data} />
+
+      
+</div>
+
+
+
+
+
+</div>
+
+
+
+
+
+
 </main>
 
 <style>
 
-   .top-right {
-    position: absolute;
-    top: 7rem;
-    right: 5rem;
-  }
   
 </style>
+
+      

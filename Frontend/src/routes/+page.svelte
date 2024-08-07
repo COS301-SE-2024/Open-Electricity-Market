@@ -1,85 +1,230 @@
+<svelte:window bind:scrollY />
+
+<svelte:head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</svelte:head>
+
 <script>
-    import logo from '$lib/assets/Logo.png';
-    import {goto} from "$app/navigation";
-    let email = '';
-    let password = '';
-    let errormessage = "";
+  import Map from "$lib/Components/MapLanding.svelte";
+  import { fade } from 'svelte/transition'
 
-    // RFC 2822 standard email validation pattern
-    var emailregex = /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/;
+  let scrollY
+  let element
+  let height
 
+  const options = {
+    threshold: [0.4, 0.8]
+  }
 
-    function signup(){
-        goto("/signup");
-    }
+  const callback = (entries) => {
+    entries && entries.forEach(entry => {
+        if(entry.isIntersecting){
+            this.addClassName('visible');
+        }
+        else{
+            this.removeClassName('visible');
+        }
+    }); 
+  }; 
 
-    async function login(){
+  function scrollDown() {
+    document.getElementById("Second").scrollIntoView({behavior: "smooth"});
+  }
 
-      if (!email.match(emailregex)) {
-        errormessage = "Please enter a valid email address";
-        return;
-      }
-
-      errormessage = "";
-
-      const res = await fetch("http://localhost:8001/login", {
-        method: "POST", 
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          "email": email, 
-          "password": password
-        })
-      })
-      const json = await res.json()
-      //result = JSON.stringify(json)
-      if(json.verified == true)
-      {
-        goto("/Main/Dashboard");
-      }
-      else{
-        errormessage = "Invalid Credentials";
-      }
-      //send to main page
-    }
 </script>
 
-<main>
-    <div class="hero min-h-screen" style="background-image: url(https://images.unsplash.com/photo-1510595256055-e44b27efe497?q=80&w=1700&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D);">
-        <div class="hero-overlay bg-opacity-60 "></div>
-        <div class="hero-content flex-col lg:flex-row-reverse rounded-2xl bg-base-100">
-          <div class="text-center lg:text-left">
-            <h1 class="text-5xl font-bold">Open Electricity Market.</h1>
-            <p class="py-6">Discover a revolutionary platform where you can buy and sell electricity in real-time.</p>
-            <p>{errormessage}</p>
-          </div>
-          <div class="card shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
-            <form class="card-body">
-              <h2 class="text-base font-semibold"> Log in to your account </h2>
+<main class ="bg-[url('../src/images/jimmy-chang-xnpq29vhHms-unsplash.jpg')] bg-cover bg-fixed !scroll-smooth pb-6">
 
-              <div class="form-control mt-1">
-                <input type="email" placeholder="Email" class="input input-bordered" required bind:value={email}/>
-              </div>
-              <div class="form-control mt-4">
-                <input type="password" placeholder="Password" class="input input-bordered" required bind:value={password}/>
-                <!-- <label class="label" for="">
-                  <a href="#" class="label-text-alt link link-hover">Forgot password?</a>
-                </label> -->
-              </div>
 
-              {#if errormessage != ''}
-                <h2 class="text-base font-semibold text-black bg-error rounded"> { errormessage } </h2>
-              {/if}
+<section id="First" class="flex justify-center h-screen items-center">
+  <div class="sm:card w-full sm:max-w-lg shadow-xl glass ">
+    <div class="card-body items-center text-center ">
+      <h2 class="text-4xl font-bold  card-title text-white w-128">Transform the way you manage energy.</h2>
+      <br>
+      <div class="card-actions ">
+        <a class="btn btn-outline text-xl text-white" href="/login">Sign in</a>
+        <a class="btn btn-outline text-xl text-white" href="/public/GridSimulation">Simulation</a>
+      </div>
+      <br>
+      <!-- svelte-ignore a11y-click-events-have-key-events -->
+      <!-- svelte-ignore a11y-no-static-element-interactions -->
+      <div class="flex flex-col w-max justify-center items-center" on:click={scrollDown}>
+        scroll for more info
+        <svg width="32" height="32" class="pulse-1 -mb-5" fill="#ffffff" viewBox="0 0 256 256">
+          <path d="M212.24,100.24l-80,80a6,6,0,0,1-8.48,0l-80-80a6,6,0,0,1,8.48-8.48L128,167.51l75.76-75.75a6,6,0,0,1,8.48,8.48Z"></path>
+        </svg>
 
-              <div class="form-control mt-6">
-                <button class="btn btn-primary" on:click={login}>Login</button>
-              </div>
-              <div class="form-control mt-3"> 
-                <button class="btn btn-primary" on:click={signup}>Create an account</button>
-              </div>
-            </form>
-          </div>
+        <svg width="32" height="32" class="pulse-2 -mb-5" fill="#ffffff" viewBox="0 0 256 256">
+          <path d="M212.24,100.24l-80,80a6,6,0,0,1-8.48,0l-80-80a6,6,0,0,1,8.48-8.48L128,167.51l75.76-75.75a6,6,0,0,1,8.48,8.48Z"></path>
+        </svg>
+
+        <svg width="32" height="32" class="pulse-3 -mb-5" fill="#ffffff" viewBox="0 0 256 256">
+          <path d="M212.24,100.24l-80,80a6,6,0,0,1-8.48,0l-80-80a6,6,0,0,1,8.48-8.48L128,167.51l75.76-75.75a6,6,0,0,1,8.48,8.48Z"></path>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="Second">
+  <div bind:this="{element}" bind:clientHeight="{height}" class="flex flex-row justify-center">
+    <div class="sm:basis-5/6 flex-row mx-4" >
+      <div class="card sm:card-side glass min-h-72 shadow-xl mt-4" transition:fade>
+        <figure class = "max-w-96">
+          <img src="../src/images/pexels-energepic-com-27411-159888.jpg" alt="price graph"/>
+        </figure>
+        <div class="card-body text-white">
+          <h2 class="card-title text-4xl">Free market</h2>
+          <p>
+            Amplify provides users with an open market to buy and sell electricity. Analytic
+            tools such as price charts as well as simulations are provided to give users a history of the grid state and help them make
+            informed decisions.
+          </p>
         </div>
       </div>
+
+
+      <div class="card sm:card-side glass shadow-xl mt-4 min-h-72">
+        <figure class = "max-w-96">
+          <img src="../src/images/pexels-pixabay-163064.jpg" alt="complex network" />
+        </figure>
+        <div class="card-body text-white">
+          <h2 class="card-title text-4xl">User asset management</h2>
+          <p>Powerful tools are provided for users to manage their own nodes (electrical equipment). This allows
+          users to manage there own electricity on a nation wide level.</p>
+        </div>
+      </div>
+
+
+
+      <div class="card sm:card-side glass shadow-xl mt-4 min-h-72">
+        <figure class="max-w-96">
+          <img class="" src="../src/images/troy-bridges-maXnRLszYY0-unsplash.jpg" alt="img" />
+        </figure>
+        <div class="card-body text-white">
+          <h2 class="card-title text-4xl">Controlled Market</h2>
+          <p>The market features several control systems to ensure a fair market as well as a stable grid. Price is
+          adjusted to ensure the grid load stays<br> within predetermined limits, thus providing a more stable grid. Electricity that is bought has a lifetime in order to avoid hoarding.</p>
+        </div>
+      </div>
+
+      <div class="card card-side mt-4 -mb-8 sm:hidden">
+        <div class="card-body p-0">
+          <figure class = "min-w-full rounded-lg">
+            <Map/>
+          </figure>
+
+        </div>
+      </div>
+
+      <div class="card card-side glass shadow-xl mt-4 min-h-72">
+        <figure class="sm:w-96">
+          <Map/>
+        </figure>
+        <div class="card-body text-white">
+          <h2 class="card-title text-4xl">Real-time grid simulation</h2>
+          <p>The market platform is built on top of a accurate electrical grid simulation. This simulation takes
+          the following into account:
+            <li>Kriscoff's Voltage law</li>
+            <li>Kriscoff's Current law</li>
+            <li>Inductive impedance</li>
+            <li>3 Phase AC (alternating current)</li>
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
 </main>
+
+
+<style>
+  :global(*) {
+    box-sizing: border-box;
+    position: relative;
+  }
+  :global(body) {
+    padding: 0;
+  }
+  section {
+    padding: 0vh 0 0vh;
+  }
+
+  .pulse-1{
+     animation: pulse1 2s infinite ease-in-out;
+  }
+
+  .pulse-2{
+     animation: pulse2 2s infinite ease-in-out;
+  }
+
+  .pulse-3{
+     animation: pulse 2s infinite ease-in-out;
+  }
+
+  @keyframes pulse {
+     0% {
+        opacity: 1;
+    }
+    20% {
+        opacity:1;
+    }
+    40% {
+        opacity:1;
+    }
+    60% {
+        opacity: 0;
+    }
+    80% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+  }
+
+  @keyframes pulse1 {
+    0% {
+        opacity: 1;
+    }
+    20% {
+        opacity:0;
+    }
+    40% {
+        opacity:0;
+    }
+    60% {
+        opacity: 1;
+    }
+    80% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 1;
+    }
+  }
+
+  @keyframes pulse2 {
+    0% {
+        opacity: 1;
+    }
+    20% {
+        opacity:1;
+    }
+    40% {
+        opacity:0;
+    }
+    60% {
+        opacity: 0;
+    }
+    80% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 1;
+    }
+  }
+</style>
+

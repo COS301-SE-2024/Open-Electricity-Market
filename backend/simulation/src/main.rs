@@ -1,17 +1,23 @@
 #[macro_use]
 extern crate rocket;
 
-use crate::grid::consumer::Consumer;
+use crate::grid::circuit::Circuit;
 use crate::grid::generator::Generator;
-use crate::grid::transformer::Transformer;
-use crate::grid::transmission_line::TransmissionLine;
-use crate::grid::{Grid, Resistance, ToJson, Voltage};
+use crate::grid::load::Connection::{Parallel, Series};
+use crate::grid::load::{Consumer, Load, LoadType};
+use crate::grid::location::Location;
+use crate::grid::{
+    ConsumerInterface, GeneratorInterface, Grid, OscilloscopeDetail, Resistance, Voltage,
+    VoltageWrapper,
+};
 use rocket::fairing::{Fairing, Info, Kind};
 use rocket::http::{Header, Method, Status};
 use rocket::response::content;
-use rocket::serde::json::{json, Json};
+use rocket::serde::json::json;
+use rocket::serde::json::Json;
 use rocket::serde::{Deserialize, Serialize};
-use rocket::{Request, Response, State};
+use rocket::{data, serde, Request, Response, State};
+use std::ops::Deref;
 use std::sync::{Arc, Mutex};
 use std::time::Instant;
 
@@ -42,97 +48,115 @@ impl Fairing for CORS {
     }
 }
 
+#[post("/set_consumer", format = "application/json", data = "<data>")]
+fn set_consumer(
+    grid: &State<Arc<Mutex<Grid>>>,
+    data: Json<ConsumerInterface>,
+) -> content::RawJson<String> {
+    let mut g = grid.lock().unwrap();
+    g.set_consumer(data.into_inner());
+    return content::RawJson(json!({"status" : "ok","message" : "succesfully set"}).to_string());
+}
+
+#[post("/set_generator", format = "application/json", data = "<data>")]
+fn set_generator(
+    grid: &State<Arc<Mutex<Grid>>>,
+    data: Json<GeneratorInterface>,
+) -> content::RawJson<String> {
+    let mut g = grid.lock().unwrap();
+    g.set_generator(data.into_inner());
+    return content::RawJson(json!({"status" : "ok","message" : "succesfully set"}).to_string());
+}
+
 #[get("/")]
 fn index() -> String {
     "Yay".to_string()
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct GeneratorUpdate {
-    id: u32,
-    supply: f32,
+struct AddLocation {
+    latitude: f32,
+    longitude: f32,
 }
 
-#[post("/produce", format = "application/json", data = "<data>")]
-fn produce(grid: &State<Arc<Mutex<Grid>>>, data: Json<GeneratorUpdate>) -> String {
-    let mut g = grid.lock().unwrap();
-    g.update_generator(data.id, data.supply);
-    let id = data.id;
-    let supply = data.supply;
-    format!("Production of {id} set to {supply}V").to_string()
-}
-
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize)]
 #[serde(crate = "rocket::serde")]
-struct ConsumerUpdate {
-    id: u32,
-    load: f32,
-}
-
-#[post("/consume", format = "application/json", data = "<data>")]
-fn consume(grid: &State<Arc<Mutex<Grid>>>, data: Json<ConsumerUpdate>) -> String {
-    let mut g = grid.lock().unwrap();
-    g.update_consumer(data.id, Resistance(data.load));
-    let id = data.id;
-    let load = data.load;
-    format!("Consumption of {id} set to {load}Ω")
-}
-
-#[derive(Serialize, Deserialize)]
-#[serde(crate = "rocket::serde")]
-struct ConsumerNew {
-    resistance: f32,
-    transmission_line: u32,
+struct NewConsumer {
+    circuit: u32,
+    consumer: u32,
 }
 
 #[post("/add_consumer", format = "application/json", data = "<data>")]
 fn add_consumer(
     grid: &State<Arc<Mutex<Grid>>>,
-    data: Json<ConsumerNew>,
+    data: Json<AddLocation>,
 ) -> content::RawJson<String> {
     let mut g = grid.lock().unwrap();
-    let id = g.add_consumer(
-        Resistance(data.resistance),
-        data.transmission_line,
-        Voltage(0.0, 0.0, 0.0),
-    );
-    content::RawJson(json!({"id":id}).to_string())
+    let (consumer, circuit) = g.create_consumer(data.latitude, data.longitude);
+
+    let new_consumer = NewConsumer { circuit, consumer };
+
+    let out = serde_json::to_string(&new_consumer).unwrap();
+
+    content::RawJson(out)
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize)]
 #[serde(crate = "rocket::serde")]
-struct GeneratorNew {
-    transmission_line: u32,
-    max_voltage: f32,
-    frequency: f32,
+struct NewGenerator {
+    circuit: u32,
+    generator: u32,
 }
 
 #[post("/add_generator", format = "application/json", data = "<data>")]
 fn add_generator(
     grid: &State<Arc<Mutex<Grid>>>,
-    data: Json<GeneratorNew>,
+    data: Json<AddLocation>,
 ) -> content::RawJson<String> {
     let mut g = grid.lock().unwrap();
-    let id = g.add_generator(
-        Voltage(0.0, 0.0, 0.0),
-        data.max_voltage,
-        data.frequency,
-        data.transmission_line,
+
+    let (circuit, generator) = g.create_producer(data.latitude, data.longitude);
+
+    let new_genenrator = NewGenerator { circuit, generator };
+
+    let out = serde_json::to_string(&new_genenrator).unwrap();
+    println!("{generator}");
+
+    content::RawJson(out)
+}
+
+#[post("/current_voltage")]
+fn current_voltage(grid: &State<Arc<Mutex<Grid>>>) -> content::RawJson<String> {
+    let grid = grid.lock().unwrap();
+    let out = grid.circuits[0].loads[0]
+        .get_voltage()
+        .oscilloscope_detail
+        .amplitude;
+    return content::RawJson(
+        json!({"status" : "ok","message" : "Voltage returned", "data" :out}).to_string(),
     );
-    content::RawJson(json!({"id":id}).to_string())
+}
+
+#[post("/stats")]
+fn stats(grid: &State<Arc<Mutex<Grid>>>) -> content::RawJson<String> {
+    // let g;
+    let g = grid.lock().unwrap();
+
+    let stats = g.get_grid_stats();
+    let stats = serde_json::to_string(&stats).unwrap();
+    content::RawJson(stats)
 }
 
 #[post("/info", format = "application/json")]
 fn info(grid: &State<Arc<Mutex<Grid>>>) -> content::RawJson<String> {
-    let g = grid.lock().unwrap();
-    content::RawJson(g.to_json())
-}
-
-#[post("/overview", format = "application/json")]
-fn overview(grid: &State<Arc<Mutex<Grid>>>) -> content::RawJson<String> {
-    let g = grid.lock().unwrap();
-    content::RawJson(g.get_average_line_voltage())
+    match grid.lock() {
+        Ok(g) => {
+            let info = serde_json::to_string(g.deref()).unwrap();
+            content::RawJson(info)
+        }
+        Err(err) => content::RawJson(err.to_string()),
+    }
 }
 
 #[post("/start", format = "application/json")]
@@ -149,9 +173,7 @@ fn start(grid: &State<Arc<Mutex<Grid>>>) -> String {
                 elapsed_time += duration.as_secs_f32();
                 start = Instant::now();
                 let mut grid = clone.lock().unwrap();
-                grid.update_impedance();
-                grid.update_generator_voltages(elapsed_time);
-                grid.sync_voltages();
+                grid.update(elapsed_time);
             }
         });
         json!({
@@ -174,49 +196,68 @@ fn rocket() -> _ {
             "/",
             routes![
                 index,
-                produce,
-                consume,
                 start,
                 info,
-                overview,
+                set_generator,
+                stats,
                 add_generator,
-                add_consumer
+                add_consumer,
+                set_consumer,
+                current_voltage
             ],
         )
         .manage(Arc::new(Mutex::new(Grid {
-            consumers: vec![Consumer {
+            circuits: vec![Circuit {
                 id: 0,
-                resistance: Resistance(1000.0),
-                transmission_line: 1,
-                voltage: Voltage(0.0, 0.0, 0.0),
-            }],
-            transmission_lines: vec![
-                TransmissionLine {
+                loads: vec![
+                    Load {
+                        load_type: LoadType::Consumer(Consumer {
+                            id: 0,
+                            resistance: Resistance(10.0),
+                            voltage: VoltageWrapper {
+                                voltage: Voltage(0.0, 0.0, 0.0),
+                                oscilloscope_detail: OscilloscopeDetail {
+                                    frequency: 0.0,
+                                    amplitude: 0.0,
+                                    phase: 0.0,
+                                },
+                            },
+                            location: Location {
+                                latitude: -26.2044,
+                                longitude: 28.0248,
+                            },
+                        }),
+                        id: 0,
+                    },
+                    Load {
+                        load_type: LoadType::new_transmission_line(80.0, -26.3044, 28.1),
+                        id: 1,
+                    },
+                ],
+                connections: vec![Parallel(0, 1)],
+                generators: vec![Generator {
                     id: 0,
-                    resistance: Resistance(50.0),
-                    impedance: Resistance(0.0),
-                    voltage: Voltage(0.0, 0.0, 0.0),
-                },
-                TransmissionLine {
-                    id: 1,
-                    resistance: Resistance(50.0),
-                    impedance: Resistance(0.0),
-                    voltage: Voltage(0.0, 0.0, 0.0),
-                },
-            ],
-            generators: vec![Generator {
-                id: 0,
-                voltage: Voltage(0.0, 0.0, 0.0),
-                max_voltage: 240.0,
-                frequency: 50.0,
-                transmission_line: 0,
+                    voltage: VoltageWrapper {
+                        voltage: Voltage(0.0, 0.0, 0.0),
+                        oscilloscope_detail: OscilloscopeDetail {
+                            frequency: 0.0,
+                            amplitude: 0.0,
+                            phase: 0.0,
+                        },
+                    },
+                    max_voltage: 240.0,
+                    frequency: 50.0,
+                    transmission_line: 0,
+                    location: Location {
+                        // reference point:
+                        // lat: 28.048782348632816, long: -26.120609901056977
+                        latitude: 28.04878,
+                        longitude: -26.12061,
+                    },
+                }],
+                transformers: vec![],
             }],
-            transformers: vec![Transformer {
-                id: 0,
-                ratio: 0.5,
-                primary: 0,
-                secondary: 1,
-            }],
+            frequency: 50.0,
             started: false,
         })))
 }

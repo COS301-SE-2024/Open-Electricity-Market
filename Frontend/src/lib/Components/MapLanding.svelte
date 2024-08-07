@@ -4,7 +4,6 @@
   import { onMount, onDestroy, createEventDispatcher } from 'svelte';
   import { browser } from '$app/environment';
   import Chart from './Chart2.svelte';
-    import { bounds } from 'leaflet';
 
   let mapContainer;
   let map;

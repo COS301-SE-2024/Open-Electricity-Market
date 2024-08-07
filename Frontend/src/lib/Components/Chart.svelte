@@ -7,19 +7,44 @@
   let chartCanvas;
   export let data = {}; 
   let interval; 
+  
+
+  function resizeChart() {
+    if (window.innerWidth <= 760) {
+      // chart.style.width = '100%';
+      chartCanvas.style.height = '320px';
+      // chartCanvas.style.width = '200px'; 
+      console.log("If statement is running...");
+    } else {
+      chartCanvas.style.height = '700px';
+      // chartCanvas.style.width = '900px'; 
+      console.log("Else was executed...");
+      // chart.style.height = '600px';
+    }
+  }
+
+  // onMount(() => {
+  //   resizeChart();
+  //   window.addEventListener('resize', resizeChart);
+  //   return () => window.removeEventListener('resize', resizeChart);
+  // });
 
   onMount(async () => {
     
     if (typeof window !== 'undefined') { // Check if running in the browser
       chart = createChart(chartCanvas, sampleChartConfig);
-      
-      
     }
+    resizeChart();
+    window.addEventListener('resize', resizeChart);
+    interval = setInterval(resizeChart, 5000);
+
+    
 
     return () => {
       if (chart) {
         chart.destroy();
       }
+      window.removeEventListener('resize', resizeChart);
      
     };
   });
@@ -64,8 +89,8 @@
 
 </script>
 
-<div style="display: flex;max-width: 80%;">
-  <canvas bind:this={chartCanvas} height=240></canvas>
+<div style="display: flex; max-height: 100%" >
+  <canvas bind:this={chartCanvas} height = 340px ></canvas>
 </div>
 
 <style>
@@ -75,3 +100,11 @@
   } */
 </style>
   
+
+
+
+
+
+
+
+

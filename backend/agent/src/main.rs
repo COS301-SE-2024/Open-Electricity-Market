@@ -542,11 +542,11 @@ impl Agent {
         let result: NodeDetailsResult = res.json().unwrap();
         if result.message == "Node details retrieved succesfully" {
             let mut units_to_consume = None;
-            if result.data.units_to_consume > 0.0 {
+            if result.data.units_to_consume > 0.1 {
                 units_to_consume = Some(result.data.units_to_consume);
             }
             let mut units_to_produce = None;
-            if result.data.units_to_produce > 0.0 {
+            if result.data.units_to_produce > 0.1 {
                 units_to_produce = Some(result.data.units_to_produce);
             }
             return (units_to_consume, units_to_produce);
@@ -769,14 +769,20 @@ impl Agent {
 
             // Set grid voltage for producer
             match &node.generator {
-                Generator::Acctive(core) => Agent::update_grid_voltage(produced, core.grid_detail),
+                Generator::Acctive(core) =>{ 
+                    if produced > 0.0  {
+                        Agent::update_grid_voltage(produced, core.grid_detail)
+                    }
+                    },
                 Generator::InAcctive => {}
             }
 
             // Set grid impdence for consumer
             match &node.smart_meter {
                 SmartMeter::Acctive(core) => {
-                    Agent::update_grid_impedance(consumed, core.grid_detail)
+                    if consumed > 0.0 {
+                        Agent::update_grid_impedance(consumed, core.grid_detail)
+                    }
                 }
                 SmartMeter::InActtive => {}
             }
@@ -790,7 +796,7 @@ impl Agent {
                     };
                     let gap = core.consumption_curve.total_in_24_hour() - (to_consume - consumed);
                     println!("{}", gap);
-                    if gap > 0.0 {
+                    if gap > 0.0 && credit > 0.0 {
                         // buy electricity at market price
                         let spent = Agent::place_buy_order(
                             self.session_id.clone(),

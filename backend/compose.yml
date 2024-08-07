@@ -4,22 +4,28 @@ services:
     ports:
       - "8000:8000"
   db:
-    build:
-      context: ./
-      dockerfile: db.Dockerfile
+    image: postgres
     volumes:
-      - ./var/pgdata:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     env_file: "db.env"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U open_em"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
   market-platform:
     build: ./market-platform/
     depends_on:
-      - db
+      db:
+       condition: service_healthy
     links:
       - db
     environment:
        DATABASEHOST: db
+       GRIDDOMAIN: simulation
     ports:
       - "8001:8001"
   agent:
@@ -27,9 +33,14 @@ services:
     depends_on:
       - db
       - simulation
+      - market-platform
     links:
       - db
       - simulation
+      - market-platform
     environment:
       DATABASEHOST: db
       GURL: simulation
+      MURL: market-platform 
+volumes:
+  pgdata:

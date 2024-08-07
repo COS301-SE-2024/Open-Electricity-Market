@@ -406,7 +406,7 @@
     <div class="stats stats-vertical"> 
       <div class="stat">
         <div class="stat-title">Available Credit</div>
-        <div class="stat-value">R{totalamount}</div>
+        <div class="stat-value">R{totalamount.toFixed(2)}</div>
       </div>
 
       <div class="flex-col min-w-max">

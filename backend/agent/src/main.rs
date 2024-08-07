@@ -9,8 +9,7 @@ use rand::Rng;
 use reqwest::header;
 use serde::{Deserialize, Serialize};
 
-
-const AGENT_SPEED : u64= 5;
+const AGENT_SPEED: u64 = 5;
 
 #[derive(Serialize, Clone, Copy)]
 struct Location {
@@ -636,8 +635,7 @@ impl Agent {
 
     fn place_buy_order(session_id: String, node_id: String, mut units: f64, funds: f64) -> f64 {
         let mut rng = rand::thread_rng();
-        let offset : f64 = rng.gen_range(-15.0..15.0);
-
+        let offset: f64 = rng.gen_range(-15.0..15.0);
 
         let market_price = Agent::get_current_price() + offset;
 
@@ -677,9 +675,9 @@ impl Agent {
 
     fn place_sell_order(session_id: String, node_id: String, units: f64) {
         let mut rng = rand::thread_rng();
-        let offset : f64 = rng.gen_range(-15.0..15.0);
+        let offset: f64 = rng.gen_range(-15.0..15.0);
 
-        let market_price = Agent::get_current_price()+offset;
+        let market_price = Agent::get_current_price() + offset;
 
         let detail = PlaceSellOrderDetail {
             node_id,
@@ -769,11 +767,11 @@ impl Agent {
 
             // Set grid voltage for producer
             match &node.generator {
-                Generator::Acctive(core) =>{ 
-                    if produced > 0.0  {
+                Generator::Acctive(core) => {
+                    if produced > 0.0 {
                         Agent::update_grid_voltage(produced, core.grid_detail)
                     }
-                    },
+                }
                 Generator::InAcctive => {}
             }
 
@@ -842,7 +840,7 @@ impl Agent {
             let result = self.update(accumlated_time);
 
             match result {
-                Ok(_) => thread::sleep(time::Duration::from_secs(15 *AGENT_SPEED)),
+                Ok(_) => thread::sleep(time::Duration::from_secs(15 * AGENT_SPEED)),
                 Err(_) => break,
             }
         }
@@ -870,7 +868,7 @@ fn main() {
             agent.run();
         });
         handels.push(handle);
-        thread::sleep(time::Duration::from_secs(1*AGENT_SPEED));
+        thread::sleep(time::Duration::from_secs(1 * AGENT_SPEED));
     }
 
     for handel in handels {

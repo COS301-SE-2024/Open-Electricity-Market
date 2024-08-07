@@ -28,7 +28,7 @@ impl Circuit {
         let position = self.loads.iter().position(|x| x.id == id).unwrap();
         match &mut self.loads[position].load_type {
             super::load::LoadType::Consumer(c) => {
-                let resitance = (240.0 * 240.0)/ power;
+                let resitance = (240.0 * 240.0) / power;
 
                 if resitance > 0.0 {
                     c.resistance = Resistance(resitance);

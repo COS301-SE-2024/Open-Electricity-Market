@@ -7,7 +7,8 @@ use crate::models::{
     BuyOrder, NewBuyOrder, NewNodeModel, NewProfileModel, NewSellOrder, NewTransaction,
     NewUserModel, Node, Profile, SellOrder, Transaction, User,
 };
-use chrono::{Duration, Utc};
+use chrono::{DateTime, Duration, Utc};
+use diesel::dsl::count;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use dotenvy::dotenv;
@@ -34,6 +35,7 @@ const UNIT_PRICE_RATE: f64 = 0.0005;
 const IMPEDANCE_RATE: f64 = 0.00005;
 
 const SUPPLY_DEMAND_RATE: f64 = 0.0005;
+const TARGET_HISTORY_POINTS: i64 = 100;
 
 mod models;
 mod schema;
@@ -538,6 +540,7 @@ struct OpenBuy {
 #[post("/list_open_buys")]
 async fn list_open_buys(cookie_jar: &CookieJar<'_>) -> Value {
     use self::schema::open_em::buy_orders::dsl::*;
+    use self::schema::open_em::transactions::dsl::*;
 
     let connection = &mut establish_connection();
 
@@ -558,13 +561,31 @@ async fn list_open_buys(cookie_jar: &CookieJar<'_>) -> Value {
                 if order_vec.len() > 0 {
                     message = "Successfully retrieved open buy orders".to_string();
                     for order in order_vec {
+                        let timestamp = Utc::now() - Duration::hours(TRANSACTION_LIFETIME);
+                        let mut transaction_price = 0f64;
+                        match transactions
+                            .filter(
+                                schema::open_em::transactions::buy_order_id.eq(order.buy_order_id),
+                            )
+                            .filter(schema::open_em::transactions::created_at.gt(timestamp))
+                            .order_by(schema::open_em::transactions::created_at.desc())
+                            .select(Transaction::as_select())
+                            .load::<Transaction>(connection)
+                        {
+                            Ok(transaction_vec) => {
+                                if transaction_vec.len() > 0 {
+                                    transaction_price = transaction_vec[0].transacted_price
+                                }
+                            }
+                            Err(_) => {}
+                        }
                         data.push(OpenBuy {
                             order_id: order.buy_order_id,
                             sought_units: order.sought_units,
                             filled_units: order.filled_units,
                             max_price: order.max_price,
                             min_price: order.min_price,
-                            last_transacted_price: 0f64,
+                            last_transacted_price: transaction_price,
                         })
                     }
                 }
@@ -590,6 +611,7 @@ struct OpenSell {
 #[post("/list_open_sells")]
 async fn list_open_sells(cookie_jar: &CookieJar<'_>) -> Value {
     use self::schema::open_em::sell_orders::dsl::*;
+    use self::schema::open_em::transactions::dsl::*;
 
     let connection = &mut establish_connection();
 
@@ -610,13 +632,32 @@ async fn list_open_sells(cookie_jar: &CookieJar<'_>) -> Value {
                 if order_vec.len() > 0 {
                     message = "Successfully retrieved open sell orders".to_string();
                     for order in order_vec {
+                        let timestamp = Utc::now() - Duration::hours(TRANSACTION_LIFETIME);
+                        let mut transaction_price = 0f64;
+                        match transactions
+                            .filter(
+                                schema::open_em::transactions::sell_order_id
+                                    .eq(order.sell_order_id),
+                            )
+                            .filter(schema::open_em::transactions::created_at.gt(timestamp))
+                            .order_by(schema::open_em::transactions::created_at.desc())
+                            .select(Transaction::as_select())
+                            .load::<Transaction>(connection)
+                        {
+                            Ok(transaction_vec) => {
+                                if transaction_vec.len() > 0 {
+                                    transaction_price = transaction_vec[0].transacted_price
+                                }
+                            }
+                            Err(_) => {}
+                        }
                         data.push(OpenSell {
                             order_id: order.sell_order_id,
                             offered_units: order.offered_units,
                             claimed_units: order.claimed_units,
                             max_price: order.max_price,
                             min_price: order.min_price,
-                            last_transacted_price: 0f64,
+                            last_transacted_price: transaction_price,
                         })
                     }
                 }
@@ -951,6 +992,7 @@ async fn remove_account(cookie_jar: &CookieJar<'_>) -> Value {
 #[serde(crate = "rocket::serde")]
 struct Price {
     price: f64,
+    timestamp: String,
 }
 
 #[post("/price_view")]
@@ -960,7 +1002,10 @@ async fn price_view() -> Value {
     let connection = &mut establish_connection();
 
     let mut message = "Something went wrong".to_string();
-    let mut data = Price { price: 0f64 };
+    let mut data = Price {
+        price: 0f64,
+        timestamp: Utc::now().to_string(),
+    };
 
     let timestamp = Utc::now() - Duration::hours(TRANSACTION_LIFETIME);
 
@@ -975,6 +1020,66 @@ async fn price_view() -> Value {
                 message = "Successfully retrieved price".to_string();
                 data = Price {
                     price: transactions_vec[0].transacted_price,
+                    timestamp: transactions_vec[0].created_at.to_string(),
+                }
+            }
+        }
+        Err(_) => {}
+    }
+
+    json!({"status": "ok", "message":message, "data": data})
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct PriceHistoryRequest {
+    hours: i64,
+}
+
+#[post(
+    "/price_history",
+    format = "application/json",
+    data = "<price_history_request>"
+)]
+async fn price_history(price_history_request: Json<PriceHistoryRequest>) -> Value {
+    use self::schema::open_em::transactions::dsl::*;
+
+    let connection = &mut establish_connection();
+
+    let mut message = "Something went wrong".to_string();
+    let mut data = vec![];
+
+    let timestamp = Utc::now() - Duration::hours(price_history_request.hours);
+
+    match transactions
+        .filter(created_at.gt(timestamp))
+        .order_by(created_at.asc())
+        .select(Transaction::as_select())
+        .load::<Transaction>(connection)
+    {
+        Ok(transactions_vec) => {
+            message = "Successfully retrieved price".to_string();
+            if transactions_vec.len() as i64 <= TARGET_HISTORY_POINTS {
+                for transaction in transactions_vec {
+                    data.push(Price {
+                        price: transaction.transacted_price,
+                        timestamp: transaction.created_at.to_string(),
+                    })
+                }
+            } else {
+                let interval = transactions_vec.len() / 100;
+                let mut count = 0;
+                let mut interval_count = 0usize;
+                while count < transactions_vec.len() {
+                    if interval_count == interval {
+                        data.push(Price {
+                            price: transactions_vec[count].transacted_price,
+                            timestamp: transactions_vec[count].created_at.to_string(),
+                        });
+                        interval_count = 0;
+                    }
+                    interval_count += 1;
+                    count += 1;
                 }
             }
         }
@@ -1452,7 +1557,7 @@ async fn register(new_user_request: Json<NewUserRequest>, cookie_jar: &CookieJar
     }
 
     let mut password_valid = false;
-    if new_user_request.password.len() > 8 {
+    if new_user_request.password.len() >= 8 {
         password_valid = true
     } else {
         message = "Password too short".to_string()
@@ -1539,6 +1644,7 @@ fn rocket() -> _ {
                 update_produced_units,
                 estimate_buy_fee,
                 estimate_sell_fee,
+                price_history
             ],
         )
         .configure(rocket::Config::figment().merge(("port", 8001)))

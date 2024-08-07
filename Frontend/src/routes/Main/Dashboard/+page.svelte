@@ -552,7 +552,7 @@
         </div>
         
         <div class="stat">
-          <div class="stat-title">Available Comsumption</div>
+          <div class="stat-title">Available Consumption</div>
           <div class="stat-value">{Intl.NumberFormat().format(nodeToConsume)}Wh</div>
         </div>
 

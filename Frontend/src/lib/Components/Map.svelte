@@ -25,16 +25,6 @@
     
 
     leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);
-    
-    
-    
-    
-
-
-
-
-
-    
        }
        await fetchData();
       //  resizeMap(); 
@@ -77,9 +67,9 @@
 
     function updateMarkers(){
 
-          if (!data.loads || !data.generators) {
-            console.log("No loads or generators available");
-            return;
+        if (!data.loads || !data.generators) {
+          console.log("No loads or generators available");
+          return;
         }
 
         markers.forEach(marker=>marker.remove());
@@ -116,9 +106,9 @@
         data.loads.forEach(load => {
         if (load.load_type.Consumer) {
           const consumer = load.load_type.Consumer;
-          const marker = L.marker([consumer.location.latitude, consumer.location.longitude]).addTo(map);
+          const marker = L.marker([consumer.location.longitude, consumer.location.latitude]).addTo(map);
           
-          marker.bindPopup("Consumer "+ (consumer.id+1+"<br>"+consumer.location.latitude + " " + consumer.location.longitude));
+          marker.bindPopup("Consumer "+ (consumer.id+1+"<br>"+consumer.location.longitude + " " + consumer.location.latitude));
           // marker.on('click', () => showMarkerPopup(marker, consumer));
           //marker.on('click', ()=> updateChart(consumer));
           marker.on('click', () => {dispatch('markerClick', consumer)});
@@ -127,7 +117,7 @@
         });
 
         data.generators.forEach(generator => {
-          const marker = L.marker([generator.location.latitude, generator.location.longitude]).addTo(map);
+          const marker = L.marker([generator.location.longitude, generator.location.latitude]).addTo(map);
           // marker.on('click', () => showMarkerPopup(marker, generator));
           markers.push(marker);
         });

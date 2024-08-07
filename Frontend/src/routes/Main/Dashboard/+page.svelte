@@ -360,6 +360,18 @@
     console.log("Marker position updated: " + lat + " " + lng);
   }
 
+  function formatCurrency(value) {
+    value *= 100;
+    value = Math.floor(value);
+    value /= 100;
+
+    value = Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'ZAR'
+    }).format(value);
+
+    return value.slice(2, value.length);
+  }
 
 </script>
 
@@ -406,7 +418,7 @@
     <div class="stats stats-vertical"> 
       <div class="stat">
         <div class="stat-title">Available Credit</div>
-        <div class="stat-value">R{totalamount}</div>
+        <div class="stat-value">{formatCurrency(totalamount)}</div>
       </div>
 
       <div class="flex-col min-w-max">
@@ -541,12 +553,12 @@
         
         <div class="stat">
           <div class="stat-title">Available Comsumption</div>
-          <div class="stat-value">{nodeToConsume}Wh</div>
+          <div class="stat-value">{Intl.NumberFormat().format(nodeToConsume)}Wh</div>
         </div>
 
         <div class="stat">
           <div class="stat-title">Pending Generation</div>
-          <div class="stat-value">{nodeToProduce}Wh</div>
+          <div class="stat-value">{Intl.NumberFormat().format(nodeToProduce)}Wh</div>
         </div>
 
         <div class="flex-col min-w-max">
@@ -567,10 +579,10 @@
         <div class="card-body">
           <h2 class="card-title">Buy order</h2>
           <p>
-            Filled units: {buyorder.filled_units.toFixed(1)}<br>
-            Max price: {buyorder.max_price}<br>
-            Min price: {buyorder.min_price}<br>
-            Wh: {buyorder.sought_units.toFixed(1)}<br>
+            Filled units: {buyorder.filled_units.toFixed(1) + "Wh"}<br>
+            Max price: {formatCurrency(buyorder.max_price)}<br>
+            Min price: {formatCurrency(buyorder.min_price)}<br>
+            Units bought: {Intl.NumberFormat().format(buyorder.sought_units) + "Wh"}<br>
           </p>
           <div class="card-actions ">
             
@@ -584,9 +596,9 @@
         <div class="card-body">
           <h2 class="card-title">Sell order</h2>
           <p>
-            Offered Units: {sellorder.offered_units}<br>
-            Claimed Units: {sellorder.claimed_units}<br>
-            Price: {sellorder.price.toFixed(2)}<br>
+            Claimed Units: {sellorder.claimed_units.toFixed(1) + "Wh"}<br>
+            Offered Units: {sellorder.offered_units.toFixed(1) + "Wh"}<br>
+            Price: {formatCurrency(sellorder.price)}<br>
           </p>
           <div class="card-actions">
             
@@ -619,7 +631,7 @@
   <dialog id="addfundsconfirmation" class="modal">  
     <div class="modal-box">
       <h3 class="font-bold text-lg ">You have successfully added funds!</h3>
-      <p>You have successfully added R{amount} to your account.</p>
+      <p>You have successfully added {formatCurrency(amount)} to your account.</p>
     </div>
     <form method="dialog" class="modal-backdrop">
       <button on:click={nullifyValues}>close</button>
@@ -630,7 +642,7 @@
   <dialog id="removefundsconfirmation" class="modal">  
     <div class="modal-box">
       <h3 class="font-bold text-lg ">Withdrawal of funds successful!</h3>
-      <p>You have successfully withdrew R{withdrawamount} from your account.</p>
+      <p>You have successfully withdrew {formatCurrency(withdrawamount)} from your account.</p>
       </div>
       <form method="dialog" class="modal-backdrop">
         <button on:click={nullifyValues}>close</button>
@@ -640,7 +652,7 @@
     <dialog id="removefundsrejection" class="modal">  
       <div class="modal-box">
         <h3 class="font-bold text-lg ">Withdrawal of funds was unsuccessful.</h3>
-      <p>Withdrawal of R{withdrawamount} was unsuccessful. Please check your balance.</p>
+      <p>Withdrawal of {formatCurrency(withdrawamount)} was unsuccessful. Please check your balance.</p>
       </div>
       <form method="dialog" class="modal-backdrop">
         <button on:click={nullifyValues}>close</button>
@@ -650,7 +662,7 @@
     <dialog id="addfundsrejection" class="modal">  
       <div class="modal-box">
         <h3 class="font-bold text-lg ">Addition of funds unsuccessful.</h3>
-      <p>Addition of R{amount} was unsuccessful. Please enter a valid value.</p>
+      <p>Addition of {formatCurrency(amount)} was unsuccessful. Please enter a valid value.</p>
       </div>
       <form method="dialog" class="modal-backdrop">
         <button on:click={nullifyValues}>close</button>

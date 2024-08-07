@@ -249,7 +249,7 @@ fn rocket() -> _ {
                     frequency: 50.0,
                     transmission_line: 0,
                     location: Location {
-                        // reference point: 
+                        // reference point:
                         // lat: 28.048782348632816, long: -26.120609901056977
                         latitude: 28.04878,
                         longitude: -26.12061,

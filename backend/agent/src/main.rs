@@ -826,7 +826,7 @@ impl Agent {
             let result = self.update(accumlated_time);
 
             match result {
-                Ok(_) => thread::sleep(time::Duration::from_secs(15*600)),
+                Ok(_) => thread::sleep(time::Duration::from_secs(15 * 600)),
                 Err(_) => break,
             }
         }

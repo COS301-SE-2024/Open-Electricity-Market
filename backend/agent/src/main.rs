@@ -5,9 +5,12 @@ use std::{
 };
 
 use dotenvy::dotenv;
+use rand::Rng;
 use reqwest::header;
 use serde::{Deserialize, Serialize};
-use serde_json::json;
+
+
+const AGENT_SPEED : u64= 5;
 
 #[derive(Serialize, Clone, Copy)]
 struct Location {
@@ -632,9 +635,13 @@ impl Agent {
     }
 
     fn place_buy_order(session_id: String, node_id: String, mut units: f64, funds: f64) -> f64 {
-        let market_price = Agent::get_current_price();
+        let mut rng = rand::thread_rng();
+        let offset : f64 = rng.gen_range(-15.0..15.0);
 
-        let max_price = market_price + 1.0;
+
+        let market_price = Agent::get_current_price() + offset;
+
+        let max_price = market_price + 10.0;
 
         let ratio = funds / (max_price * units);
         if ratio < 1.0 {
@@ -643,8 +650,8 @@ impl Agent {
 
         let detail = PlaceBuyOrderDetail {
             node_id,
-            min_price: market_price - 1.0,
-            max_price: market_price + 1.0,
+            min_price: market_price - 10.0,
+            max_price: market_price + 10.0,
             units,
         };
 
@@ -669,12 +676,15 @@ impl Agent {
     }
 
     fn place_sell_order(session_id: String, node_id: String, units: f64) {
-        let market_price = Agent::get_current_price();
+        let mut rng = rand::thread_rng();
+        let offset : f64 = rng.gen_range(-15.0..15.0);
+
+        let market_price = Agent::get_current_price()+offset;
 
         let detail = PlaceSellOrderDetail {
             node_id,
-            min_price: market_price - 1.0,
-            max_price: market_price + 1.0,
+            min_price: market_price - 10.0,
+            max_price: market_price + 10.0,
             units,
         };
         let url = env::var("MURL").unwrap();
@@ -826,7 +836,7 @@ impl Agent {
             let result = self.update(accumlated_time);
 
             match result {
-                Ok(_) => thread::sleep(time::Duration::from_secs(15 * 600)),
+                Ok(_) => thread::sleep(time::Duration::from_secs(15 *AGENT_SPEED)),
                 Err(_) => break,
             }
         }
@@ -854,7 +864,7 @@ fn main() {
             agent.run();
         });
         handels.push(handle);
-        thread::sleep(time::Duration::from_secs(600));
+        thread::sleep(time::Duration::from_secs(1*AGENT_SPEED));
     }
 
     for handel in handels {

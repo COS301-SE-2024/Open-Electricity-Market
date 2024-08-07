@@ -183,7 +183,7 @@ fn buy_fee_calc(units: f64, price: f64) -> f64 {
 
     return units * price * UNIT_PRICE_RATE
         + (f64::log10(demand_supply_diff) * SUPPLY_DEMAND_RATE)
-        + (f64::log10(impedance) * IMPEDANCE_RATE)
+        + (f64::log10(impedance) * IMPEDANCE_RATE);
 }
 
 fn sell_fee_calc(units: f64, price: f64) -> f64 {
@@ -235,7 +235,7 @@ fn sell_fee_calc(units: f64, price: f64) -> f64 {
 
     return (units * price * UNIT_PRICE_RATE)
         + (f64::log10(supply_demand_diff) * SUPPLY_DEMAND_RATE)
-        + (f64::log10(impedance) * IMPEDANCE_RATE)
+        + (f64::log10(impedance) * IMPEDANCE_RATE);
 }
 
 #[derive(Serialize, Deserialize)]

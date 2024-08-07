@@ -115,7 +115,6 @@
 
 
   function createModal(){
-    //*************************** change this to mapModal when implemented*/
     nodeName = nodeLatitude = nodeLongitude = '';
     document.getElementById("mapModal").showModal();
   }
@@ -132,8 +131,7 @@
         method: "POST", 
         headers: {
           'Content-Type': 'application/json',
-          // might also complain here, have Content-Type be your only header 
-          // 'Accept': 'application/json',
+          'Accept': 'application/json',
         },
         credentials: "include", 
         body: JSON.stringify({
@@ -288,6 +286,10 @@
       email = data.data.email; 
       firstname = data.data.first_name; 
       lastname = data.data.last_name;
+    } else {
+      // this is intended to reroute the user to the login page if they send an invalid session id
+      sessionStorage.clear();
+      goto("/login");
     }
   }
 
@@ -350,9 +352,6 @@
       // claimedunits = data.data.claimed_units; 
       sellorders = data.data; 
     }
-
-
-
   }
 
   function handleMapClick(lat, lng){
@@ -364,13 +363,11 @@
 
 </script>
 
-<main class="container mx-auto w-full flex justify-center">
+<main class="container mx-auto w-full sm:flex justify-center">
 
-  <div class="w-1/6 mx-20">
+  <div class="min-w-1/6">
     
-    <!-- change funds buttons and modals -->
-    <button class="btn btn-success" onclick="add_modal.showModal()">Add funds</button>
-    <button class="btn btn-error" onclick="remove_modal.showModal()">Withdraw funds</button>
+    <!-- change funds modals -->
 
     <dialog id = "add_modal" class="modal">
       <div class="modal-box">
@@ -411,24 +408,14 @@
         <div class="stat-title">Available Credit</div>
         <div class="stat-value">R{totalamount.toFixed(2)}</div>
       </div>
-    
-      <div class="stat">
-        <div class="stat-title">Pending Transactions</div>
-        <div class="stat-value">5</div>
+
+      <div class="flex-col min-w-max">
+        <button class="btn btn-success mx-2 w-48" onclick="add_modal.showModal()">Add funds</button>
+        <button class="btn btn-error mx-2 w-48" onclick="remove_modal.showModal()">Withdraw funds</button>
       </div>
       
-      <div class="stat">
-        <div class="stat-title">Total Comsumption</div>
-        <div class="stat-value">1,024W</div>
-      </div>
-    
-      <div class="stat">
-        <div class="stat-title">Total Generation</div>
-        <div class="stat-value">5W</div>
-      </div>
-      
-      <h1 class="text-lg">
-        Personal Information
+      <h1 class="stat text-lg">
+        Personal Information:
       </h1>
   
       <div class="stat">
@@ -453,9 +440,6 @@
     <div class="flex-col">
       <span class="text-3xl justify-start pl-2">
         Your Nodes
-      </span>
-      <span class="justify-end pl-64">
-        <button class="btn btn-primary text-lg " on:click={createModal}>Add a Node</button>
       </span>
     </div>
 
@@ -526,22 +510,21 @@
         <div class="card-body">
           <h2 class="card-title">{node.name}</h2>
           <div class="card-actions justify-end">
-            <!-- <button class="btn btn-ghost" on:click={() => {
-              sessionStorage.setItem("node_id", node.node_id);
-              //reroute to market 
-              goto('../Main/BiddingMarket');
-            }}>Details</button> -->
             <button class="btn btn-ghost" on:click={() => {fetchNodeDetails(node.node_id)}}>Details</button>
           </div>
         </div>
       </div>
-
     {/each}
-    
+
+    <div class="card card-side min-w-1/3 bg-base-300 my-2">
+      <div class="card-body">
+        <button class="btn btn-outline" on:click={createModal}>Add a New Node</button>
+      </div>
+    </div>
   </div>
 
-  {#if nodeNameDetail != ''}
-    <div class="w-1/6 mx-20 ">
+  <div class="min-w-1/6">
+    {#if nodeNameDetail != ''}
       <div class="stats stats-vertical"> 
         <div class="stat">
           <div class="stat-title">Node</div>
@@ -551,73 +534,69 @@
         <div class="stat">
           <div class="stat-title">Node Location</div>
           <div class="stat-value">
-            {nodeLongitudeDetail < 0 ? nodeLongitudeDetail.toFixed(3) * -1 + "S" : nodeLongitudeDetail.toFixed(3) + "N"} 
+            {nodeLongitudeDetail < 0 ? nodeLongitudeDetail.toFixed(3) * -1 + "S " : nodeLongitudeDetail.toFixed(3) + "N "} 
             {nodeLatitudeDetail < 0 ? nodeLatitudeDetail.toFixed(3) * -1 + "W": nodeLatitudeDetail.toFixed(3) + "E"}
           </div>
         </div>
         
         <div class="stat">
           <div class="stat-title">Available Comsumption</div>
-          <div class="stat-value">{nodeToConsume}kWh</div>
+          <div class="stat-value">{nodeToConsume}Wh</div>
         </div>
 
         <div class="stat">
           <div class="stat-title">Pending Generation</div>
-          <div class="stat-value">{nodeToProduce}kWh</div>
+          <div class="stat-value">{nodeToProduce}Wh</div>
         </div>
 
-        <div>
-          <button class="btn btn-primary my-2" on:click={() => {
+        <div class="flex-col min-w-max">
+          <button class="btn btn-primary mx-2 w-48" on:click={() => {
               sessionStorage.setItem("node_id", selectedNodeID);
               //reroute to market 
               goto('../Main/BiddingMarket');
             }}>Transact with this node</button>
-        </div>
-
-        <div>
-          <button class="btn btn-error my-2" on:click={() => {
+          <button class="btn btn-error mx-2 w-48" on:click={() => {
               document.getElementById("removeNodeConfirmation").showModal();
             }}>Remove this node</button>
         </div>
       </div>
-    </div>
-  {/if}
-
-  {#each buyorders as buyorder}
-    <div class="card card-side min-w-1/3 bg-base-200 my-2">
-      <div class="card-body">
-        <h2 class="card-title">Buy order</h2>
-        <p>
-          Order ID: {buyorder.order_id} <br> 
-          Filled units: {buyorder.filled_units}<br>
-          Price: {buyorder.price}<br>
-          kW: {buyorder.sought_units}<br>
-        </p>
-        <div class="card-actions ">
-          
+    {/if}
+    
+    {#each buyorders as buyorder}
+      <div class="card card-side min-w-1/3 bg-base-200 my-2">
+        <div class="card-body">
+          <h2 class="card-title">Buy order</h2>
+          <p>
+            Filled units: {buyorder.filled_units.toFixed(1)}<br>
+            Max price: {buyorder.max_price}<br>
+            Min price: {buyorder.min_price}<br>
+            Wh: {buyorder.sought_units.toFixed(1)}<br>
+          </p>
+          <div class="card-actions ">
+            
+          </div>
         </div>
       </div>
-    </div>
-  {/each}
+    {/each}
 
-  {#each sellorders as sellorder}
-    <div class="card card-side min-w-1/3 bg-base-200 my-2">
-      <div class="card-body">
-        <h2 class="card-title">Sell order</h2>
-        <p>
-          Order ID: {sellorder.order_id} <br> 
-          Offered Units: {sellorder.offered_units}<br>
-          Claimed Units: {sellorder.claimed_units}<br>
-          Price: {sellorder.price}<br>
-        </p>
-        <div class="card-actions ">
-          
+    {#each sellorders as sellorder}
+      <div class="card card-side min-w-1/3 bg-base-200 my-2">
+        <div class="card-body">
+          <h2 class="card-title">Sell order</h2>
+          <p>
+            Offered Units: {sellorder.offered_units}<br>
+            Claimed Units: {sellorder.claimed_units}<br>
+            Price: {sellorder.price.toFixed(2)}<br>
+          </p>
+          <div class="card-actions">
+            
+          </div>
         </div>
       </div>
-    </div>
-  {/each}
+    {/each}
+  </div>
 
-<!-- confirm remove node modal -->
+  <!-- confirm remove node modal -->
 
   <dialog id="removeNodeConfirmation" class="modal">  
     <div class="modal-box">
@@ -635,7 +614,7 @@
     </form>
   </dialog>
 
-<!-- confirm change funds modals -->
+  <!-- confirm change funds modals -->
 
   <dialog id="addfundsconfirmation" class="modal">  
     <div class="modal-box">

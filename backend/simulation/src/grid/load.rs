@@ -2,6 +2,8 @@ use crate::grid::location::Location;
 use crate::grid::{CurrentWrapper, Harry, Resistance, VoltageWrapper};
 use rocket::serde::Serialize;
 
+use super::{OscilloscopeDetail, Voltage};
+
 #[derive(Serialize)]
 #[serde(crate = "rocket::serde")]
 pub enum Connection {
@@ -85,6 +87,48 @@ pub enum LoadType {
     Consumer(Consumer),
     TransmissionLine(TransmissionLine),
 }
+
+impl LoadType {
+    pub fn new_transmission_line(length: f32, latitude: f32, longitude: f32) -> LoadType {
+        return LoadType::TransmissionLine(TransmissionLine {
+            id: 0,
+            resistance: Resistance(1.0),
+            voltage: VoltageWrapper {
+                voltage: Voltage(0.0, 0.0, 0.0),
+                oscilloscope_detail: OscilloscopeDetail {
+                    frequency: 0.0,
+                    amplitude: 0.0,
+                    phase: 0.0,
+                },
+            },
+            length,
+            inductance_per_meter: 0.5,
+            location: Location {
+                latitude,
+                longitude,
+            },
+        });
+    }
+    pub fn new_consumer(latitude: f32, longitude: f32) -> LoadType {
+        return LoadType::Consumer(Consumer {
+            id: 0,
+            resistance: Resistance(1.0),
+            voltage: VoltageWrapper {
+                voltage: Voltage(0.0, 0.0, 0.0),
+                oscilloscope_detail: OscilloscopeDetail {
+                    frequency: 0.0,
+                    amplitude: 0.0,
+                    phase: 0.0,
+                },
+            },
+            location: Location {
+                latitude,
+                longitude,
+            },
+        });
+    }
+}
+
 #[derive(Serialize)]
 #[serde(crate = "rocket::serde")]
 pub struct Consumer {

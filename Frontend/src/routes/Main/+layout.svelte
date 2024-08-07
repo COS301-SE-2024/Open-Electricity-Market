@@ -28,7 +28,7 @@
 
   onMount(() => {
     const session = Cookies.get('session_id');
-    console.log("Session id is: ", session);
+    // console.log("Session id is: ", session);
     if(session){
       loggedIn = true; 
     }
@@ -50,7 +50,7 @@
         credentials: "include",
       });
       data = await response.json();
-      console.log("Data received from remove account endpoint: ", data);
+      // console.log("Data received from remove account endpoint: ", data);
 
     } catch (error) {
       console.log("There was an error calling remove account:", error);
@@ -89,7 +89,7 @@
     <div class="navbar-center hidden lg:flex">
       <ul class="menu menu-horizontal px-1">
         <li class="px-2"><a class="w-28 justify-center btn-ghost" href="/public/GridSimulation">Grid</a></li>
-        <li class="px-2"><a class="w-28 justify-center btn-ghost" href="/Main/BiddingMarket">Market</a></li>
+        <li class="px-2"><a class=" btn-ghost w-22" href="/Main/Dashboard">Dashboard</a></li>
       </ul>
     </div>
       
@@ -102,8 +102,6 @@
     <!-- svelte-ignore a11y-no-static-element-interactions -->
     <!-- svelte-ignore a11y-missing-attribute -->
     <li class="px-2"><a class="w-22 btn-ghost" on:click={showModal}>Help</a></li>
-
-    <li class = "px-2"><a class=" btn-ghost w-22" href="/Main/Dashboard">Dashboard</a></li>
   </ul>
       <div class="dropdown dropdown-end">
         <div tabindex="0" role="button" class="btn btn-ghost rounded-btn">Account</div>

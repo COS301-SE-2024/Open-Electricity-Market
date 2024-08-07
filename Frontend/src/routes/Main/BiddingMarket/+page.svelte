@@ -1,6 +1,7 @@
 <script>
 import Chart from "$lib/Components/Chart.svelte";
 import {onMount} from "svelte";
+import { goto } from '$app/navigation';
 
 let price = 0;
 let units = 0;
@@ -28,6 +29,8 @@ async function place_buy_order() {
   });
 
   console.log(await response.json())
+  // goto('../Main/Dashboard'); 
+  goto('../Main/Dashboard');
 
 }
 
@@ -50,6 +53,8 @@ async function place_sell_order() {
   });
 
   console.log(await response.json())
+  goto('../Main/Dashboard');
+
 
 }
 

@@ -31,10 +31,9 @@ const FRONTEND_URL: &str = "http://localhost:5173";
 // const TARGET_VOLTAGE: f64 = 240.0;
 // Endpoint for current_voltage
 
-const UNIT_PRICE_RATE: f64 = 0.0005;
-const IMPEDANCE_RATE: f64 = 0.00005;
-
-const SUPPLY_DEMAND_RATE: f64 = 0.0005;
+const UNIT_PRICE_RATE: f64 = 0.005;
+const IMPEDANCE_RATE: f64 = 0.05;
+const SUPPLY_DEMAND_RATE: f64 = 0.05;
 const TARGET_HISTORY_POINTS: i64 = 100;
 
 mod models;
@@ -162,7 +161,7 @@ fn buy_fee_calc(units: f64, price: f64) -> f64 {
         Err(_) => {}
     }
 
-    let mut impedance = 0f64;
+    let mut impedance = 1f64;
     match env::var("GRID_URL") {
         Ok(grid_url) => {
             let client = reqwest::blocking::Client::new();
@@ -177,9 +176,14 @@ fn buy_fee_calc(units: f64, price: f64) -> f64 {
         Err(_) => {}
     }
 
+    let mut demand_supply_diff = 1f64;
+    if supply < demand {
+        demand_supply_diff = demand - supply
+    }
+
     return units * price * UNIT_PRICE_RATE
-        + ((demand - supply) * SUPPLY_DEMAND_RATE)
-        + (impedance * IMPEDANCE_RATE);
+        + (f64::log10(demand_supply_diff) * SUPPLY_DEMAND_RATE)
+        + (f64::log10(impedance) * IMPEDANCE_RATE);
 }
 
 fn sell_fee_calc(units: f64, price: f64) -> f64 {
@@ -209,7 +213,7 @@ fn sell_fee_calc(units: f64, price: f64) -> f64 {
         Err(_) => {}
     }
 
-    let mut impedance = 0f64;
+    let mut impedance = 1f64;
     match env::var("GRID_URL") {
         Ok(grid_url) => {
             let client = reqwest::blocking::Client::new();
@@ -224,9 +228,14 @@ fn sell_fee_calc(units: f64, price: f64) -> f64 {
         Err(_) => {}
     }
 
+    let mut supply_demand_diff = 1f64;
+    if demand < supply {
+        supply_demand_diff = supply - demand
+    }
+
     return (units * price * UNIT_PRICE_RATE)
-        + ((supply - demand) * SUPPLY_DEMAND_RATE)
-        + (impedance * IMPEDANCE_RATE);
+        + (f64::log10(supply_demand_diff) * SUPPLY_DEMAND_RATE)
+        + (f64::log10(impedance) * IMPEDANCE_RATE);
 }
 
 #[derive(Serialize, Deserialize)]
@@ -729,12 +738,8 @@ async fn buy_order(buy_order_request: Json<BuyOrderRequest>, cookie_jar: &Cookie
                                     match sell_orders
                                         .filter(offered_units.gt(claimed_units))
                                         .filter(
-                                            schema::open_em::sell_orders::min_price
+                                            schema::open_em::sell_orders::max_price
                                                 .le(order.max_price),
-                                        )
-                                        .filter(
-                                            schema::open_em::sell_orders::min_price
-                                                .ge(order.min_price),
                                         )
                                         .filter(seller_id.ne(order.buyer_id))
                                         .filter(producer_id.ne(order.consumer_id))
@@ -758,7 +763,7 @@ async fn buy_order(buy_order_request: Json<BuyOrderRequest>, cookie_jar: &Cookie
                                                     transaction_units = s_order.offered_units
                                                         - s_order.claimed_units;
                                                 }
-                                                let transaction_price = s_order.min_price; // Will be based on the direction the market needs to move for grid stability
+                                                let transaction_price = s_order.max_price; // Will be based on the direction the market needs to move for grid stability
                                                 let fee = buy_fee_calc(
                                                     transaction_units,
                                                     transaction_price,
@@ -875,10 +880,6 @@ async fn sell_order(
                                     message = "Sell order created successfully".to_string();
                                     match buy_orders
                                         .filter(sought_units.gt(filled_units))
-                                        .filter(
-                                            schema::open_em::buy_orders::min_price
-                                                .le(order.max_price),
-                                        )
                                         .filter(
                                             schema::open_em::buy_orders::min_price
                                                 .ge(order.min_price),

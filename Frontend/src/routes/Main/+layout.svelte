@@ -60,8 +60,11 @@
       Cookies.remove("session_id");
       window.location.href = '/login';
     }
+  }
 
-
+  function logout() {
+    Cookies.remove("session_id");
+    window.location.href = '/login';
   }
   </script>
   
@@ -107,6 +110,7 @@
         <div tabindex="0" role="button" class="btn btn-ghost rounded-btn">Account</div>
         <ul class="menu dropdown-content bg-base-100 rounded-box z-[1] mt-4 w-52 p-2 shadow">
           <button class="btn" onclick="removeaccount_modal.showModal()">Remove Account</button>
+          <button class="btn mt-2" on:click={logout}>Log out</button>
         </ul>
       </div>
 

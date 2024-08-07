@@ -106,11 +106,6 @@
       errormessage = "Passwords must match"
     }
   }
-  
-  function back(){
-    email = firstname = surname = password = password2 = '';
-    goto("/login");
-  }
 </script>
 <main>
     <div class="hero min-h-screen" style="background-image: url(https://images.unsplash.com/photo-1510595256055-e44b27efe497?q=80&w=1700&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D);">
@@ -170,7 +165,7 @@
               </div>
 
               {#if errormessage != ''}
-                <p class="text-base font-semibold text-sm text-error rounded mt-2"> { errormessage } </p>
+                <p class="text-base font-semibold text-error rounded mt-2"> { errormessage } </p>
               {/if}
               
               <div class="form-control mt-4">

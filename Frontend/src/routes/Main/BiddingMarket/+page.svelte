@@ -11,6 +11,8 @@ let selected_node_id = sessionStorage.getItem("node_id");
 let data = {};
 
 async function place_buy_order() {
+  // TODO: add a check that fails if units <= 0
+
   let data = {
     "node_id": selected_node_id,
     "min_price": selectedPrice > 0.5 ? selectedPrice - 0.5 : 0.01,
@@ -32,6 +34,8 @@ async function place_buy_order() {
 }
 
 async function place_sell_order() {
+  // TODO: add a check that fails if units <= 0
+
   let data = {
     "node_id": selected_node_id,
     "min_price": selectedPrice > 0.5 ? selectedPrice - 0.5 : 0.01,
@@ -54,7 +58,7 @@ async function place_sell_order() {
 
 onMount(async () => {
   fetchData();
-  let interval = setInterval(fetchData, 10000);
+  let interval = setInterval(fetchData, 2000);
 
   selectedPrice = price;
 

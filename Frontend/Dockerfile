@@ -1,14 +1,13 @@
-ARG NODE_VERSION=22.6.0
+FROM node
 
-FROM node:${NODE_VERSION} AS amplify-website
-ENV NODE_ENV production
-
-WORKDIR /usr/src/app
-
-COPY ./package.json .
-
-RUN npm i
+WORKDIR /usr/site/app
 
 COPY . .
 
-CMD node build/index.js
+RUN npm i
+
+RUN npm update
+
+RUN npm run build
+
+CMD ["node","build/index.js"]

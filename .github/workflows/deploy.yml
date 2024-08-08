@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - name: Make db.env 
-        uses: SpicyPizza/create-envfile@v2.0
+        uses: SpicyPizza/create-envfile@v2.0.3            
         with:
           envkey_POSTGRES_PASSWORD : ${{ secrets.POSTGRES_PASSWORD }}
           envkey_OPEN_EM_PASS : ${{ secrets.OPEN_EM_PASS }}
@@ -26,14 +26,14 @@ jobs:
           file_name: db.env 
 
       - name: Make agent .env 
-        uses: SpicyPizza/create-envfile@v2.0
+        uses: SpicyPizza/create-envfile@v2.0.3
         with:
           envkey_PASSWORD : ${{ secrets.AGENT_PASSWORD }}
           directory : ../backend/agent 
           file_name: .env
 
       - name: Make market-platfrom .env 
-        uses: SpicyPizza/create-envfile@v2.0
+        uses: SpicyPizza/create-envfile@v2.0.3
         with:
           envkey_DATABASE_URL: ${{ secrets.MARKET_DATABASE_URL }}
           envkey_GRID_URL: ${{ vars.MARKET_GRID_URL }}

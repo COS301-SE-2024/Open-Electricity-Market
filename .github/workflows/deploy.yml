@@ -1,0 +1,21 @@
+name: Deploy
+
+permissions: { }
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: read
+      statuses: write # Updates commit statuses
+
+    steps:
+      rust-test:
+        uses: ./.github/workflows/rust.yml

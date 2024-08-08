@@ -9,7 +9,7 @@ services:
     environment:
       NODE_ENV: production
     ports:
-      - "5173:5173"
+      - "3000:3000"
     networks:
       - frontend
     volumes:
@@ -26,7 +26,6 @@ services:
       - caddy_config:/config
     networks:
       - frontend
-
 volumes:
   caddy_data:
     external: true

@@ -27,8 +27,8 @@ use std::ops::Add;
 use uuid::Uuid;
 
 const TRANSACTION_LIFETIME: i64 = 24; // Lifetime in hours
-// const TARGET_VOLTAGE: f64 = 240.0;
-// Endpoint for current_voltage
+                                      // const TARGET_VOLTAGE: f64 = 240.0;
+                                      // Endpoint for current_voltage
 
 const UNIT_PRICE_RATE: f64 = 0.005;
 const IMPEDANCE_RATE: f64 = 0.05;

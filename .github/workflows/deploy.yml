@@ -15,15 +15,23 @@ jobs:
       packages: read
       statuses: write # Updates commit statuses
 
-  create-envfiles:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Make db.env 
+        uses: SpicyPizza/create-envfile@v2.0
+        with:
+          envkey_POSTGRES_PASSWORD : ${{ secrets.POSTGRES_PASSWORD }}
+          envkey_OPEN_EM_PASS : ${{ secrets.OPEN_EM_PASS }}
+          directory : ../backend
+          file_name: db.env 
+
       - name: Make agent .env 
         uses: SpicyPizza/create-envfile@v2.0
         with:
           envkey_PASSWORD : ${{ secrets.AGENT_PASSWORD }}
-          directory : backend/agent 
+          directory : ../backend/agent 
           file_name: .env
 
       - name: Make market-platfrom .env 
@@ -32,7 +40,7 @@ jobs:
           envkey_DATABASE_URL: ${{ secrets.MARKET_DATABASE_URL }}
           envkey_GRID_URL: ${{ vars.MARKET_GRID_URL }}
           envkey_FRONTEND_URL: ${{ vars.MARKET_FRONTEND_URL}}
-          directory: backend/market-platform 
+          directory: ../backend/market-platform 
           file_name: .env
 
 

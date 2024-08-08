@@ -1,8 +1,12 @@
+networks:
+  backend:
 services:
   simulation:
     build: ./simulation/
     ports:
       - "8000:8000"
+    networks:
+      - backend
   db:
     image: postgres
     volumes:
@@ -16,31 +20,45 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - backend
   market-platform:
     build: ./market-platform/
     depends_on:
       db:
        condition: service_healthy
-    links:
-      - db
     environment:
        DATABASEHOST: db
        GRIDDOMAIN: simulation
     ports:
       - "8001:8001"
+    networks:
+      - backend
   agent:
     build: ./agent/
     depends_on:
       - db
       - simulation
       - market-platform
-    links:
-      - db
-      - simulation
-      - market-platform
     environment:
       DATABASEHOST: db
       GURL: simulation
-      MURL: market-platform 
+      MURL: market-platform
+    networks:
+      - backend
+  caddy:
+    image: caddy:2.8.4
+    ports:
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - backend
 volumes:
   pgdata:
+  caddy_data:
+    external: true
+  caddy_config:

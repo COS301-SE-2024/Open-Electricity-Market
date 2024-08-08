@@ -8,7 +8,13 @@ on:
 
 jobs:
   rust-test:
+    
     uses: ./.github/workflows/rust.yml
+    permissions:
+      contents: read
+      packages: read
+      statuses: write # Updates commit statuses
+
   create-envfiles:
     runs-on: ubuntu-latest
 

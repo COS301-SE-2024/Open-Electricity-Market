@@ -7,6 +7,7 @@
 <script>
   import Map from "$lib/Components/MapLanding.svelte";
   import { fade } from 'svelte/transition'
+  import market_image from "$lib/assets/pexels-energepic-com-27411-159888.jpg"
 
   let scrollY
   let element
@@ -71,7 +72,7 @@
     <div class="sm:basis-5/6 flex-row mx-4" >
       <div class="card sm:card-side glass min-h-72 shadow-xl mt-4" transition:fade>
         <figure class = "max-w-96">
-          <img src="../src/images/pexels-energepic-com-27411-159888.jpg" alt="price graph"/>
+          <img src={market_image} alt="price graph"/>
         </figure>
         <div class="card-body text-white">
           <h2 class="card-title text-4xl">Free market</h2>

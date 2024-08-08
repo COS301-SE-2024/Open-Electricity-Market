@@ -1,7 +1,5 @@
 name: Deploy
 
-permissions: { }
-
 on:
   push:
     branches: ["feature/deploy"]
@@ -19,7 +17,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
       - name: Make db.env 
         uses: SpicyPizza/create-envfile@v2.0
         with:

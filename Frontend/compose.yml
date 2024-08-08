@@ -1,0 +1,33 @@
+
+networks:
+  frontend:
+
+services:
+  amplify-website:
+    build: 
+      context: .
+    environment:
+      NODE_ENV: production
+    ports:
+      - "5173:5173"
+    networks:
+      - frontend
+    volumes:
+    - /usr/src/app/node_modules
+
+  caddy:
+    image: caddy:2.8.4
+    ports: 
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - frontend
+
+volumes:
+  caddy_data:
+    external: true
+  caddy_config:

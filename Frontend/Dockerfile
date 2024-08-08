@@ -1,22 +1,14 @@
-FROM node:18.18.0-alpine AS build
-LABEL authors="Christiaan George Strydom"
-WORKDIR /app/Frontend
-COPY package*.json ./
+ARG NODE_VERSION=22.6.0
 
-RUN npm install
-#RUN rm -rf build
+FROM node:${NODE_VERSION} AS amplify-website
+ENV NODE_ENV production
+
+WORKDIR /usr/src/app
+
+COPY ./package.json .
+
+RUN npm i
+
 COPY . .
 
-RUN npm run build
-#RUN npm prune --prod
-
-#FROM node:18.18.0-alpine AS run
-#WORKDIR /app/Frontend
-#COPY --from=build /app/build ./build
-#COPY --from=build /app/Frontend/package.json .
-EXPOSE 8080
-ENV NODE_ENV=production
-
-#ENTRYPOINT [ "node","build" ]
-CMD ["npm","run","test"]
-#CMD ["node","test"]
+CMD node build/index.js

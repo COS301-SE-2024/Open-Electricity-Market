@@ -8,6 +8,8 @@
   import Map from "$lib/Components/MapLanding.svelte";
   import { fade } from 'svelte/transition'
   import market_image from "$lib/assets/pexels-energepic-com-27411-159888.jpg"
+  import strategy_image from "$lib/assets/pexels-pixabay-163064.jpg"
+  import breaker_image from "$lib/assets/troy-bridges-maXnRLszYY0-unsplash.jpg"
 
   let scrollY
   let element
@@ -87,7 +89,7 @@
 
       <div class="card sm:card-side glass shadow-xl mt-4 min-h-72">
         <figure class = "max-w-96">
-          <img src="../src/images/pexels-pixabay-163064.jpg" alt="complex network" />
+          <img src={strategy_image} alt="complex network" />
         </figure>
         <div class="card-body text-white">
           <h2 class="card-title text-4xl">User asset management</h2>
@@ -100,7 +102,7 @@
 
       <div class="card sm:card-side glass shadow-xl mt-4 min-h-72">
         <figure class="max-w-96">
-          <img class="" src="../src/images/troy-bridges-maXnRLszYY0-unsplash.jpg" alt="img" />
+          <img src={breaker_image} alt="img" />
         </figure>
         <div class="card-body text-white">
           <h2 class="card-title text-4xl">Controlled Market</h2>

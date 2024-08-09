@@ -42,25 +42,24 @@ jobs:
           directory: backend/market-platform 
           file_name: .env
 
-#      - name: Install sshpass
-#        run: sudo apt install sshpass
-#
-#      - name: Copy backend to droplet
-#        run: sshpass -v -p ${{ secrets.DROPLET_PASSWORD }} scp -o StrictHostKeyChecking=no -r backend root@${{ vars.DROPLET_IP }}:~
-#
-#      - name: Deploy to droplet
-#        uses: appleboy/ssh-action@master
-#        with:
-#          host: ${{ vars.DROPLET_IP }}
-#          username: root
-#          password: ${{ secrets.DROPLET_PASSWORD }}
-#          script: |
-#            cd backend
-#            docker-compose down
-#            docker volume rm backend_pgdata
-#            docker volume rm backend_caddy_config
-#            docker image rm backend-simulation
-#            docker image rm backend-market-platform
-#            docker image rm backend-agent
-#            docker compose build --no-cache
-#            docker-compose up -d
+      - name: Install sshpass
+        run: sudo apt install sshpass
+
+      - name: Copy backend to droplet
+        run: sshpass -v -p ${{ secrets.DROPLET_PASSWORD }} scp -o StrictHostKeyChecking=no -r backend root@${{ vars.DROPLET_IP }}:~
+
+      - name: Deploy to droplet
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ vars.DROPLET_IP }}
+          username: root
+          password: ${{ secrets.DROPLET_PASSWORD }}
+          script: |
+            cd backend
+            docker-compose down
+            docker volume rm backend_pgdata
+            docker volume rm backend_caddy_config
+            docker image rm backend-simulation
+            docker image rm backend-market-platform
+            docker image rm backend-agent
+            docker-compose up -d

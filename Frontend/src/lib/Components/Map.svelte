@@ -108,7 +108,7 @@
           const consumer = load.load_type.Consumer;
           const marker = L.marker([consumer.location.longitude, consumer.location.latitude]).addTo(map);
           
-          marker.bindPopup("Consumer "+ (consumer.id+1+"<br>"+consumer.location.longitude + " " + consumer.location.latitude));
+          marker.bindPopup("Consumer "+ (load.id+1+"<br>"+consumer.location.longitude + " " + consumer.location.latitude));
           // marker.on('click', () => showMarkerPopup(marker, consumer));
           //marker.on('click', ()=> updateChart(consumer));
           marker.on('click', () => {dispatch('markerClick', consumer)});
@@ -116,11 +116,11 @@
           }
         });
 
-        data.generators.forEach(generator => {
-          const marker = L.marker([generator.location.longitude, generator.location.latitude]).addTo(map);
-          // marker.on('click', () => showMarkerPopup(marker, generator));
-          markers.push(marker);
-        });
+        // data.generators.forEach(generator => {
+        //   const marker = L.marker([generator.location.longitude, generator.location.latitude]).addTo(map);
+        //   // marker.on('click', () => showMarkerPopup(marker, generator));
+        //   markers.push(marker);
+        // });
 
     }
 

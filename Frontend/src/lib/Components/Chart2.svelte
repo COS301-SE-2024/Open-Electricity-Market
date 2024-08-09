@@ -257,7 +257,7 @@
       // chart.options.scales.x.max += 1;
       
       chart.update();
-      resizeChart();
+      // resizeChart();
 
       //chart.data.datasets[0].data = [0,0,0,0]; 
 

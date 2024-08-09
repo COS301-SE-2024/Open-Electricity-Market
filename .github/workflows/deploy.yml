@@ -23,7 +23,7 @@ jobs:
         run: sudo apt install sshpass
 
       - name: Copy Frontend to droplet
-        run: bash sshpass -v -p ${{ secrets.FRONTEND_DROPLET_PASSWORD }} scp -o StrictHostKeyChecking=no -r Frontend root@${{ vars.FRONTEND_DROPLET_IP }}:~
+        run: sshpass -v -p ${{ secrets.FRONTEND_DROPLET_PASSWORD }} scp -o StrictHostKeyChecking=no -r Frontend root@${{ vars.FRONTEND_DROPLET_IP }}:~
 
       - name: Deploy to droplet
         uses: appleboy/ssh-action@master

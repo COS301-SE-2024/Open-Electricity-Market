@@ -30,7 +30,7 @@ jobs:
         with:
           host: ${{ vars.FRONTEND_DROPLET_IP }}
           username: root
-          password: ${{ secrets.FRONTEND_DROPLET_IP }}
+          password: ${{ secrets.FRONTEND_DROPLET_PASSWORD }}
           script: |
             cd Frontend 
             docker compose down 

@@ -5,6 +5,8 @@
   import Map from '$lib/Components/Map.svelte';
   import Chart from "$lib/Components/Chart2.svelte";
   import GridStats from "../../../lib/Components/GridStats.svelte";
+  import { API_URL } from '$lib/config.js';
+
  
 
   let data = {};
@@ -20,7 +22,8 @@
   }
 
   onMount(async () => {
-    await fetchData(); 
+    await fetchData();
+    await fetchstart();  
     //interval = setInterval(fetchData, 10000); 
     
    

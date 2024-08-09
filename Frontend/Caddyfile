@@ -1,0 +1,3 @@
+site.localhost {
+    reverse_proxy amplify-website:3000
+}

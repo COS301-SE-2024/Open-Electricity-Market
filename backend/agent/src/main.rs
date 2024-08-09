@@ -9,7 +9,7 @@ use rand::Rng;
 use reqwest::header;
 use serde::{Deserialize, Serialize};
 
-const AGENT_SPEED: u64 = 5;
+const AGENT_SPEED: u64 = 5*60;
 
 #[derive(Serialize, Clone, Copy)]
 struct Location {

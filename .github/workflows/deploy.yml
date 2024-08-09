@@ -57,8 +57,8 @@ jobs:
           script: |
             cd backend
             docker compose down 
-            docker volume rm backend_pgdata
-            docker volume rm backend_caddy_config
+#            docker volume rm backend_pgdata
+#            docker volume rm backend_caddy_config
             docker image rm backend-simulation
             docker image rm backend-market-platform
             docker image rm backend-agent

@@ -35,7 +35,7 @@
       console.log(json);
       if(json.message == "User logged in")
       {
-        Cookies.set('session_id', json.data.session_id, {path: '/', domain : `${API_URL_MARKET}` });
+        Cookies.set('session_id', json.data.session_id, {path: '/', domain : `${API_URL_MARKET}`, sameSite : 'None'});
         goto("/Main/Dashboard");
       }
       else{

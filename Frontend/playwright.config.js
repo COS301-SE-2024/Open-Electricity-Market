@@ -1,12 +1,18 @@
 // @ts-check
 /*const { defineConfig, devices } = require('@playwright/test');*/
 import { defineConfig,devices } from '@playwright/test';
-
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+//console.log(__dirname);
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
  */
-// require('dotenv').config({ path: path.resolve(__dirname, '.env') });
+ //require('dotenv').config({ path: path.resolve(__dirname, '.env') });
+ dotenv.config({path:path.resolve(__dirname,'.env')});
 
 /**
  * @see https://playwright.dev/docs/test-configuration
@@ -29,7 +35,7 @@ export default defineConfig({
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
     // baseURL: 'http://127.0.0.1:3000',
-
+    //baseURL: process.env.STAGING === '1' ? 'http://staging.example.test/' : 'http://example.test/',
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
   },

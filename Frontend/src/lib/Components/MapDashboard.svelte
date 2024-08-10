@@ -4,6 +4,8 @@
     import { onMount, onDestroy, createEventDispatcher } from 'svelte';
     import { browser } from '$app/environment';
     import {tick} from 'svelte';
+    import iconmarkerpng from '$lib/assets/marker-icon.png';
+  import { icon } from 'leaflet';
     
     let mapContainer;
     let map;
@@ -26,6 +28,15 @@
     
 
     leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);
+
+    const markerIcon = leaflet.icon({
+        iconUrl: iconmarkerpng,
+        iconSize: [25, 41], 
+        iconAnchor: [12, 41], 
+        popupAnchor: [1, -34], 
+        shadowSize: [41, 41], 
+        shadowAnchor: [12, 41]
+      });
     
 
         map.on('click', function (e) {
@@ -33,7 +44,7 @@
         if (marker) {
         map.removeLayer(marker);
         }
-        marker = L.marker([lat, lng]).addTo(map);
+        marker = L.marker([lat, lng], {icon:markerIcon}).addTo(map);
          if (onMapClick) {
         onMapClick(lng, lat);
       }

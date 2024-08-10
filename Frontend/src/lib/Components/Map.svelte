@@ -6,6 +6,8 @@
     import Chart from './Chart2.svelte';
     import {tick} from 'svelte';
     import { API_URL_GRID, API_URL_MARKET } from '$lib/config.js';
+    import iconmarkerpng from '$lib/assets/marker-icon.png';
+    
 
     
     let mapContainer;
@@ -27,7 +29,18 @@
     
 
     leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);
+
+    
        }
+
+       const markerIcon = leaflet.icon({
+        iconUrl: iconmarkerpng,
+        iconSize: [25, 41], 
+        iconAnchor: [12, 41], 
+        popupAnchor: [1, -34], 
+        shadowSize: [41, 41], 
+        shadowAnchor: [12, 41]
+      });
        await fetchData();
       //  resizeMap(); 
        interval = setInterval(fetchData, 10000);
@@ -108,7 +121,7 @@
         data.loads.forEach(load => {
         if (load.load_type.Consumer) {
           const consumer = load.load_type.Consumer;
-          const marker = L.marker([consumer.location.longitude, consumer.location.latitude]).addTo(map);
+          const marker = L.marker([consumer.location.longitude, consumer.location.latitude], {icon:markerIcon}).addTo(map);
           
           marker.bindPopup("Consumer "+ (load.id+1+"<br>"+consumer.location.longitude + " " + consumer.location.latitude));
           // marker.on('click', () => showMarkerPopup(marker, consumer));

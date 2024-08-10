@@ -1,0 +1,11 @@
+market.site.localhost {
+    reverse_proxy market-platform:8001
+}
+
+grid.site.localhost {
+    reverse_proxy simulation:8000
+}
+
+site.localhost {
+    reverse_proxy site:3000
+}

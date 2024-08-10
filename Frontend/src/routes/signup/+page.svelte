@@ -2,7 +2,7 @@
   import logo from '$lib/assets/Logo.png';
   import {goto} from "$app/navigation";
   import Cookies from 'js-cookie';
-  import { API_URL_GRID, API_URL_MARKET } from '$lib/config.js';
+  import { API_URL_GRID, API_URL_MARKET, COOKIE_DOMAIN } from '$lib/config.js';
 
   let email = '';
   let firstname = '';
@@ -97,7 +97,7 @@
       const json = await res.json();
       if(json.status == "ok")
       {
-        Cookies.set('session_id', json.data.session_id, {path: '/',domain : "amplify.org.za", sameSite : 'None', secure:true });
+        Cookies.set('session_id', json.data.session_id, {path: '/',domain : COOKIE_DOMAIN, sameSite : 'None', secure:true });
         goto("/Main/Dashboard");
       }
       else

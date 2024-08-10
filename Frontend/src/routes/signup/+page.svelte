@@ -2,6 +2,7 @@
   import logo from '$lib/assets/Logo.png';
   import {goto} from "$app/navigation";
   import Cookies from 'js-cookie';
+  import { API_URL_GRID, API_URL_MARKET } from '$lib/config.js';
 
   let email = '';
   let firstname = '';
@@ -11,6 +12,7 @@
   let errormessage = "";
   let validEmail = false;
   let validPassword = false;
+
 
 
 
@@ -78,7 +80,7 @@
 
     if(password == password2)
     {
-      const res = await fetch("http://localhost:8001/register", {
+      const res = await fetch(`${API_URL_MARKET}/register`, {
         method: "POST", 
         headers: {
           "Content-Type": "application/json",

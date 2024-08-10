@@ -1,6 +1,8 @@
 <script>
 
   import { onMount, onDestroy } from 'svelte';
+  import { API_URL_GRID, API_URL_MARKET } from '$lib/config.js';
+
 
   onMount(async () => {
 
@@ -23,7 +25,7 @@
 
    async function fetchData() {
     try {
-      const response = await fetch("http://localhost:8000/stats", {
+      const response = await fetch(`${API_URL_GRID}/stats`, {
         method: "POST", 
         headers: {
           'Content-Type': 'application/json' 

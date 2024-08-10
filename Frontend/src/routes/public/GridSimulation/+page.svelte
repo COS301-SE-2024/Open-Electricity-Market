@@ -5,7 +5,8 @@
   import Map from '$lib/Components/Map.svelte';
   import Chart from "$lib/Components/Chart2.svelte";
   import GridStats from "../../../lib/Components/GridStats.svelte";
-  import { API_URL } from '$lib/config.js';
+  import { API_URL_GRID, API_URL_MARKET } from '$lib/config.js';
+
 
  
 
@@ -35,7 +36,7 @@
      async function fetchstart() {
 
       try {
-        const response = await fetch("http://localhost:8000/start", {
+        const response = await fetch(`${API_URL_GRID}/start`, {
       method: "POST", 
       headers: {
         'Content-Type': 'application/json' 
@@ -66,7 +67,7 @@
 
   async function fetchData() {
     try {
-      const response = await fetch("http://localhost:8000/info", {
+      const response = await fetch(`${API_URL_GRID}/info`, {
         method: "POST", 
         headers: {
           'Content-Type': 'application/json' 

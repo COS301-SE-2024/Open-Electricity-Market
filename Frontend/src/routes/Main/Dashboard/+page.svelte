@@ -4,6 +4,8 @@
   import Cookies from 'js-cookie';
   import {goto} from "$app/navigation";
   import Map from '$lib/Components/MapDashboard.svelte';
+  import { API_URL_GRID, API_URL_MARKET } from '$lib/config.js';
+
   
 
   let data = {};
@@ -51,7 +53,7 @@
 
   async function fetchStart() {
     try {
-      const response = await fetch("http://localhost:8000/start", {
+      const response = await fetch(`${API_URL_GRID}/start`, {
       method: "POST", 
       headers: {
         'Content-Type': 'application/json' 
@@ -64,7 +66,7 @@
 
   async function fetchNodes() {
     try {
-      const response = await fetch("http://localhost:8001/get_nodes", {
+      const response = await fetch(`${API_URL_MARKET}/get_nodes`, {
         method: "POST", 
         headers: {
           'Content-Type': 'application/json',
@@ -88,7 +90,7 @@
   };
 
   async function fetchNodeDetails(node_id_in) {
-    const response = await fetch("http://localhost:8001/node_details", {
+    const response = await fetch(`${API_URL_MARKET}/node_details`, {
       method: "POST", 
       headers: {
         'Content-Type': 'application/json', 
@@ -127,7 +129,7 @@
     }
 
     try {
-      const response = await fetch("http://localhost:8001/add_node", {
+      const response = await fetch(`${API_URL_MARKET}/add_node`, {
         method: "POST", 
         headers: {
           'Content-Type': 'application/json',
@@ -161,7 +163,7 @@
   async function removeNode(nodeID) {
     // console.log("removing node: " + nodeID);
     document.getElementById("removeNodeConfirmation").close();
-    const response = await fetch("http://localhost:8001/remove_node", {
+    const response = await fetch(`${API_URL_MARKET}/remove_node`, {
       method: "POST",
       headers: {
         'Content-Type': 'application/json',
@@ -194,7 +196,7 @@
 
     console.log("Add funds function was called " + amount);
     try {
-      const response = await fetch("http://localhost:8001/add_funds", {
+      const response = await fetch(`${API_URL_MARKET}/add_funds`, {
         method: "POST", 
         headers: {
           'Content-Type': 'application/json' 
@@ -232,7 +234,7 @@
     }
 
     try {
-      const response = await fetch("http://localhost:8001/remove_funds", {
+      const response = await fetch(`${API_URL_MARKET}/remove_funds`, {
         method: "POST", 
         headers: {
           'Content-Type': 'application/json' 
@@ -266,7 +268,7 @@
 
     
     try {
-      const response = await fetch("http://localhost:8001/user_details", {
+      const response = await fetch(`${API_URL_MARKET}/user_details`, {
         method: "POST", 
         headers: {
           'Content-Type': 'application/json' 
@@ -302,7 +304,7 @@
   async function listOpenBuys(){
 
      try {
-      const response = await fetch("http://localhost:8001/list_open_buys", {
+      const response = await fetch(`${API_URL_MARKET}/list_open_buys`, {
         method: "POST", 
         headers: {
           'Content-Type': 'application/json' 
@@ -330,7 +332,7 @@
   async function listOpenSells(){
 
     try {
-      const response = await fetch("http://localhost:8001/list_open_sells", {
+      const response = await fetch(`${API_URL_MARKET}/list_open_sells`, {
         method: "POST", 
         headers: {
           'Content-Type': 'application/json' 

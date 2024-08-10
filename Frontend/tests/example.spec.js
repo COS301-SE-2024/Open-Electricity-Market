@@ -133,4 +133,23 @@ test.describe("signup page error testing",() => {
     //Expects an error message to appear.
     await expect(page.getByText("Invalid email or password")).toBeVisible();
   });
+  test('Email no suffix', async ({page}) => {
+    //Wait for page to finish loading
+    await page.waitForLoadState('networkidle');
+
+    //type in an email without a suffix after @ 
+    await page.getByPlaceholder('Email').fill(''+process.env.EMAILNOSUF);
+
+    //Click on name field so to get page to check email Input
+    await page.getByPlaceholder('First name').click();
+
+    //Expects an error message to appear saying the email address is not valid.
+    await expect(page.getByText("Please enter a valid email address.")).toBeVisible();
+
+    // Click the "Create account" button.
+    await page.getByRole('button', { name: 'Create account' }).click();
+
+    //Expects an error message to appear.
+    await expect(page.getByText("Invalid email or password")).toBeVisible();
+  });
 });

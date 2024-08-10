@@ -4,6 +4,8 @@
   import Cookies from 'js-cookie';
   import {goto} from "$app/navigation";
   import Map from '$lib/Components/MapDashboard.svelte';
+  import { API_URL_GRID, API_URL_MARKET } from '$lib/config.js';
+
   
 
   let data = {};
@@ -51,7 +53,7 @@
 
   async function fetchStart() {
     try {
-      const response = await fetch("http://localhost:8000/start", {
+      const response = await fetch(`${API_URL_GRID}/start`, {
       method: "POST", 
       headers: {
         'Content-Type': 'application/json' 
@@ -64,7 +66,7 @@
 
   async function fetchNodes() {
     try {
-      const response = await fetch("http://localhost:8001/get_nodes", {
+      const response = await fetch(`${API_URL_MARKET}/get_nodes`, {
         method: "POST", 
         headers: {
           'Content-Type': 'application/json',
@@ -88,7 +90,7 @@
   };
 
   async function fetchNodeDetails(node_id_in) {
-    const response = await fetch("http://localhost:8001/node_details", {
+    const response = await fetch(`${API_URL_MARKET}/node_details`, {
       method: "POST", 
       headers: {
         'Content-Type': 'application/json', 
@@ -115,7 +117,6 @@
 
 
   function createModal(){
-    //*************************** change this to mapModal when implemented*/
     nodeName = nodeLatitude = nodeLongitude = '';
     document.getElementById("mapModal").showModal();
   }
@@ -128,12 +129,11 @@
     }
 
     try {
-      const response = await fetch("http://localhost:8001/add_node", {
+      const response = await fetch(`${API_URL_MARKET}/add_node`, {
         method: "POST", 
         headers: {
           'Content-Type': 'application/json',
-          // might also complain here, have Content-Type be your only header 
-          // 'Accept': 'application/json',
+          'Accept': 'application/json',
         },
         credentials: "include", 
         body: JSON.stringify({
@@ -163,7 +163,7 @@
   async function removeNode(nodeID) {
     // console.log("removing node: " + nodeID);
     document.getElementById("removeNodeConfirmation").close();
-    const response = await fetch("http://localhost:8001/remove_node", {
+    const response = await fetch(`${API_URL_MARKET}/remove_node`, {
       method: "POST",
       headers: {
         'Content-Type': 'application/json',
@@ -196,7 +196,7 @@
 
     console.log("Add funds function was called " + amount);
     try {
-      const response = await fetch("http://localhost:8001/add_funds", {
+      const response = await fetch(`${API_URL_MARKET}/add_funds`, {
         method: "POST", 
         headers: {
           'Content-Type': 'application/json' 
@@ -234,7 +234,7 @@
     }
 
     try {
-      const response = await fetch("http://localhost:8001/remove_funds", {
+      const response = await fetch(`${API_URL_MARKET}/remove_funds`, {
         method: "POST", 
         headers: {
           'Content-Type': 'application/json' 
@@ -268,7 +268,7 @@
 
     
     try {
-      const response = await fetch("http://localhost:8001/user_details", {
+      const response = await fetch(`${API_URL_MARKET}/user_details`, {
         method: "POST", 
         headers: {
           'Content-Type': 'application/json' 
@@ -288,6 +288,10 @@
       email = data.data.email; 
       firstname = data.data.first_name; 
       lastname = data.data.last_name;
+    } else {
+      // this is intended to reroute the user to the login page if they send an invalid session id
+      sessionStorage.clear();
+      goto("/login");
     }
   }
 
@@ -300,7 +304,7 @@
   async function listOpenBuys(){
 
      try {
-      const response = await fetch("http://localhost:8001/list_open_buys", {
+      const response = await fetch(`${API_URL_MARKET}/list_open_buys`, {
         method: "POST", 
         headers: {
           'Content-Type': 'application/json' 
@@ -328,7 +332,7 @@
   async function listOpenSells(){
 
     try {
-      const response = await fetch("http://localhost:8001/list_open_sells", {
+      const response = await fetch(`${API_URL_MARKET}/list_open_sells`, {
         method: "POST", 
         headers: {
           'Content-Type': 'application/json' 
@@ -350,9 +354,6 @@
       // claimedunits = data.data.claimed_units; 
       sellorders = data.data; 
     }
-
-
-
   }
 
   function handleMapClick(lat, lng){
@@ -361,16 +362,26 @@
     console.log("Marker position updated: " + lat + " " + lng);
   }
 
+  function formatCurrency(value) {
+    value *= 100;
+    value = Math.floor(value);
+    value /= 100;
+
+    value = Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'ZAR'
+    }).format(value);
+
+    return value.slice(2, value.length);
+  }
 
 </script>
 
-<main class="container mx-auto w-full flex justify-center">
+<main class="container mx-auto w-full sm:flex justify-center">
 
-  <div class="w-1/6 mx-20">
+  <div class="min-w-1/6">
     
-    <!-- change funds buttons and modals -->
-    <button class="btn btn-success" onclick="add_modal.showModal()">Add funds</button>
-    <button class="btn btn-error" onclick="remove_modal.showModal()">Withdraw funds</button>
+    <!-- change funds modals -->
 
     <dialog id = "add_modal" class="modal">
       <div class="modal-box">
@@ -409,26 +420,16 @@
     <div class="stats stats-vertical"> 
       <div class="stat">
         <div class="stat-title">Available Credit</div>
-        <div class="stat-value">R{totalamount}</div>
+        <div class="stat-value">{formatCurrency(totalamount)}</div>
       </div>
-    
-      <div class="stat">
-        <div class="stat-title">Pending Transactions</div>
-        <div class="stat-value">5</div>
-      </div>
-      
-      <div class="stat">
-        <div class="stat-title">Total Comsumption</div>
-        <div class="stat-value">1,024W</div>
-      </div>
-    
-      <div class="stat">
-        <div class="stat-title">Total Generation</div>
-        <div class="stat-value">5W</div>
+
+      <div class="flex-col min-w-max">
+        <button class="btn btn-success mx-2 w-48" onclick="add_modal.showModal()">Add funds</button>
+        <button class="btn btn-error mx-2 w-48" onclick="remove_modal.showModal()">Withdraw funds</button>
       </div>
       
-      <h1 class="text-lg">
-        Personal Information
+      <h1 class="stat text-lg">
+        Personal Information:
       </h1>
   
       <div class="stat">
@@ -453,9 +454,6 @@
     <div class="flex-col">
       <span class="text-3xl justify-start pl-2">
         Your Nodes
-      </span>
-      <span class="justify-end pl-64">
-        <button class="btn btn-primary text-lg " on:click={createModal}>Add a Node</button>
       </span>
     </div>
 
@@ -526,22 +524,21 @@
         <div class="card-body">
           <h2 class="card-title">{node.name}</h2>
           <div class="card-actions justify-end">
-            <!-- <button class="btn btn-ghost" on:click={() => {
-              sessionStorage.setItem("node_id", node.node_id);
-              //reroute to market 
-              goto('../Main/BiddingMarket');
-            }}>Details</button> -->
             <button class="btn btn-ghost" on:click={() => {fetchNodeDetails(node.node_id)}}>Details</button>
           </div>
         </div>
       </div>
-
     {/each}
-    
+
+    <div class="card card-side min-w-1/3 bg-base-300 my-2">
+      <div class="card-body">
+        <button class="btn btn-outline" on:click={createModal}>Add a New Node</button>
+      </div>
+    </div>
   </div>
 
-  {#if nodeNameDetail != ''}
-    <div class="w-1/6 mx-20 ">
+  <div class="min-w-1/6">
+    {#if nodeNameDetail != ''}
       <div class="stats stats-vertical"> 
         <div class="stat">
           <div class="stat-title">Node</div>
@@ -551,73 +548,69 @@
         <div class="stat">
           <div class="stat-title">Node Location</div>
           <div class="stat-value">
-            {nodeLongitudeDetail < 0 ? nodeLongitudeDetail.toFixed(3) * -1 + "S" : nodeLongitudeDetail.toFixed(3) + "N"} 
+            {nodeLongitudeDetail < 0 ? nodeLongitudeDetail.toFixed(3) * -1 + "S " : nodeLongitudeDetail.toFixed(3) + "N "} 
             {nodeLatitudeDetail < 0 ? nodeLatitudeDetail.toFixed(3) * -1 + "W": nodeLatitudeDetail.toFixed(3) + "E"}
           </div>
         </div>
         
         <div class="stat">
-          <div class="stat-title">Available Comsumption</div>
-          <div class="stat-value">{nodeToConsume}kWh</div>
+          <div class="stat-title">Available Consumption</div>
+          <div class="stat-value">{Intl.NumberFormat().format(nodeToConsume)}Wh</div>
         </div>
 
         <div class="stat">
           <div class="stat-title">Pending Generation</div>
-          <div class="stat-value">{nodeToProduce}kWh</div>
+          <div class="stat-value">{Intl.NumberFormat().format(nodeToProduce)}Wh</div>
         </div>
 
-        <div>
-          <button class="btn btn-primary my-2" on:click={() => {
+        <div class="flex-col min-w-max">
+          <button class="btn btn-primary mx-2 w-48" on:click={() => {
               sessionStorage.setItem("node_id", selectedNodeID);
               //reroute to market 
               goto('../Main/BiddingMarket');
             }}>Transact with this node</button>
-        </div>
-
-        <div>
-          <button class="btn btn-error my-2" on:click={() => {
+          <button class="btn btn-error mx-2 w-48" on:click={() => {
               document.getElementById("removeNodeConfirmation").showModal();
             }}>Remove this node</button>
         </div>
       </div>
-    </div>
-  {/if}
-
-  {#each buyorders as buyorder}
-    <div class="card card-side min-w-1/3 bg-base-200 my-2">
-      <div class="card-body">
-        <h2 class="card-title">Buy order</h2>
-        <p>
-          Order ID: {buyorder.order_id} <br> 
-          Filled units: {buyorder.filled_units}<br>
-          Price: {buyorder.price}<br>
-          kW: {buyorder.sought_units}<br>
-        </p>
-        <div class="card-actions ">
-          
+    {/if}
+    
+    {#each buyorders as buyorder}
+      <div class="card card-side min-w-1/3 bg-base-200 my-2">
+        <div class="card-body">
+          <h2 class="card-title">Buy order</h2>
+          <p>
+            Filled units: {buyorder.filled_units.toFixed(1) + "Wh"}<br>
+            Max price: {formatCurrency(buyorder.max_price)}<br>
+            Min price: {formatCurrency(buyorder.min_price)}<br>
+            Units bought: {Intl.NumberFormat().format(buyorder.sought_units) + "Wh"}<br>
+          </p>
+          <div class="card-actions ">
+            
+          </div>
         </div>
       </div>
-    </div>
-  {/each}
+    {/each}
 
-  {#each sellorders as sellorder}
-    <div class="card card-side min-w-1/3 bg-base-200 my-2">
-      <div class="card-body">
-        <h2 class="card-title">Sell order</h2>
-        <p>
-          Order ID: {sellorder.order_id} <br> 
-          Offered Units: {sellorder.offered_units}<br>
-          Claimed Units: {sellorder.claimed_units}<br>
-          Price: {sellorder.price}<br>
-        </p>
-        <div class="card-actions ">
-          
+    {#each sellorders as sellorder}
+      <div class="card card-side min-w-1/3 bg-base-200 my-2">
+        <div class="card-body">
+          <h2 class="card-title">Sell order</h2>
+          <p>
+            Claimed Units: {sellorder.claimed_units.toFixed(1) + "Wh"}<br>
+            Offered Units: {sellorder.offered_units.toFixed(1) + "Wh"}<br>
+            Price: {formatCurrency(sellorder.price)}<br>
+          </p>
+          <div class="card-actions">
+            
+          </div>
         </div>
       </div>
-    </div>
-  {/each}
+    {/each}
+  </div>
 
-<!-- confirm remove node modal -->
+  <!-- confirm remove node modal -->
 
   <dialog id="removeNodeConfirmation" class="modal">  
     <div class="modal-box">
@@ -635,12 +628,12 @@
     </form>
   </dialog>
 
-<!-- confirm change funds modals -->
+  <!-- confirm change funds modals -->
 
   <dialog id="addfundsconfirmation" class="modal">  
     <div class="modal-box">
       <h3 class="font-bold text-lg ">You have successfully added funds!</h3>
-      <p>You have successfully added R{amount} to your account.</p>
+      <p>You have successfully added {formatCurrency(amount)} to your account.</p>
     </div>
     <form method="dialog" class="modal-backdrop">
       <button on:click={nullifyValues}>close</button>
@@ -651,7 +644,7 @@
   <dialog id="removefundsconfirmation" class="modal">  
     <div class="modal-box">
       <h3 class="font-bold text-lg ">Withdrawal of funds successful!</h3>
-      <p>You have successfully withdrew R{withdrawamount} from your account.</p>
+      <p>You have successfully withdrew {formatCurrency(withdrawamount)} from your account.</p>
       </div>
       <form method="dialog" class="modal-backdrop">
         <button on:click={nullifyValues}>close</button>
@@ -661,7 +654,7 @@
     <dialog id="removefundsrejection" class="modal">  
       <div class="modal-box">
         <h3 class="font-bold text-lg ">Withdrawal of funds was unsuccessful.</h3>
-      <p>Withdrawal of R{withdrawamount} was unsuccessful. Please check your balance.</p>
+      <p>Withdrawal of {formatCurrency(withdrawamount)} was unsuccessful. Please check your balance.</p>
       </div>
       <form method="dialog" class="modal-backdrop">
         <button on:click={nullifyValues}>close</button>
@@ -671,7 +664,7 @@
     <dialog id="addfundsrejection" class="modal">  
       <div class="modal-box">
         <h3 class="font-bold text-lg ">Addition of funds unsuccessful.</h3>
-      <p>Addition of R{amount} was unsuccessful. Please enter a valid value.</p>
+      <p>Addition of {formatCurrency(amount)} was unsuccessful. Please enter a valid value.</p>
       </div>
       <form method="dialog" class="modal-backdrop">
         <button on:click={nullifyValues}>close</button>

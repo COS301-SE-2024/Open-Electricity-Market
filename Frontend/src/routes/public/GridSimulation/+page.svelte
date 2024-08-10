@@ -5,6 +5,9 @@
   import Map from '$lib/Components/Map.svelte';
   import Chart from "$lib/Components/Chart2.svelte";
   import GridStats from "../../../lib/Components/GridStats.svelte";
+  import { API_URL_GRID, API_URL_MARKET } from '$lib/config.js';
+
+
  
 
   let data = {};
@@ -13,14 +16,15 @@
   let advancedView = false; 
   let dropdownViewable = false; 
   let mapdata; 
-   let oscilloscopedata = null;
+  let oscilloscopedata = null;
 
   function toggleDropdown(){
     dropdownViewable = !dropdownViewable; 
   }
 
   onMount(async () => {
-    await fetchData(); 
+    await fetchData();
+    await fetchstart();  
     //interval = setInterval(fetchData, 10000); 
     
    
@@ -32,7 +36,7 @@
      async function fetchstart() {
 
       try {
-        const response = await fetch("http://localhost:8000/start", {
+        const response = await fetch(`${API_URL_GRID}/start`, {
       method: "POST", 
       headers: {
         'Content-Type': 'application/json' 
@@ -63,7 +67,7 @@
 
   async function fetchData() {
     try {
-      const response = await fetch("http://localhost:8000/info", {
+      const response = await fetch(`${API_URL_GRID}/info`, {
         method: "POST", 
         headers: {
           'Content-Type': 'application/json' 
@@ -135,12 +139,12 @@
       </form>
     </dialog> -->
 
-  <div class="form-control top-right">
+  <!-- <div class="form-control top-right">
   <label class="label cursor-pointer">
     <span class="label-text mr-2">Advanced view</span>
     <input type="checkbox" class="toggle" checked={advancedView} on:change={setAdvancedView} />
   </label>
-  </div>
+  </div> -->
 
    
  
@@ -215,19 +219,37 @@
    <span class="loading loading-ring loading-lg ml-6"></span>
   {/if} -->
 
-    <Map {mapdata} on:markerClick = {handleMarkerClick} /> 
-    <Chart {data} />
-    <GridStats /> 
+<div class="fullsection flex md:flex-row xs:flex-col">
+
+<div class="mapsection md:w-3/5  xs:w-full xs:p-0 left-0">
+  <Map {mapdata} on:markerClick = {handleMarkerClick} class="xs:rounded-md"  /> 
+
+    <div class="statsection">
+        <GridStats /> 
+        </div>
+    </div>
+
+<div class="chartsection md:w-2/5 md:h-full p-5 xs:w-full xs:">   
+  <Chart {data} />
+
+      
+</div>
+
+
+
+
+
+</div>
+
+
+
+
+
 
 </main>
 
 <style>
 
-   .top-right {
-    position: absolute;
-    top: 7rem;
-    right: 5rem;
-  }
   
 </style>
 

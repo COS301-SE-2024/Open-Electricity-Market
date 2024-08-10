@@ -1,0 +1,90 @@
+name: Deploy
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  rust-test: 
+    uses: ./.github/workflows/rust.yml
+    permissions:
+      contents: read
+      packages: read
+      statuses: write # Updates commit statuses
+
+  deploy-frontend:
+    needs: rust-test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install sshpass
+        run: sudo apt install sshpass
+
+      - name: Copy Frontend to droplet
+        run: sshpass -v -p ${{ secrets.FRONTEND_DROPLET_PASSWORD }} scp -o StrictHostKeyChecking=no -r Frontend root@${{ vars.FRONTEND_DROPLET_IP }}:~
+
+      - name: Deploy to droplet
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ vars.FRONTEND_DROPLET_IP }}
+          username: root
+          password: ${{ secrets.FRONTEND_DROPLET_PASSWORD }}
+          script: |
+            cd Frontend 
+            docker compose down 
+            docker image rm frontend-amplify-website 
+            docker compose up -d
+
+  deploy-backend:
+    needs: rust-test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Make db.env 
+        uses: SpicyPizza/create-envfile@v2.0.3            
+        with:
+          envkey_POSTGRES_PASSWORD : ${{ secrets.POSTGRES_PASSWORD }}
+          envkey_OPEN_EM_PASS : ${{ secrets.OPEN_EM_PASS }}
+          directory : backend
+          file_name: db.env 
+
+      - name: Make agent .env 
+        uses: SpicyPizza/create-envfile@v2.0.3
+        with:
+          envkey_PASSWORD : ${{ secrets.AGENT_PASSWORD }}
+          directory : backend/agent 
+          file_name: .env
+
+      - name: Make market-platfrom .env 
+        uses: SpicyPizza/create-envfile@v2.0.3
+        with:
+          envkey_DATABASE_URL: ${{ secrets.MARKET_DATABASE_URL }}
+          envkey_GRID_URL: ${{ vars.MARKET_GRID_URL }}
+          envkey_FRONTEND_URL: ${{ vars.MARKET_FRONTEND_URL}}
+          directory: backend/market-platform 
+          file_name: .env
+
+      - name: Install sshpass
+        run: sudo apt install sshpass
+
+      - name: Copy backend to droplet
+        run: sshpass -v -p ${{ secrets.DROPLET_PASSWORD }} scp -o StrictHostKeyChecking=no -r backend root@${{ vars.DROPLET_IP }}:~
+
+      - name: Deploy to droplet
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ vars.DROPLET_IP }}
+          username: root
+          password: ${{ secrets.DROPLET_PASSWORD }}
+          script: |
+            cd backend
+            docker compose down 
+            docker image rm backend-simulation
+            docker image rm backend-market-platform
+            docker image rm backend-agent
+            docker compose up -d
+ 
+

@@ -1,7 +1,12 @@
+use std::usize;
+
 use crate::grid::circuit::Circuit;
 use crate::grid::load::Connection::{Parallel, Series};
-use rocket::serde::Serialize;
-use serde::Deserialize;
+use rocket::form::validate::Len;
+use rocket::serde::{self, Deserialize, Serialize};
+
+use self::generator::Generator;
+use self::load::{Load, LoadType, TransmissionLine};
 
 pub mod circuit;
 pub mod generator;
@@ -127,10 +132,19 @@ pub struct Grid {
 }
 
 #[derive(Deserialize)]
-struct GridInterface {
+#[serde(crate = "rocket::serde")]
+pub struct GeneratorInterface {
     circuit: u32,
     generator: u32,
-    voltage: f32,
+    power: f32,
+}
+
+#[derive(Deserialize)]
+#[serde(crate = "rocket::serde")]
+pub struct ConsumerInterface {
+    circuit: u32,
+    consumer: u32,
+    power: f32,
 }
 
 #[derive(Serialize)]
@@ -143,6 +157,105 @@ pub struct GridStats {
 }
 
 impl Grid {
+    pub fn create_consumer(&mut self, latitude: f32, longitude: f32) -> (u32, u32) {
+        let mut nearest_circuit = 0;
+        let mut nearest_transmission_line = 0;
+        let mut found = false;
+        let mut neares_distance = f32::INFINITY;
+
+        for circuit in self.circuits.iter() {
+            let circuit_id = circuit.id;
+            for load in circuit.loads.iter() {
+                match &load.load_type {
+                    load::LoadType::Consumer(_) => {}
+                    load::LoadType::TransmissionLine(line) => {
+                        let line_latitude = line.location.latitude;
+                        let line_longitude = line.location.longitude;
+
+                        let x = latitude - line_latitude;
+                        let y = longitude - line_longitude;
+
+                        let dist = f32::sqrt(x * x + y * y);
+
+                        if dist < neares_distance {
+                            neares_distance = dist;
+                            nearest_transmission_line = line.id;
+                            nearest_circuit = circuit_id;
+                            found = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        if !found {
+            neares_distance = 5.0;
+        }
+
+        let tl_id = self.circuits[nearest_circuit as usize].loads.len();
+        self.circuits[nearest_circuit as usize].loads.push(Load {
+            load_type: LoadType::new_transmission_line(neares_distance, latitude, longitude),
+            id: tl_id as u32,
+        });
+
+        if found {
+            self.connect_load_parallel(
+                tl_id as u32,
+                nearest_transmission_line as u32,
+                nearest_circuit as usize,
+            )
+        }
+
+        let cn_id = tl_id + 1;
+
+        self.circuits[nearest_circuit as usize].loads.push(Load {
+            load_type: LoadType::new_consumer(latitude, longitude),
+            id: cn_id as u32,
+        });
+
+        self.connect_load_series(cn_id as u32, tl_id as u32, nearest_circuit as usize);
+
+        return (cn_id as u32, nearest_circuit as u32);
+    }
+
+    pub fn create_producer(&mut self, latitude: f32, longitude: f32) -> (u32, u32) {
+        let mut nearest_circuit = 0;
+        let mut nearst_distance = f32::INFINITY;
+
+        for circuit in self.circuits.iter() {
+            let id = circuit.id;
+            for transformer in circuit.transformers.iter() {
+                let transformer = transformer.lock().unwrap();
+                let trans_latitude = transformer.location.latitude;
+                let trans_longitude = transformer.location.longitude;
+
+                let x = trans_latitude - latitude;
+                let y = trans_longitude - longitude;
+
+                let dist = f32::sqrt(x * x + y * y);
+
+                if dist < nearst_distance {
+                    nearest_circuit = id;
+                    nearst_distance = dist
+                }
+            }
+        }
+
+        let index = self
+            .circuits
+            .iter()
+            .position(|cur| cur.id == nearest_circuit)
+            .unwrap();
+
+        let id = self.circuits[index as usize].generators.len();
+
+        self.circuits[index as usize]
+            .generators
+            .push(Generator::new(id as u32, 50.0, latitude, longitude));
+
+        return (nearest_circuit, id as u32);
+    }
+
     pub fn connect_load_series(&mut self, new: u32, to: u32, circuit: usize) {
         let mut new_primary = to;
         for con in self.circuits[circuit].connections.iter() {
@@ -198,10 +311,16 @@ impl Grid {
         self.internal_update(elapsed_time, 0);
     }
 
-    pub fn set_generator(&mut self, json: String) {
-        let grid_interface: GridInterface = serde_json::from_str(&json).unwrap();
+    pub fn set_consumer(&mut self, grid_interface: ConsumerInterface) {
         self.circuits[grid_interface.circuit as usize]
-            .set_generater(grid_interface.generator, grid_interface.voltage);
+            .set_consumer(grid_interface.consumer, grid_interface.power);
+    }
+
+    pub fn set_generator(&mut self, grid_interface: GeneratorInterface) {
+        self.circuits[grid_interface.circuit as usize].set_generater(
+            grid_interface.generator,
+            f32::sqrt(grid_interface.power * 1000.0),
+        );
     }
 
     pub fn get_grid_stats(&self) -> GridStats {

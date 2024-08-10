@@ -2,6 +2,7 @@
   import logo from '$lib/assets/Logo.png';
   import {goto} from "$app/navigation";
   import Cookies from 'js-cookie';
+  import { API_URL_GRID, API_URL_MARKET } from '$lib/config.js';
 
   let email = '';
   let firstname = '';
@@ -11,6 +12,7 @@
   let errormessage = "";
   let validEmail = false;
   let validPassword = false;
+
 
 
 
@@ -78,7 +80,7 @@
 
     if(password == password2)
     {
-      const res = await fetch("http://localhost:8001/register", {
+      const res = await fetch(`${API_URL_MARKET}/register`, {
         method: "POST", 
         headers: {
           "Content-Type": "application/json",
@@ -95,7 +97,7 @@
       const json = await res.json();
       if(json.status == "ok")
       {
-        Cookies.set('session_id', json.data.session_id, {path: '/'});
+        Cookies.set('session_id', json.data.session_id, {path: '/',domain : "amplify.org.za", sameSite : 'None', secure:true });
         goto("/Main/Dashboard");
       }
       else
@@ -105,11 +107,6 @@
     } else {
       errormessage = "Passwords must match"
     }
-  }
-  
-  function back(){
-    email = firstname = surname = password = password2 = '';
-    goto("/login");
   }
 </script>
 <main>
@@ -170,7 +167,7 @@
               </div>
 
               {#if errormessage != ''}
-                <p class="text-base font-semibold text-sm text-error rounded mt-2"> { errormessage } </p>
+                <p class="text-base font-semibold text-error rounded mt-2"> { errormessage } </p>
               {/if}
               
               <div class="form-control mt-4">

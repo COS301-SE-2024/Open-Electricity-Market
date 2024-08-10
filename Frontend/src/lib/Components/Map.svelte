@@ -5,6 +5,8 @@
     import { browser } from '$app/environment';
     import Chart from './Chart2.svelte';
     import {tick} from 'svelte';
+    import { API_URL_GRID, API_URL_MARKET } from '$lib/config.js';
+
     
     let mapContainer;
     let map;
@@ -25,21 +27,11 @@
     
 
     leaflet.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);
-    
-    
-    lm = leaflet.marker([-26.1925013,28.0100383]).addTo(map);
-    
-    lm.on('click', () => showModal());
-    
-
-
-
-
-
-    
        }
        await fetchData();
+      //  resizeMap(); 
        interval = setInterval(fetchData, 10000);
+      //  setInterval(resizeMap, 10000); 
     });
 
    
@@ -52,7 +44,7 @@
 
      async function fetchData() {
     try {
-      const response = await fetch("http://localhost:8000/info", {
+      const response = await fetch(`${API_URL_GRID}/info`, {
         method: "POST", 
         headers: {
           'Content-Type': 'application/json' 
@@ -65,6 +57,7 @@
       //console.log("This is circuits...");
       //console.log(data);
       updateMarkers();
+      resizeMap();
       
       
     } catch (error) {
@@ -76,9 +69,9 @@
 
     function updateMarkers(){
 
-          if (!data.loads || !data.generators) {
-            console.log("No loads or generators available");
-            return;
+        if (!data.loads || !data.generators) {
+          console.log("No loads or generators available");
+          return;
         }
 
         markers.forEach(marker=>marker.remove());
@@ -115,9 +108,9 @@
         data.loads.forEach(load => {
         if (load.load_type.Consumer) {
           const consumer = load.load_type.Consumer;
-          const marker = L.marker([consumer.location.latitude, consumer.location.longitude]).addTo(map);
+          const marker = L.marker([consumer.location.longitude, consumer.location.latitude]).addTo(map);
           
-          marker.bindPopup("Consumer "+ (consumer.id+1+"<br>"+consumer.location.latitude + " " + consumer.location.longitude));
+          marker.bindPopup("Consumer "+ (load.id+1+"<br>"+consumer.location.longitude + " " + consumer.location.latitude));
           // marker.on('click', () => showMarkerPopup(marker, consumer));
           //marker.on('click', ()=> updateChart(consumer));
           marker.on('click', () => {dispatch('markerClick', consumer)});
@@ -125,11 +118,11 @@
           }
         });
 
-        data.generators.forEach(generator => {
-          const marker = L.marker([generator.location.latitude, generator.location.longitude]).addTo(map);
-          // marker.on('click', () => showMarkerPopup(marker, generator));
-          markers.push(marker);
-        });
+        // data.generators.forEach(generator => {
+        //   const marker = L.marker([generator.location.longitude, generator.location.latitude]).addTo(map);
+        //   // marker.on('click', () => showMarkerPopup(marker, generator));
+        //   markers.push(marker);
+        // });
 
     }
 
@@ -165,6 +158,24 @@
   }
 
 
+
+   function resizeMap() {
+    if (window.innerWidth <= 450) {
+      // chart.style.width = '100%';
+      mapContainer.style.height = '350px';
+      mapContainer.style.width = '290px'; 
+      // chartCanvas.style.width = '300px';
+      // chartCanvas.style.width = '200px'; 
+      console.log("If statement is running...");
+    } else {
+      mapContainer.style.height = '700px';
+      // chartCanvas.style.width = '900px'; 
+      console.log("Else was executed...");
+      // chart.style.height = '600px';
+    }
+  }
+
+
   
 
    
@@ -180,7 +191,7 @@
     <style>
        @import 'leaflet/dist/leaflet.css';
        div {
-       height: 500px;
+       height: 700px;
        }
     </style>
 

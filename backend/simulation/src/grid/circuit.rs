@@ -6,6 +6,8 @@ use crate::grid::{CurrentWrapper, VoltageWrapper};
 use rocket::serde::Serialize;
 use std::sync::{Arc, Mutex};
 
+use super::Resistance;
+
 #[derive(Serialize)]
 #[serde(crate = "rocket::serde")]
 pub struct Circuit {
@@ -20,6 +22,20 @@ impl Circuit {
     pub(crate) fn set_generater(&mut self, id: u32, max_voltage: f32) {
         let position = self.generators.iter().position(|x| x.id == id).unwrap();
         self.generators[position].max_voltage = max_voltage;
+    }
+
+    pub(crate) fn set_consumer(&mut self, id: u32, power: f32) {
+        let position = self.loads.iter().position(|x| x.id == id).unwrap();
+        match &mut self.loads[position].load_type {
+            super::load::LoadType::Consumer(c) => {
+                let resitance = (240.0 * 240.0) / power;
+
+                if resitance > 0.0 {
+                    c.resistance = Resistance(resitance);
+                }
+            }
+            super::load::LoadType::TransmissionLine(_) => todo!(),
+        }
     }
 
     pub(crate) fn calculate_ideal_generator_voltages(

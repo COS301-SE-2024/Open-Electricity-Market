@@ -1,8 +1,10 @@
+networks:
+  backend:
 services:
   simulation:
     build: ./simulation/
-    ports:
-      - "8000:8000"
+    networks:
+      - backend
   db:
     image: postgres
     volumes:
@@ -11,26 +13,48 @@ services:
     ports:
       - "5432:5432"
     env_file: "db.env"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U open_em"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
   market-platform:
     build: ./market-platform/
     depends_on:
-      - db
-    links:
-      - db
+      db:
+       condition: service_healthy
     environment:
        DATABASEHOST: db
-    ports:
-      - "8001:8001"
+       GRIDDOMAIN: simulation
+    networks:
+      - backend
   agent:
     build: ./agent/
     depends_on:
       - db
       - simulation
-    links:
-      - db
-      - simulation
+      - market-platform
     environment:
       DATABASEHOST: db
       GURL: simulation
+      MURL: market-platform
+    networks:
+      - backend
+  caddy:
+    image: caddy:2.8.4
+    ports:
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - backend
 volumes:
   pgdata:
+  caddy_data:
+    external: true
+  caddy_config:

@@ -1,6 +1,8 @@
 <script>
 
   import { onMount, onDestroy } from 'svelte';
+  import { API_URL_GRID, API_URL_MARKET } from '$lib/config.js';
+
 
   onMount(async () => {
 
@@ -23,7 +25,7 @@
 
    async function fetchData() {
     try {
-      const response = await fetch("http://localhost:8000/stats", {
+      const response = await fetch(`${API_URL_GRID}/stats`, {
         method: "POST", 
         headers: {
           'Content-Type': 'application/json' 
@@ -48,32 +50,32 @@
 
 </script>
 
-<div class="stats stats-vertical lg:stats-horizontal shadow">
+<div class="stats stats-vertical lg:stats-horizontal shadow w-full">
   <div class="stat">
     <div class="stat-title">Total Users</div>
-    <div class="stat-value">{totalusers}</div>
+    <div class="stat-value">{Intl.NumberFormat().format(totalusers)}</div>
     <div class="stat-desc">{currdate}</div>
   </div>
 
   <div class="stat">
     <div class="stat-title">Number of producers</div>
-    <div class="stat-value">{producers}</div>
-    <div class="stat-desc">↗︎{(Math.random(80)*100).toFixed(2)}%</div>
+    <div class="stat-value">{Intl.NumberFormat().format(producers)}</div>
+    <!-- <div class="stat-desc">↗︎{(Math.random(80)*100).toFixed(2)}%</div> -->
   </div>
 
   <div class="stat">
     <div class="stat-title">Number of consumers</div>
-    <div class="stat-value">{consumers}</div>
+    <div class="stat-value">{Intl.NumberFormat().format(consumers)}</div>
   </div>
 
    <div class="stat">
     <div class="stat-title">Total Generation</div>
-    <div class="stat-value">{generation} V</div>
+    <div class="stat-value">{Intl.NumberFormat().format(generation)} V</div>
   </div>
 
   <div class="stat">
     <div class="stat-title">Total Impedance</div>
-    <div class="stat-value">{impedance} Ω</div>
+    <div class="stat-value">{Intl.NumberFormat().format(impedance)} Ω</div>
     <div class="stat-desc">Measure of opposition to electrical flow</div>
   </div>
 </div>

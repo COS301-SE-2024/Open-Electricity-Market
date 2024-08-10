@@ -2,7 +2,7 @@ name: Deploy
 
 on:
   push:
-    branches: ["main"]
+    branches: ["feature/map-check"]
 
 jobs:
   rust-test: 

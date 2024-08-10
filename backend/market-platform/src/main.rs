@@ -27,9 +27,8 @@ use std::ops::Add;
 use uuid::Uuid;
 
 const TRANSACTION_LIFETIME: i64 = 24; // Lifetime in hours
-const FRONTEND_URL: &str = "http://localhost:5173";
-// const TARGET_VOLTAGE: f64 = 240.0;
-// Endpoint for current_voltage
+                                      // const TARGET_VOLTAGE: f64 = 240.0;
+                                      // Endpoint for current_voltage
 
 const UNIT_PRICE_RATE: f64 = 0.005;
 const IMPEDANCE_RATE: f64 = 0.05;
@@ -59,8 +58,10 @@ impl Fairing for CORS {
             ));
             response.set_header(Header::new("Access-Control-Allow-Headers", "content-type"));
         }
+        dotenv().ok();
+        let frontend_url = env::var("FRONTEND_URL").unwrap();
 
-        response.set_header(Header::new("Access-Control-Allow-Origin", FRONTEND_URL));
+        response.set_header(Header::new("Access-Control-Allow-Origin", frontend_url));
         response.set_header(Header::new("Access-Control-Allow-Credentials", "true"));
     }
 }

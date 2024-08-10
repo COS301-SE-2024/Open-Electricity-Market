@@ -35,7 +35,7 @@
       console.log(json);
       if(json.message == "User logged in")
       {
-        Cookies.set('session_id', json.data.session_id, {path: '/'});
+        Cookies.set('session_id', json.data.session_id, {path: '/', domain : "amplify.org.za", sameSite : 'None', secure:true });
         goto("/Main/Dashboard");
       }
       else{

@@ -68,11 +68,6 @@ fn set_generator(
     return content::RawJson(json!({"status" : "ok","message" : "succesfully set"}).to_string());
 }
 
-#[get("/")]
-fn index() -> String {
-    "Yay".to_string()
-}
-
 #[derive(Deserialize)]
 #[serde(crate = "rocket::serde")]
 struct AddLocation {
@@ -195,7 +190,6 @@ fn rocket() -> _ {
         .mount(
             "/",
             routes![
-                index,
                 start,
                 info,
                 set_generator,

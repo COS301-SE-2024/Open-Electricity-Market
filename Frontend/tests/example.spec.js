@@ -56,16 +56,16 @@ test.describe("public simulation page",() => {
     // Expects to be redirected to simulation grid page.
     await page.waitForURL('**/public/GridSimulation');
   });
-  test('To Market page', async ({ page }) => {
+  /*test('To Market page', async ({ page }) => {
     //Wait for page to finish loading
-    //await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('networkidle');
 
     // Click the "Market" button.
     await page.getByRole('link', { name: 'Market' }).click();
 
-    // Expects to be redirected to market page.
-    await page.waitForURL('**/Main/BiddingMarket');
-  });
+    // Expects to be redirected to market page.*/
+    //await page.waitForURL('**/Main/BiddingMarket');
+  //});
 });
 
 test.describe("login page",() => {

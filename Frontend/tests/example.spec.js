@@ -225,4 +225,21 @@ test.describe("signup page error testing",() => {
     //Expects an error message to appear.
     await expect(page.getByText("Invalid email or password")).toBeVisible();
   });
+  test('InvalidPasswords', async ({page}) => {
+    //Wait for page to finish loading
+    await page.waitForLoadState('networkidle');
+
+    //type in a valid email
+    await page.getByPlaceholder('Email').fill(''+process.env.EMAIL);
+    //Type in 
+    await page.getByPlaceholder('Password').fill(''+process.env.NONUM);
+
+    //Expects an error message to appear.
+    await expect(page.getByText("Invalid email or password")).toBeVisible();
+    // Click the "Create account" button.
+    await page.getByRole('button', { name: 'Create account' }).click();
+
+    //Expects an error message to appear.
+    await expect(page.getByText("Invalid email or password")).toBeVisible();
+  });
 });

@@ -11,8 +11,7 @@ services:
     networks:
       - frontend
     volumes:
-    - /usr/src/app/node_modules
-
+      - node_modules:/usr/src/app/node_modules
   caddy:
     image: caddy:2.8.4
     ports: 
@@ -28,3 +27,4 @@ volumes:
   caddy_data:
     external: true
   caddy_config:
+  node_modules:

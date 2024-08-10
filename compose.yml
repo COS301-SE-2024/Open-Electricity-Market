@@ -1,0 +1,71 @@
+name: "amplify"
+networks:
+  amplify:
+services:
+  site:
+    build:
+      context: ./Frontend
+    environment:
+      NODE_ENV: production
+    networks:
+      - amplify
+    volumes:
+      - node_modules:/usr/src/app/node_modules
+  simulation:
+    build: ./backend/simulation/
+    networks:
+      - amplify
+  db:
+    image: postgres
+    volumes:
+      - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    env_file: "backend/db.env"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U open_em"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - amplify
+  market-platform:
+    build: ./backend/market-platform/
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASEHOST: db
+      GRIDDOMAIN: simulation
+    networks:
+      - amplify
+  agent:
+    build: ./backend/agent/
+    depends_on:
+      - db
+      - simulation
+      - market-platform
+    environment:
+      DATABASEHOST: db
+      GURL: simulation
+      MURL: market-platform
+    networks:
+      - amplify
+  caddy:
+    image: caddy:2.8.4
+    ports:
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - amplify
+volumes:
+  pgdata:
+  caddy_data:
+    external: true
+  caddy_config:
+  node_modules:

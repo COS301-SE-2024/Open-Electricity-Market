@@ -97,7 +97,7 @@
       const json = await res.json();
       if(json.status == "ok")
       {
-        Cookies.set('session_id', json.data.session_id, {path: '/', domain : `${API_URL_MARKET}`, sameSite : 'None', secure:true });
+        Cookies.set('session_id', json.data.session_id, {path: '/',domain : "amplify.org.za", sameSite : 'None', secure:true });
         goto("/Main/Dashboard");
       }
       else

@@ -68,7 +68,6 @@ fn set_generator(
     return content::RawJson(json!({"status" : "ok","message" : "succesfully set"}).to_string());
 }
 
-
 #[derive(Deserialize)]
 #[serde(crate = "rocket::serde")]
 struct AddLocation {

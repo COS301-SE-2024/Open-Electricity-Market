@@ -2,6 +2,7 @@
 import Chart from "$lib/Components/Chart.svelte";
 import {onMount} from "svelte";
 import { goto } from '$app/navigation';
+import { API_URL_GRID, API_URL_MARKET } from '$lib/config.js';
 
 let selectedPrice = 0;
 $: price = 0;
@@ -21,7 +22,7 @@ async function place_buy_order() {
     "units": units
   }
 
-  const response = await fetch("http://localhost:8001/buy_order", {
+  const response = await fetch(`${API_URL_MARKET}/buy_order`, {
     method: "POST",
     headers: {
       'Content-Type': 'application/json'
@@ -43,7 +44,7 @@ async function place_sell_order() {
     "units": units
   }
 
-  const response = await fetch("http://localhost:8001/sell_order", {
+  const response = await fetch(`${API_URL_MARKET}/sell_order`, {
     method: "POST",
     headers: {
       'Content-Type': 'application/json'
@@ -70,7 +71,7 @@ onMount(async () => {
 async function fetchData() {
 
   try {
-    const response = await fetch("http://localhost:8001/price_view", {
+    const response = await fetch(`${API_URL_MARKET}/price_view`, {
       method: "POST",
       headers: {
         'Content-Type': 'application/json'

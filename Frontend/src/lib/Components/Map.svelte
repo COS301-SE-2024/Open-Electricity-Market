@@ -5,6 +5,8 @@
     import { browser } from '$app/environment';
     import Chart from './Chart2.svelte';
     import {tick} from 'svelte';
+    import { API_URL_GRID, API_URL_MARKET } from '$lib/config.js';
+
     
     let mapContainer;
     let map;
@@ -42,7 +44,7 @@
 
      async function fetchData() {
     try {
-      const response = await fetch("http://localhost:8000/info", {
+      const response = await fetch(`${API_URL_GRID}/info`, {
         method: "POST", 
         headers: {
           'Content-Type': 'application/json' 

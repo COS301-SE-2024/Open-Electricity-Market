@@ -600,7 +600,8 @@
           <p>
             Claimed Units: {sellorder.claimed_units.toFixed(1) + "Wh"}<br>
             Offered Units: {sellorder.offered_units.toFixed(1) + "Wh"}<br>
-            Price: {formatCurrency(sellorder.price)}<br>
+            Max price: {formatCurrency(sellorder.max_price)}<br>
+            Min price: {formatCurrency(sellorder.min_price)}<br>
           </p>
           <div class="card-actions">
             

@@ -10,6 +10,10 @@
     interval = setInterval(fetchData, 11000);
 
 
+    return () => {
+      clearInterval(interval);
+    };
+
 
   });
 

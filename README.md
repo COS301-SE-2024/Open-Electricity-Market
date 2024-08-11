@@ -28,6 +28,7 @@ A cutting-edge simulation platform, designed to transform the way we manage ener
 ### [Architecture Document](https://docs.google.com/document/d/1iOWSFGFzaD9XpniBLI5MVvW14hI2wmSAqM8neAVzzKQ/edit?usp=sharing)
 
 ### [Wiki](https://github.com/COS301-SE-2024/Open-Electricity-Market/wiki) (Including Installation Manual)
+- A pdf of the installation manual can be found [here](https://drive.google.com/file/d/1mUAVHsBsUE-qD9GNEbh5qQffu-iG_WHS/view?usp=drive_link)
 
 ### [User Manual](https://drive.google.com/file/d/1cwd0825UdNOTkrD7H-Fb6b-BBc5QnTlH/view?usp=sharing)
 

@@ -19,6 +19,7 @@ A cutting-edge simulation platform, designed to transform the way we manage ener
 [Presentation](https://docs.google.com/presentation/d/1aZw-H_mQlKRyQq-DzCK-zBfPBjCJ_ubs0Uo1ngD80PI/edit?usp=sharing)
 
 [Isidore-Demo3](https://drive.google.com/file/d/1NW12CLp_ADPZXEIPng_nmORFoGj28sAd/view?usp=sharing)
+[Presentation](https://docs.google.com/presentation/d/1oWkBIHsrpzYdaUd01Gs3L3aSPUv49cW0ggDE1Mk3Jds/edit?usp=sharing)
 
 ## Documentation
 

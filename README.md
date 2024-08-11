@@ -20,7 +20,7 @@ A cutting-edge simulation platform, designed to transform the way we manage ener
 
 ## Documentation
 
-### [SRS Document]([https://docs.google.com/document/d/1bx-V_NvCZ-w1VHZkxBD_Hp1Km_XFPCYWKXvSFr5EZ7g/edit?usp=sharing](https://docs.google.com/document/d/16w2L2sb7ZySCD4mMtRvPDSg7gqIOvZfyJhutkYTsVHU/edit?usp=sharing)
+### [SRS Document](https://docs.google.com/document/d/16w2L2sb7ZySCD4mMtRvPDSg7gqIOvZfyJhutkYTsVHU/edit?usp=sharing)
 
 ### [Architecture Document](https://docs.google.com/document/d/1iOWSFGFzaD9XpniBLI5MVvW14hI2wmSAqM8neAVzzKQ/edit?usp=sharing)
 

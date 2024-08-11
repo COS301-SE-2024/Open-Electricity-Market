@@ -22,8 +22,9 @@ A cutting-edge simulation platform, designed to transform the way we manage ener
 
 ### [SRS Document](https://docs.google.com/document/d/1bx-V_NvCZ-w1VHZkxBD_Hp1Km_XFPCYWKXvSFr5EZ7g/edit?usp=sharing)
 
-### [GitHub Rules and Conventions](https://github.com/COS301-SE-2024/Open-Electricity-Market/blob/feature/documentation/Documentation/GitHub_Rules_and_Conventions.md)
+### [Wiki](https://github.com/COS301-SE-2024/Open-Electricity-Market/wiki) (Including Installation Manual)
 
+### [GitHub Rules and Conventions](https://github.com/COS301-SE-2024/Open-Electricity-Market/blob/feature/documentation/Documentation/GitHub_Rules_and_Conventions.md)
 
 ## Team
 Contact us: [isidore.capstone@gmail.com](mailto:isidore.capstone@gmail.com)

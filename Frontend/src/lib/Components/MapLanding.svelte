@@ -6,7 +6,7 @@
   import Chart from './Chart2.svelte';
   import Chart2 from './Chart2.svelte';
   // import leaflet from 'leaflet'; 
-  import iconmarkerpng from '../../images/marker-icon.png';
+  import iconmarkerpng from '$lib/assets/marker-icon.png';
 
   let mapContainer;
   let map;

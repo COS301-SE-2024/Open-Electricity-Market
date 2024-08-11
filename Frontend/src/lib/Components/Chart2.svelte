@@ -225,6 +225,7 @@
       //*****/
 
       const { amplitude, frequency, phase } = data.oscilloscope_detail;
+       
 
 
       const jedandva = ((2*Math.PI)/3);
@@ -237,9 +238,9 @@
       // console.log(phase2);
       // console.log(phase3);
 
-     const result1 = generateSineWave(amplitude, frequency, phase1, duration, sampleRate);
-     const result2 = generateSineWave(amplitude, frequency, phase2, duration, sampleRate);
-     const result3 = generateSineWave(amplitude, frequency, phase3, duration, sampleRate);  
+     const result1 = generateSineWave(amplitude/500000, frequency, phase1, duration, sampleRate);
+     const result2 = generateSineWave(amplitude/500000, frequency, phase2, duration, sampleRate);
+     const result3 = generateSineWave(amplitude/500000, frequency, phase3, duration, sampleRate);  
 
      datasin = result1.datasin;
      datasin2 = result2.datasin;

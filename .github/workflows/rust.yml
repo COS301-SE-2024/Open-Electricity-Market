@@ -3,10 +3,9 @@ name: Rust
 permissions: { }
 
 on:
-  push:
-    branches: ["main"]
   pull_request:
-    branches: ["main","dev"]
+    branches: ["dev"]
+  workflow_call:
 
 env:
   CARGO_TERM_COLOR: always

@@ -1,0 +1,7 @@
+market.amplify.org.za {
+    reverse_proxy market-platform:8001
+}
+
+grid.amplify.org.za {
+    reverse_proxy simulation:8000
+}

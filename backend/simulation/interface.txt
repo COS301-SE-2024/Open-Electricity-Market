@@ -1,0 +1,347 @@
+Post /info
+
+{
+    "circuits": [
+        {
+            "id": 0,
+            "loads": [
+                {
+                    "load_type": {
+                        "Consumer": {
+                            "id": 0,
+                            "resistance": 10.0,
+                            "voltage": {
+                                "voltage": [
+                                    0.0,
+                                    0.0,
+                                    0.0
+                                ],
+                                "oscilloscope_detail": {
+                                    "frequency": 0.0,
+                                    "amplitude": 0.0,
+                                    "phase": 0.0
+                                }
+                            },
+                            "location": {
+                                "latitude": -26.2044,
+                                "longitude": 28.0248
+                            }
+                        }
+                    },
+                    "id": 0
+                },
+                {
+                    "load_type": {
+                        "Consumer": {
+                            "id": 1,
+                            "resistance": 15.0,
+                            "voltage": {
+                                "voltage": [
+                                    0.0,
+                                    0.0,
+                                    0.0
+                                ],
+                                "oscilloscope_detail": {
+                                    "frequency": 0.0,
+                                    "amplitude": 0.0,
+                                    "phase": 0.0
+                                }
+                            },
+                            "location": {
+                                "latitude": -26.1735,
+                                "longitude": 27.9985
+                            }
+                        }
+                    },
+                    "id": 1
+                },
+                {
+                    "load_type": {
+                        "Consumer": {
+                            "id": 2,
+                            "resistance": 30.0,
+                            "voltage": {
+                                "voltage": [
+                                    0.0,
+                                    0.0,
+                                    0.0
+                                ],
+                                "oscilloscope_detail": {
+                                    "frequency": 0.0,
+                                    "amplitude": 0.0,
+                                    "phase": 0.0
+                                }
+                            },
+                            "location": {
+                                "latitude": -26.2015,
+                                "longitude": 28.0336
+                            }
+                        }
+                    },
+                    "id": 2
+                },
+                {
+                    "load_type": {
+                        "Consumer": {
+                            "id": 3,
+                            "resistance": 10.0,
+                            "voltage": {
+                                "voltage": [
+                                    0.0,
+                                    0.0,
+                                    0.0
+                                ],
+                                "oscilloscope_detail": {
+                                    "frequency": 0.0,
+                                    "amplitude": 0.0,
+                                    "phase": 0.0
+                                }
+                            },
+                            "location": {
+                                "latitude": -26.1886,
+                                "longitude": 28.0401
+                            }
+                        }
+                    },
+                    "id": 3
+                },
+                {
+                    "load_type": {
+                        "Consumer": {
+                            "id": 4,
+                            "resistance": 18.0,
+                            "voltage": {
+                                "voltage": [
+                                    0.0,
+                                    0.0,
+                                    0.0
+                                ],
+                                "oscilloscope_detail": {
+                                    "frequency": 0.0,
+                                    "amplitude": 0.0,
+                                    "phase": 0.0
+                                }
+                            },
+                            "location": {
+                                "latitude": -26.2026,
+                                "longitude": 28.0473
+                            }
+                        }
+                    },
+                    "id": 4
+                },
+                {
+                    "load_type": {
+                        "Consumer": {
+                            "id": 5,
+                            "resistance": 15.0,
+                            "voltage": {
+                                "voltage": [
+                                    0.0,
+                                    0.0,
+                                    0.0
+                                ],
+                                "oscilloscope_detail": {
+                                    "frequency": 0.0,
+                                    "amplitude": 0.0,
+                                    "phase": 0.0
+                                }
+                            },
+                            "location": {
+                                "latitude": -26.2348,
+                                "longitude": 28.0139
+                            }
+                        }
+                    },
+                    "id": 5
+                },
+                {
+                    "load_type": {
+                        "Consumer": {
+                            "id": 6,
+                            "resistance": 17.0,
+                            "voltage": {
+                                "voltage": [
+                                    0.0,
+                                    0.0,
+                                    0.0
+                                ],
+                                "oscilloscope_detail": {
+                                    "frequency": 0.0,
+                                    "amplitude": 0.0,
+                                    "phase": 0.0
+                                }
+                            },
+                            "location": {
+                                "latitude": -26.198,
+                                "longitude": 28.0469
+                            }
+                        }
+                    },
+                    "id": 6
+                },
+                {
+                    "load_type": {
+                        "Consumer": {
+                            "id": 7,
+                            "resistance": 25.0,
+                            "voltage": {
+                                "voltage": [
+                                    0.0,
+                                    0.0,
+                                    0.0
+                                ],
+                                "oscilloscope_detail": {
+                                    "frequency": 0.0,
+                                    "amplitude": 0.0,
+                                    "phase": 0.0
+                                }
+                            },
+                            "location": {
+                                "latitude": -26.2068,
+                                "longitude": 28.0452
+                            }
+                        }
+                    },
+                    "id": 7
+                },
+                {
+                    "load_type": {
+                        "Consumer": {
+                            "id": 8,
+                            "resistance": 10.0,
+                            "voltage": {
+                                "voltage": [
+                                    0.0,
+                                    0.0,
+                                    0.0
+                                ],
+                                "oscilloscope_detail": {
+                                    "frequency": 0.0,
+                                    "amplitude": 0.0,
+                                    "phase": 0.0
+                                }
+                            },
+                            "location": {
+                                "latitude": -26.1593,
+                                "longitude": 28.0302
+                            }
+                        }
+                    },
+                    "id": 8
+                },
+                {
+                    "load_type": {
+                        "Consumer": {
+                            "id": 9,
+                            "resistance": 11.0,
+                            "voltage": {
+                                "voltage": [
+                                    0.0,
+                                    0.0,
+                                    0.0
+                                ],
+                                "oscilloscope_detail": {
+                                    "frequency": 0.0,
+                                    "amplitude": 0.0,
+                                    "phase": 0.0
+                                }
+                            },
+                            "location": {
+                                "latitude": -26.2369,
+                                "longitude": 28.0116
+                            }
+                        }
+                    },
+                    "id": 9
+                }
+            ],
+            "connections": [
+                {
+                    "Parallel": [
+                        0,
+                        1
+                    ]
+                },
+                {
+                    "Series": [
+                        0,
+                        2
+                    ]
+                },
+                {
+                    "Series": [
+                        0,
+                        3
+                    ]
+                },
+                {
+                    "Parallel": [
+                        0,
+                        4
+                    ]
+                },
+                {
+                    "Series": [
+                        4,
+                        5
+                    ]
+                },
+                {
+                    "Parallel": [
+                        0,
+                        7
+                    ]
+                },
+                {
+                    "Series": [
+                        7,
+                        8
+                    ]
+                },
+                {
+                    "Series": [
+                        7,
+                        9
+                    ]
+                }
+            ],
+            "generators": [
+                {
+                    "id": 0,
+                    "voltage": {
+                        "voltage": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ],
+                        "oscilloscope_detail": {
+                            "frequency": 0.0,
+                            "amplitude": 0.0,
+                            "phase": 0.0
+                        }
+                    },
+                    "max_voltage": 240.0,
+                    "frequency": 50.0,
+                    "transmission_line": 0,
+                    "location": {
+                        "latitude": 0.0,
+                        "longitude": 0.0
+                    }
+                }
+            ],
+            "transformers": []
+        }
+    ],
+    "frequency": 50.0,
+    "started": false
+}
+
+Post /start
+{"Message":"Started Grid"}
+
+Post /start
+{"Message":"Grid Already Running"}
+
+Get /
+"Yay

@@ -128,3 +128,4 @@ winget
 **/.svelte-kit/
 
 Cargo.lock
+Frontend/Caddyfile

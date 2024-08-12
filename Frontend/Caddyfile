@@ -1,0 +1,3 @@
+www.amplify.org.za {
+    reverse_proxy amplify-website:3000
+}

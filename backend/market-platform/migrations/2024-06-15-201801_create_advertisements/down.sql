@@ -1,1 +1,1 @@
-DROP TABLE IF EXISTS advertisements;
+DROP TABLE IF EXISTS sell_orders;

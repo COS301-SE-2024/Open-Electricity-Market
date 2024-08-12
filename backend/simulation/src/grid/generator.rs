@@ -1,29 +1,39 @@
-use crate::grid::{ToJson, Voltage};
-use rocket::serde::json::json;
+use crate::grid::location::Location;
+use crate::grid::VoltageWrapper;
+use rocket::serde::Serialize;
 
-#[cfg(test)]
-mod tests;
+use super::{OscilloscopeDetail, Voltage};
 
+#[derive(Serialize)]
+#[serde(crate = "rocket::serde")]
 pub struct Generator {
     pub(crate) id: u32,
-    pub(crate) voltage: Voltage,
+    pub(crate) voltage: VoltageWrapper,
     pub(crate) max_voltage: f32,
     pub(crate) frequency: f32,
     pub(crate) transmission_line: u32,
+    pub(crate) location: Location,
 }
 
-impl ToJson for Generator {
-    fn to_json(&self) -> String {
-        json!({ "ID" : self.id,
-            "Voltage" : {
-                "Phase 1" : self.voltage.0,
-                "Phase 2" : self.voltage.1,
-                "Phase 3" : self.voltage.2,
+impl Generator {
+    pub fn new(id: u32, frequency: f32, latitude: f32, longitude: f32) -> Generator {
+        Generator {
+            id,
+            voltage: VoltageWrapper {
+                voltage: Voltage(0.0, 0.0, 0.0),
+                oscilloscope_detail: OscilloscopeDetail {
+                    frequency: 0.0,
+                    amplitude: 0.0,
+                    phase: 0.0,
+                },
             },
-            "Max Voltage" : self.max_voltage,
-            "Frequency" : self.frequency,
-            "Connected Transmission Line" : self.transmission_line
-        })
-        .to_string()
+            max_voltage: 0.0,
+            frequency,
+            transmission_line: 0,
+            location: Location {
+                latitude,
+                longitude,
+            },
+        }
     }
 }

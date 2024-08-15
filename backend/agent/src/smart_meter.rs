@@ -2,6 +2,8 @@ use serde::Deserialize;
 
 use crate::curve::Curve;
 
+pub mod consumption_curve;
+
 #[derive(Deserialize, Clone, Copy)]
 pub struct SmartMeterDetail {
     pub circuit: u32,

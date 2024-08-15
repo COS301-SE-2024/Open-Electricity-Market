@@ -123,6 +123,9 @@
       <h3 class="font-bold text-lg ">Dashboard</h3>
       <p class="py-4">This is the central hub for controlling your nodes on the grid. <br>
         You can see your details, such as credit, on the left, and a list of your nodes and buy orders on the right. <br>
+        If you plan on buying electricity, be sure to start by adding some funds to your account first. <br>
+        Your credit is also where you will receive money for any electricity you sell, and you can withdraw from this at any time. <br>
+        <br>
         Clicking on the "details" button on any of your nodes will open up more information about them, such as the amount of electricity it is allowed to consume/needs to produce. <br>
         Click on the "Transact with this node" button to go to the market page, where you can be part of our open market.
       </p>
@@ -136,7 +139,7 @@
     <div class="modal-box">
       <h3 class="font-bold text-lg ">Grid Simulation</h3>
       <p class="py-4">The grid simulation page contains an overview of the current state of the electrical grid. <br>
-        On the map, you can see all the nodes that are connected to the simulated grid.
+        On the map, you can see all the nodes that are connected to the simulated grid. <br>
         Clicking on one of these nodes will give you more information on them, and will show the voltage being generated at that point on the oscilloscope, on the right. <br>
         At the bottom you can see a few general statistics about the grid.
       </p>
@@ -151,7 +154,7 @@
       <h3 class="font-bold text-lg ">Marketplace</h3>
       <p class="py-4">
         The marketplace is designed to be much like any other trading website, where you can observe recent activity in the form of a price graph. <br>
-        Here you can place buy orders, or sell your excess power to anyone else connected to the grid.
+        Here you can place buy orders, or sell your excess power to someone else connected to the grid.
       </p>
     </div>
     <form method="dialog" class="modal-backdrop">
@@ -173,7 +176,7 @@
   <dialog id="removeaccount_modal" class="modal">
     <div class="modal-box">
       <h3 class="text-lg font-bold">Delete Account</h3>
-      <p class="py-4">Are you sure you would like to delete your account?</p>
+      <p class="py-4">Are you sure you want to delete your account?</p>
       <div class="modal-action">
         <form method="dialog">
           <!-- if there is a button in form, it will close the modal -->

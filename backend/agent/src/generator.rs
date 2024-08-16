@@ -8,12 +8,18 @@ pub struct GeneratorDetail {
     pub generator: u32,
 }
 
+impl Default for GeneratorDetail {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl GeneratorDetail {
     pub fn new() -> GeneratorDetail {
-        return GeneratorDetail {
+        GeneratorDetail {
             circuit: 0,
             generator: 0,
-        };
+        }
     }
 }
 
@@ -24,10 +30,10 @@ pub enum Generator {
 
 impl Generator {
     pub fn new_acctive(production_curve: Box<dyn Curve + Send + Sync>) -> Generator {
-        return Generator::Acctive(AcctiveGeneratorCore {
+        Generator::Acctive(AcctiveGeneratorCore {
             grid_detail: GeneratorDetail::new(),
             production_curve,
-        });
+        })
     }
 }
 

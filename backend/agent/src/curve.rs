@@ -8,19 +8,25 @@ pub trait Curve {
 
 pub struct SineCurve;
 
+impl Default for SineCurve {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl SineCurve {
     pub fn new() -> SineCurve {
-        return SineCurve;
+        SineCurve
     }
 }
 
 impl Curve for SineCurve {
     fn sample(&mut self, time: f64) -> f64 {
-        return f64::abs(f64::sin(time));
+        f64::abs(f64::sin(time))
     }
 
     fn total_in_24_hour(&mut self) -> f64 {
-        return 86.0;
+        86.0
     }
 }
 
@@ -28,9 +34,15 @@ pub struct CummutiveCurve {
     curves: Vec<Box<dyn Curve + Send + Sync>>,
 }
 
+impl Default for CummutiveCurve {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl CummutiveCurve {
     pub fn new() -> CummutiveCurve {
-        return CummutiveCurve { curves: vec![] };
+        CummutiveCurve { curves: vec![] }
     }
 }
 
@@ -40,7 +52,7 @@ impl Curve for CummutiveCurve {
         for curve in self.curves.iter_mut() {
             total += curve.sample(time);
         }
-        return total;
+        total
     }
 
     fn total_in_24_hour(&mut self) -> f64 {
@@ -48,7 +60,7 @@ impl Curve for CummutiveCurve {
         for curve in self.curves.iter_mut() {
             total += curve.total_in_24_hour();
         }
-        return total;
+        total
     }
     fn add_curve(&mut self, curve: Box<dyn Curve + Send + Sync>) {
         self.curves.push(curve);

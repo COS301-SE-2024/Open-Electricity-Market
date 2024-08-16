@@ -33,7 +33,7 @@ impl Agent {
         linked_to_user: bool,
         extarnal_wealth_curve: Box<dyn Curve + Send + Sync>,
     ) -> Agent {
-        return Agent {
+        Agent {
             email,
             password,
             session_id: String::from(""),
@@ -41,7 +41,7 @@ impl Agent {
             funds,
             linked_to_user,
             extarnal_wealth_curve,
-        };
+        }
     }
 
     fn create_producer_grid(location: Location) -> GeneratorDetail {
@@ -54,7 +54,7 @@ impl Agent {
             .unwrap();
         let text = res.text().unwrap();
         println!("{}", &text);
-        return serde_json::from_str(&text).unwrap();
+        serde_json::from_str(&text).unwrap()
     }
 
     fn create_consumer_grid(location: Location) -> SmartMeterDetail {
@@ -67,7 +67,7 @@ impl Agent {
             .unwrap();
         let text = res.text().unwrap();
         println!("{}", &text);
-        return serde_json::from_str(&text).unwrap();
+        serde_json::from_str(&text).unwrap()
     }
 
     fn login_or_register_agent(email: String, password: String) -> String {
@@ -101,7 +101,7 @@ impl Agent {
         if result.message != "New user added" {
             panic!("Agent could not get session Id");
         }
-        return result.data.session_id;
+        result.data.session_id
     }
 
     fn add_node(location: Location, name: String, session_id: String) {
@@ -143,9 +143,9 @@ impl Agent {
             for node in result.data {
                 out.push(node.node_id);
             }
-            return out;
+            out
         } else {
-            return vec![];
+            vec![]
         }
     }
 
@@ -155,7 +155,7 @@ impl Agent {
         let mut has_nodes = true;
 
         let mut node_ids = Agent::get_nodes(self.nodes.len() as u32, self.session_id.clone());
-        if node_ids.len() == 0 {
+        if node_ids.is_empty() {
             has_nodes = false;
         }
 
@@ -211,9 +211,9 @@ impl Agent {
         let result: UserDetailResult = res.json().unwrap();
         if result.message == "User details successfully retrieved" {
             println!("Succesfully recieved credit {}", result.data.credit);
-            return result.data.credit;
+            result.data.credit
         } else {
-            return 0.0;
+            0.0
         }
     }
 
@@ -240,9 +240,9 @@ impl Agent {
             if result.data.units_to_produce > 0.1 {
                 units_to_produce = Some(result.data.units_to_produce);
             }
-            return (units_to_consume, units_to_produce);
+            (units_to_consume, units_to_produce)
         } else {
-            return (None, None);
+            (None, None)
         }
     }
 
@@ -319,9 +319,9 @@ impl Agent {
         let result: GetPriceResult = res.json().unwrap();
         if result.message == "Successfully retrieved price" {
             println!("Succesfully recieved price {}", result.data.price);
-            return result.data.price;
+            result.data.price
         } else {
-            return 100.0;
+            100.0
         }
     }
 
@@ -335,7 +335,7 @@ impl Agent {
 
         let ratio = funds / (max_price * units);
         if ratio < 1.0 {
-            units = ratio * units;
+            units *= ratio;
         }
 
         let detail = PlaceBuyOrderDetail {
@@ -359,9 +359,9 @@ impl Agent {
             || result.message == "Buy order created successfully. Order match"
         {
             println!("Buy order place for {}", units);
-            return market_price * units;
+            market_price * units
         } else {
-            return 0.0;
+            0.0
         }
     }
 
@@ -481,10 +481,7 @@ impl Agent {
                 // Check if meet 24 hour requirment
                 match &mut node.smart_meter {
                     SmartMeter::Acctive(core) => {
-                        let to_consume = match units_to_consume {
-                            Some(to_consume) => to_consume,
-                            None => 0.0,
-                        };
+                        let to_consume = units_to_consume.unwrap_or(0.0);
                         let gap =
                             core.consumption_curve.total_in_24_hour() - (to_consume - consumed);
                         println!("{}", gap);
@@ -508,10 +505,7 @@ impl Agent {
 
                 match &mut node.generator {
                     Generator::Acctive(core) => {
-                        let to_produce = match units_to_produce {
-                            Some(to_produce) => to_produce,
-                            None => 0.0,
-                        };
+                        let to_produce = units_to_produce.unwrap_or(0.0);
                         let produced = core.production_curve.sample(accumlated_time) - produced;
                         if produced > to_produce {
                             Agent::place_sell_order(
@@ -525,7 +519,7 @@ impl Agent {
                 }
             }
         }
-        return Ok(());
+        Ok(())
     }
 
     pub fn run(&mut self) {

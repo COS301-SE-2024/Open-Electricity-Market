@@ -10,12 +10,18 @@ pub struct SmartMeterDetail {
     pub consumer: u32,
 }
 
+impl Default for SmartMeterDetail {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl SmartMeterDetail {
     pub fn new() -> SmartMeterDetail {
-        return SmartMeterDetail {
+        SmartMeterDetail {
             circuit: 0,
             consumer: 0,
-        };
+        }
     }
 }
 pub enum SmartMeter {
@@ -25,10 +31,10 @@ pub enum SmartMeter {
 
 impl SmartMeter {
     pub fn new_acctive(consumption_curve: Box<dyn Curve + Send + Sync>) -> SmartMeter {
-        return SmartMeter::Acctive(ActiveSmartMeterCore {
+        SmartMeter::Acctive(ActiveSmartMeterCore {
             grid_detail: SmartMeterDetail::new(),
             consumption_curve,
-        });
+        })
     }
 }
 

@@ -33,30 +33,30 @@ pub enum HomeApplianceType {
 impl HomeApplianceType {
     fn value(&self) -> f64 {
         match self {
-            HomeApplianceType::WashingMachine => return 2663.0,
-            HomeApplianceType::Router => return 38.0,
-            HomeApplianceType::Vacuum => return 44.0,
-            HomeApplianceType::Dishwasher => return 1806.0,
-            HomeApplianceType::Boiler => return 2664.0,
-            HomeApplianceType::HairPurifier => return 22.0,
-            HomeApplianceType::SoundSystem => return 17.0,
-            HomeApplianceType::Printer3d => return 154.0,
-            HomeApplianceType::CoffeeMachine => return 1481.0,
-            HomeApplianceType::PhoneCharger => return 86.0,
-            HomeApplianceType::Fridge => return 1436.0,
-            HomeApplianceType::Radiator => return 1348.0,
-            HomeApplianceType::Dehumidifier => return 1989.0,
-            HomeApplianceType::MicroWaveOven => return 1712.0,
-            HomeApplianceType::Laptop => return 61.0,
-            HomeApplianceType::Tv => return 54.0,
-            HomeApplianceType::Screen => return 30.0,
-            HomeApplianceType::SolarPanel => return 417.0,
-            HomeApplianceType::Fan => return 83.0,
-            HomeApplianceType::AirConditioner => return 45.0,
-            HomeApplianceType::Computer => return 280.0,
-            HomeApplianceType::Printer => return 30.0,
-            HomeApplianceType::Dryer => return 3267.0,
-            HomeApplianceType::Freezer => return 1623.0,
+            HomeApplianceType::WashingMachine => 2663.0,
+            HomeApplianceType::Router => 38.0,
+            HomeApplianceType::Vacuum => 44.0,
+            HomeApplianceType::Dishwasher => 1806.0,
+            HomeApplianceType::Boiler => 2664.0,
+            HomeApplianceType::HairPurifier => 22.0,
+            HomeApplianceType::SoundSystem => 17.0,
+            HomeApplianceType::Printer3d => 154.0,
+            HomeApplianceType::CoffeeMachine => 1481.0,
+            HomeApplianceType::PhoneCharger => 86.0,
+            HomeApplianceType::Fridge => 1436.0,
+            HomeApplianceType::Radiator => 1348.0,
+            HomeApplianceType::Dehumidifier => 1989.0,
+            HomeApplianceType::MicroWaveOven => 1712.0,
+            HomeApplianceType::Laptop => 61.0,
+            HomeApplianceType::Tv => 54.0,
+            HomeApplianceType::Screen => 30.0,
+            HomeApplianceType::SolarPanel => 417.0,
+            HomeApplianceType::Fan => 83.0,
+            HomeApplianceType::AirConditioner => 45.0,
+            HomeApplianceType::Computer => 280.0,
+            HomeApplianceType::Printer => 30.0,
+            HomeApplianceType::Dryer => 3267.0,
+            HomeApplianceType::Freezer => 1623.0,
         }
     }
 }
@@ -69,10 +69,10 @@ pub struct Period {
 
 impl Period {
     fn during(&self, time: f64) -> bool {
-        return self.start < time && self.end > time;
+        self.start < time && self.end > time
     }
     fn duration(&self) -> f64 {
-        return self.end - self.start;
+        self.end - self.start
     }
 }
 
@@ -93,9 +93,9 @@ impl Curve for HomeAppliance {
             }
         }
         if on {
-            return self.appliance_type.value();
+            self.appliance_type.value()
         } else {
-            return 0.0;
+            0.0
         }
     }
 
@@ -104,7 +104,7 @@ impl Curve for HomeAppliance {
         for period in self.on_periods.iter() {
             total += period.duration() * self.appliance_type.value();
         }
-        return total;
+        total
     }
 }
 

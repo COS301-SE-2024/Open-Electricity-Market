@@ -9,11 +9,11 @@ pub struct Node {
 
 impl Node {
     pub fn new(smart_meter: SmartMeter, generator: Generator) -> Node {
-        return Node {
+        Node {
             node_id: String::new(),
             location: Location::new(),
             smart_meter,
             generator,
-        };
+        }
     }
 }

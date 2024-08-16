@@ -13,7 +13,7 @@ use dotenvy::dotenv;
 use generator::Generator;
 use node::Node;
 use rocket::serde::json::Json;
-use rocket::{data, response::content};
+use rocket::response::content;
 use rocket::{
     fairing::{Fairing, Info, Kind},
     State,
@@ -141,19 +141,21 @@ fn add_appliances(
             core.consumption_curve.add_curve(Box::new(appliance));
         }
     }
-    let message = format!("Succesfully added appliances");
+    let message = "Succesfully added appliances".to_string();
     content::RawJson(json!({"status": "ok", "message": message, "data": {}}).to_string())
 }
 
 #[derive(Deserialize)]
-struct AddNode{
+struct AddDetail {
     email: String,
-    node_id : String,
+    node_id: String,
 }
 
-#[post("/add_node", format = "application/json", data = "<data>" )]
-fn add_node(agents: &State<Arc<Mutex<Vec<Agent>>>>,
-    data: Json<AddNode>,) -> content::RawJson<String> {
+#[post("/add_node", format = "application/json", data = "<data>")]
+fn add_node(
+    agents: &State<Arc<Mutex<Vec<Agent>>>>,
+    data: Json<AddDetail>,
+) -> content::RawJson<String> {
     let mut agents = agents.lock().unwrap();
     let agent_index = agents.iter().position(|agent| agent.email == data.email);
     if agent_index.is_none() {
@@ -173,8 +175,34 @@ fn add_node(agents: &State<Arc<Mutex<Vec<Agent>>>>,
             json!({"status": "ok", "message": message, "data": {}}).to_string(),
         );
     }
-    agents[agent_index].nodes.push(Node::new(SmartMeter::InActtive, Generator::InAcctive));
-    let message = format!("Succesfully added node");
+    agents[agent_index]
+        .nodes
+        .push(Node::new(SmartMeter::InActtive, Generator::InAcctive));
+    let message = "Succesfully added node".to_string();
+    content::RawJson(json!({"status": "ok", "message": message, "data": {}}).to_string())
+}
+
+#[derive(Deserialize)]
+struct AddAgentDetail {
+    email : String,
+    password : String
+}
+
+#[post("/add_agent", format = "application/json", data = "<data>")]
+fn add_agent(agents: &State<Arc<Mutex<Vec<Agent>>>>,
+    data: Json<AddAgentDetail>) -> content::RawJson<String> {
+    let mut agents = agents.lock().unwrap();
+    let agent_index = agents.iter().position(|agent| agent.email == data.email);
+    if agent_index.is_some() {
+        let message = "An agent acciotaed with that email already exits";
+        return content::RawJson(
+            json!({"status": "ok", "message": message, "data": {}}).to_string(),
+        );
+    }
+    let data = data.into_inner();
+    agents.push(Agent::new(data.email, data.password, vec![], 0.0, true,Box::new(SineCurve::new()) ));
+
+    let message = "Succesfully added agent".to_string();
     content::RawJson(json!({"status": "ok", "message": message, "data": {}}).to_string())
 }
 
@@ -189,7 +217,7 @@ fn rocket() -> _ {
             let password = password.clone();
             let handle = thread::spawn(move || {
                 let mut agent = Agent::new(
-                    String::from(format!("{i}@example.com")),
+                    format!("{i}@example.com"),
                     password,
                     vec![Node::new(
                         SmartMeter::new_acctive(Box::new(SineCurve::new())),
@@ -202,12 +230,15 @@ fn rocket() -> _ {
                 agent.run();
             });
             handels.push(handle);
-            thread::sleep(time::Duration::from_secs(1 * AGENT_SPEED));
+            thread::sleep(time::Duration::from_secs(AGENT_SPEED));
         }
     });
 
     rocket::build()
         .attach(CORS)
-        .mount("/", routes![stats, availible_appliances, add_appliances])
+        .mount(
+            "/",
+            routes![stats, availible_appliances, add_appliances, add_node,add_agent],
+        )
         .manage(Arc::new(Mutex::new(Vec::<Agent>::new())))
 }

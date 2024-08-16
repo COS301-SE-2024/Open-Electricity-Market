@@ -7,15 +7,21 @@ pub struct Location {
     pub longitude: f32,
 }
 
+impl Default for Location {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Location {
     pub fn new() -> Location {
         let mut rng = rand::thread_rng();
         let latitude: f32 = rng.gen_range(27.985..28.104);
         let longitude: f32 = -rng.gen_range(26.148..26.629);
 
-        return Location {
+        Location {
             longitude,
             latitude,
-        };
+        }
     }
 }

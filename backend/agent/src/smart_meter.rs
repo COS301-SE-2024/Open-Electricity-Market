@@ -24,7 +24,7 @@ pub enum SmartMeter {
 }
 
 impl SmartMeter {
-    pub fn new_acctive(consumption_curve: Box<dyn Curve>) -> SmartMeter {
+    pub fn new_acctive(consumption_curve: Box<dyn Curve + Send + Sync>) -> SmartMeter {
         return SmartMeter::Acctive(ActiveSmartMeterCore {
             grid_detail: SmartMeterDetail::new(),
             consumption_curve,
@@ -34,5 +34,5 @@ impl SmartMeter {
 
 pub struct ActiveSmartMeterCore {
     pub grid_detail: SmartMeterDetail,
-    pub consumption_curve: Box<dyn Curve>,
+    pub consumption_curve: Box<dyn Curve + Send + Sync>,
 }

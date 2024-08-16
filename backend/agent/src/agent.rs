@@ -2,6 +2,7 @@ use core::time;
 use rand::Rng;
 use reqwest::header;
 use std::{env, thread};
+use std::time::Instant;
 
 use crate::{
     curve::Curve,
@@ -19,7 +20,7 @@ pub struct Agent {
     pub session_id: String,
     pub nodes: Vec<Node>,
     pub funds: f64,
-    pub extarnal_wealth_curve: Box<dyn Curve>,
+    pub extarnal_wealth_curve: Box<dyn Curve + Send + Sync>,
 }
 
 impl Agent {
@@ -28,7 +29,7 @@ impl Agent {
         password: String,
         nodes: Vec<Node>,
         funds: f64,
-        extarnal_wealth_curve: Box<dyn Curve>,
+        extarnal_wealth_curve: Box<dyn Curve + Send + Sync>,
     ) -> Agent {
         return Agent {
             email,
@@ -523,10 +524,15 @@ impl Agent {
 
     pub fn run(&mut self) {
         self.intialise();
-        loop {
-            let accumlated_time = 1.0;
+        
+        let mut accumlated_time = 0.0;
+        let mut elapsed;
+        loop { 
+            let now = Instant::now();
             let result = self.update(accumlated_time);
-
+            elapsed = now.elapsed().as_secs_f64();
+            accumlated_time += elapsed;
+            
             match result {
                 Ok(_) => thread::sleep(time::Duration::from_secs(15 * AGENT_SPEED)),
                 Err(_) => break,

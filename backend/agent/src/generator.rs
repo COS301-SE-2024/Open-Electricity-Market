@@ -23,7 +23,7 @@ pub enum Generator {
 }
 
 impl Generator {
-    pub fn new_acctive(production_curve: Box<dyn Curve>) -> Generator {
+    pub fn new_acctive(production_curve: Box<dyn Curve + Send + Sync>) -> Generator {
         return Generator::Acctive(AcctiveGeneratorCore {
             grid_detail: GeneratorDetail::new(),
             production_curve,
@@ -33,5 +33,5 @@ impl Generator {
 
 pub struct AcctiveGeneratorCore {
     pub grid_detail: GeneratorDetail,
-    pub production_curve: Box<dyn Curve>,
+    pub production_curve: Box<dyn Curve + Send + Sync>,
 }

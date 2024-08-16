@@ -1,6 +1,9 @@
+use serde::{Deserialize, Serialize};
+
 use crate::curve::Curve;
 
-enum HomeApplianceType {
+#[derive(Serialize, Deserialize)]
+pub enum HomeApplianceType {
     WashingMachine,
     Router,
     Vacuum,
@@ -58,7 +61,8 @@ impl HomeApplianceType {
     }
 }
 
-struct Period {
+#[derive(Deserialize)]
+pub struct Period {
     start: f64,
     end: f64,
 }
@@ -72,7 +76,8 @@ impl Period {
     }
 }
 
-struct HomeAppliance {
+#[derive(Deserialize)]
+pub struct HomeAppliance {
     appliance_type: HomeApplianceType,
     on_periods: Vec<Period>,
 }

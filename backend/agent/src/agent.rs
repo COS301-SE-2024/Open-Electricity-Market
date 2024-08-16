@@ -1,8 +1,8 @@
 use core::time;
 use rand::Rng;
 use reqwest::header;
-use std::{env, thread};
 use std::time::Instant;
+use std::{env, thread};
 
 use crate::{
     curve::Curve,
@@ -20,6 +20,7 @@ pub struct Agent {
     pub session_id: String,
     pub nodes: Vec<Node>,
     pub funds: f64,
+    pub linked_to_user: bool,
     pub extarnal_wealth_curve: Box<dyn Curve + Send + Sync>,
 }
 
@@ -29,6 +30,7 @@ impl Agent {
         password: String,
         nodes: Vec<Node>,
         funds: f64,
+        linked_to_user: bool,
         extarnal_wealth_curve: Box<dyn Curve + Send + Sync>,
     ) -> Agent {
         return Agent {
@@ -37,6 +39,7 @@ impl Agent {
             session_id: String::from(""),
             nodes,
             funds,
+            linked_to_user,
             extarnal_wealth_curve,
         };
     }
@@ -474,49 +477,52 @@ impl Agent {
                 SmartMeter::InActtive => {}
             }
 
-            // Check if meet 24 hour requirment
-            match &mut node.smart_meter {
-                SmartMeter::Acctive(core) => {
-                    let to_consume = match units_to_consume {
-                        Some(to_consume) => to_consume,
-                        None => 0.0,
-                    };
-                    let gap = core.consumption_curve.total_in_24_hour() - (to_consume - consumed);
-                    println!("{}", gap);
-                    if gap > 0.0 && credit > 0.0 {
-                        // buy electricity at market price
-                        let spent = Agent::place_buy_order(
-                            self.session_id.clone(),
-                            node.node_id.clone(),
-                            gap,
-                            credit,
-                        );
+            if self.linked_to_user {
+                // Check if meet 24 hour requirment
+                match &mut node.smart_meter {
+                    SmartMeter::Acctive(core) => {
+                        let to_consume = match units_to_consume {
+                            Some(to_consume) => to_consume,
+                            None => 0.0,
+                        };
+                        let gap =
+                            core.consumption_curve.total_in_24_hour() - (to_consume - consumed);
+                        println!("{}", gap);
+                        if gap > 0.0 && credit > 0.0 {
+                            // buy electricity at market price
+                            let spent = Agent::place_buy_order(
+                                self.session_id.clone(),
+                                node.node_id.clone(),
+                                gap,
+                                credit,
+                            );
 
-                        if spent > credit {
-                            let intermediate = spent - credit;
-                            self.funds -= intermediate;
+                            if spent > credit {
+                                let intermediate = spent - credit;
+                                self.funds -= intermediate;
+                            }
                         }
                     }
+                    SmartMeter::InActtive => {}
                 }
-                SmartMeter::InActtive => {}
-            }
 
-            match &mut node.generator {
-                Generator::Acctive(core) => {
-                    let to_produce = match units_to_produce {
-                        Some(to_produce) => to_produce,
-                        None => 0.0,
-                    };
-                    let produced = core.production_curve.sample(accumlated_time) - produced;
-                    if produced > to_produce {
-                        Agent::place_sell_order(
-                            self.session_id.clone(),
-                            node.node_id.clone(),
-                            produced - to_produce,
-                        );
+                match &mut node.generator {
+                    Generator::Acctive(core) => {
+                        let to_produce = match units_to_produce {
+                            Some(to_produce) => to_produce,
+                            None => 0.0,
+                        };
+                        let produced = core.production_curve.sample(accumlated_time) - produced;
+                        if produced > to_produce {
+                            Agent::place_sell_order(
+                                self.session_id.clone(),
+                                node.node_id.clone(),
+                                produced - to_produce,
+                            );
+                        }
                     }
+                    Generator::InAcctive => {}
                 }
-                Generator::InAcctive => {}
             }
         }
         return Ok(());
@@ -524,15 +530,15 @@ impl Agent {
 
     pub fn run(&mut self) {
         self.intialise();
-        
+
         let mut accumlated_time = 0.0;
         let mut elapsed;
-        loop { 
+        loop {
             let now = Instant::now();
             let result = self.update(accumlated_time);
             elapsed = now.elapsed().as_secs_f64();
             accumlated_time += elapsed;
-            
+
             match result {
                 Ok(_) => thread::sleep(time::Duration::from_secs(15 * AGENT_SPEED)),
                 Err(_) => break,

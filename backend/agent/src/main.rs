@@ -1,18 +1,31 @@
 #[macro_use]
 extern crate rocket;
 
-use std::{env, sync::{Arc, Mutex}, thread, time};
+use std::{
+    env,
+    sync::{Arc, Mutex},
+    thread, time,
+};
 
 use agent::Agent;
-use curve::SineCurve;
+use curve::{CummutiveCurve, SineCurve};
 use dotenvy::dotenv;
 use generator::Generator;
 use node::Node;
-use rocket::{http::{Header, Method, Status}, Request, Response};
+use rocket::serde::json::Json;
+use rocket::{data, response::content};
+use rocket::{
+    fairing::{Fairing, Info, Kind},
+    State,
+};
+use rocket::{
+    http::{Header, Method, Status},
+    Request, Response,
+};
+use serde::Deserialize;
 use serde_json::json;
-use smart_meter::SmartMeter;
-use rocket::response::content;
-use rocket::fairing::{Fairing, Info, Kind};
+use smart_meter::consumption_curve::HomeApplianceType;
+use smart_meter::{consumption_curve::HomeAppliance, SmartMeter};
 
 pub mod agent;
 pub mod curve;
@@ -52,41 +65,116 @@ impl Fairing for CORS {
 
 #[post("/stats")]
 fn stats() -> content::RawJson<String> {
-      content::RawJson(json!({}).to_string())
+    content::RawJson(json!({}).to_string())
+}
+
+#[post("/availible_appliances")]
+fn availible_appliances() -> content::RawJson<String> {
+    let all_household_appliance = vec![
+        HomeApplianceType::WashingMachine,
+        HomeApplianceType::Router,
+        HomeApplianceType::Vacuum,
+        HomeApplianceType::Dishwasher,
+        HomeApplianceType::Boiler,
+        HomeApplianceType::HairPurifier,
+        HomeApplianceType::SoundSystem,
+        HomeApplianceType::Printer3d,
+        HomeApplianceType::CoffeeMachine,
+        HomeApplianceType::PhoneCharger,
+        HomeApplianceType::Fridge,
+        HomeApplianceType::Radiator,
+        HomeApplianceType::Dehumidifier,
+        HomeApplianceType::MicroWaveOven,
+        HomeApplianceType::Laptop,
+        HomeApplianceType::Tv,
+        HomeApplianceType::Screen,
+        HomeApplianceType::SolarPanel,
+        HomeApplianceType::Fan,
+        HomeApplianceType::AirConditioner,
+        HomeApplianceType::Computer,
+        HomeApplianceType::Printer,
+        HomeApplianceType::Dryer,
+        HomeApplianceType::Freezer,
+    ];
+    content::RawJson(json!({"Appliances":all_household_appliance}).to_string())
+}
+
+#[derive(Deserialize)]
+struct AddApplianceDetail {
+    email: String,
+    node_id: String,
+    appliances: Vec<HomeAppliance>,
+}
+
+#[post("/add_appliances", format = "application/json", data = "<data>")]
+fn add_appliances(
+    agents: &State<Arc<Mutex<Vec<Agent>>>>,
+    data: Json<AddApplianceDetail>,
+) -> content::RawJson<String> {
+    let mut agents = agents.lock().unwrap();
+    let agent_index = agents.iter().position(|agent| agent.email == data.email);
+    if agent_index.is_none() {
+        let message = "No agent exits asscioated with provide email";
+        return content::RawJson(
+            json!({"status": "ok", "message": message, "data": {}}).to_string(),
+        );
+    }
+    let agent_index = agent_index.unwrap();
+    let node_index = agents[agent_index]
+        .nodes
+        .iter()
+        .position(|node| node.node_id == data.node_id);
+    if node_index.is_none() {
+        let message = format!("Node {} does not exit", data.node_id);
+        return content::RawJson(
+            json!({"status": "ok", "message": message, "data": {}}).to_string(),
+        );
+    }
+    let node_index = node_index.unwrap();
+    if let SmartMeter::InActtive = &mut agents[agent_index].nodes[node_index].smart_meter {
+        agents[agent_index].nodes[node_index].smart_meter =
+            SmartMeter::new_acctive(Box::new(CummutiveCurve::new()))
+    }
+    if let SmartMeter::Acctive(core) = &mut agents[agent_index].nodes[node_index].smart_meter {
+        let data = data.into_inner();
+        for appliance in data.appliances {
+            core.consumption_curve.add_curve(Box::new(appliance));
+        }
+    }
+    let message = format!("Succesfully added appliances");
+    content::RawJson(json!({"status": "ok", "message": message, "data": {}}).to_string())
 }
 
 #[launch]
 fn rocket() -> _ {
+    thread::spawn(move || {
+        let mut handels = vec![];
+        dotenv().ok();
+        let password = env::var("PASSWORD").unwrap();
 
-    let mut handels = vec![];
-    dotenv().ok();
-    let password = env::var("PASSWORD").unwrap();
+        for i in 1..15 {
+            let password = password.clone();
+            let handle = thread::spawn(move || {
+                let mut agent = Agent::new(
+                    String::from(format!("{i}@example.com")),
+                    password,
+                    vec![Node::new(
+                        SmartMeter::new_acctive(Box::new(SineCurve::new())),
+                        Generator::new_acctive(Box::new(SineCurve::new())),
+                    )],
+                    0.0,
+                    false,
+                    Box::new(SineCurve::new()),
+                );
+                agent.run();
+            });
+            handels.push(handle);
+            thread::sleep(time::Duration::from_secs(1 * AGENT_SPEED));
+        }
+    });
 
-    for i in 1..15 {
-        let password = password.clone();
-        let handle = thread::spawn(move || {
-            let mut agent = Agent::new(
-                String::from(format!("{i}@example.com")),
-                password,
-                vec![Node::new(
-                    SmartMeter::new_acctive(Box::new(SineCurve::new())),
-                    Generator::new_acctive(Box::new(SineCurve::new())),
-                )],
-                0.0,
-                Box::new(SineCurve::new()),
-            );
-            agent.run();
-        });
-        handels.push(handle);
-        thread::sleep(time::Duration::from_secs(1 * AGENT_SPEED));
-    }
-
-    rocket::build().attach(CORS)
-        .mount(
-            "/",
-            routes![ 
-                stats,
-            ],
-        ).manage(Arc::new(Mutex::new(Vec::<Agent>::new())))
+    rocket::build()
+        .attach(CORS)
+        .mount("/", routes![stats, availible_appliances, add_appliances])
+        .manage(Arc::new(Mutex::new(Vec::<Agent>::new())))
 }
-

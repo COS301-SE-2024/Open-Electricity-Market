@@ -1,6 +1,9 @@
 pub trait Curve {
     fn sample(&mut self, time: f64) -> f64;
     fn total_in_24_hour(&mut self) -> f64;
+    fn add_curve(&mut self, _curve: Box<dyn Curve + Send + Sync>) {
+        //DO nothing
+    }
 }
 
 pub struct SineCurve;
@@ -21,21 +24,17 @@ impl Curve for SineCurve {
     }
 }
 
-
-struct CummutivelyCurve {
-    curves: Vec<Box<dyn Curve>>
+pub struct CummutiveCurve {
+    curves: Vec<Box<dyn Curve + Send + Sync>>,
 }
 
-impl CummutivelyCurve {
-    pub fn new() -> CummutivelyCurve {
-        return CummutivelyCurve{ curves: vec![] };
-    }
-    pub fn addCurve(&mut self,curve :Box<dyn Curve>) {
-        self.curves.push(curve);
+impl CummutiveCurve {
+    pub fn new() -> CummutiveCurve {
+        return CummutiveCurve { curves: vec![] };
     }
 }
 
-impl Curve for CummutivelyCurve {
+impl Curve for CummutiveCurve {
     fn sample(&mut self, time: f64) -> f64 {
         let mut total = 0.0;
         for curve in self.curves.iter_mut() {
@@ -50,5 +49,8 @@ impl Curve for CummutivelyCurve {
             total += curve.total_in_24_hour();
         }
         return total;
+    }
+    fn add_curve(&mut self, curve: Box<dyn Curve + Send + Sync>) {
+        self.curves.push(curve);
     }
 }

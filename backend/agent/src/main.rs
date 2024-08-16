@@ -120,6 +120,7 @@ fn add_appliances(
         );
     }
     let agent_index = agent_index.unwrap();
+    agents[agent_index].intialise();
     let node_index = agents[agent_index]
         .nodes
         .iter()
@@ -142,43 +143,6 @@ fn add_appliances(
         }
     }
     let message = "Succesfully added appliances".to_string();
-    content::RawJson(json!({"status": "ok", "message": message, "data": {}}).to_string())
-}
-
-#[derive(Deserialize)]
-struct AddDetail {
-    email: String,
-    node_id: String,
-}
-
-#[post("/add_node", format = "application/json", data = "<data>")]
-fn add_node(
-    agents: &State<Arc<Mutex<Vec<Agent>>>>,
-    data: Json<AddDetail>,
-) -> content::RawJson<String> {
-    let mut agents = agents.lock().unwrap();
-    let agent_index = agents.iter().position(|agent| agent.email == data.email);
-    if agent_index.is_none() {
-        let message = "No agent exits asscioated with provide email";
-        return content::RawJson(
-            json!({"status": "ok", "message": message, "data": {}}).to_string(),
-        );
-    }
-    let agent_index = agent_index.unwrap();
-    let node_index = agents[agent_index]
-        .nodes
-        .iter()
-        .position(|node| node.node_id == data.node_id);
-    if node_index.is_some() {
-        let message = format!("Node {} already exits", data.node_id);
-        return content::RawJson(
-            json!({"status": "ok", "message": message, "data": {}}).to_string(),
-        );
-    }
-    agents[agent_index]
-        .nodes
-        .push(Node::new(SmartMeter::InActtive, Generator::InAcctive));
-    let message = "Succesfully added node".to_string();
     content::RawJson(json!({"status": "ok", "message": message, "data": {}}).to_string())
 }
 
@@ -236,9 +200,10 @@ fn rocket() -> _ {
 
     rocket::build()
         .attach(CORS)
+        .configure(rocket::Config::figment().merge(("port", 8002)))
         .mount(
             "/",
-            routes![stats, availible_appliances, add_appliances, add_node,add_agent],
+            routes![stats, availible_appliances, add_appliances, add_agent],
         )
         .manage(Arc::new(Mutex::new(Vec::<Agent>::new())))
 }

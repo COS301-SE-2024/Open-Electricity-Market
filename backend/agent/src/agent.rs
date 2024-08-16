@@ -149,7 +149,7 @@ impl Agent {
         }
     }
 
-    fn intialise(&mut self) {
+    pub fn intialise(&mut self) {
         self.session_id = Agent::login_or_register_agent(self.email.clone(), self.password.clone());
         println!("{}", self.session_id.clone());
         let mut has_nodes = true;
@@ -189,14 +189,13 @@ impl Agent {
             node_ids = Agent::get_nodes(self.nodes.len() as u32, self.session_id.clone());
         }
 
-        let mut i = 0;
-        for id in node_ids {
+   
+        for (i,id) in node_ids.into_iter().enumerate() {
             if i >= self.nodes.len() {
                 break;
             }
-            self.nodes[i].node_id = id.clone();
-            println!("{id}");
-            i += 1;
+            self.nodes[i].node_id.clone_from(&id);
+            println!("{id}"); 
         }
     }
 

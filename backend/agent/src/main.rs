@@ -145,6 +145,39 @@ fn add_appliances(
     content::RawJson(json!({"status": "ok", "message": message, "data": {}}).to_string())
 }
 
+#[derive(Deserialize)]
+struct AddNode{
+    email: String,
+    node_id : String,
+}
+
+#[post("/add_node", format = "application/json", data = "<data>" )]
+fn add_node(agents: &State<Arc<Mutex<Vec<Agent>>>>,
+    data: Json<AddNode>,) -> content::RawJson<String> {
+    let mut agents = agents.lock().unwrap();
+    let agent_index = agents.iter().position(|agent| agent.email == data.email);
+    if agent_index.is_none() {
+        let message = "No agent exits asscioated with provide email";
+        return content::RawJson(
+            json!({"status": "ok", "message": message, "data": {}}).to_string(),
+        );
+    }
+    let agent_index = agent_index.unwrap();
+    let node_index = agents[agent_index]
+        .nodes
+        .iter()
+        .position(|node| node.node_id == data.node_id);
+    if node_index.is_some() {
+        let message = format!("Node {} already exits", data.node_id);
+        return content::RawJson(
+            json!({"status": "ok", "message": message, "data": {}}).to_string(),
+        );
+    }
+    agents[agent_index].nodes.push(Node::new(SmartMeter::InActtive, Generator::InAcctive));
+    let message = format!("Succesfully added node");
+    content::RawJson(json!({"status": "ok", "message": message, "data": {}}).to_string())
+}
+
 #[launch]
 fn rocket() -> _ {
     thread::spawn(move || {

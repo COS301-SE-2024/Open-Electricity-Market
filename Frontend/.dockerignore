@@ -1,3 +1,5 @@
 package-lock.json
 LICENSE
 README.md
+node_modules
+pnpm-lock.yaml

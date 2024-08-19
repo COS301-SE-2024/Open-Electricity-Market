@@ -10,10 +10,16 @@ use std::{
 use agent::Agent;
 use curve::{CummutiveCurve, SineCurve};
 use dotenvy::dotenv;
-use generator::Generator;
+use generator::{
+    production_curve::{
+        CoalGeneratorType, DieselGeneratorType, GeneratorCurveType, HydraulicTurbineType,
+        NuclearReactTypes, PetrolGeneratorType, SolarPanelType, WindTurbineType,
+    },
+    Generator,
+};
 use node::Node;
-use rocket::serde::json::Json;
 use rocket::response::content;
+use rocket::serde::json::Json;
 use rocket::{
     fairing::{Fairing, Info, Kind},
     State,
@@ -33,8 +39,8 @@ pub mod generator;
 pub mod location;
 pub mod net_structs;
 pub mod node;
-pub mod smart_meter;
 pub mod period;
+pub mod smart_meter;
 
 const AGENT_SPEED: u64 = 5 * 60;
 
@@ -67,6 +73,35 @@ impl Fairing for CORS {
 #[post("/stats")]
 fn stats() -> content::RawJson<String> {
     content::RawJson(json!({}).to_string())
+}
+
+#[post("/availible_generators")]
+fn availible_generators() -> content::RawJson<String> {
+    let all_generators = vec![
+        GeneratorCurveType::SolarPanel(SolarPanelType::Home),
+        GeneratorCurveType::SolarPanel(SolarPanelType::Industrial),
+        GeneratorCurveType::WindTurbine(WindTurbineType::Small),
+        GeneratorCurveType::WindTurbine(WindTurbineType::Medium),
+        GeneratorCurveType::WindTurbine(WindTurbineType::Large),
+        GeneratorCurveType::NuclearReactor(NuclearReactTypes::PWR),
+        GeneratorCurveType::NuclearReactor(NuclearReactTypes::BWR),
+        GeneratorCurveType::NuclearReactor(NuclearReactTypes::AGR),
+        GeneratorCurveType::NuclearReactor(NuclearReactTypes::FNR),
+        GeneratorCurveType::NuclearReactor(NuclearReactTypes::PHWR),
+        GeneratorCurveType::NuclearReactor(NuclearReactTypes::HTGR),
+        GeneratorCurveType::NuclearReactor(NuclearReactTypes::LWGR),
+        GeneratorCurveType::DieselGenerator(DieselGeneratorType::Home),
+        GeneratorCurveType::DieselGenerator(DieselGeneratorType::Industrial),
+        GeneratorCurveType::PetrolGenerator(PetrolGeneratorType::Home),
+        GeneratorCurveType::PetrolGenerator(PetrolGeneratorType::Industrial),
+        GeneratorCurveType::CoalGenerator(CoalGeneratorType::Small),
+        GeneratorCurveType::CoalGenerator(CoalGeneratorType::Medium),
+        GeneratorCurveType::CoalGenerator(CoalGeneratorType::Large),
+        GeneratorCurveType::HydraulicTurbine(HydraulicTurbineType::Small),
+        GeneratorCurveType::HydraulicTurbine(HydraulicTurbineType::Medium),
+        GeneratorCurveType::HydraulicTurbine(HydraulicTurbineType::Large),
+    ];
+    content::RawJson(json!({"generators":all_generators}).to_string())
 }
 
 #[post("/availible_appliances")]
@@ -148,13 +183,15 @@ fn add_appliances(
 
 #[derive(Deserialize)]
 struct AddAgentDetail {
-    email : String,
-    password : String
+    email: String,
+    password: String,
 }
 
 #[post("/add_agent", format = "application/json", data = "<data>")]
-fn add_agent(agents: &State<Arc<Mutex<Vec<Agent>>>>,
-    data: Json<AddAgentDetail>) -> content::RawJson<String> {
+fn add_agent(
+    agents: &State<Arc<Mutex<Vec<Agent>>>>,
+    data: Json<AddAgentDetail>,
+) -> content::RawJson<String> {
     let mut agents = agents.lock().unwrap();
     let agent_index = agents.iter().position(|agent| agent.email == data.email);
     if agent_index.is_some() {
@@ -164,7 +201,14 @@ fn add_agent(agents: &State<Arc<Mutex<Vec<Agent>>>>,
         );
     }
     let data = data.into_inner();
-    agents.push(Agent::new(data.email, data.password, vec![], 0.0, true,Box::new(SineCurve::new()) ));
+    agents.push(Agent::new(
+        data.email,
+        data.password,
+        vec![],
+        0.0,
+        true,
+        Box::new(SineCurve::new()),
+    ));
 
     let message = "Succesfully added agent".to_string();
     content::RawJson(json!({"status": "ok", "message": message, "data": {}}).to_string())
@@ -203,7 +247,13 @@ fn rocket() -> _ {
         .configure(rocket::Config::figment().merge(("port", 8002)))
         .mount(
             "/",
-            routes![stats, availible_appliances, add_appliances, add_agent],
+            routes![
+                stats,
+                availible_appliances,
+                add_appliances,
+                add_agent,
+                availible_generators
+            ],
         )
         .manage(Arc::new(Mutex::new(Vec::<Agent>::new())))
 }

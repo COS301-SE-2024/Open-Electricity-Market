@@ -5,12 +5,12 @@ use crate::{curve::Curve, period::Period};
 #[derive(Serialize, Deserialize)]
 pub enum SolarPanelType {
     Home,
-    Industrial
+    Industrial,
 }
 
 //https://www.yesenergysolutions.co.uk/advice/how-much-energy-solar-panels-produce-home
 impl SolarPanelType {
-    pub fn value(&self) ->f64 {
+    pub fn value(&self) -> f64 {
         match self {
             SolarPanelType::Home => 325.0,
             SolarPanelType::Industrial => 375.0,
@@ -22,12 +22,12 @@ impl SolarPanelType {
 pub enum WindTurbineType {
     Small,
     Medium,
-    Large
+    Large,
 }
 
 //https://www.energy.gov/eere/articles/wind-turbines-bigger-better
 impl WindTurbineType {
-    pub fn value(&self) ->f64 {
+    pub fn value(&self) -> f64 {
         match self {
             WindTurbineType::Small => 700_000.0,
             WindTurbineType::Medium => 2_000_000.0,
@@ -44,7 +44,7 @@ pub enum NuclearReactTypes {
     LWGR,
     AGR,
     FNR,
-    HTGR
+    HTGR,
 }
 
 //https://world-nuclear.org/information-library/nuclear-fuel-cycle/nuclear-power-reactors/nuclear-power-reactors
@@ -65,7 +65,7 @@ impl NuclearReactTypes {
 #[derive(Serialize, Deserialize)]
 pub enum DieselGeneratorType {
     Home,
-    Industrial
+    Industrial,
 }
 //https://lifetide.co.za
 impl DieselGeneratorType {
@@ -73,14 +73,14 @@ impl DieselGeneratorType {
         match self {
             DieselGeneratorType::Home => 5_000.0,
             DieselGeneratorType::Industrial => 100_000.0,
-        } 
+        }
     }
 }
 
 #[derive(Serialize, Deserialize)]
 pub enum PetrolGeneratorType {
     Home,
-    Industrial
+    Industrial,
 }
 
 //https://lifetide.co.za
@@ -89,15 +89,15 @@ impl PetrolGeneratorType {
         match self {
             PetrolGeneratorType::Home => 6_500.0,
             PetrolGeneratorType::Industrial => 23_000.0,
-        } 
+        }
     }
 }
 
 #[derive(Serialize, Deserialize)]
-pub enum CoalGeneratorType{
+pub enum CoalGeneratorType {
     Small,
     Medium,
-    Large
+    Large,
 }
 
 //https://satisfactory.fandom.com/wiki/Coal_Generator
@@ -107,15 +107,15 @@ impl CoalGeneratorType {
             CoalGeneratorType::Small => 63_000_000.0,
             CoalGeneratorType::Medium => 2_520_000.0,
             CoalGeneratorType::Large => 5_040_000.0,
-        } 
+        }
     }
 }
 
 #[derive(Serialize, Deserialize)]
-pub enum HydraulicTurbineType{
+pub enum HydraulicTurbineType {
     Small,
     Medium,
-    Large
+    Large,
 }
 
 //https://www.micro-hydro-power.com/A-Guide-to-Hydro-Power.htm
@@ -138,7 +138,7 @@ pub enum GeneratorCurveType {
     DieselGenerator(DieselGeneratorType),
     PetrolGenerator(PetrolGeneratorType),
     CoalGenerator(CoalGeneratorType),
-    HydraulicTurbine(HydraulicTurbineType)
+    HydraulicTurbine(HydraulicTurbineType),
 }
 
 impl GeneratorCurveType {
@@ -154,8 +154,6 @@ impl GeneratorCurveType {
         }
     }
 }
-
-
 
 #[derive(Deserialize)]
 pub struct GeneratorCurve {

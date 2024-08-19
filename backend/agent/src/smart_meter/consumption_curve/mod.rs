@@ -59,8 +59,6 @@ impl HomeApplianceType {
     }
 }
 
-
-
 #[derive(Deserialize)]
 pub struct HomeAppliance {
     appliance_type: HomeApplianceType,

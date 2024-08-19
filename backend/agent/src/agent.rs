@@ -189,13 +189,12 @@ impl Agent {
             node_ids = Agent::get_nodes(self.nodes.len() as u32, self.session_id.clone());
         }
 
-   
-        for (i,id) in node_ids.into_iter().enumerate() {
+        for (i, id) in node_ids.into_iter().enumerate() {
             if i >= self.nodes.len() {
                 break;
             }
             self.nodes[i].node_id.clone_from(&id);
-            println!("{id}"); 
+            println!("{id}");
         }
     }
 

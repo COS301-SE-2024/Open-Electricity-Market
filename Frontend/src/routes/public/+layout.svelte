@@ -13,13 +13,13 @@
 
   function showModal(){
     if(activebutton=="/public/GridSimulation"){
-        document.getElementById("my_modal_grid").showModal(); 
+      document.getElementById("my_modal_grid").showModal(); 
     }
     else if (activebutton=="/Main/Dashboard"){
-        document.getElementById("my_modal_dash").showModal();
+      document.getElementById("my_modal_dash").showModal();
     }
     else if(activebutton=="/Main/BiddingMarket"){
-        document.getElementById("help_modal").showModal();
+      document.getElementById("help_modal").showModal();
     }
 
   }

@@ -34,6 +34,7 @@ pub mod location;
 pub mod net_structs;
 pub mod node;
 pub mod smart_meter;
+pub mod period;
 
 const AGENT_SPEED: u64 = 5 * 60;
 
@@ -88,7 +89,6 @@ fn availible_appliances() -> content::RawJson<String> {
         HomeApplianceType::Laptop,
         HomeApplianceType::Tv,
         HomeApplianceType::Screen,
-        HomeApplianceType::SolarPanel,
         HomeApplianceType::Fan,
         HomeApplianceType::AirConditioner,
         HomeApplianceType::Computer,

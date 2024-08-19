@@ -2,6 +2,8 @@ use serde::Deserialize;
 
 use super::curve::Curve;
 
+pub mod production_curve;
+
 #[derive(Deserialize, Clone, Copy)]
 pub struct GeneratorDetail {
     pub circuit: u32,

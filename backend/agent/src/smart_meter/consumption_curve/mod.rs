@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::curve::Curve;
+use crate::{curve::Curve, period::Period};
 
 #[derive(Serialize, Deserialize)]
 pub enum HomeApplianceType {
@@ -21,7 +21,6 @@ pub enum HomeApplianceType {
     Laptop,
     Tv,
     Screen,
-    SolarPanel,
     Fan,
     AirConditioner,
     Computer,
@@ -50,7 +49,6 @@ impl HomeApplianceType {
             HomeApplianceType::Laptop => 61.0,
             HomeApplianceType::Tv => 54.0,
             HomeApplianceType::Screen => 30.0,
-            HomeApplianceType::SolarPanel => 417.0,
             HomeApplianceType::Fan => 83.0,
             HomeApplianceType::AirConditioner => 45.0,
             HomeApplianceType::Computer => 280.0,
@@ -61,20 +59,7 @@ impl HomeApplianceType {
     }
 }
 
-#[derive(Deserialize)]
-pub struct Period {
-    start: f64,
-    end: f64,
-}
 
-impl Period {
-    fn during(&self, time: f64) -> bool {
-        self.start < time && self.end > time
-    }
-    fn duration(&self) -> f64 {
-        self.end - self.start
-    }
-}
 
 #[derive(Deserialize)]
 pub struct HomeAppliance {

@@ -186,10 +186,10 @@ impl Agent {
         }
 
         if !has_nodes {
-            node_ids = Agent::get_nodes(1024,self.session_id.clone());
+            node_ids = Agent::get_nodes(1024, self.session_id.clone());
         }
 
-        println!("Is empty {}",self.nodes.is_empty());
+        println!("Is empty {}", self.nodes.is_empty());
         if !self.nodes.is_empty() {
             for (i, id) in node_ids.into_iter().enumerate() {
                 if i >= self.nodes.len() {

@@ -157,7 +157,7 @@ impl GeneratorCurveType {
 
 #[derive(Deserialize)]
 pub struct GeneratorCurve {
-    appliance_type: GeneratorCurveType,
+    generator_type: GeneratorCurveType,
     on_periods: Vec<Period>,
 }
 
@@ -172,7 +172,7 @@ impl Curve for GeneratorCurve {
             }
         }
         if on {
-            self.appliance_type.value()
+            self.generator_type.value()
         } else {
             0.0
         }
@@ -181,7 +181,7 @@ impl Curve for GeneratorCurve {
     fn total_in_24_hour(&mut self) -> f64 {
         let mut total = 0.0;
         for period in self.on_periods.iter() {
-            total += period.duration() * self.appliance_type.value();
+            total += period.duration() * self.generator_type.value();
         }
         total
     }

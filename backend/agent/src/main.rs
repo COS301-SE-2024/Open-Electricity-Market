@@ -12,8 +12,9 @@ use curve::{CummutiveCurve, SineCurve};
 use dotenvy::dotenv;
 use generator::{
     production_curve::{
-        CoalGeneratorType, DieselGeneratorType, GeneratorCurveType, HydraulicTurbineType,
-        NuclearReactTypes, PetrolGeneratorType, SolarPanelType, WindTurbineType,
+        CoalGeneratorType, DieselGeneratorType, GeneratorCurve, GeneratorCurveType,
+        HydraulicTurbineType, NuclearReactTypes, PetrolGeneratorType, SolarPanelType,
+        WindTurbineType,
     },
     Generator,
 };
@@ -182,6 +183,53 @@ fn add_appliances(
 }
 
 #[derive(Deserialize)]
+struct AddGeneratrosDetail {
+    email: String,
+    node_id: String,
+    generators: Vec<GeneratorCurve>,
+}
+
+#[post("/add_generators", format = "application/json", data = "<data>")]
+fn add_generators(
+    agents: &State<Arc<Mutex<Vec<Agent>>>>,
+    data: Json<AddGeneratrosDetail>,
+) -> content::RawJson<String> {
+    let mut agents = agents.lock().unwrap();
+    let agent_index = agents.iter().position(|agent| agent.email == data.email);
+    if agent_index.is_none() {
+        let message = "No agent exits asscioated with provide email";
+        return content::RawJson(
+            json!({"status": "ok", "message": message, "data": {}}).to_string(),
+        );
+    }
+    let agent_index = agent_index.unwrap();
+    agents[agent_index].intialise();
+    let node_index = agents[agent_index]
+        .nodes
+        .iter()
+        .position(|node| node.node_id == data.node_id);
+    if node_index.is_none() {
+        let message = format!("Node {} does not exit", data.node_id);
+        return content::RawJson(
+            json!({"status": "ok", "message": message, "data": {}}).to_string(),
+        );
+    }
+    let node_index = node_index.unwrap();
+    if let Generator::InAcctive = &mut agents[agent_index].nodes[node_index].generator {
+        agents[agent_index].nodes[node_index].generator =
+            Generator::new_acctive(Box::new(CummutiveCurve::new()))
+    }
+    if let Generator::Acctive(core) = &mut agents[agent_index].nodes[node_index].generator {
+        let data = data.into_inner();
+        for generator in data.generators {
+            core.production_curve.add_curve(Box::new(generator));
+        }
+    }
+    let message = "Succesfully added generators".to_string();
+    content::RawJson(json!({"status": "ok", "message": message, "data": {}}).to_string())
+}
+
+#[derive(Deserialize)]
 struct AddAgentDetail {
     email: String,
     password: String,
@@ -252,7 +300,8 @@ fn rocket() -> _ {
                 availible_appliances,
                 add_appliances,
                 add_agent,
-                availible_generators
+                availible_generators,
+                add_generators
             ],
         )
         .manage(Arc::new(Mutex::new(Vec::<Agent>::new())))

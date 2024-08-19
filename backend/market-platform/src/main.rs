@@ -258,6 +258,8 @@ fn rocket() -> _ {
                 market_interaction::list_open_buys,
                 market_interaction::estimate_buy_fee,
                 market_interaction::estimate_sell_fee,
+                market_interaction::all_open_buy,
+                market_interaction::all_open_sell,
             ],
         )
         .configure(rocket::Config::figment().merge(("port", 8001)))

@@ -1,5 +1,6 @@
 use crate::models::{BuyOrder, NewNodeModel, Node, SellOrder, Transaction};
-use crate::{establish_connection, schema, verify_user, TRANSACTION_LIFETIME};
+use crate::user_management::verify_user;
+use crate::{establish_connection, schema, TRANSACTION_LIFETIME};
 use chrono::{Duration, Utc};
 use diesel::prelude::*;
 use rocket::http::CookieJar;

@@ -118,12 +118,14 @@ pub enum HydraulicTurbineType{
     Large
 }
 
+//https://www.micro-hydro-power.com/A-Guide-to-Hydro-Power.htm
+//https://www.hydropower.org/case-study/worlds-largest-turbine
 impl HydraulicTurbineType {
     pub fn value(&self) -> f64 {
         match self {
-            HydraulicTurbineType::Small => todo!(),
-            HydraulicTurbineType::Medium => todo!(),
-            HydraulicTurbineType::Large => todo!(),
+            HydraulicTurbineType::Small => 5_000_000.0,
+            HydraulicTurbineType::Medium => 200_000_000.0,
+            HydraulicTurbineType::Large => 1_000_000_000.0,
         }
     }
 }
@@ -142,6 +144,13 @@ pub enum GeneratorCurveType {
 impl GeneratorCurveType {
     fn value(&self) -> f64 {
         match self {
+            GeneratorCurveType::SolarPanel(sort) => sort.value(),
+            GeneratorCurveType::WindTurbine(sort) => sort.value(),
+            GeneratorCurveType::NuclearReactor(sort) => sort.value(),
+            GeneratorCurveType::DieselGenerator(sort) => sort.value(),
+            GeneratorCurveType::PetrolGenerator(sort) => sort.value(),
+            GeneratorCurveType::CoalGenerator(sort) => sort.value(),
+            GeneratorCurveType::HydraulicTurbine(sort) => sort.value(),
         }
     }
 }

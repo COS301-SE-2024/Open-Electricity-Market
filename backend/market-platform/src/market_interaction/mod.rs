@@ -1,9 +1,10 @@
 use crate::models::{
     BuyOrder, NewBuyOrder, NewSellOrder, NewTransaction, Node, SellOrder, Transaction,
 };
+use crate::user_management::verify_user;
 use crate::{
-    buy_fee_calc, establish_connection, schema, sell_fee_calc, verify_user, TARGET_HISTORY_POINTS,
-    TRANSACTION_LIFETIME,
+    establish_connection, schema, IMPEDANCE_RATE, SUPPLY_DEMAND_RATE, TARGET_HISTORY_POINTS,
+    TRANSACTION_LIFETIME, UNIT_PRICE_RATE,
 };
 use chrono::{Duration, Utc};
 use diesel::prelude::*;
@@ -11,7 +12,122 @@ use rocket::http::CookieJar;
 use rocket::serde::json::serde_json::json;
 use rocket::serde::json::{Json, Value};
 use rocket::serde::{Deserialize, Serialize};
+use std::env;
 use uuid::Uuid;
+
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct GridStats {
+    total_impedance: f64,
+    total_generation: f64,
+    consumer_count: i64,
+    producer_count: i64,
+    user_count: i64,
+}
+
+fn buy_fee_calc(units: f64, price: f64) -> f64 {
+    use self::schema::open_em::buy_orders::dsl::*;
+    use self::schema::open_em::sell_orders::dsl::*;
+
+    let connection = &mut establish_connection();
+
+    let mut demand = 0f64;
+
+    match buy_orders
+        .filter(sought_units.gt(filled_units))
+        // .filter(active.eq(true))
+        .execute(connection)
+    {
+        Ok(num_buys) => demand = num_buys as f64,
+        Err(_) => {}
+    }
+
+    let mut supply = 0f64;
+    match sell_orders
+        .filter(offered_units.gt(claimed_units))
+        // .filter(active.eq(true))
+        .execute(connection)
+    {
+        Ok(num_sells) => supply = num_sells as f64,
+        Err(_) => {}
+    }
+
+    let mut impedance = 1f64;
+    match env::var("GRID_URL") {
+        Ok(grid_url) => {
+            let client = reqwest::blocking::Client::new();
+            match client.post(grid_url + "/stats").send() {
+                Ok(response) => match response.json::<GridStats>() {
+                    Ok(grid_stats) => impedance = grid_stats.total_impedance,
+                    Err(_) => {}
+                },
+                Err(_) => {}
+            }
+        }
+        Err(_) => {}
+    }
+
+    let mut demand_supply_diff = 1f64;
+    if supply < demand {
+        demand_supply_diff = demand - supply
+    }
+
+    return units * price * UNIT_PRICE_RATE
+        + (f64::log10(demand_supply_diff) * SUPPLY_DEMAND_RATE)
+        + (f64::log10(impedance) * IMPEDANCE_RATE);
+}
+
+fn sell_fee_calc(units: f64, price: f64) -> f64 {
+    use self::schema::open_em::buy_orders::dsl::*;
+    use self::schema::open_em::sell_orders::dsl::*;
+
+    let connection = &mut establish_connection();
+
+    let mut demand = 0f64;
+
+    match buy_orders
+        .filter(sought_units.gt(filled_units))
+        // .filter(active.eq(true))
+        .execute(connection)
+    {
+        Ok(num_buys) => demand = num_buys as f64,
+        Err(_) => {}
+    }
+
+    let mut supply = 0f64;
+    match sell_orders
+        .filter(offered_units.gt(claimed_units))
+        // .filter(active.eq(true))
+        .execute(connection)
+    {
+        Ok(num_sells) => supply = num_sells as f64,
+        Err(_) => {}
+    }
+
+    let mut impedance = 1f64;
+    match env::var("GRID_URL") {
+        Ok(grid_url) => {
+            let client = reqwest::blocking::Client::new();
+            match client.post(grid_url + "/stats").send() {
+                Ok(response) => match response.json::<GridStats>() {
+                    Ok(grid_stats) => impedance = grid_stats.total_impedance,
+                    Err(_) => {}
+                },
+                Err(_) => {}
+            }
+        }
+        Err(_) => {}
+    }
+
+    let mut supply_demand_diff = 1f64;
+    if demand < supply {
+        supply_demand_diff = supply - demand
+    }
+
+    return (units * price * UNIT_PRICE_RATE)
+        + (f64::log10(supply_demand_diff) * SUPPLY_DEMAND_RATE)
+        + (f64::log10(impedance) * IMPEDANCE_RATE);
+}
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]

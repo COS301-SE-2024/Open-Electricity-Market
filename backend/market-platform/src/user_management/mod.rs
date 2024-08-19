@@ -1,5 +1,5 @@
+use crate::establish_connection;
 use crate::models::{NewProfileModel, NewUserModel, Profile, User};
-use crate::{establish_connection, verify_user};
 use diesel::prelude::*;
 use pwhash::bcrypt;
 use regex::Regex;
@@ -8,6 +8,57 @@ use rocket::serde::json::serde_json::json;
 use rocket::serde::json::{Json, Value};
 use rocket::serde::{Deserialize, Serialize};
 use uuid::Uuid;
+
+pub struct Claims {
+    pub message: String,
+    pub user_id: Uuid,
+}
+
+pub fn verify_user(cookie_jar: &CookieJar<'_>) -> Claims {
+    use crate::schema::open_em::users::dsl::*;
+
+    let connection = &mut establish_connection();
+
+    let mut response = Claims {
+        message: "".to_string(),
+        user_id: Uuid::nil(),
+    };
+
+    let session_cookie = cookie_jar.get("session_id");
+
+    let mut has_cookie = false;
+    let mut session_id_str: String = "".to_string();
+    match session_cookie {
+        None => response.message = "Session ID not found".to_string(),
+        Some(cookie) => {
+            let cookie_value = cookie.value().parse();
+            match cookie_value {
+                Ok(cookie_str) => {
+                    has_cookie = true;
+                    session_id_str = cookie_str;
+                }
+                Err(_) => {}
+            };
+        }
+    }
+
+    if has_cookie {
+        response.message = "No matching user".to_string();
+        match users
+            .filter(session_id.eq(session_id_str))
+            .select(User::as_select())
+            .first(connection)
+        {
+            Ok(user) => {
+                response.message = "User found".to_string();
+                response.user_id = user.user_id;
+            }
+            Err(_) => {}
+        }
+    }
+
+    return response;
+}
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]

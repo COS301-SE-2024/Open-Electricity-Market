@@ -19,7 +19,7 @@ use generator::{
     Generator,
 };
 use node::Node;
-use rocket::response::content;
+use rocket::{form::validate::Len, response::content, tokio};
 use rocket::serde::json::Json;
 use rocket::{
     fairing::{Fairing, Info, Kind},
@@ -33,6 +33,7 @@ use serde::Deserialize;
 use serde_json::json;
 use smart_meter::consumption_curve::HomeApplianceType;
 use smart_meter::{consumption_curve::HomeAppliance, SmartMeter};
+use crate::tokio::time::sleep;
 
 pub mod agent;
 pub mod curve;
@@ -240,6 +241,7 @@ fn add_agent(
     agents: &State<Arc<Mutex<Vec<Agent>>>>,
     data: Json<AddAgentDetail>,
 ) -> content::RawJson<String> {
+    let lock = agents.inner().clone();
     let mut agents = agents.lock().unwrap();
     let agent_index = agents.iter().position(|agent| agent.email == data.email);
     if agent_index.is_some() {
@@ -257,6 +259,22 @@ fn add_agent(
         true,
         Box::new(SineCurve::new()),
     ));
+
+    
+
+    let id = agents.len()-1;
+    agents[id].intialise();
+    tokio::spawn(async move { 
+        let mut accumilated_time = 0.0;
+        loop {
+            {
+            let mut agent = lock.lock().unwrap();
+            accumilated_time = agent[id].async_run(accumilated_time);
+            } 
+            thread::sleep(time::Duration::from_secs(AGENT_SPEED));
+        }   
+        }
+    );
 
     let message = "Succesfully added agent".to_string();
     content::RawJson(json!({"status": "ok", "message": message, "data": {}}).to_string())

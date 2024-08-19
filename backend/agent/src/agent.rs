@@ -2,7 +2,7 @@ use core::time;
 use rand::Rng;
 use reqwest::header;
 use std::time::Instant;
-use std::{env, thread};
+use std::{env, f64, thread};
 
 use crate::{
     curve::Curve,
@@ -537,4 +537,13 @@ impl Agent {
             }
         }
     }
+
+    pub fn async_run(&mut self, mut accumilated_time : f64) -> f64 { 
+            let elapsed;
+            let now = Instant::now();
+            let _ = self.update(accumilated_time);
+            elapsed = now.elapsed().as_secs_f64();
+            accumilated_time += elapsed;
+            accumilated_time
+        }
 }

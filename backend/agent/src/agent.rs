@@ -126,7 +126,7 @@ impl Agent {
         }
     }
 
-    fn get_nodes(limit: u32, session_id: String) -> Vec<String> {
+    pub fn get_nodes(limit: u32, session_id: String) -> Vec<String> {
         let get_node_detail = GetNodeDetail { limit };
         let url = env::var("MURL").unwrap();
         let client = reqwest::blocking::Client::new();
@@ -154,7 +154,7 @@ impl Agent {
         println!("{}", self.session_id.clone());
         let mut has_nodes = true;
 
-        let mut node_ids = Agent::get_nodes(self.nodes.len() as u32, self.session_id.clone());
+        let mut node_ids = Agent::get_nodes(1024, self.session_id.clone());
         if node_ids.is_empty() {
             has_nodes = false;
         }
@@ -186,15 +186,28 @@ impl Agent {
         }
 
         if !has_nodes {
-            node_ids = Agent::get_nodes(self.nodes.len() as u32, self.session_id.clone());
+            node_ids = Agent::get_nodes(1024,self.session_id.clone());
         }
 
-        for (i, id) in node_ids.into_iter().enumerate() {
-            if i >= self.nodes.len() {
-                break;
+        println!("Is empty {}",self.nodes.is_empty());
+        if !self.nodes.is_empty() {
+            for (i, id) in node_ids.into_iter().enumerate() {
+                if i >= self.nodes.len() {
+                    break;
+                }
+                self.nodes[i].node_id.clone_from(&id);
+                println!("{id}");
             }
-            self.nodes[i].node_id.clone_from(&id);
-            println!("{id}");
+        } else {
+            for id in node_ids.iter() {
+                self.nodes.push(Node {
+                    node_id: id.clone(),
+                    location: Location::new(),
+                    smart_meter: SmartMeter::InActtive,
+                    generator: Generator::InAcctive,
+                });
+                println!("{id}");
+            }
         }
     }
 
@@ -538,12 +551,12 @@ impl Agent {
         }
     }
 
-    pub fn async_run(&mut self, mut accumilated_time : f64) -> f64 { 
-            let elapsed;
-            let now = Instant::now();
-            let _ = self.update(accumilated_time);
-            elapsed = now.elapsed().as_secs_f64();
-            accumilated_time += elapsed;
-            accumilated_time
-        }
+    pub fn async_run(&mut self, mut accumilated_time: f64) -> f64 {
+        let elapsed;
+        let now = Instant::now();
+        let _ = self.update(accumilated_time);
+        elapsed = now.elapsed().as_secs_f64();
+        accumilated_time += elapsed;
+        accumilated_time
+    }
 }

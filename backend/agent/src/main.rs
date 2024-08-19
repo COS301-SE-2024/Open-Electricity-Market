@@ -7,6 +7,7 @@ use std::{
     thread, time,
 };
 
+use crate::tokio::time::sleep;
 use agent::Agent;
 use curve::{CummutiveCurve, SineCurve};
 use dotenvy::dotenv;
@@ -19,12 +20,12 @@ use generator::{
     Generator,
 };
 use node::Node;
-use rocket::{form::validate::Len, response::content, tokio};
 use rocket::serde::json::Json;
 use rocket::{
     fairing::{Fairing, Info, Kind},
     State,
 };
+use rocket::{form::validate::Len, response::content, tokio};
 use rocket::{
     http::{Header, Method, Status},
     Request, Response,
@@ -33,7 +34,6 @@ use serde::Deserialize;
 use serde_json::json;
 use smart_meter::consumption_curve::HomeApplianceType;
 use smart_meter::{consumption_curve::HomeAppliance, SmartMeter};
-use crate::tokio::time::sleep;
 
 pub mod agent;
 pub mod curve;
@@ -260,21 +260,18 @@ fn add_agent(
         Box::new(SineCurve::new()),
     ));
 
-    
-
-    let id = agents.len()-1;
+    let id = agents.len() - 1;
     agents[id].intialise();
-    tokio::spawn(async move { 
+    tokio::spawn(async move {
         let mut accumilated_time = 0.0;
         loop {
             {
-            let mut agent = lock.lock().unwrap();
-            accumilated_time = agent[id].async_run(accumilated_time);
-            } 
+                let mut agent = lock.lock().unwrap();
+                accumilated_time = agent[id].async_run(accumilated_time);
+            }
             thread::sleep(time::Duration::from_secs(AGENT_SPEED));
-        }   
         }
-    );
+    });
 
     let message = "Succesfully added agent".to_string();
     content::RawJson(json!({"status": "ok", "message": message, "data": {}}).to_string())

@@ -149,7 +149,7 @@
   </dialog>
 </header>
 
-<main id="main" class="container mx-auto mt-8 hidden">
+<main id="main" class="container mx-auto mt-8">
   {#if loggedIn}
     <slot />
   {/if}

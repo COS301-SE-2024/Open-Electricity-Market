@@ -17,11 +17,11 @@
 
   });
 
-  let consumers; 
-  let producers; 
-  let generation; 
-  let impedance; 
-  let totalusers; 
+  $: consumers = null; 
+  $: producers = null;
+  $: generation = null;
+  $: impedance = null;
+  $: totalusers = null;
   const today = new Date();
   const options = { day: 'numeric', month: 'long', year: 'numeric' };
   const currdate = today.toLocaleDateString('en-US', options);
@@ -57,29 +57,50 @@
 <div class="stats stats-vertical lg:stats-horizontal shadow w-full">
   <div class="stat">
     <div class="stat-title">Total Users</div>
+    {#if totalusers == null}
+    <span class="loading loading-spinner loading-lg"></span>
+    {:else}
     <div class="stat-value">{Intl.NumberFormat().format(totalusers)}</div>
+    {/if}
     <div class="stat-desc">{currdate}</div>
   </div>
 
   <div class="stat">
     <div class="stat-title">Number of producers</div>
+    {#if producers == null}
+    <span class="loading loading-spinner loading-lg"></span>  
+    {:else}
     <div class="stat-value">{Intl.NumberFormat().format(producers)}</div>
+    {/if}
     <!-- <div class="stat-desc">↗︎{(Math.random(80)*100).toFixed(2)}%</div> -->
   </div>
 
   <div class="stat">
     <div class="stat-title">Number of consumers</div>
+    {#if consumers == null}
+    <span class="loading loading-spinner loading-lg"></span>
+    {:else}
     <div class="stat-value">{Intl.NumberFormat().format(consumers)}</div>
+    {/if}
   </div>
 
    <div class="stat">
     <div class="stat-title">Total Generation</div>
+    {#if generation == null}
+    <span class="loading loading-spinner loading-lg"></span>  
+    {:else}
     <div class="stat-value">{Intl.NumberFormat().format(generation)} V</div>
+    {/if}
   </div>
 
   <div class="stat">
     <div class="stat-title">Total Impedance</div>
+    {#if impedance == null}
+    <span class="loading loading-spinner loading-lg"></span>
+    {:else}
     <div class="stat-value">{Intl.NumberFormat().format(impedance)} Ω</div>
+    {/if}
     <div class="stat-desc">Measure of opposition to electrical flow</div>
   </div>
+
 </div>

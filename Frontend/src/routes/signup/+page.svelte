@@ -113,7 +113,7 @@
 
   async function addAgent(){
 
-    let data = {
+    let details = {
     "email": email,
     "password": password,
     "session_id": Cookies.get('session_id'),
@@ -124,7 +124,9 @@
       headers: {
         "Content-Type": "application/json",
       }, 
+      body : JSON.stringify(details),
       credentials: "include",
+   
     });
     const fdata = await res.json(); 
     console.log("Add agent endpoint: ", fdata); 

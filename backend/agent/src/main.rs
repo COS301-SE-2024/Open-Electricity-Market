@@ -179,6 +179,7 @@ fn add_appliances(
             core.consumption_curve.add_curve(Box::new(appliance));
         }
     }
+    agents[agent_index].intialise();
     let message = "Succesfully added appliances".to_string();
     content::RawJson(json!({"status": "ok", "message": message, "data": {}}).to_string())
 }
@@ -226,7 +227,34 @@ fn add_generators(
             core.production_curve.add_curve(Box::new(generator));
         }
     }
+    agents[agent_index].intialise();
     let message = "Succesfully added generators".to_string();
+    content::RawJson(json!({"status": "ok", "message": message, "data": {}}).to_string())
+}
+
+#[derive(Deserialize)]
+struct SetSessionDetail {
+    email: String,
+    session_id: String,
+}
+
+#[post("/set_session", format = "application/json", data = "<data>")]
+fn set_session(
+    agents: &State<Arc<Mutex<Vec<Agent>>>>,
+    data: Json<SetSessionDetail>,
+) -> content::RawJson<String> {
+    let mut agents = agents.lock().unwrap();
+    let agent_index = agents.iter().position(|agent| agent.email == data.email);
+    if agent_index.is_none() {
+        let message = "No agent exits asscioated with provide email";
+        return content::RawJson(
+            json!({"status": "ok", "message": message, "data": {}}).to_string(),
+        );
+    }
+    let agent_index = agent_index.unwrap();
+    agents[agent_index].session_id = data.session_id.clone();
+
+    let message = "Succesfully set session id".to_string();
     content::RawJson(json!({"status": "ok", "message": message, "data": {}}).to_string())
 }
 
@@ -234,6 +262,7 @@ fn add_generators(
 struct AddAgentDetail {
     email: String,
     password: String,
+    session_id: String,
 }
 
 #[post("/add_agent", format = "application/json", data = "<data>")]
@@ -261,6 +290,7 @@ fn add_agent(
     ));
 
     let id = agents.len() - 1;
+    agents[id].session_id = data.session_id;
     agents[id].intialise();
     tokio::spawn(async move {
         let mut accumilated_time = 0.0;
@@ -316,7 +346,8 @@ fn rocket() -> _ {
                 add_appliances,
                 add_agent,
                 availible_generators,
-                add_generators
+                add_generators,
+                set_session
             ],
         )
         .manage(Arc::new(Mutex::new(Vec::<Agent>::new())))

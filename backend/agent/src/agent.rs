@@ -150,7 +150,10 @@ impl Agent {
     }
 
     pub fn intialise(&mut self) {
-        self.session_id = Agent::login_or_register_agent(self.email.clone(), self.password.clone());
+        if self.session_id == "" {
+            self.session_id =
+                Agent::login_or_register_agent(self.email.clone(), self.password.clone());
+        }
         println!("{}", self.session_id.clone());
         let mut has_nodes = true;
 
@@ -163,14 +166,18 @@ impl Agent {
             //Create on grid
             match &mut node.generator {
                 Generator::Acctive(core) => {
-                    core.grid_detail = Agent::create_producer_grid(node.location);
+                    if core.grid_detail.generator == 0 {
+                        core.grid_detail = Agent::create_producer_grid(node.location);
+                    }
                 }
                 Generator::InAcctive => {}
             }
 
             match &mut node.smart_meter {
                 SmartMeter::Acctive(core) => {
-                    core.grid_detail = Agent::create_consumer_grid(node.location);
+                    if core.grid_detail.consumer == 0 {
+                        core.grid_detail = Agent::create_consumer_grid(node.location);
+                    }
                 }
                 SmartMeter::InActtive => {}
             }

@@ -572,6 +572,11 @@
           <button class="btn btn-error mx-2 w-48" on:click={() => {
               document.getElementById("removeNodeConfirmation").showModal();
             }}>Remove this node</button>
+
+          <button class="btn btn-primary mx-2 w-48" on:click={() => {
+            document.getElementById("removeNodeConfirmation").showModal();
+          }}>Add appliance</button>
+          
         </div>
       </div>
     {/if}

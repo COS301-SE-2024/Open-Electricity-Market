@@ -12,6 +12,7 @@
   let errormessage = "";
   let validEmail = false;
   let validPassword = false;
+  let data = {}; 
 
 
 
@@ -98,6 +99,7 @@
       if(json.status == "ok")
       {
         Cookies.set('session_id', json.data.session_id, {path: '/',domain : COOKIE_DOMAIN, sameSite : 'None', secure:true });
+        addAgent(); 
         goto("/Main/Dashboard");
       }
       else
@@ -108,6 +110,28 @@
       errormessage = "Passwords must match"
     }
   }
+
+  async function addAgent(){
+
+    let data = {
+    "email": email,
+    "password": password,
+    "session_id": Cookies.get('session_id'),
+  }
+
+    const res = await fetch(`${API_URL_AGENT}/add_agent`, {
+      method: "POST", 
+      headers: {
+        "Content-Type": "application/json",
+      }, 
+      credentials: "include",
+    });
+    const fdata = await res.json(); 
+    console.log("Add agent endpoint: ", fdata); 
+    
+
+  } 
+
 </script>
 <main>
     <div class="hero min-h-screen" style="background-image: url(https://images.unsplash.com/photo-1510595256055-e44b27efe497?q=80&w=1700&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D);">

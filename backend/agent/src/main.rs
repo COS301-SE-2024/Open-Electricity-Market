@@ -226,25 +226,24 @@ fn add_generators(
         for generator in data.generators {
             core.production_curve.add_curve(Box::new(generator));
         }
-    } 
+    }
     agents[agent_index].intialise();
     let message = "Succesfully added generators".to_string();
     content::RawJson(json!({"status": "ok", "message": message, "data": {}}).to_string())
 }
 
-
 #[derive(Deserialize)]
 struct SetSessionDetail {
-    email : String,
-    session_id : String
+    email: String,
+    session_id: String,
 }
 
 #[post("/set_session", format = "application/json", data = "<data>")]
 fn set_session(
     agents: &State<Arc<Mutex<Vec<Agent>>>>,
     data: Json<SetSessionDetail>,
-) -> content::RawJson<String>  {
- let mut agents = agents.lock().unwrap();
+) -> content::RawJson<String> {
+    let mut agents = agents.lock().unwrap();
     let agent_index = agents.iter().position(|agent| agent.email == data.email);
     if agent_index.is_none() {
         let message = "No agent exits asscioated with provide email";
@@ -254,7 +253,6 @@ fn set_session(
     }
     let agent_index = agent_index.unwrap();
     agents[agent_index].session_id = data.session_id.clone();
-    
 
     let message = "Succesfully set session id".to_string();
     content::RawJson(json!({"status": "ok", "message": message, "data": {}}).to_string())
@@ -264,7 +262,7 @@ fn set_session(
 struct AddAgentDetail {
     email: String,
     password: String,
-    session_id: String  
+    session_id: String,
 }
 
 #[post("/add_agent", format = "application/json", data = "<data>")]

@@ -151,7 +151,8 @@ impl Agent {
 
     pub fn intialise(&mut self) {
         if self.session_id == "" {
-                self.session_id = Agent::login_or_register_agent(self.email.clone(), self.password.clone());
+            self.session_id =
+                Agent::login_or_register_agent(self.email.clone(), self.password.clone());
         }
         println!("{}", self.session_id.clone());
         let mut has_nodes = true;

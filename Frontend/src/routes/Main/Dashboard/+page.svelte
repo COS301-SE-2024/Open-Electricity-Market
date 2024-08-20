@@ -570,80 +570,41 @@
           <div class="stat-value">{Intl.NumberFormat().format(nodeToProduce)}Wh</div>
         </div>
 
-        <div class="flex-col min-w-max">
-          <button class="btn btn-primary mx-2 w-48" on:click={() => {
-              sessionStorage.setItem("node_id", selectedNodeID);
-              //reroute to market 
-              goto('../Main/BiddingMarket');
-            }}>Transact with this node</button>
-          <button class="btn btn-error mx-2 w-48" on:click={() => {
-              document.getElementById("removeNodeConfirmation").showModal();
-            }}>Remove this node</button>
-
-          
-
-
+        
 
        
-          
-        </div>
-
-        <div class="flex-col min-w-3/4">
-
-          <!-- <ul class="menu lg:menu-horizontal bg-base-200 rounded-box lg:mb-64">
-            <li>
-              <details open>
-                <summary placeholder = "Add appliance" value = {appliance}>Add appliance</summary>
-                <ul>
-                  <li><a>Washing Machine</a></li>
-                  <li><a>Router</a></li>
-                  <li><a>Vacuum</a></li>
-                  <li><a>Dishwasher</a></li>
-                  <li><a>Boiler</a></li>
-                  <li><a>Hair Purifier</a></li>
-                  <li><a>Sound System</a></li>
-                  <li><a>Coffee Machine</a></li>
-                  <li><a>Phone Charger</a></li>
-                  <li><a>Fridge</a></li>
-                  <li><a>Radiator</a></li>
-                  <li><a>Dehumidifier</a></li>
-                  <li><a>Microwave Oven </a></li>
-                  <li><a>Laptop</a></li>
-                  <li><a>Tv</a></li>
-                  <li><a>Screen</a></li>
-                  <li><a>Solar Panel</a></li>
-                  <li><a>Fan</a></li>
-                  <li><a>Air Conditioner</a></li>
-                  <li><a>Computer</a></li>
-                  <li><a>Printer</a></li>
-                  <li><a>Dryer</a></li>
-                  <li><a>Freezer</a></li>
-                  <li>
-                  </li>
-                </ul>
-              </details>
-            </li>
-            <li><button>Apply</button></li>
-          </ul> -->
-
-          <div class="form-control">
-            <!-- svelte-ignore a11y-label-has-associated-control -->
-            <label class="label">
-                <span class="label-text">Select Appliance</span>
-            </label>
-            <select bind:value={appliance} class="select select-bordered max-h-40 overflow-y-auto">
-                <option value="" disabled selected>Select an appliance</option>
-                {#each appliances as appliance}
-                    <option value={appliance}>{appliance}</option>
-                {/each}
-            </select>
-        </div>
-        <button on:click={addAppliance} class="btn btn-primary mt-4">Add Appliance</button>
-        </div>
-
         
 
       </div>
+
+      <div class="flex-col min-w-max">
+        <button class="btn btn-primary mx-2 w-48" on:click={() => {
+            sessionStorage.setItem("node_id", selectedNodeID);
+            //reroute to market 
+            goto('../Main/BiddingMarket');
+          }}>Transact with this node</button>
+        <button class="btn btn-error mx-2 w-48" on:click={() => {
+            document.getElementById("removeNodeConfirmation").showModal();
+          }}>Remove this node</button>
+      </div>
+
+      <div class="flex-col min-w-3/4">
+
+        <div class="form-control">
+          <!-- svelte-ignore a11y-label-has-associated-control -->
+          <label class="label">
+              <span class="label-text">Select Appliance</span>
+          </label>
+          <select bind:value={appliance} class="select select-bordered max-h-40 overflow-y-auto">
+              <option value="" disabled selected>Select an appliance</option>
+              {#each appliances as appliance}
+                  <option value={appliance}>{appliance}</option>
+              {/each}
+          </select>
+      </div>
+      <button on:click={addAppliance} class="btn btn-primary mt-4">Add Appliance</button>
+      </div>
+
     {/if}
     
     {#each buyorders as buyorder}

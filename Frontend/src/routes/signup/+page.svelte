@@ -118,8 +118,8 @@
     "password": password,
     "session_id": Cookies.get('session_id'),
   }
-
-    const res = await fetch(`${API_URL_AGENT}/add_agent`, {
+    try {
+      const res = await fetch(`${API_URL_AGENT}/add_agent`, {
       method: "POST", 
       headers: {
         "Content-Type": "application/json",
@@ -130,6 +130,11 @@
     });
     const fdata = await res.json(); 
     console.log("Add agent endpoint: ", fdata); 
+
+    } catch (error) {
+      console.log("There was an error with the add_agent endpoint when creating account: ", error); 
+    }
+   
     
 
   } 

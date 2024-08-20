@@ -382,6 +382,40 @@
     return value.slice(2, value.length);
   }
 
+  let details = {
+        "email": email,
+        "password": password,
+        "appliances": []
+    };
+
+  async function addAppliance(){
+      if(appliance){
+        let applianceDetails = {
+          "appliance_type": appliance.replace(/\s/g,''),
+          "on_periods": onPeriods 
+        }; 
+        details.appliances.push(applianceDetails);
+        try {
+          const response = await fetch(`${API_URL_AGENT}/add_agent`, {
+        method: "POST",
+        body : JSON.stringify(details), 
+        headers: {
+          'Content-Type': 'application/json' 
+        },
+        credentials: "include",
+      });
+      const fdata = await response.json();
+      data = fdata;
+      console.log("Data received from user details is: ", data);
+        } catch (error) {
+          console.log("There was an error with the add appliance endpoint: ", error); 
+        }
+      }
+      else{
+        console.log("Appliance was not selected."); 
+      }
+  }
+
 </script>
 
 <main class="container mx-auto w-full sm:flex justify-center">

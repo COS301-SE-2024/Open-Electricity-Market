@@ -42,6 +42,13 @@
   //variables for map input
    let latitude = '';
    let longtitude = '';
+   let appliance = ''; 
+   let appliances = [
+        'Washing Machine', 'Router', 'Vacuum', 'Dishwasher', 'Boiler', 'Hair Purifier',
+        'Sound System', 'Coffee Machine', 'Phone Charger', 'Fridge', 'Radiator',
+        'Dehumidifier', 'Microwave Oven', 'Laptop', 'Tv', 'Screen', 'Solar Panel',
+        'Fan', 'Air Conditioner', 'Computer', 'Printer', 'Dryer', 'Freezer'
+    ];
 
   onMount(async () => {
     await fetchStart();
@@ -573,11 +580,69 @@
               document.getElementById("removeNodeConfirmation").showModal();
             }}>Remove this node</button>
 
-          <button class="btn btn-primary mx-2 w-48" on:click={() => {
-            document.getElementById("removeNodeConfirmation").showModal();
-          }}>Add appliance</button>
+          
+
+
+
+       
           
         </div>
+
+        <div class="flex-col min-w-3/4">
+
+          <!-- <ul class="menu lg:menu-horizontal bg-base-200 rounded-box lg:mb-64">
+            <li>
+              <details open>
+                <summary placeholder = "Add appliance" value = {appliance}>Add appliance</summary>
+                <ul>
+                  <li><a>Washing Machine</a></li>
+                  <li><a>Router</a></li>
+                  <li><a>Vacuum</a></li>
+                  <li><a>Dishwasher</a></li>
+                  <li><a>Boiler</a></li>
+                  <li><a>Hair Purifier</a></li>
+                  <li><a>Sound System</a></li>
+                  <li><a>Coffee Machine</a></li>
+                  <li><a>Phone Charger</a></li>
+                  <li><a>Fridge</a></li>
+                  <li><a>Radiator</a></li>
+                  <li><a>Dehumidifier</a></li>
+                  <li><a>Microwave Oven </a></li>
+                  <li><a>Laptop</a></li>
+                  <li><a>Tv</a></li>
+                  <li><a>Screen</a></li>
+                  <li><a>Solar Panel</a></li>
+                  <li><a>Fan</a></li>
+                  <li><a>Air Conditioner</a></li>
+                  <li><a>Computer</a></li>
+                  <li><a>Printer</a></li>
+                  <li><a>Dryer</a></li>
+                  <li><a>Freezer</a></li>
+                  <li>
+                  </li>
+                </ul>
+              </details>
+            </li>
+            <li><button>Apply</button></li>
+          </ul> -->
+
+          <div class="form-control">
+            <!-- svelte-ignore a11y-label-has-associated-control -->
+            <label class="label">
+                <span class="label-text">Select Appliance</span>
+            </label>
+            <select bind:value={appliance} class="select select-bordered max-h-40 overflow-y-auto">
+                <option value="" disabled selected>Select an appliance</option>
+                {#each appliances as appliance}
+                    <option value={appliance}>{appliance}</option>
+                {/each}
+            </select>
+        </div>
+        <button on:click={addAppliance} class="btn btn-primary mt-4">Add Appliance</button>
+        </div>
+
+        
+
       </div>
     {/if}
     
@@ -676,5 +741,43 @@
         <button on:click={nullifyValues}>close</button>
       </form>
     </dialog>
+
+    <!-- <dialog id="addApplianceConfirmation" class="modal">
+      <div class="modal-box">
+        <div class="dropdown">
+          <label tabindex="0" class="btn btn-primary">Select Appliance</label>
+          <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52 max-h-60 overflow-y-auto">
+            <li>WashingMachine</li>
+            <li>Router</li>
+            <li>Vacuum</li>
+            <li>Dishwasher</li>
+            <li>Boiler</li>
+            <li>HairPuri</li>
+            <li>SoundSystem</li>
+            <li>Printer3d</li>
+            <li>CoffeeMachine</li>
+            <li>PhoneCharger</li>
+            <li>Fridge</li>
+            <li>Radiator</li>
+            <li>Dehumidifier</li>
+            <li>MicroWaveOven</li>
+            <li>Laptop</li>
+            <li>Tv</li>
+            <li>Screen</li>
+            <li>SolarPanel</li>
+            <li>Fan</li>
+            <li>AirConditioner</li>
+            <li>Computer</li>
+            <li>Printer</li>
+            <li>Dryer</li>
+            <li>Freezer</li>
+          </ul>
+        </div>
+      </div>
+      <form method="dialog" class="modal-backdrop">
+        <button on:click={nullifyValues}>close</button>
+      </form>
+    </dialog> -->
+    
 
 </main>

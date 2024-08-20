@@ -23,10 +23,10 @@
   $: nodes = [];
   let amount; 
   let withdrawamount; 
-  let totalamount = 0; 
-  let firstname; 
-  let lastname; 
-  let email; 
+  let totalamount = 0;
+  $: firstname = null;
+  $: lastname = null;
+  $: email = null;
   //open buy order variables
   // let orderid; 
   // let filledunits; 
@@ -434,17 +434,29 @@
   
       <div class="stat">
           <div class="stat-title">Firstname</div>
-          <div class="stat-value">{firstname}</div>
+          {#if firstname == null}
+            <span class="loading loading-spinner loading-lg"></span>
+          {:else}
+            <div class="stat-value">{firstname}</div>
+          {/if}
       </div>
   
       <div class="stat">
           <div class="stat-title">Lastname</div>
-          <div class="stat-value">{lastname}</div>
+          {#if lastname == null}
+            <span class="loading loading-spinner loading-lg"></span>
+          {:else}
+            <div class="stat-value">{lastname}</div>
+          {/if}
       </div>
   
       <div class="stat">
           <div class="stat-title">Email</div>
-          <div class="stat-value">{email}</div>
+          {#if email == null}
+            <span class="loading loading-spinner loading-lg"></span>
+          {:else}
+            <div class="stat-value">{email}</div>
+          {/if}
       </div>
     </div>
   </div>

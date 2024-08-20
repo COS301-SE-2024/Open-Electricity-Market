@@ -27,7 +27,7 @@
   const currdate = today.toLocaleDateString('en-US', options);
 
 
-   async function fetchData() {
+  async function fetchData() {
     try {
       const response = await fetch(`${API_URL_GRID}/stats`, {
         method: "POST", 
@@ -51,6 +51,18 @@
     }
   }
 
+  // not sure why but this doesn't work
+  // function formatNumber(number) {
+  //   if (number > 1000) {
+  //     number = (number/1000).toFixed(3);
+  //     out = Intl.NumberFormat().format(number) + " k"
+  //     return out;
+  //   } else if (number > 1000000) {
+  //     number = (number/1000000).toFixed(3);
+  //     out = Intl.NumberFormat().format(number) + " M"
+  //     return out;
+  //   }
+  // }
 
 </script>
 

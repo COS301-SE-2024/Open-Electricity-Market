@@ -67,7 +67,6 @@ pub mod open_em {
             pass_hash -> Text,
             credit -> Float8,
             active -> Bool,
-            session_id -> Nullable<Text>,
             created_at -> Timestamptz,
         }
     }

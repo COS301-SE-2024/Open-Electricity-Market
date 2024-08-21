@@ -11,7 +11,6 @@ pub struct User {
     pub pass_hash: String,
     pub credit: f64,
     pub created_at: DateTime<Utc>,
-    pub session_id: Option<String>,
     pub active: bool,
 }
 

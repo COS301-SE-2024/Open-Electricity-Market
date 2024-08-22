@@ -4,7 +4,7 @@
   import Cookies from 'js-cookie';
   import {goto} from "$app/navigation";
   import Map from '$lib/Components/MapDashboard.svelte';
-  import { API_URL_GRID, API_URL_MARKET } from '$lib/config.js';
+  import { API_URL_GRID, API_URL_MARKET, API_URL_AGENT } from '$lib/config.js';
 
   
 
@@ -49,6 +49,36 @@
         'Dehumidifier', 'Microwave Oven', 'Laptop', 'Tv', 'Screen', 'Solar Panel',
         'Fan', 'Air Conditioner', 'Computer', 'Printer', 'Dryer', 'Freezer'
     ];
+
+  let generator = ''; 
+  let category = ''; 
+  let generators = [
+        { type: "SolarPanel", category: "Home" },
+        { type: "SolarPanel", category: "Industrial" },
+        { type: "WindTurbine", category: "Small" },
+        { type: "WindTurbine", category: "Medium" },
+        { type: "WindTurbine", category: "Large" },
+        { type: "NuclearReactor", category: "PWR" },
+        { type: "NuclearReactor", category: "BWR" },
+        { type: "NuclearReactor", category: "AGR" },
+        { type: "NuclearReactor", category: "FNR" },
+        { type: "NuclearReactor", category: "PHWR" },
+        { type: "NuclearReactor", category: "HTGR" },
+        { type: "NuclearReactor", category: "LWGR" },
+        { type: "DieselGenerator", category: "Home" },
+        { type: "DieselGenerator", category: "Industrial" },
+        { type: "PetrolGenerator", category: "Home" },
+        { type: "PetrolGenerator", category: "Industrial" },
+        { type: "CoalGenerator", category: "Small" },
+        { type: "CoalGenerator", category: "Medium" },
+        { type: "CoalGenerator", category: "Large" },
+        { type: "HydraulicTurbine", category: "Small" },
+        { type: "HydraulicTurbine", category: "Medium" },
+        { type: "HydraulicTurbine", category: "Large" }
+  ]; 
+
+  let uniqueGens = [...new Set(generators.map(generator=> generator.type))]; 
+
 
   onMount(async () => {
     await fetchStart();
@@ -384,11 +414,22 @@
 
   let details = {
         "email": email,
-        "password": password,
+        "node_id": sessionStorage.getItem("node_id"),
         "appliances": []
     };
 
+  let details2 = {
+    "email": email, 
+    "node_id": sessionStorage.getItem("node_id");
+    "generators": [] 
+  }
+
   async function addAppliance(){
+
+    let onPeriods = {
+      "start": 15.0, 
+      "end": 800.0,
+    }
       if(appliance){
         let applianceDetails = {
           "appliance_type": appliance.replace(/\s/g,''),
@@ -414,6 +455,38 @@
       else{
         console.log("Appliance was not selected."); 
       }
+  }
+
+  async function addGenerator(){
+
+    let onPeriods = {
+      "start": 15.0, 
+      "end": 800, 
+    }
+
+    if(generator && category){
+      let generatorDetails = {
+        "generator_type": {generator: category}
+      }
+      details2.generators.push(generatorDetails);
+      details2.generators.push(onPeriods); 
+      try {
+        const response = await fetch(`${API_URL_AGENT}/add_generators`,{
+        method: "POST", 
+        body: JSON.stringify(details2), 
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: "include",
+      });
+      const fdata = await response.json(); 
+      data = fdata; 
+      console.log("Data received from add gen endpoint: ", data); 
+     } catch (error) {
+        console.log("There was an error with the add generator endpoint: ", error); 
+      }
+    }
+
   }
 
 </script>
@@ -637,6 +710,40 @@
           </select>
       </div>
       <button on:click={addAppliance} class="btn btn-primary mt-4">Add Appliance</button>
+
+
+
+
+
+
+        <div class = "form-control">
+          <!-- svelte-ignore a11y-label-has-associated-control -->
+          <label class = "label">
+            <span class = "label-text">Select a generator</span>
+          </label>
+          <select bind:value={generator} class="select select-bordered max-h-40 overflow-y-auto">
+            <option value = "" disabled selected>Select a generator</option>
+            {#each uniqueGens as type}
+                  <option value={type}>{type}</option>
+            {/each}
+          </select>
+        </div>
+        
+        <!-- selecting category  -->
+        <div class = "form-control mt-4">
+          <select bind:value={category} class = "select select-bordered max-h-40 overflow-y-auto" disabled={!generator}>
+            <option value = "" disabled selected>Select a category</option>
+            {#each generators.filter(g=>g.type === generator) as {category}}
+            <option value = {category}>{category}</option>
+            {/each}
+          </select>
+        </div>
+        
+        <button on:click={addGenerator} class="btn btn-primary mt-4">Add Generator</button>
+
+
+
+      
       </div>
 
     {/if}
@@ -737,42 +844,7 @@
       </form>
     </dialog>
 
-    <!-- <dialog id="addApplianceConfirmation" class="modal">
-      <div class="modal-box">
-        <div class="dropdown">
-          <label tabindex="0" class="btn btn-primary">Select Appliance</label>
-          <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52 max-h-60 overflow-y-auto">
-            <li>WashingMachine</li>
-            <li>Router</li>
-            <li>Vacuum</li>
-            <li>Dishwasher</li>
-            <li>Boiler</li>
-            <li>HairPuri</li>
-            <li>SoundSystem</li>
-            <li>Printer3d</li>
-            <li>CoffeeMachine</li>
-            <li>PhoneCharger</li>
-            <li>Fridge</li>
-            <li>Radiator</li>
-            <li>Dehumidifier</li>
-            <li>MicroWaveOven</li>
-            <li>Laptop</li>
-            <li>Tv</li>
-            <li>Screen</li>
-            <li>SolarPanel</li>
-            <li>Fan</li>
-            <li>AirConditioner</li>
-            <li>Computer</li>
-            <li>Printer</li>
-            <li>Dryer</li>
-            <li>Freezer</li>
-          </ul>
-        </div>
-      </div>
-      <form method="dialog" class="modal-backdrop">
-        <button on:click={nullifyValues}>close</button>
-      </form>
-    </dialog> -->
+   
     
 
 </main>

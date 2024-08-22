@@ -2,7 +2,7 @@
   import logo from '$lib/assets/Logo.png';
   import {goto} from "$app/navigation";
   import Cookies from 'js-cookie';
-  import { API_URL_GRID, API_URL_MARKET, COOKIE_DOMAIN } from '$lib/config.js';
+  import { API_URL_GRID, API_URL_MARKET, COOKIE_DOMAIN, API_URL_AGENT } from '$lib/config.js';
 
   let email = '';
   let firstname = '';

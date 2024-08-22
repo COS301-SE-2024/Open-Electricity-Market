@@ -129,3 +129,4 @@ winget
 
 Cargo.lock
 Frontend/Caddyfile
+Frontend/src/lib/config.js

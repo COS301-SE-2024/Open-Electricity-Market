@@ -135,20 +135,6 @@
     </form>
   </dialog>
 
-  <dialog id="my_modal_grid" class="modal">  
-    <div class="modal-box">
-      <h3 class="font-bold text-lg ">Grid Simulation</h3>
-      <p class="py-4">The grid simulation page contains an overview of the current state of the electrical grid. <br>
-        On the map, you can see all the nodes that are connected to the simulated grid. <br>
-        Clicking on one of these nodes will give you more information on them, and will show the voltage being generated at that point on the oscilloscope, on the right. <br>
-        At the bottom you can see a few general statistics about the grid.
-      </p>
-    </div>
-    <form method="dialog" class="modal-backdrop">
-      <button>close</button>
-    </form>
-  </dialog>
-
   <dialog id="help_modal" class="modal">  
     <div class="modal-box">
       <h3 class="font-bold text-lg ">Marketplace</h3>
@@ -163,13 +149,9 @@
   </dialog>
 </header>
 
-<main class="container mx-auto mt-8">
+<main id="main" class="container mx-auto mt-8">
   {#if loggedIn}
     <slot />
-  {:else}
-    <script>
-        // 
-    </script>
   {/if}
 
 

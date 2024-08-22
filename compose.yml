@@ -9,8 +9,6 @@ services:
       NODE_ENV: production
     networks:
       - amplify
-    volumes:
-      - node_modules:/usr/src/app/node_modules
   simulation:
     build: ./backend/simulation/
     networks:

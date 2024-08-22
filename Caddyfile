@@ -6,6 +6,10 @@ grid.site.localhost {
     reverse_proxy simulation:8000
 }
 
+agent.site.localhost {
+    reverse_proxy agent:8002
+}
+
 site.localhost {
     reverse_proxy site:3000
 }

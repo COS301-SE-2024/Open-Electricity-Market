@@ -144,7 +144,6 @@ pub fn price_view() -> Value {
 
     let connection = &mut establish_connection();
 
-    let mut message = "Something went wrong".to_string();
     let mut data = Price {
         price: 0f64,
         timestamp: Utc::now().to_string(),
@@ -160,17 +159,18 @@ pub fn price_view() -> Value {
     {
         Ok(transactions_vec) => {
             if transactions_vec.len() > 0 {
-                message = "Successfully retrieved price".to_string();
                 data = Price {
                     price: transactions_vec[0].transacted_price,
                     timestamp: transactions_vec[0].created_at.to_string(),
-                }
+                };
+                return json!({"status": "ok", "message": "Successfully retrieved price".to_string(), "data": data});
             }
+            json!({"status": "error", "message": "Something went wrong".to_string(), "data": data})
         }
-        Err(_) => {}
+        Err(_) => {
+            json!({"status": "error", "message": "Something went wrong".to_string(), "data": data})
+        }
     }
-
-    json!({"status": "ok", "message":message, "data": data})
 }
 
 #[derive(Serialize, Deserialize)]
@@ -189,7 +189,6 @@ pub fn price_history(price_history_request: Json<PriceHistoryRequest>) -> Value 
 
     let connection = &mut establish_connection();
 
-    let mut message = "Something went wrong".to_string();
     let mut data = vec![];
 
     let timestamp = Utc::now() - Duration::hours(price_history_request.hours);
@@ -201,7 +200,6 @@ pub fn price_history(price_history_request: Json<PriceHistoryRequest>) -> Value 
         .load::<Transaction>(connection)
     {
         Ok(transactions_vec) => {
-            message = "Successfully retrieved price".to_string();
             if transactions_vec.len() as i64 <= TARGET_HISTORY_POINTS {
                 for transaction in transactions_vec {
                     data.push(Price {
@@ -225,11 +223,16 @@ pub fn price_history(price_history_request: Json<PriceHistoryRequest>) -> Value 
                     count += 1;
                 }
             }
+            json!({"status": "ok",
+                "message": "Successfully retrieved price".to_string(),
+                "data": data
+            })
         }
-        Err(_) => {}
+        Err(_) => json!({"status": "error",
+            "message": "Something went wrong".to_string(),
+            "data": data
+        }),
     }
-
-    json!({"status": "ok", "message":message, "data": data})
 }
 
 #[derive(Serialize, Deserialize)]
@@ -551,7 +554,7 @@ pub fn list_open_sells(claims: Claims) -> Value {
                     "data": data
                 });
             }
-            json!({"status": "error",
+            json!({"status": "ok",
                 "message": "No open sell orders".to_string(),
                 "data": data
             })
@@ -628,7 +631,7 @@ pub fn list_open_buys(claims: Claims) -> Value {
                     "data": data
                 });
             }
-            json!({"status": "error",
+            json!({"status": "ok",
                 "message": "No open buy orders".to_string(),
                 "data": data
             })
@@ -658,7 +661,6 @@ pub fn all_open_buy(all_open_buy_request: Json<ListAllRequest>) -> Value {
     let connection = &mut establish_connection();
 
     let mut data = vec![];
-    let mut message: String;
 
     match buy_orders
         .filter(sought_units.gt(filled_units))
@@ -668,9 +670,7 @@ pub fn all_open_buy(all_open_buy_request: Json<ListAllRequest>) -> Value {
         .load::<BuyOrder>(connection)
     {
         Ok(order_vec) => {
-            message = "No open buy orders".to_string();
             if order_vec.len() > 0 {
-                message = "Successfully retrieved open buy orders".to_string();
                 for order in order_vec {
                     let timestamp = Utc::now() - Duration::hours(TRANSACTION_LIFETIME);
                     let mut transaction_price = 0f64;
@@ -697,12 +697,21 @@ pub fn all_open_buy(all_open_buy_request: Json<ListAllRequest>) -> Value {
                         last_transacted_price: transaction_price,
                     })
                 }
+                return json!({"status": "ok",
+                    "message": "Successfully retrieved open buy orders".to_string(),
+                    "data": data
+                });
             }
+            json!({"status": "ok",
+                "message": "No open buy orders".to_string(),
+                "data": data
+            })
         }
-        Err(_) => message = "Something went wrong.".to_string(),
+        Err(_) => json!({"status": "error",
+            "message":  "Something went wrong.".to_string(),
+            "data": data
+        }),
     }
-
-    json!({"status": "ok", "message": message, "data": data})
 }
 
 #[post(
@@ -717,7 +726,6 @@ pub fn all_open_sell(all_open_sell_request: Json<ListAllRequest>) -> Value {
     let connection = &mut establish_connection();
 
     let mut data = vec![];
-    let mut message: String;
 
     match sell_orders
         .filter(offered_units.gt(claimed_units))
@@ -727,9 +735,7 @@ pub fn all_open_sell(all_open_sell_request: Json<ListAllRequest>) -> Value {
         .load::<SellOrder>(connection)
     {
         Ok(order_vec) => {
-            message = "No open sell orders".to_string();
             if order_vec.len() > 0 {
-                message = "Successfully retrieved open sell orders".to_string();
                 for order in order_vec {
                     let timestamp = Utc::now() - Duration::hours(TRANSACTION_LIFETIME);
                     let mut transaction_price = 0f64;
@@ -758,12 +764,21 @@ pub fn all_open_sell(all_open_sell_request: Json<ListAllRequest>) -> Value {
                         last_transacted_price: transaction_price,
                     })
                 }
+                return json!({"status": "ok",
+                    "message": "Successfully retrieved open sell orders".to_string(),
+                    "data": data
+                });
             }
+            json!({"status": "ok",
+                "message": "No open sell orders".to_string(),
+                "data": data
+            })
         }
-        Err(_) => message = "Something went wrong.".to_string(),
+        Err(_) => json!({"status": "error",
+            "message": "Something went wrong.".to_string(),
+            "data": data
+        }),
     }
-
-    json!({"status": "ok", "message": message, "data": data})
 }
 
 #[derive(Serialize, Deserialize)]

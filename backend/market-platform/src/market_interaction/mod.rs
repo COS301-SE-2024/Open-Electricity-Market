@@ -546,7 +546,7 @@ pub fn list_open_sells(claims: Claims) -> Value {
                         last_transacted_price: transaction_price,
                     })
                 }
-                return json!({"status": "error",
+                return json!({"status": "ok",
                     "message": "Successfully retrieved open sell orders".to_string(),
                     "data": data
                 });
@@ -575,7 +575,7 @@ struct OpenBuy {
 }
 
 #[post("/list_open_buys")]
-pub fn list_open_buys(cookie_jar: &CookieJar<'_>) -> Value {
+pub fn list_open_buys(claims: Claims) -> Value {
     use crate::schema::open_em::buy_orders::dsl::*;
     use crate::schema::open_em::transactions::dsl::*;
 
@@ -583,55 +583,61 @@ pub fn list_open_buys(cookie_jar: &CookieJar<'_>) -> Value {
 
     let mut data = vec![];
 
-    let claims = verify_user(cookie_jar);
-
-    let mut message = claims.message;
-    if claims.user_id != Uuid::nil() {
-        match buy_orders
-            .filter(buyer_id.eq(claims.user_id))
-            .filter(sought_units.gt(filled_units))
-            .select(BuyOrder::as_select())
-            .load::<BuyOrder>(connection)
-        {
-            Ok(order_vec) => {
-                message = "No open buy orders".to_string();
-                if order_vec.len() > 0 {
-                    message = "Successfully retrieved open buy orders".to_string();
-                    for order in order_vec {
-                        let timestamp = Utc::now() - Duration::hours(TRANSACTION_LIFETIME);
-                        let mut transaction_price = 0f64;
-                        match transactions
-                            .filter(
-                                schema::open_em::transactions::buy_order_id.eq(order.buy_order_id),
-                            )
-                            .filter(schema::open_em::transactions::created_at.gt(timestamp))
-                            .order_by(schema::open_em::transactions::created_at.desc())
-                            .select(Transaction::as_select())
-                            .load::<Transaction>(connection)
-                        {
-                            Ok(transaction_vec) => {
-                                if transaction_vec.len() > 0 {
-                                    transaction_price = transaction_vec[0].transacted_price
-                                }
-                            }
-                            Err(_) => {}
-                        }
-                        data.push(OpenBuy {
-                            order_id: order.buy_order_id,
-                            sought_units: order.sought_units,
-                            filled_units: order.filled_units,
-                            max_price: order.max_price,
-                            min_price: order.min_price,
-                            last_transacted_price: transaction_price,
-                        })
-                    }
-                }
-            }
-            Err(_) => message = "Something went wrong.".to_string(),
-        }
+    let user_id_parse = Uuid::parse_str(&*claims.user_id);
+    if user_id_parse.is_err() {
+        return json!({"status": "error", "message": "Invalid User ID".to_string()});
     }
+    let claim_user_id = user_id_parse.unwrap();
 
-    json!({"status": "ok", "message": message, "data": data})
+    match buy_orders
+        .filter(buyer_id.eq(claim_user_id))
+        .filter(sought_units.gt(filled_units))
+        .select(BuyOrder::as_select())
+        .load::<BuyOrder>(connection)
+    {
+        Ok(order_vec) => {
+            if order_vec.len() > 0 {
+                for order in order_vec {
+                    let timestamp = Utc::now() - Duration::hours(TRANSACTION_LIFETIME);
+                    let mut transaction_price = 0f64;
+                    match transactions
+                        .filter(schema::open_em::transactions::buy_order_id.eq(order.buy_order_id))
+                        .filter(schema::open_em::transactions::created_at.gt(timestamp))
+                        .order_by(schema::open_em::transactions::created_at.desc())
+                        .select(Transaction::as_select())
+                        .load::<Transaction>(connection)
+                    {
+                        Ok(transaction_vec) => {
+                            if transaction_vec.len() > 0 {
+                                transaction_price = transaction_vec[0].transacted_price
+                            }
+                        }
+                        Err(_) => {}
+                    }
+                    data.push(OpenBuy {
+                        order_id: order.buy_order_id,
+                        sought_units: order.sought_units,
+                        filled_units: order.filled_units,
+                        max_price: order.max_price,
+                        min_price: order.min_price,
+                        last_transacted_price: transaction_price,
+                    })
+                }
+                return json!({"status": "ok",
+                    "message": "Successfully retrieved open buy orders".to_string(),
+                    "data": data
+                });
+            }
+            json!({"status": "error",
+                "message": "No open buy orders".to_string(),
+                "data": data
+            })
+        }
+        Err(_) => json!({"status": "error",
+            "message": "Something went wrong.".to_string(),
+            "data": data
+        }),
+    }
 }
 
 #[derive(Serialize, Deserialize)]

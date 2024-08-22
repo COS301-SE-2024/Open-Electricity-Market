@@ -420,8 +420,8 @@
 
   let details2 = {
     "email": email, 
-    "node_id": sessionStorage.getItem("node_id");
-    "generators": [] 
+    "node_id": sessionStorage.getItem("node_id"),
+    "generators": [] ,
   }
 
   async function addAppliance(){

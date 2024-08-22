@@ -1,15 +1,15 @@
 use crate::models::{
     BuyOrder, NewBuyOrder, NewSellOrder, NewTransaction, Node, SellOrder, Transaction,
 };
+use crate::user_management::verify_user;
 use crate::user_management::Claims;
 use crate::{
     establish_connection, schema, IMPEDANCE_RATE, SUPPLY_DEMAND_RATE, TARGET_HISTORY_POINTS,
     TRANSACTION_LIFETIME, UNIT_PRICE_RATE,
 };
-use crate::user_management::verify_user;
-use rocket::http::CookieJar;
 use chrono::{Duration, Utc};
 use diesel::prelude::*;
+use rocket::http::CookieJar;
 use rocket::serde::{
     json::{serde_json::json, Json, Value},
     Deserialize, Serialize,
@@ -418,10 +418,7 @@ pub fn sell_order(sell_order_request: Json<SellOrderRequest>, claims: Claims) ->
                     Ok(mut order) => {
                         match buy_orders
                             .filter(sought_units.gt(filled_units))
-                            .filter(
-                                schema::open_em::buy_orders::min_price
-                                    .ge(order.min_price),
-                            )
+                            .filter(schema::open_em::buy_orders::min_price.ge(order.min_price))
                             .filter(buyer_id.ne(order.seller_id))
                             .filter(consumer_id.ne(order.producer_id))
                             .order_by(schema::open_em::buy_orders::created_at.asc())
@@ -442,10 +439,7 @@ pub fn sell_order(sell_order_request: Json<SellOrderRequest>, claims: Claims) ->
                                             b_order.sought_units - b_order.filled_units;
                                     }
                                     let transaction_price = b_order.min_price; // Will be based on the direction the market needs to move for grid stability
-                                    let fee = sell_fee_calc(
-                                        transaction_units,
-                                        transaction_price,
-                                    );
+                                    let fee = sell_fee_calc(transaction_units, transaction_price);
                                     let new_transaction = NewTransaction {
                                         buy_order_id: b_order.buy_order_id,
                                         sell_order_id: order.sell_order_id,
@@ -460,8 +454,7 @@ pub fn sell_order(sell_order_request: Json<SellOrderRequest>, claims: Claims) ->
                                     {
                                         Ok(transaction) => {
                                             order_match = true;
-                                            order.claimed_units +=
-                                                transaction.transacted_units;
+                                            order.claimed_units += transaction.transacted_units;
                                         }
                                         Err(_) => {}
                                     }
@@ -470,22 +463,24 @@ pub fn sell_order(sell_order_request: Json<SellOrderRequest>, claims: Claims) ->
                                     }
                                 }
                                 if order_match {
-                                    return json!({"status": "error",
+                                    return json!({"status": "ok",
                                     "message": "Sell order created successfully. Order matched".to_string()});
                                 }
-                                json!({"status": "error",
+                                json!({"status": "ok",
                                     "message": "Sell order created successfully. Pending match".to_string()});
                             }
                             Err(_) => {}
                         }
                     }
-                    Err(_) => return json!({"status": "error",
+                    Err(_) => {
+                        return json!({"status": "error",
                         "message": "Failed to add new sell order".to_string()})
+                    }
                 }
             }
             json!({"status": "error", "message": "Invalid price or units".to_string()})
         }
-        Err(_) => json!({"status": "error", "message": "No matching node".to_string()})
+        Err(_) => json!({"status": "error", "message": "No matching node".to_string()}),
     }
 }
 
@@ -501,7 +496,7 @@ struct OpenSell {
 }
 
 #[post("/list_open_sells")]
-pub fn list_open_sells(cookie_jar: &CookieJar<'_>) -> Value {
+pub fn list_open_sells(claims: Claims) -> Value {
     use crate::schema::open_em::sell_orders::dsl::*;
     use crate::schema::open_em::transactions::dsl::*;
 
@@ -509,56 +504,63 @@ pub fn list_open_sells(cookie_jar: &CookieJar<'_>) -> Value {
 
     let mut data = vec![];
 
-    let claims = verify_user(cookie_jar);
-
-    let mut message = claims.message;
-    if claims.user_id != Uuid::nil() {
-        match sell_orders
-            .filter(seller_id.eq(claims.user_id))
-            .filter(offered_units.gt(claimed_units))
-            .select(SellOrder::as_select())
-            .load::<SellOrder>(connection)
-        {
-            Ok(order_vec) => {
-                message = "No open sell orders".to_string();
-                if order_vec.len() > 0 {
-                    message = "Successfully retrieved open sell orders".to_string();
-                    for order in order_vec {
-                        let timestamp = Utc::now() - Duration::hours(TRANSACTION_LIFETIME);
-                        let mut transaction_price = 0f64;
-                        match transactions
-                            .filter(
-                                schema::open_em::transactions::sell_order_id
-                                    .eq(order.sell_order_id),
-                            )
-                            .filter(schema::open_em::transactions::created_at.gt(timestamp))
-                            .order_by(schema::open_em::transactions::created_at.desc())
-                            .select(Transaction::as_select())
-                            .load::<Transaction>(connection)
-                        {
-                            Ok(transaction_vec) => {
-                                if transaction_vec.len() > 0 {
-                                    transaction_price = transaction_vec[0].transacted_price
-                                }
-                            }
-                            Err(_) => {}
-                        }
-                        data.push(OpenSell {
-                            order_id: order.sell_order_id,
-                            offered_units: order.offered_units,
-                            claimed_units: order.claimed_units,
-                            max_price: order.max_price,
-                            min_price: order.min_price,
-                            last_transacted_price: transaction_price,
-                        })
-                    }
-                }
-            }
-            Err(_) => message = "Something went wrong.".to_string(),
-        }
+    let user_id_parse = Uuid::parse_str(&*claims.user_id);
+    if user_id_parse.is_err() {
+        return json!({"status": "error", "message": "Invalid User ID".to_string()});
     }
+    let claim_user_id = user_id_parse.unwrap();
 
-    json!({"status": "ok", "message": message, "data": data})
+    match sell_orders
+        .filter(seller_id.eq(claim_user_id))
+        .filter(offered_units.gt(claimed_units))
+        .select(SellOrder::as_select())
+        .load::<SellOrder>(connection)
+    {
+        Ok(order_vec) => {
+            if order_vec.len() > 0 {
+                for order in order_vec {
+                    let timestamp = Utc::now() - Duration::hours(TRANSACTION_LIFETIME);
+                    let mut transaction_price = 0f64;
+                    match transactions
+                        .filter(
+                            schema::open_em::transactions::sell_order_id.eq(order.sell_order_id),
+                        )
+                        .filter(schema::open_em::transactions::created_at.gt(timestamp))
+                        .order_by(schema::open_em::transactions::created_at.desc())
+                        .select(Transaction::as_select())
+                        .load::<Transaction>(connection)
+                    {
+                        Ok(transaction_vec) => {
+                            if transaction_vec.len() > 0 {
+                                transaction_price = transaction_vec[0].transacted_price
+                            }
+                        }
+                        Err(_) => {}
+                    }
+                    data.push(OpenSell {
+                        order_id: order.sell_order_id,
+                        offered_units: order.offered_units,
+                        claimed_units: order.claimed_units,
+                        max_price: order.max_price,
+                        min_price: order.min_price,
+                        last_transacted_price: transaction_price,
+                    })
+                }
+                return json!({"status": "error",
+                    "message": "Successfully retrieved open sell orders".to_string(),
+                    "data": data
+                });
+            }
+            json!({"status": "error",
+                "message": "No open sell orders".to_string(),
+                "data": data
+            })
+        }
+        Err(_) => json!({"status": "error",
+            "message": "Something went wrong.".to_string(),
+            "data": data
+        }),
+    }
 }
 
 #[derive(Serialize, Deserialize)]

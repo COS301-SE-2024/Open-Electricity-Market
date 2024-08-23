@@ -5,8 +5,6 @@
   import Cookies from 'js-cookie';
   import {onMount} from "svelte";
 
-  let loggedIn = false; 
-
   let activebutton = '';
 
   const currentpath = derived(page, $page => $page.url.pathname);
@@ -15,13 +13,13 @@
 
   function showModal(){
     if(activebutton=="/public/GridSimulation"){
-        document.getElementById("my_modal_grid").showModal(); 
+      document.getElementById("my_modal_grid").showModal(); 
     }
     else if (activebutton=="/Main/Dashboard"){
-        document.getElementById("my_modal_dash").showModal();
+      document.getElementById("my_modal_dash").showModal();
     }
     else if(activebutton=="/Main/BiddingMarket"){
-        document.getElementById("help_modal").showModal();
+      document.getElementById("help_modal").showModal();
     }
 
   }
@@ -233,7 +231,12 @@
           <button class="btn bg-red-500" on:click={removeAccount}>Delete</button>
           <button class="btn bg-gray-600">Cancel</button>
         </form>
+        </div>
       </div>
-    </div>
-  </dialog>
-</main>
+    </dialog>
+  </header>
+  
+  <main class="container mx-auto mt-8">
+    <slot />
+  </main>
+</body>

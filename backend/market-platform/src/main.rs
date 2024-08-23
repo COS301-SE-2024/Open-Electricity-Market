@@ -9,6 +9,7 @@ mod node_management;
 mod schema;
 mod user_management;
 
+use chrono::Duration;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use dotenvy::dotenv;
@@ -25,6 +26,8 @@ const UNIT_PRICE_RATE: f64 = 0.005;
 const IMPEDANCE_RATE: f64 = 0.05;
 const SUPPLY_DEMAND_RATE: f64 = 0.05;
 const TARGET_HISTORY_POINTS: i64 = 100;
+
+const TOKEN_EXPIRATION: Duration = Duration::minutes(15);
 
 pub struct CORS;
 
@@ -44,7 +47,10 @@ impl Fairing for CORS {
                 "Access-Control-Allow-Methods",
                 "POST, PATCH, GET, DELETE",
             ));
-            response.set_header(Header::new("Access-Control-Allow-Headers", "content-type"));
+            response.set_header(Header::new(
+                "Access-Control-Allow-Headers",
+                "content-type, authorization",
+            ));
         }
         dotenv().ok();
         let frontend_url = env::var("FRONTEND_URL").unwrap();

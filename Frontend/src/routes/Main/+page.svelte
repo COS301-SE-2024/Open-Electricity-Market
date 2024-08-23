@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
 
   onMount(async () => {
-    goto("/public/GridSimulation")
+    window.location.href = '/login';
   }); 
 </script>
 

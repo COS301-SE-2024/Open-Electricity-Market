@@ -86,7 +86,6 @@
         headers: {
           "Content-Type": "application/json",
           "Accept": "application/json",
-          "Cookie": "",
         },
         body: JSON.stringify({
           "email": email,
@@ -98,8 +97,7 @@
       const json = await res.json();
       if(json.status == "ok")
       {
-        Cookies.set('session_id', json.data.session_id, {path: '/',domain : COOKIE_DOMAIN, sameSite : 'None', secure:true });
-        addAgent(); 
+        sessionStorage.setItem("Token",json.data.token);
         goto("/Main/Dashboard");
       }
       else

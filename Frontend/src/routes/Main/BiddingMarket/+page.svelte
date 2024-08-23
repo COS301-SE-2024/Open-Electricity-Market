@@ -100,11 +100,11 @@ async function fetchData() {
 
 <main class="container mx-auto p-4">
   <div class="md:flex md:flex-row">
-    <div class="md:basis-2/3 md:card md:border md:mr-5 md:p-4">
+    <div class="md:basis-2/3 bg-base-100 md:card md:mr-5 md:p-4">
       <h1 class="md:text-5xl md:font-bold md:pt-8">Marketplace</h1>
       <Chart {data} class = "" />
     </div>
-    <div class="md:basis-1/3 md:card md:border md:p-4 xs:pt-10">
+    <div class="md:basis-1/3 md:card bg-base-100 md:p-4 xs:pt-10">
       <span class="text-lg">Selected Node: </span> <br>
       <span class="text-3xl">{selected_node_name}</span> <br>
       <span class="text-lg">Current Average Market Price: </span> <br>

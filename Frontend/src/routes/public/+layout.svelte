@@ -59,7 +59,7 @@
     Cookies.remove("session_id");
     window.location.href = '/login';
   }
-  </script>
+</script>
   
 <!--   
   <header class="bg-gray-800 text-white p-4 ">
@@ -73,71 +73,74 @@
   <main class="container mx-auto mt-8">
     <slot />
   </main> -->
-<header>
-  <div class="navbar bg-base-100 border-b border-accent">
-    <div class="navbar-start">  
-      <a class="btn btn-ghost text-xl" href="/">Amplify</a>
-      <span class="text-xl pl-4"> {activebutton == '/public/GridSimulation' ? "Simulation" : 
-      activebutton == '/Main/BiddingMarket' ? "Marketplace" : 
-      activebutton == '/Main/Dashboard' ? "Dashboard" : ""} </span>
-    </div>
-      
-    <div class="navbar-center hidden lg:flex">
-      <ul class="menu menu-horizontal px-1">
-        <li class="px-2"><a class="w-28 justify-center btn-ghost" href="/public/GridSimulation">Grid</a></li>
-        <li class = "px-2"><a class="btn-ghost" href="/Main/Dashboard">Dashboard</a></li>
-      </ul>
-    </div>
-      
-    <div class="navbar-end">
-      <ul class="menu menu-horizontal px-3 ">
-        <!-- <button class="bg-slate-800 " on:click={showModal}>Help</button> -->
-        <!-- svelte-ignore a11y-click-events-have-key-events -->
-        <!-- svelte-ignore a11y-no-static-element-interactions -->
-        <!-- svelte-ignore a11y-missing-attribute -->
-        <li class="px-2"><a class="btn-ghost" on:click={showModal}>Help</a></li>
-      </ul>
-      <div class="dropdown dropdown-end">
-        <div tabindex="0" role="button" class="btn btn-ghost rounded-btn">Account</div>
-        <ul class="menu dropdown-content bg-base-100 rounded-box z-[1] mt-4 w-52 p-2 shadow">
-          <button class="btn" onclick="removeaccount_modal.showModal()">Remove Account</button>
-          <button class="btn mt-2" on:click={logout}>Log out</button>
+
+<body class="w-full min-h-screen bg-gradient-to-b from-base-200 to-base-300">
+
+  <header>
+    <div class="navbar bg-base-100 border-b border-accent">
+      <div class="navbar-start">  
+        <a class="btn btn-ghost text-xl" href="/">Amplify</a>
+        <span class="text-xl pl-4"> {activebutton == '/public/GridSimulation' ? "Simulation" : 
+        activebutton == '/Main/BiddingMarket' ? "Marketplace" : 
+        activebutton == '/Main/Dashboard' ? "Dashboard" : ""} </span>
+      </div>
+        
+      <div class="navbar-center hidden lg:flex">
+        <ul class="menu menu-horizontal px-1">
+          <li class="px-2"><a class="w-28 justify-center btn-ghost" href="/public/GridSimulation">Grid</a></li>
+          <li class = "px-2"><a class="btn-ghost" href="/Main/Dashboard">Dashboard</a></li>
         </ul>
       </div>
-
-    </div>
-  </div>
-
-  <dialog id="my_modal_grid" class="modal">  
-    <div class="modal-box">
-      <h3 class="font-bold text-lg ">Grid Simulation Page</h3>
-      <p class="py-4">
-        The grid simulation page contains an overview of the current state of the electrical grid. <br>
-        On the map, you can see all the nodes that are connected to the simulated grid. <br>
-        Clicking on one of these nodes will give you more information on them, and will show the voltage being generated at that point on the oscilloscope, on the right. <br>
-        At the bottom you can see a few general statistics about the grid.
-      </p>
-    </div>
-    <form method="dialog" class="modal-backdrop">
-      <button>close</button>
-    </form>
-  </dialog>
-</header>
-
-<main class="container mx-auto mt-8">
-  <slot />
+        
+      <div class="navbar-end">
+        <ul class="menu menu-horizontal px-3 ">
+          <!-- <button class="bg-slate-800 " on:click={showModal}>Help</button> -->
+          <!-- svelte-ignore a11y-click-events-have-key-events -->
+          <!-- svelte-ignore a11y-no-static-element-interactions -->
+          <!-- svelte-ignore a11y-missing-attribute -->
+          <li class="px-2"><a class="btn-ghost" on:click={showModal}>Help</a></li>
+        </ul>
+        <div class="dropdown dropdown-end">
+          <div tabindex="0" role="button" class="btn btn-ghost rounded-btn">Account</div>
+          <ul class="menu dropdown-content bg-base-100 rounded-box z-[1] mt-4 w-52 p-2 shadow">
+            <button class="btn" onclick="removeaccount_modal.showModal()">Remove Account</button>
+            <button class="btn mt-2" on:click={logout}>Log out</button>
+          </ul>
+        </div>
   
-  <dialog id="removeaccount_modal" class="modal">
-    <div class="modal-box">
-      <h3 class="text-lg font-bold">Delete Account</h3>
-      <p class="py-4">Are you sure you would like to permanently delete your account?</p>
-      <div class="modal-action">
-        <form method="dialog">
-          <!-- if there is a button in form, it will close the modal -->
-          <button class="btn bg-red-500" on:click={removeAccount}>Delete</button>
-          <button class="btn bg-gray-600">Cancel</button>
-        </form>
       </div>
     </div>
-  </dialog>
-</main>
+  
+    <dialog id="my_modal_grid" class="modal">  
+      <div class="modal-box">
+        <h3 class="font-bold text-lg ">Grid Simulation Page</h3>
+        <p class="py-4">
+          The grid simulation page contains an overview of the current state of the electrical grid. <br>
+          On the map, you can see all the nodes that are connected to the simulated grid. <br>
+          Clicking on one of these nodes will give you more information on them, and will show the voltage being generated at that point on the oscilloscope, on the right. <br>
+          At the bottom you can see a few general statistics about the grid.
+        </p>
+      </div>
+      <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+      </form>
+    </dialog>
+    <dialog id="removeaccount_modal" class="modal">
+      <div class="modal-box">
+        <h3 class="text-lg font-bold">Delete Account</h3>
+        <p class="py-4">Are you sure you would like to permanently delete your account?</p>
+        <div class="modal-action">
+          <form method="dialog">
+            <!-- if there is a button in form, it will close the modal -->
+            <button class="btn bg-red-500" on:click={removeAccount}>Delete</button>
+            <button class="btn bg-gray-600">Cancel</button>
+          </form>
+        </div>
+      </div>
+    </dialog>
+  </header>
+  
+  <main class="container mx-auto mt-8">
+    <slot />
+  </main>
+</body>

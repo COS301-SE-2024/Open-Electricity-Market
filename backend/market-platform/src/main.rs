@@ -52,7 +52,7 @@ impl Fairing for CORS {
         dotenv().ok();
         let frontend_url = env::var("FRONTEND_URL").unwrap();
 
-        response.set_header(Header::new("Access-Control-Allow-Origin", frontend_url));
+        response.set_header(Header::new("Access-Control-Allow-Origin","*"));
         response.set_header(Header::new("Access-Control-Allow-Credentials", "true"));
     }
 }

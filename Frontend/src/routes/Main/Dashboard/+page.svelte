@@ -70,8 +70,8 @@
         method: "POST", 
         headers: {
           'Content-Type': 'application/json',
-          // there's a chance it complains at you if you do this: 
           'Accept': 'application/json',
+          'Authorization': `Bearer ${sessionStorage.getItem("Token")}`
         },
         credentials: "include", 
         body: JSON.stringify({
@@ -94,7 +94,8 @@
       method: "POST", 
       headers: {
         'Content-Type': 'application/json', 
-        'Accept': 'application/json'
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${sessionStorage.getItem("Token")}`
       },
       credentials: "include", 
       body: JSON.stringify({
@@ -134,6 +135,7 @@
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
+          'Authorization': `Bearer ${sessionStorage.getItem("Token")}`
         },
         credentials: "include", 
         body: JSON.stringify({
@@ -168,6 +170,7 @@
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
+        'Authorization': `Bearer ${sessionStorage.getItem("Token")}`
       },
       credentials: "include",
       body: JSON.stringify ({
@@ -199,7 +202,8 @@
       const response = await fetch(`${API_URL_MARKET}/add_funds`, {
         method: "POST", 
         headers: {
-          'Content-Type': 'application/json' 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionStorage.getItem("Token")}`
         },
         body: JSON.stringify({
             funds: amount
@@ -237,7 +241,8 @@
       const response = await fetch(`${API_URL_MARKET}/remove_funds`, {
         method: "POST", 
         headers: {
-          'Content-Type': 'application/json' 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionStorage.getItem("Token")}`
         },
         body: JSON.stringify({
             funds: withdrawamount
@@ -271,7 +276,8 @@
       const response = await fetch(`${API_URL_MARKET}/user_details`, {
         method: "POST", 
         headers: {
-          'Content-Type': 'application/json' 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionStorage.getItem("Token")}`
         },
         credentials: "include",
       });
@@ -307,7 +313,8 @@
       const response = await fetch(`${API_URL_MARKET}/list_open_buys`, {
         method: "POST", 
         headers: {
-          'Content-Type': 'application/json' 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionStorage.getItem("Token")}`
         },
         credentials: "include",
       });
@@ -335,7 +342,8 @@
       const response = await fetch(`${API_URL_MARKET}/list_open_sells`, {
         method: "POST", 
         headers: {
-          'Content-Type': 'application/json' 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionStorage.getItem("Token")}`
         },
         credentials: "include",
       });

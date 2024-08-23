@@ -243,7 +243,6 @@ struct OrderRequest {
     units: f64,
 }
 
-
 #[post(
     "/buy_order",
     format = "application/json",

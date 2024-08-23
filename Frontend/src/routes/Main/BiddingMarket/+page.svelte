@@ -26,7 +26,8 @@ async function place_buy_order() {
   const response = await fetch(`${API_URL_MARKET}/buy_order`, {
     method: "POST",
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${sessionStorage.getItem("Token")}`
     },
     body : JSON.stringify(data),
     credentials: 'include'
@@ -48,7 +49,8 @@ async function place_sell_order() {
   const response = await fetch(`${API_URL_MARKET}/sell_order`, {
     method: "POST",
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${sessionStorage.getItem("Token")}`
     },
     body : JSON.stringify(data),
     credentials: 'include'
@@ -75,7 +77,8 @@ async function fetchData() {
     const response = await fetch(`${API_URL_MARKET}/price_view`, {
       method: "POST",
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${sessionStorage.getItem("Token")}`
       }
 
     });

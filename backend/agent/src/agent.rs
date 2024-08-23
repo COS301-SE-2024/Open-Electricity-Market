@@ -151,8 +151,7 @@ impl Agent {
 
     pub fn intialise(&mut self) {
         if self.token == "" {
-            self.token =
-                Agent::login_or_register_agent(self.email.clone(), self.password.clone());
+            self.token = Agent::login_or_register_agent(self.email.clone(), self.password.clone());
         }
         println!("{}", self.token.clone());
         let mut has_nodes = true;
@@ -421,10 +420,8 @@ impl Agent {
         for node in self.nodes.iter_mut() {
             // Get units_to_consume
             // Get units_to_produce
-            let (units_to_consume, units_to_produce) = Agent::get_units_to_produce_and_consume(
-                node.node_id.clone(),
-                self.token.clone(),
-            );
+            let (units_to_consume, units_to_produce) =
+                Agent::get_units_to_produce_and_consume(node.node_id.clone(), self.token.clone());
 
             // Update units_to_consume based on consumption curve
             let consumed = match &mut node.smart_meter {
@@ -459,20 +456,12 @@ impl Agent {
 
             // Update units_to_consume on market
             if consumed > 0.0 {
-                Agent::update_units_consumed(
-                    consumed,
-                    self.token.clone(),
-                    node.node_id.clone(),
-                );
+                Agent::update_units_consumed(consumed, self.token.clone(), node.node_id.clone());
             }
 
             // Update units_to_produce on market
             if produced > 0.0 {
-                Agent::update_units_produced(
-                    produced,
-                    self.token.clone(),
-                    node.node_id.clone(),
-                );
+                Agent::update_units_produced(produced, self.token.clone(), node.node_id.clone());
             }
 
             // Set grid voltage for producer

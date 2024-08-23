@@ -15,6 +15,13 @@ pub mod open_em {
     }
 
     diesel::table! {
+        open_em.grid_history (created_at) {
+            created_at -> Timestamptz,
+            grid_state -> Nullable<Jsonb>,
+        }
+    }
+
+    diesel::table! {
         open_em.nodes (node_id) {
             node_id -> Uuid,
             node_owner -> Uuid,
@@ -83,6 +90,7 @@ pub mod open_em {
 
     diesel::allow_tables_to_appear_in_same_query!(
         buy_orders,
+        grid_history,
         nodes,
         profiles,
         sell_orders,

@@ -10,6 +10,7 @@ use crate::grid::{
     ConsumerInterface, GeneratorInterface, Grid, OscilloscopeDetail, Resistance, Voltage,
     VoltageWrapper,
 };
+use grid::transformer::Transformer;
 use rocket::fairing::{Fairing, Info, Kind};
 use rocket::http::{Header, Method, Status};
 use rocket::response::content;
@@ -185,6 +186,28 @@ fn start(grid: &State<Arc<Mutex<Grid>>>) -> String {
 
 #[launch]
 fn rocket() -> _ {
+  let transformer = Transformer {
+        id: 0,
+        ratio: 1.0,
+        primary_circuit: 0,
+        secondary_circuit: 1,
+        primary_load: 0,
+        secondary_voltage: VoltageWrapper {
+            voltage: Voltage(0.0, 0.0, 0.0),
+            oscilloscope_detail: OscilloscopeDetail {
+                frequency: 0.0,
+                amplitude: 0.0,
+                phase: 0.0,
+            },
+        },
+        location: Location {
+            latitude: 0.0,
+            longitude: 0.0,
+        },
+    };
+
+    let trans_ref = Arc::new(Mutex::new(transformer));
+
     rocket::build()
         .attach(CORS)
         .mount(
@@ -249,7 +272,7 @@ fn rocket() -> _ {
                         longitude: -26.12061,
                     },
                 }],
-                transformers: vec![],
+                transformers: vec![trans_ref.clone()],
             }],
             frequency: 50.0,
             started: false,

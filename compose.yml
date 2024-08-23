@@ -11,6 +11,11 @@ services:
       - amplify
   simulation:
     build: ./backend/simulation/
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASEHOST: db
     networks:
       - amplify
   db:

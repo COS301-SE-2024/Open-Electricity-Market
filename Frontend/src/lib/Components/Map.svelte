@@ -208,6 +208,7 @@
        @import 'leaflet/dist/leaflet.css';
        div {
        height: 700px;
+       z-index: 0; 
        }
     </style>
 

@@ -35,7 +35,7 @@
       console.log(json);
       if(json.message == "User logged in")
       {
-        Cookies.set('session_id', json.data.session_id, {path: '/', domain : COOKIE_DOMAIN, sameSite : 'None', secure:true });
+        sessionStorage.setItem("Token",json.data.token);
         goto("/Main/Dashboard");
       }
       else{

@@ -64,10 +64,15 @@ impl Fairing for CORS {
                 "Access-Control-Allow-Methods",
                 "POST, PATCH, GET, DELETE",
             ));
-            response.set_header(Header::new("Access-Control-Allow-Headers", "*"));
+            response.set_header(Header::new(
+                "Access-Control-Allow-Headers",
+                "content-type, authorization",
+            ));
         }
+        dotenv().ok();
+        let frontend_url = env::var("FRONTEND_URL").unwrap();
 
-        response.set_header(Header::new("Access-Control-Allow-Origin", "*"));
+        response.set_header(Header::new("Access-Control-Allow-Origin", frontend_url));
         response.set_header(Header::new("Access-Control-Allow-Credentials", "true"));
     }
 }
@@ -235,7 +240,7 @@ fn add_generators(
 #[derive(Deserialize)]
 struct SetSessionDetail {
     email: String,
-    session_id: String,
+    token: String,
 }
 
 #[post("/set_session", format = "application/json", data = "<data>")]
@@ -252,7 +257,7 @@ fn set_session(
         );
     }
     let agent_index = agent_index.unwrap();
-    agents[agent_index].session_id = data.session_id.clone();
+    agents[agent_index].token = data.token.clone();
 
     let message = "Succesfully set session id".to_string();
     content::RawJson(json!({"status": "ok", "message": message, "data": {}}).to_string())
@@ -262,7 +267,7 @@ fn set_session(
 struct AddAgentDetail {
     email: String,
     password: String,
-    session_id: String,
+    token: String,
 }
 
 #[post("/add_agent", format = "application/json", data = "<data>")]
@@ -290,7 +295,7 @@ fn add_agent(
     ));
 
     let id = agents.len() - 1;
-    agents[id].session_id = data.session_id;
+    agents[id].token = data.token;
     agents[id].intialise();
     tokio::spawn(async move {
         let mut accumilated_time = 0.0;

@@ -1,15 +1,11 @@
-FROM node
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
+FROM oven/bun
 
 WORKDIR /usr/site/app
 
 COPY . .
 
-RUN wget -qO- https://get.pnpm.io/install.sh | ENV="$HOME/.bashrc" SHELL="$(which bash)" bash -
+RUN bun install
 
-RUN pnpm i
+RUN bun run build
 
-RUN pnpm run build
-
-CMD ["node","build/index.js"]
+CMD ["bun","build/index.js"]

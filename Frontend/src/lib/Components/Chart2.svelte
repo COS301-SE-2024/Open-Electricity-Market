@@ -15,17 +15,29 @@
       chart = createChart(chartCanvas, sampleChartConfig);
       // fetchData(); 
       //updateChart(data);  
-      interval = setInterval(updateChart, 500);
+      if (!interval) {
+        interval = setInterval(updateChart, 500);
+      }
     }
 
-    return () => {
-      if (chart) {
-        chart.destroy();
-      }
-      // clearInterval(interval);
-    };
+    
   });
 
+  onDestroy(() => {
+    console.log("On destroy called for grid sim");
+    if (interval) {
+      clearInterval(interval); 
+      interval = null; 
+    console.log("Interval cleared for grid sim.");
+
+    }
+    if (chart) {
+      chart.destroy(); 
+      chart = null; 
+      console.log("Chart destroy called for grid sim");
+
+    }
+  });
 
 
   // function resizeChart() {
@@ -183,7 +195,7 @@
   let iteration = 0; 
 
   function updateChart() {
-    if(!initialized){
+    if(!initialized || !chart){
       return; 
     }
 

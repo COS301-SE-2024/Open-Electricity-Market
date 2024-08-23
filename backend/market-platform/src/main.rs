@@ -47,12 +47,12 @@ impl Fairing for CORS {
                 "Access-Control-Allow-Methods",
                 "POST, PATCH, GET, DELETE",
             ));
-            response.set_header(Header::new("Access-Control-Allow-Headers", "content-type"));
+            response.set_header(Header::new("Access-Control-Allow-Headers", "content-type, authorization"));
         }
         dotenv().ok();
         let frontend_url = env::var("FRONTEND_URL").unwrap();
 
-        response.set_header(Header::new("Access-Control-Allow-Origin", frontend_url));
+        response.set_header(Header::new("Access-Control-Allow-Origin",frontend_url));
         response.set_header(Header::new("Access-Control-Allow-Credentials", "true"));
     }
 }

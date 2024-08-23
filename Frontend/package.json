@@ -12,6 +12,7 @@
 		"test-watch": "vitest"
 	},
 	"devDependencies": {
+		"@playwright/test": "^1.45.3",
 		"@sveltejs/adapter-auto": "^3.0.0",
 		"@sveltejs/adapter-node": "^5.2.0",
 		"@sveltejs/adapter-static": "^3.0.1",
@@ -37,6 +38,7 @@
 		"@sveltejs/svelte-scroller": "^2.0.7",
 		"chart.js": "^4.4.3",
 		"daisyui": "^4.11.1",
+		"dotenv": "^16.4.5",
 		"js-cookie": "^3.0.5",
 		"prettier": "^3.3.2",
 		"prettier-eslint": "^16.3.0",

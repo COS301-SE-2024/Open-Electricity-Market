@@ -23,10 +23,10 @@
   $: nodes = [];
   let amount; 
   let withdrawamount; 
-  let totalamount = 0; 
-  let firstname; 
-  let lastname; 
-  let email; 
+  let totalamount = 0;
+  $: firstname = null;
+  $: lastname = null;
+  $: email = null;
   //open buy order variables
   // let orderid; 
   // let filledunits; 
@@ -434,17 +434,29 @@
   
       <div class="stat">
           <div class="stat-title">Firstname</div>
-          <div class="stat-value">{firstname}</div>
+          {#if firstname == null}
+            <span class="loading loading-spinner loading-lg"></span>
+          {:else}
+            <div class="stat-value">{firstname}</div>
+          {/if}
       </div>
   
       <div class="stat">
           <div class="stat-title">Lastname</div>
-          <div class="stat-value">{lastname}</div>
+          {#if lastname == null}
+            <span class="loading loading-spinner loading-lg"></span>
+          {:else}
+            <div class="stat-value">{lastname}</div>
+          {/if}
       </div>
   
       <div class="stat">
           <div class="stat-title">Email</div>
-          <div class="stat-value">{email}</div>
+          {#if email == null}
+            <span class="loading loading-spinner loading-lg"></span>
+          {:else}
+            <div class="stat-value">{email}</div>
+          {/if}
       </div>
     </div>
   </div>
@@ -515,6 +527,21 @@
     
 
     {#each nodes as node}
+    {#if node.name == nodeNameDetail}
+      <div class="card card-side border-y-2 min-w-1/3 bg-base-300 my-2">
+        <figure class="w-1/5 p-10">
+          <img
+            src="../src/images/house.png"
+            alt="House node" />
+        </figure>
+        <div class="card-body">
+          <h2 class="card-title">{node.name}</h2>
+          <div class="card-actions justify-end">
+            <button class="btn btn-ghost" on:click={() => {fetchNodeDetails(node.node_id)}}>Details</button>
+          </div>
+        </div>
+      </div>  
+    {:else}
       <div class="card card-side min-w-1/3 bg-base-300 my-2">
         <figure class="w-1/5 p-10">
           <img
@@ -528,6 +555,7 @@
           </div>
         </div>
       </div>
+    {/if}
     {/each}
 
     <div class="card card-side min-w-1/3 bg-base-300 my-2">
@@ -566,6 +594,7 @@
         <div class="flex-col min-w-max">
           <button class="btn btn-primary mx-2 w-48" on:click={() => {
               sessionStorage.setItem("node_id", selectedNodeID);
+              sessionStorage.setItem("node_name", nodeNameDetail);
               //reroute to market 
               goto('../Main/BiddingMarket');
             }}>Transact with this node</button>
@@ -577,7 +606,7 @@
     {/if}
     
     {#each buyorders as buyorder}
-      <div class="card card-side min-w-1/3 bg-base-200 my-2">
+      <div class="card min-w-1/3 bg-base-200 my-2">
         <div class="card-body">
           <h2 class="card-title">Buy order</h2>
           <p>

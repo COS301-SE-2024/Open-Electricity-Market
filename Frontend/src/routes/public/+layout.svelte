@@ -5,8 +5,6 @@
   import Cookies from 'js-cookie';
   import {onMount} from "svelte";
 
-  let loggedIn = false; 
-
   let activebutton = '';
 
   const currentpath = derived(page, $page => $page.url.pathname);
@@ -15,18 +13,23 @@
 
   function showModal(){
     if(activebutton=="/public/GridSimulation"){
-        document.getElementById("my_modal_grid").showModal(); 
+      document.getElementById("my_modal_grid").showModal(); 
     }
     else if (activebutton=="/Main/Dashboard"){
-        document.getElementById("my_modal_dash").showModal();
+      document.getElementById("my_modal_dash").showModal();
     }
     else if(activebutton=="/Main/BiddingMarket"){
-        document.getElementById("help_modal").showModal();
+      document.getElementById("help_modal").showModal();
     }
 
   }
 
   onMount(() => {
+    window.onload = function () {
+      setTimeout(function () {
+        document.getElementById('main').classList.remove('hidden')
+      }, 5000); // Delay of 5 seconds
+    };
   });
 
   async function removeAccount(){
@@ -105,37 +108,15 @@
     </div>
   </div>
 
-
-  <dialog id="my_modal_dash" class="modal">  
-    <div class="modal-box">
-      <h3 class="font-bold text-lg ">Dashboard Page</h3>
-      <p class="py-4">Here you can see details about your account and interactions on the grid. 
-        Go to the marketplace to purchase or sell electricity for any of your nodes. 
-      </p>
-    </div>
-    <form method="dialog" class="modal-backdrop">
-      <button>close</button>
-    </form>
-  </dialog>
-
   <dialog id="my_modal_grid" class="modal">  
     <div class="modal-box">
       <h3 class="font-bold text-lg ">Grid Simulation Page</h3>
       <p class="py-4">
-        The grid simulation page contains an overview of the current 
-        state of the electrical grid. 
+        The grid simulation page contains an overview of the current state of the electrical grid. <br>
+        On the map, you can see all the nodes that are connected to the simulated grid. <br>
+        Clicking on one of these nodes will give you more information on them, and will show the voltage being generated at that point on the oscilloscope, on the right. <br>
+        At the bottom you can see a few general statistics about the grid.
       </p>
-    </div>
-    <form method="dialog" class="modal-backdrop">
-      <button>close</button>
-    </form>
-  </dialog>
-
-  <dialog id="help_modal" class="modal">  
-    <div class="modal-box">
-      <h3 class="font-bold text-lg ">Bidding Market Page</h3>
-      <p class="py-4">Click the button on the 'Advertise Here' card to enter the number of units you want to sell, and the price you wish to sell them for.</p>
-      <p class="py-4">You can click the button on any of the advertisements to buy one unit of electricity from them.</p>
     </div>
     <form method="dialog" class="modal-backdrop">
       <button>close</button>

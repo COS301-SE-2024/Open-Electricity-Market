@@ -27,7 +27,7 @@
   }
 
   onMount(() => {
-    const session = Cookies.get('session_id');
+    const session = sessionStorage.getItem('Token');
     // console.log("Session id is: ", session);
     if(session){
       loggedIn = true; 

@@ -66,25 +66,22 @@
     Cookies.remove("session_id");
     window.location.href = '/login';
   }
+
+  let showMenu = false; 
+  let showIcon = true; 
+
+  function toggleHamburger(){
+    showMenu = !showMenu; 
+    showIcon = !showIcon; 
+  }
   </script>
   
-<!--   
-  <header class="bg-gray-800 text-white p-4 ">
-    <nav class="container mx-auto">
-      <a href="/Main/Dashboard" class = {activebutton == '/Main/Dashboard' ? 'active' : ''}>Dashboard</a>
-      <a href="/Main/GridSimulation" class = {activebutton == '/Main/GridSimulation' ? 'active' : ''}>Grid Simulation</a>
-      <a href="/Main/BiddingMarket" class = {activebutton == '/Main/BiddingMarket' ? 'active' : ''}>Bidding Market</a>
-    </nav>
-  </header>
-  
-  <main class="container mx-auto mt-8">
-    <slot />
-  </main> -->
+
 <header>
   <div class="navbar bg-base-100 border-b border-accent">
     <div class="navbar-start">  
-      <a class="btn btn-ghost text-xl font-normal" href="/">Amplify</a>
-      <span class="text-xl pl-4 font-normal"> {activebutton == '/public/GridSimulation' ? "Simulation" : 
+      <a class="btn btn-ghost md:text-xl font-normal xs:text-sm" href="/">Amplify</a>
+      <span class="md:text-xl xs:text-sm pl-4 font-normal"> {activebutton == '/public/GridSimulation' ? "Simulation" : 
       activebutton == '/Main/BiddingMarket' ? "Marketplace" : 
       activebutton == '/Main/Dashboard' ? "Dashboard" : ""} </span>
     </div>
@@ -98,12 +95,8 @@
       
     <div class="navbar-end">
 
-    
-  <ul class="menu menu-horizontal px-3 ">
-    <!-- <button class="bg-slate-800 " on:click={showModal}>Help</button> -->
-    <!-- svelte-ignore a11y-click-events-have-key-events -->
-    <!-- svelte-ignore a11y-no-static-element-interactions -->
-    <!-- svelte-ignore a11y-missing-attribute -->
+  <div class = "xs: hidden md:flex">
+  <ul class="menu menu-horizontal px-3">
     <li class="px-2"><a class="w-22 btn-ghost" on:click={showModal}>Help</a></li>
   </ul>
       <div class="dropdown dropdown-end">
@@ -113,9 +106,70 @@
           <button class="btn mt-2" on:click={logout}>Log out</button>
         </ul>
       </div>
+      </div>
+
+
+
+<!-- mobile hamburger menu-->
+
+  <!-- svelte-ignore a11y-click-events-have-key-events -->
+  <!-- svelte-ignore a11y-no-static-element-interactions -->
+  <div on:click={toggleHamburger} class ="md:hidden xs:flex">
+
+      <!-- <button class="btn btn-square btn-ghost {showIcon ? '' : 'hidden'}">
+        <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        class="inline-block h-5 w-5 stroke-current">
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M4 6h16M4 12h16M4 18h16"></path>
+      </svg>
+      </button> -->
+
+
+      
+    <div class="navbar-end">
+    <div class="dropdown">
+      <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-5 w-5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 6h16M4 12h16M4 18h7" />
+        </svg>
+      </div>
+      <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+      <ul
+        tabindex="0"
+        class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-28 p-2 shadow align-super fixed right-0">
+        <!-- svelte-ignore a11y-missing-attribute -->
+        <li><a href="/">Landing</a></li>
+        <!-- svelte-ignore a11y-missing-attribute -->
+        <li><a href="/public/GridSimulation">Grid</a></li>
+        <!-- svelte-ignore a11y-missing-attribute -->
+        <li><a href="/Main/Dashboard">Dashboard</a></li>
+      </ul>
+    </div>
+  </div>
+
+
+  </div>
+
 
     </div>
   </div>
+
+  
 
 
   <dialog id="my_modal_dash" class="modal">  

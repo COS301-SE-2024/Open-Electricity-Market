@@ -72,7 +72,7 @@
     {#if totalusers == null}
     <span class="loading loading-spinner loading-lg"></span>
     {:else}
-    <div class="stat-value">{Intl.NumberFormat().format(totalusers)}</div>
+    <div class="stat-value font-normal">{Intl.NumberFormat().format(totalusers)}</div>
     {/if}
     <div class="stat-desc">{currdate}</div>
   </div>
@@ -82,7 +82,7 @@
     {#if producers == null}
     <span class="loading loading-spinner loading-lg"></span>  
     {:else}
-    <div class="stat-value">{Intl.NumberFormat().format(producers)}</div>
+    <div class="stat-value font-normal">{Intl.NumberFormat().format(producers)}</div>
     {/if}
     <!-- <div class="stat-desc">↗︎{(Math.random(80)*100).toFixed(2)}%</div> -->
   </div>
@@ -92,7 +92,7 @@
     {#if consumers == null}
     <span class="loading loading-spinner loading-lg"></span>
     {:else}
-    <div class="stat-value">{Intl.NumberFormat().format(consumers)}</div>
+    <div class="stat-value font-normal">{Intl.NumberFormat().format(consumers)}</div>
     {/if}
   </div>
 
@@ -101,7 +101,7 @@
     {#if generation == null}
     <span class="loading loading-spinner loading-lg"></span>  
     {:else}
-    <div class="stat-value">{Intl.NumberFormat().format(generation)} V</div>
+    <div class="stat-value font-normal">{Intl.NumberFormat().format(generation)} V</div>
     {/if}
   </div>
 
@@ -110,7 +110,7 @@
     {#if impedance == null}
     <span class="loading loading-spinner loading-lg"></span>
     {:else}
-    <div class="stat-value">{Intl.NumberFormat().format(impedance)} Ω</div>
+    <div class="stat-value font-normal">{Intl.NumberFormat().format(impedance)} Ω</div>
     {/if}
     <div class="stat-desc">Measure of opposition to electrical flow</div>
   </div>

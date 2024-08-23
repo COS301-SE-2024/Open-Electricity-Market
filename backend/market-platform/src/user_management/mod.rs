@@ -102,53 +102,6 @@ impl Claims {
     }
 }
 
-pub struct OldClaims {
-    pub user_id: Uuid,
-    pub message: String,
-}
-
-pub fn verify_user(cookie_jar: &CookieJar<'_>) -> OldClaims {
-    use crate::schema::open_em::users::dsl::*;
-
-    let connection = &mut establish_connection();
-
-    let mut response = OldClaims {
-        message: "".to_string(),
-        user_id: Uuid::nil(),
-    };
-
-    let session_cookie = cookie_jar.get("session_id");
-
-    let mut has_cookie = false;
-    let mut session_id_str: String = "".to_string();
-    match session_cookie {
-        None => response.message = "Session ID not found".to_string(),
-        Some(cookie) => {
-            let cookie_value = cookie.value().parse();
-            match cookie_value {
-                Ok(cookie_str) => {
-                    has_cookie = true;
-                    session_id_str = cookie_str;
-                }
-                Err(_) => {}
-            };
-        }
-    }
-
-    if has_cookie {
-        response.message = "No matching user".to_string();
-        match users.select(User::as_select()).first(connection) {
-            Ok(user) => {
-                response.message = "User found".to_string();
-                response.user_id = user.user_id;
-            }
-            Err(_) => {}
-        }
-    }
-
-    response
-}
-
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
 pub struct NewUserRequest {
@@ -454,7 +407,7 @@ pub fn remove_account(claims: Claims) -> Value {
         .execute(connection)
     {
         Ok(_) => {
-            json!({"status": "error", "message": "Account successfully deleted".to_string()})
+            json!({"status": "ok", "message": "Account successfully deleted".to_string()})
         }
         Err(_) => {
             json!({"status": "error", "message": "Failed to remove account".to_string()})

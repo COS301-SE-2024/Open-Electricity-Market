@@ -17,7 +17,7 @@ use crate::{
 pub struct Agent {
     pub email: String,
     pub password: String,
-    pub session_id: String,
+    pub token: String,
     pub nodes: Vec<Node>,
     pub funds: f64,
     pub linked_to_user: bool,
@@ -36,7 +36,7 @@ impl Agent {
         Agent {
             email,
             password,
-            session_id: String::from(""),
+            token: String::from(""),
             nodes,
             funds,
             linked_to_user,
@@ -84,7 +84,7 @@ impl Agent {
             .unwrap();
         let result: LoginResult = res.json().unwrap();
         if result.message == "User logged in" {
-            return result.data.session_id;
+            return result.data.token;
         }
         let register_detail = RegisterDetail {
             email,
@@ -101,10 +101,10 @@ impl Agent {
         if result.message != "New user added" {
             panic!("Agent could not get session Id");
         }
-        result.data.session_id
+        result.data.token
     }
 
-    fn add_node(location: Location, name: String, session_id: String) {
+    fn add_node(location: Location, name: String, token: String) {
         let node_detail = NodeDetail {
             name,
             location_x: location.latitude,
@@ -114,7 +114,7 @@ impl Agent {
         let client = reqwest::blocking::Client::new();
         let res = client
             .post(format!("http://{url}:8001/add_node"))
-            .header(header::COOKIE, format!("session_id={session_id}"))
+            .header(header::AUTHORIZATION, format!("Bearer {token}"))
             .json(&node_detail)
             .send()
             .unwrap();
@@ -126,13 +126,13 @@ impl Agent {
         }
     }
 
-    pub fn get_nodes(limit: u32, session_id: String) -> Vec<String> {
+    pub fn get_nodes(limit: u32, token: String) -> Vec<String> {
         let get_node_detail = GetNodeDetail { limit };
         let url = env::var("MURL").unwrap();
         let client = reqwest::blocking::Client::new();
         let res = client
             .post(format!("http://{url}:8001/get_nodes"))
-            .header(header::COOKIE, format!("session_id={session_id}"))
+            .header(header::AUTHORIZATION, format!("Bearer {token}"))
             .json(&get_node_detail)
             .send()
             .unwrap();
@@ -150,14 +150,13 @@ impl Agent {
     }
 
     pub fn intialise(&mut self) {
-        if self.session_id == "" {
-            self.session_id =
-                Agent::login_or_register_agent(self.email.clone(), self.password.clone());
+        if self.token == "" {
+            self.token = Agent::login_or_register_agent(self.email.clone(), self.password.clone());
         }
-        println!("{}", self.session_id.clone());
+        println!("{}", self.token.clone());
         let mut has_nodes = true;
 
-        let mut node_ids = Agent::get_nodes(1024, self.session_id.clone());
+        let mut node_ids = Agent::get_nodes(1024, self.token.clone());
         if node_ids.is_empty() {
             has_nodes = false;
         }
@@ -187,13 +186,13 @@ impl Agent {
                 Agent::add_node(
                     node.location,
                     String::from("Simulated Node"),
-                    self.session_id.clone(),
+                    self.token.clone(),
                 )
             }
         }
 
         if !has_nodes {
-            node_ids = Agent::get_nodes(1024, self.session_id.clone());
+            node_ids = Agent::get_nodes(1024, self.token.clone());
         }
 
         println!("Is empty {}", self.nodes.is_empty());
@@ -218,12 +217,12 @@ impl Agent {
         }
     }
 
-    fn get_credit(session_id: String) -> f64 {
+    fn get_credit(token: String) -> f64 {
         let url = env::var("MURL").unwrap();
         let client = reqwest::blocking::Client::new();
         let res = client
             .post(format!("http://{url}:8001/user_details"))
-            .header(header::COOKIE, format!("session_id={session_id}"))
+            .header(header::AUTHORIZATION, format!("Bearer {token}"))
             .send()
             .unwrap();
         let result: UserDetailResult = res.json().unwrap();
@@ -237,14 +236,14 @@ impl Agent {
 
     fn get_units_to_produce_and_consume(
         node_id: String,
-        session_id: String,
+        token: String,
     ) -> (Option<f64>, Option<f64>) {
         let node_details_details = NodeDetailsDetails { node_id };
         let url = env::var("MURL").unwrap();
         let client = reqwest::blocking::Client::new();
         let res = client
             .post(format!("http://{url}:8001/node_details"))
-            .header(header::COOKIE, format!("session_id={session_id}"))
+            .header(header::AUTHORIZATION, format!("Bearer {token}"))
             .json(&node_details_details)
             .send()
             .unwrap();
@@ -264,13 +263,13 @@ impl Agent {
         }
     }
 
-    fn update_units_consumed(units: f64, session_id: String, node_id: String) {
+    fn update_units_consumed(units: f64, token: String, node_id: String) {
         let update_units_consumed_details = UpdateUnitsConsumedDetails { units, node_id };
         let url = env::var("MURL").unwrap();
         let client = reqwest::blocking::Client::new();
         let res = client
             .post(format!("http://{url}:8001/update_consumed_units"))
-            .header(header::COOKIE, format!("session_id={session_id}"))
+            .header(header::AUTHORIZATION, format!("Bearer {token}"))
             .json(&update_units_consumed_details)
             .send()
             .unwrap();
@@ -278,13 +277,13 @@ impl Agent {
         println!("{}", result.message);
     }
 
-    fn update_units_produced(units: f64, session_id: String, node_id: String) {
+    fn update_units_produced(units: f64, token: String, node_id: String) {
         let update_units_consumed_details = UpdateUnitsProducedDetails { units, node_id };
         let url = env::var("MURL").unwrap();
         let client = reqwest::blocking::Client::new();
         let res = client
             .post(format!("http://{url}:8001/update_produced_units"))
-            .header(header::COOKIE, format!("session_id={session_id}"))
+            .header(header::AUTHORIZATION, format!("Bearer {token}"))
             .json(&update_units_consumed_details)
             .send()
             .unwrap();
@@ -343,7 +342,7 @@ impl Agent {
         }
     }
 
-    fn place_buy_order(session_id: String, node_id: String, mut units: f64, funds: f64) -> f64 {
+    fn place_buy_order(token: String, node_id: String, mut units: f64, funds: f64) -> f64 {
         let mut rng = rand::thread_rng();
         let offset: f64 = rng.gen_range(-15.0..15.0);
 
@@ -367,7 +366,7 @@ impl Agent {
         let client = reqwest::blocking::Client::new();
         let res = client
             .post(format!("http://{url}:8001/buy_order"))
-            .header(header::COOKIE, format!("session_id={session_id}"))
+            .header(header::AUTHORIZATION, format!("Bearer {token}"))
             .json(&detail)
             .send()
             .unwrap();
@@ -383,7 +382,7 @@ impl Agent {
         }
     }
 
-    fn place_sell_order(session_id: String, node_id: String, units: f64) {
+    fn place_sell_order(token: String, node_id: String, units: f64) {
         let mut rng = rand::thread_rng();
         let offset: f64 = rng.gen_range(-15.0..15.0);
 
@@ -399,7 +398,7 @@ impl Agent {
         let client = reqwest::blocking::Client::new();
         let res = client
             .post(format!("http://{url}:8001/sell_order"))
-            .header(header::COOKIE, format!("session_id={session_id}"))
+            .header(header::AUTHORIZATION, format!("Bearer {token}"))
             .json(&detail)
             .send()
             .unwrap();
@@ -413,7 +412,7 @@ impl Agent {
 
     fn update(&mut self, accumlated_time: f64) -> Result<(), ()> {
         // get credit
-        let credit = Agent::get_credit(self.session_id.clone());
+        let credit = Agent::get_credit(self.token.clone());
         // uppdate credit based on income_curve
         self.funds += self.extarnal_wealth_curve.sample(accumlated_time);
 
@@ -421,10 +420,8 @@ impl Agent {
         for node in self.nodes.iter_mut() {
             // Get units_to_consume
             // Get units_to_produce
-            let (units_to_consume, units_to_produce) = Agent::get_units_to_produce_and_consume(
-                node.node_id.clone(),
-                self.session_id.clone(),
-            );
+            let (units_to_consume, units_to_produce) =
+                Agent::get_units_to_produce_and_consume(node.node_id.clone(), self.token.clone());
 
             // Update units_to_consume based on consumption curve
             let consumed = match &mut node.smart_meter {
@@ -459,20 +456,12 @@ impl Agent {
 
             // Update units_to_consume on market
             if consumed > 0.0 {
-                Agent::update_units_consumed(
-                    consumed,
-                    self.session_id.clone(),
-                    node.node_id.clone(),
-                );
+                Agent::update_units_consumed(consumed, self.token.clone(), node.node_id.clone());
             }
 
             // Update units_to_produce on market
             if produced > 0.0 {
-                Agent::update_units_produced(
-                    produced,
-                    self.session_id.clone(),
-                    node.node_id.clone(),
-                );
+                Agent::update_units_produced(produced, self.token.clone(), node.node_id.clone());
             }
 
             // Set grid voltage for producer
@@ -506,7 +495,7 @@ impl Agent {
                         if gap > 0.0 && credit > 0.0 {
                             // buy electricity at market price
                             let spent = Agent::place_buy_order(
-                                self.session_id.clone(),
+                                self.token.clone(),
                                 node.node_id.clone(),
                                 gap,
                                 credit,
@@ -527,7 +516,7 @@ impl Agent {
                         let produced = core.production_curve.sample(accumlated_time) - produced;
                         if produced > to_produce {
                             Agent::place_sell_order(
-                                self.session_id.clone(),
+                                self.token.clone(),
                                 node.node_id.clone(),
                                 produced - to_produce,
                             );

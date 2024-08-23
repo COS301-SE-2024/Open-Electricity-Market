@@ -16,7 +16,7 @@ pub struct RegisterDetail {
 
 #[derive(Deserialize)]
 pub struct SessionWrapper {
-    pub session_id: String,
+    pub token: String,
 }
 
 #[derive(Deserialize)]

@@ -117,16 +117,16 @@
   svelte-ignore a11y-no-noninteractive-tabindex
    <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
       <li class="flex items-center">
-      <label class="cursor-pointer flex items-center space-x-3 w-full hover:bg-gray-600">
-        <input type="checkbox" class="checkbox checkbox-primary" on:click={setAdvancedView} />
-        <span>Advanced view</span>
-      </label>
-    </li>
-  </ul>
-</div> -->
+        <label class="cursor-pointer flex items-center space-x-3 w-full hover:bg-gray-600">
+          <input type="checkbox" class="checkbox checkbox-primary" on:click={setAdvancedView} />
+          <span>Advanced view</span>
+        </label>
+      </li>
+    </ul>
+  </div> -->
 
 
-<!-- <button class="btn" onclick="my_modal_2.showModal()">Help</button> -->
+  <!-- <button class="btn" onclick="my_modal_2.showModal()">Help</button> -->
     <!-- <dialog id="my_modal_2" class="modal">  
       <div class="modal-box">
         <h3 class="font-bold text-lg ">Grid Simulation Page</h3>
@@ -219,33 +219,21 @@
    <span class="loading loading-ring loading-lg ml-6"></span>
   {/if} -->
 
-<div class="fullsection flex md:flex-row xs:flex-col">
+  <div class="fullsection flex md:flex-row xs:flex-col">
 
-<div class="mapsection md:w-3/5  xs:w-full xs:p-0 left-0">
-  <Map {mapdata} on:markerClick = {handleMarkerClick} class="xs:rounded-md"  /> 
+    <div class="mapsection md:w-3/5  xs:w-full xs:p-0 left-0">
+      <Map {mapdata} on:markerClick = {handleMarkerClick} class="xs:rounded-md"  /> 
 
-    <div class="statsection">
+      <div class="statsection my-2">
         <GridStats /> 
-        </div>
+      </div>
     </div>
 
-<div class="chartsection md:w-2/5 md:h-full p-5 xs:w-full xs:">   
-  <Chart {data} />
+    <div class="chartsection md:w-2/5 md:h-full p-5 xs:w-full xs:">   
+      <Chart {data} />  
+    </div>
 
-      
-</div>
-
-
-
-
-
-</div>
-
-
-
-
-
-
+  </div>
 </main>
 
 <style>

@@ -74,7 +74,7 @@
   }
   </script>
   
-
+<body class = "w-full min-h-screen bg-gradient-to-b from-base-200 to-base-300">
 <header>
   <div class="navbar bg-base-100 border-b border-accent">
     <div class="navbar-start">  
@@ -213,12 +213,6 @@
       <button>close</button>
     </form>
   </dialog>
-</header>
-
-<main class="container mx-auto mt-8">
- 
-    <slot />
-  
 
 
   <dialog id="removeaccount_modal" class="modal">
@@ -234,7 +228,16 @@
         </div>
       </div>
     </dialog>
-  </header>
+</header>
+
+<main class="container mx-auto mt-8">
+ 
+    <slot />
+  
+
+
+  
+  
   
   <main class="container mx-auto mt-8">
     <slot />

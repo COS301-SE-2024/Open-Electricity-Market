@@ -75,7 +75,7 @@
     showIcon = !showIcon; 
   }
   </script>
-
+<body class = "w-full min-h-screen bg-gradient-to-b from-base-200 to-base-300">
 <header>
   <div class="navbar bg-base-100 border-b border-accent">
     <div class="navbar-start">  
@@ -214,16 +214,8 @@
       <button>close</button>
     </form>
   </dialog>
-</header>
 
-<main class="container mx-auto mt-8">
-  {#if loggedIn}
-    <slot />
-  {:else}
-    <script>
-        // 
-    </script>
-  {/if}
+
 
 
   <dialog id="removeaccount_modal" class="modal">
@@ -269,15 +261,8 @@
         <button>close</button>
       </form>
     </dialog>
-  </header>
-  
-  <main id="main" class="container mx-auto mt-8">
-    {#if loggedIn}
-      <slot />
-    {/if}
-  
-  
-    <dialog id="removeaccount_modal" class="modal">
+
+     <dialog id="removeaccount_modal" class="modal">
       <div class="modal-box">
         <h3 class="text-lg font-bold">Delete Account</h3>
         <p class="py-4">Are you sure you want to delete your account?</p>
@@ -290,6 +275,17 @@
         </div>
       </div>
     </dialog>
+
+
+  </header>
+  
+  <main id="main" class="container mx-auto mt-8">
+    {#if loggedIn}
+      <slot />
+    {/if}
+  
+  
+   
   </main>
   
 </body>

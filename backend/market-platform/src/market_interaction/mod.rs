@@ -1,7 +1,6 @@
 use crate::models::{
     BuyOrder, NewBuyOrder, NewSellOrder, NewTransaction, Node, SellOrder, Transaction,
 };
-use crate::user_management::verify_user;
 use crate::user_management::Claims;
 use crate::{
     establish_connection, schema, IMPEDANCE_RATE, SUPPLY_DEMAND_RATE, TARGET_HISTORY_POINTS,
@@ -237,19 +236,20 @@ pub fn price_history(price_history_request: Json<PriceHistoryRequest>) -> Value 
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct BuyOrderRequest {
+struct OrderRequest {
     node_id: String,
     max_price: f64,
     min_price: f64,
     units: f64,
 }
 
+
 #[post(
     "/buy_order",
     format = "application/json",
     data = "<buy_order_request>"
 )]
-pub fn buy_order(buy_order_request: Json<BuyOrderRequest>, claims: Claims) -> Value {
+pub fn buy_order(buy_order_request: Json<OrderRequest>, claims: Claims) -> Value {
     use crate::schema::open_em::buy_orders::dsl::*;
     use crate::schema::open_em::nodes::dsl::*;
     use crate::schema::open_em::sell_orders::dsl::*;
@@ -361,21 +361,12 @@ pub fn buy_order(buy_order_request: Json<BuyOrderRequest>, claims: Claims) -> Va
     }
 }
 
-#[derive(Serialize, Deserialize)]
-#[serde(crate = "rocket::serde")]
-struct SellOrderRequest {
-    node_id: String,
-    max_price: f64,
-    min_price: f64,
-    units: f64,
-}
-
 #[post(
     "/sell_order",
     format = "application/json",
     data = "<sell_order_request>"
 )]
-pub fn sell_order(sell_order_request: Json<SellOrderRequest>, claims: Claims) -> Value {
+pub fn sell_order(sell_order_request: Json<OrderRequest>, claims: Claims) -> Value {
     use crate::schema::open_em::buy_orders::dsl::*;
     use crate::schema::open_em::nodes::dsl::*;
     use crate::schema::open_em::sell_orders::dsl::*;
@@ -469,7 +460,7 @@ pub fn sell_order(sell_order_request: Json<SellOrderRequest>, claims: Claims) ->
                                     return json!({"status": "ok",
                                     "message": "Sell order created successfully. Order matched".to_string()});
                                 }
-                                json!({"status": "ok",
+                                return json!({"status": "ok",
                                     "message": "Sell order created successfully. Pending match".to_string()});
                             }
                             Err(_) => {}

@@ -542,7 +542,7 @@
         <button class="btn btn-error mx-2 w-48" onclick="remove_modal.showModal()">Withdraw funds</button>
       </div>
       
-      <h1 class="stat text-lg">
+      <h1 class="stat text-lg font-normal">
         Personal Information:
       </h1>
   
@@ -747,7 +747,7 @@
       </div>
 
     {/if}
-    
+    <div class = "my-10"></div>
     {#each buyorders as buyorder}
       <div class="card card-side min-w-1/3 bg-base-200 my-2">
         <div class="card-body">

@@ -83,8 +83,8 @@
 <header>
   <div class="navbar bg-base-100 border-b border-accent">
     <div class="navbar-start">  
-      <a class="btn btn-ghost text-xl" href="/">Amplify</a>
-      <span class="text-xl pl-4"> {activebutton == '/public/GridSimulation' ? "Simulation" : 
+      <a class="btn btn-ghost text-xl font-normal" href="/">Amplify</a>
+      <span class="text-xl pl-4 font-normal"> {activebutton == '/public/GridSimulation' ? "Simulation" : 
       activebutton == '/Main/BiddingMarket' ? "Marketplace" : 
       activebutton == '/Main/Dashboard' ? "Dashboard" : ""} </span>
     </div>
@@ -98,7 +98,7 @@
       
     <div class="navbar-end">
 
-
+    
   <ul class="menu menu-horizontal px-3 ">
     <!-- <button class="bg-slate-800 " on:click={showModal}>Help</button> -->
     <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -107,7 +107,7 @@
     <li class="px-2"><a class="w-22 btn-ghost" on:click={showModal}>Help</a></li>
   </ul>
       <div class="dropdown dropdown-end">
-        <div tabindex="0" role="button" class="btn btn-ghost rounded-btn">Account</div>
+        <div tabindex="0" role="button" class="btn btn-ghost rounded-btn font-normal">Account</div>
         <ul class="menu dropdown-content bg-base-100 rounded-box z-[1] mt-4 w-52 p-2 shadow">
           <button class="btn" onclick="removeaccount_modal.showModal()">Remove Account</button>
           <button class="btn mt-2" on:click={logout}>Log out</button>

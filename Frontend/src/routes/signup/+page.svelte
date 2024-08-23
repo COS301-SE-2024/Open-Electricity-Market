@@ -2,7 +2,7 @@
   import logo from '$lib/assets/Logo.png';
   import {goto} from "$app/navigation";
   import Cookies from 'js-cookie';
-  import { API_URL_GRID, API_URL_MARKET, COOKIE_DOMAIN } from '$lib/config.js';
+  import { API_URL_GRID, API_URL_MARKET, COOKIE_DOMAIN, API_URL_AGENT } from '$lib/config.js';
 
   let email = '';
   let firstname = '';
@@ -12,6 +12,7 @@
   let errormessage = "";
   let validEmail = false;
   let validPassword = false;
+  let data = {}; 
 
 
 
@@ -107,6 +108,35 @@
       errormessage = "Passwords must match"
     }
   }
+
+  async function addAgent(){
+
+    let details = {
+    "email": email,
+    "password": password,
+    "session_id": Cookies.get('session_id'),
+  }
+    try {
+      const res = await fetch(`${API_URL_AGENT}/add_agent`, {
+      method: "POST", 
+      headers: {
+        "Content-Type": "application/json",
+      }, 
+      body : JSON.stringify(details),
+      credentials: "include",
+   
+    });
+    const fdata = await res.json(); 
+    console.log("Add agent endpoint: ", fdata); 
+
+    } catch (error) {
+      console.log("There was an error with the add_agent endpoint when creating account: ", error); 
+    }
+   
+    
+
+  } 
+
 </script>
 <main>
     <div class="hero min-h-screen" style="background-image: url(https://images.unsplash.com/photo-1510595256055-e44b27efe497?q=80&w=1700&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D);">

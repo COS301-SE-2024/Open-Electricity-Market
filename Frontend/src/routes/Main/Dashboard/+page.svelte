@@ -4,7 +4,7 @@
   import Cookies from 'js-cookie';
   import {goto} from "$app/navigation";
   import Map from '$lib/Components/MapDashboard.svelte';
-  import { API_URL_GRID, API_URL_MARKET } from '$lib/config.js';
+  import { API_URL_GRID, API_URL_MARKET, API_URL_AGENT } from '$lib/config.js';
 
   
 
@@ -42,6 +42,43 @@
   //variables for map input
    let latitude = '';
    let longtitude = '';
+   let appliance = ''; 
+   let appliances = [
+        'Washing Machine', 'Router', 'Vacuum', 'Dishwasher', 'Boiler', 'Hair Purifier',
+        'Sound System', 'Coffee Machine', 'Phone Charger', 'Fridge', 'Radiator',
+        'Dehumidifier', 'Microwave Oven', 'Laptop', 'Tv', 'Screen', 'Solar Panel',
+        'Fan', 'Air Conditioner', 'Computer', 'Printer', 'Dryer', 'Freezer'
+    ];
+
+  let generator = ''; 
+  let category = ''; 
+  let generators = [
+        { type: "SolarPanel", category: "Home" },
+        { type: "SolarPanel", category: "Industrial" },
+        { type: "WindTurbine", category: "Small" },
+        { type: "WindTurbine", category: "Medium" },
+        { type: "WindTurbine", category: "Large" },
+        { type: "NuclearReactor", category: "PWR" },
+        { type: "NuclearReactor", category: "BWR" },
+        { type: "NuclearReactor", category: "AGR" },
+        { type: "NuclearReactor", category: "FNR" },
+        { type: "NuclearReactor", category: "PHWR" },
+        { type: "NuclearReactor", category: "HTGR" },
+        { type: "NuclearReactor", category: "LWGR" },
+        { type: "DieselGenerator", category: "Home" },
+        { type: "DieselGenerator", category: "Industrial" },
+        { type: "PetrolGenerator", category: "Home" },
+        { type: "PetrolGenerator", category: "Industrial" },
+        { type: "CoalGenerator", category: "Small" },
+        { type: "CoalGenerator", category: "Medium" },
+        { type: "CoalGenerator", category: "Large" },
+        { type: "HydraulicTurbine", category: "Small" },
+        { type: "HydraulicTurbine", category: "Medium" },
+        { type: "HydraulicTurbine", category: "Large" }
+  ]; 
+
+  let uniqueGens = [...new Set(generators.map(generator=> generator.type))]; 
+
 
   onMount(async () => {
     await fetchStart();
@@ -383,6 +420,83 @@
     return value.slice(2, value.length);
   }
 
+  let details = {
+        "email": email,
+        "node_id": sessionStorage.getItem("node_id"),
+        "appliances": []
+    };
+
+  let details2 = {
+    "email": email, 
+    "node_id": sessionStorage.getItem("node_id"),
+    "generators": [] ,
+  }
+
+  async function addAppliance(){
+
+    let onPeriods = {
+      "start": 15.0, 
+      "end": 800.0,
+    }
+      if(appliance){
+        let applianceDetails = {
+          "appliance_type": appliance.replace(/\s/g,''),
+          "on_periods": onPeriods 
+        }; 
+        details.appliances.push(applianceDetails);
+        try {
+          const response = await fetch(`${API_URL_AGENT}/add_agent`, {
+        method: "POST",
+        body : JSON.stringify(details), 
+        headers: {
+          'Content-Type': 'application/json' 
+        },
+        credentials: "include",
+      });
+      const fdata = await response.json();
+      data = fdata;
+      console.log("Data received from user details is: ", data);
+        } catch (error) {
+          console.log("There was an error with the add appliance endpoint: ", error); 
+        }
+      }
+      else{
+        console.log("Appliance was not selected."); 
+      }
+  }
+
+  async function addGenerator(){
+
+    let onPeriods = {
+      "start": 15.0, 
+      "end": 800, 
+    }
+
+    if(generator && category){
+      let generatorDetails = {
+        "generator_type": {generator: category}
+      }
+      details2.generators.push(generatorDetails);
+      details2.generators.push(onPeriods); 
+      try {
+        const response = await fetch(`${API_URL_AGENT}/add_generators`,{
+        method: "POST", 
+        body: JSON.stringify(details2), 
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: "include",
+      });
+      const fdata = await response.json(); 
+      data = fdata; 
+      console.log("Data received from add gen endpoint: ", data); 
+     } catch (error) {
+        console.log("There was an error with the add generator endpoint: ", error); 
+      }
+    }
+
+  }
+
 </script>
 
 <main class="container mx-auto w-full sm:flex justify-center">
@@ -436,7 +550,7 @@
         <button class="btn btn-error mx-2 w-48" onclick="remove_modal.showModal()">Withdraw funds</button>
       </div>
       
-      <h1 class="stat text-lg">
+      <h1 class="stat text-lg font-normal">
         Personal Information:
       </h1>
   
@@ -599,20 +713,73 @@
           <div class="stat-value font-light">{Intl.NumberFormat().format(nodeToProduce)} Wh</div>
         </div>
 
-        <div class="flex-col min-w-max">
-          <button class="btn btn-primary mx-2 w-48" on:click={() => {
-              sessionStorage.setItem("node_id", selectedNodeID);
-              sessionStorage.setItem("node_name", nodeNameDetail);
-              //reroute to market 
-              goto('../Main/BiddingMarket');
-            }}>Transact with this node</button>
-          <button class="btn btn-error mx-2 w-48" on:click={() => {
-              document.getElementById("removeNodeConfirmation").showModal();
-            }}>Remove this node</button>
-        </div>
       </div>
+
+      <div class="flex-col min-w-max">
+        <button class="btn btn-primary mx-2 w-48" on:click={() => {
+            sessionStorage.setItem("node_id", selectedNodeID);
+            sessionStorage.setItem("node_name", nodeNameDetail);
+            //reroute to market 
+            goto('../Main/BiddingMarket');
+          }}>Transact with this node</button>
+        <button class="btn btn-error mx-2 w-48" on:click={() => {
+            document.getElementById("removeNodeConfirmation").showModal();
+          }}>Remove this node</button>
+      </div>
+
+      <div class="flex-col min-w-3/4">
+
+        <div class="form-control">
+          <!-- svelte-ignore a11y-label-has-associated-control -->
+          <label class="label">
+              <span class="label-text">Select Appliance</span>
+          </label>
+          <select bind:value={appliance} class="select select-bordered max-h-40 overflow-y-auto">
+              <option value="" disabled selected>Select an appliance</option>
+              {#each appliances as appliance}
+                  <option value={appliance}>{appliance}</option>
+              {/each}
+          </select>
+      </div>
+      <button on:click={addAppliance} class="btn btn-primary mt-4">Add Appliance</button>
+
+
+
+
+
+
+        <div class = "form-control">
+          <!-- svelte-ignore a11y-label-has-associated-control -->
+          <label class = "label">
+            <span class = "label-text">Select a generator</span>
+          </label>
+          <select bind:value={generator} class="select select-bordered max-h-40 overflow-y-auto">
+            <option value = "" disabled selected>Select a generator</option>
+            {#each uniqueGens as type}
+                  <option value={type}>{type}</option>
+            {/each}
+          </select>
+        </div>
+        
+        <!-- selecting category  -->
+        <div class = "form-control mt-4">
+          <select bind:value={category} class = "select select-bordered max-h-40 overflow-y-auto" disabled={!generator}>
+            <option value = "" disabled selected>Select a category</option>
+            {#each generators.filter(g=>g.type === generator) as {category}}
+            <option value = {category}>{category}</option>
+            {/each}
+          </select>
+        </div>
+        
+        <button on:click={addGenerator} class="btn btn-primary mt-4">Add Generator</button>
+
+
+
+      
+      </div>
+
     {/if}
-    
+    <div class = "my-10"></div>
     {#each buyorders as buyorder}
       <div class="card min-w-1/3 bg-base-100 my-2">
         <div class="card-body">
@@ -708,5 +875,8 @@
         <button on:click={nullifyValues}>close</button>
       </form>
     </dialog>
+
+   
+    
 
 </main>

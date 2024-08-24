@@ -25,7 +25,7 @@
   onMount(async () => {
     await fetchData();
     await fetchstart();  
-    //interval = setInterval(fetchData, 10000); 
+    interval = setInterval(fetchData, 10000); 
     
    
     return () => {

@@ -108,7 +108,7 @@ async function fetchData() {
       <span class="text-lg">Selected Node: </span> <br>
       <span class="text-3xl">{selected_node_name}</span> <br>
       <span class="text-lg">Current Average Market Price: </span> <br>
-      <span class="text-3xl">R {price}</span> <br>
+      <span class="text-3xl">R {price.toFixed(2)}</span> <br>
       
       <form>
         <div class="form-control mt-1">

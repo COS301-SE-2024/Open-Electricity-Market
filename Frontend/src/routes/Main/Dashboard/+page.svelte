@@ -727,7 +727,7 @@
           }}>Remove this node</button>
       </div>
 
-      <div class="flex-col min-w-3/4">
+      <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
 
         <div class="form-control">
           <!-- svelte-ignore a11y-label-has-associated-control -->

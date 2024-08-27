@@ -10,6 +10,14 @@ use crate::grid::{
     ConsumerInterface, GeneratorInterface, Grid, OscilloscopeDetail, Resistance, Voltage,
     VoltageWrapper,
 };
+use core::time;
+use ::std::env;
+use std::thread;
+use diesel::Connection;
+use diesel::ExpressionMethods;
+use diesel::RunQueryDsl;
+use diesel::{insert_into, PgConnection};
+use dotenvy::dotenv;
 use grid::transformer::Transformer;
 use rocket::fairing::{Fairing, Info, Kind};
 use rocket::http::{Header, Method, Status};
@@ -18,12 +26,16 @@ use rocket::serde::json::json;
 use rocket::serde::json::Json;
 use rocket::serde::{Deserialize, Serialize};
 use rocket::{data, serde, Request, Response, State};
+use schema::open_em::grid_history::{self, grid_state};
+use std::any::Any;
 use std::ops::Deref;
 use std::sync::{Arc, Mutex};
 use std::time::Instant;
 
 pub struct CORS;
 pub mod grid;
+pub mod models;
+pub mod schema;
 
 #[rocket::async_trait]
 impl Fairing for CORS {
@@ -161,6 +173,7 @@ fn start(grid: &State<Arc<Mutex<Grid>>>) -> String {
     if !g.started {
         g.started = true;
         let clone = grid.inner().clone();
+        let clone2 = clone.clone();
         tokio::spawn(async move {
             let mut start = Instant::now();
             let mut elapsed_time = 0.0;
@@ -170,6 +183,20 @@ fn start(grid: &State<Arc<Mutex<Grid>>>) -> String {
                 start = Instant::now();
                 let mut grid = clone.lock().unwrap();
                 grid.update(elapsed_time);
+            }
+        });
+
+        tokio::spawn(async move {
+            loop {
+                use crate::grid_history::dsl::grid_history;
+                let grid = clone2.lock().unwrap();
+                let santas_address: serde_json::Value =
+                    serde_json::from_str(&serde_json::to_string(grid.deref()).unwrap())
+                        .expect("REASON");
+                let _ = insert_into(grid_history)
+                    .values(grid_state.eq(santas_address))
+                    .execute(&mut establish_connection());
+                thread::sleep(time::Duration::from_secs(50))
             }
         });
         json!({
@@ -184,9 +211,17 @@ fn start(grid: &State<Arc<Mutex<Grid>>>) -> String {
     }
 }
 
+pub fn establish_connection() -> PgConnection {
+    dotenv().ok();
+
+    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    PgConnection::establish(&database_url)
+        .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
+}
+
 #[launch]
 fn rocket() -> _ {
-  let transformer = Transformer {
+    let transformer = Transformer {
         id: 0,
         ratio: 1.0,
         primary_circuit: 0,

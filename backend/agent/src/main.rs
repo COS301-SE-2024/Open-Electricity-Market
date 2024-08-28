@@ -26,18 +26,17 @@ use rocket::{
     fairing::{Fairing, Info, Kind},
     State,
 };
-use rocket::{form::validate::Len, response::content, tokio};
 use rocket::{
     http::{Header, Method, Status},
     Request, Response,
 };
+use rocket::{response::content, tokio};
 use schema::open_em::agent_history::{self, agent_state};
 use serde::Deserialize;
 use serde_json::json;
 use smart_meter::consumption_curve::HomeApplianceType;
 use smart_meter::{consumption_curve::HomeAppliance, SmartMeter};
 use std::ops::Deref;
-use std::thread::sleep;
 pub mod agent;
 pub mod curve;
 pub mod generator;
@@ -48,7 +47,7 @@ pub mod period;
 pub mod schema;
 pub mod smart_meter;
 
-const AGENT_SPEED: u64 = 5 * 60;
+const AGENT_SPEED: u64 = 5 * 3;
 
 pub struct CORS;
 
@@ -261,7 +260,7 @@ fn set_session(
         );
     }
     let agent_index = agent_index.unwrap();
-    agents[agent_index].token = data.token.clone();
+    agents[agent_index].token.clone_from(&data.token);
 
     let message = "Succesfully set session id".to_string();
     content::RawJson(json!({"status": "ok", "message": message, "data": {}}).to_string())

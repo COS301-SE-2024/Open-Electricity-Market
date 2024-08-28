@@ -264,7 +264,7 @@ pub fn login(credentials: Json<Credentials>) -> Value {
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct RemoveFundsReq {
+pub struct RemoveFundsReq {
     funds: f64,
 }
 
@@ -307,7 +307,7 @@ pub fn remove_funds(remove_funds_req: Json<RemoveFundsReq>, claims: Claims) -> V
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct AddFundsReq {
+pub struct AddFundsReq {
     funds: f64,
 }
 

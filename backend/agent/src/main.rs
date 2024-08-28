@@ -356,13 +356,16 @@ fn rocket() -> _ {
     let agents_clone = agents.clone();
 
     thread::spawn(move || loop {
-        use crate::agent_history::dsl::agent_history;
-        let agents = agents_clone.lock().unwrap();
-        let santas_address: serde_json::Value =
-            serde_json::from_str(&serde_json::to_string(agents.deref()).unwrap()).expect("REASON");
-        let _ = insert_into(agent_history)
-            .values(agent_state.eq(santas_address))
-            .execute(&mut establish_connection());
+        {
+            use crate::agent_history::dsl::agent_history;
+            let agents = agents_clone.lock().unwrap();
+            let santas_address: serde_json::Value =
+                serde_json::from_str(&serde_json::to_string(agents.deref()).unwrap())
+                    .expect("REASON");
+            let _ = insert_into(agent_history)
+                .values(agent_state.eq(santas_address))
+                .execute(&mut establish_connection());
+        }
         thread::sleep(time::Duration::from_secs(50))
     });
 

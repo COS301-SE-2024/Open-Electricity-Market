@@ -252,12 +252,12 @@ pub fn login(credentials: Json<Credentials>) -> Value {
             }
             json!({ "status": "error",
                 "message": "Username or password invalid".to_string(),
-                "data": { "session_id": "".to_string()}
+                "data": { "token": "".to_string()}
             })
         }
         Err(_) => json!({ "status": "error",
             "message": "Username or password invalid".to_string(),
-            "data": { "session_id": "".to_string()}
+            "data": { "token": "".to_string()}
         }),
     }
 }

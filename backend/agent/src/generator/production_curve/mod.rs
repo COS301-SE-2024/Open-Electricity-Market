@@ -155,7 +155,7 @@ impl GeneratorCurveType {
     }
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize,Serialize)]
 pub struct GeneratorCurve {
     generator_type: GeneratorCurveType,
     on_periods: Vec<Period>,

@@ -1,4 +1,7 @@
-pub trait Curve {
+use erased_serde::serialize_trait_object;
+use serde::Serialize;
+
+pub trait Curve : erased_serde::Serialize {
     fn sample(&mut self, time: f64) -> f64;
     fn total_in_24_hour(&mut self) -> f64;
     fn add_curve(&mut self, _curve: Box<dyn Curve + Send + Sync>) {
@@ -6,6 +9,9 @@ pub trait Curve {
     }
 }
 
+serialize_trait_object!(Curve);
+
+#[derive(Serialize)]
 pub struct SineCurve;
 
 impl Default for SineCurve {
@@ -30,6 +36,7 @@ impl Curve for SineCurve {
     }
 }
 
+#[derive(Serialize)]
 pub struct CummutiveCurve {
     curves: Vec<Box<dyn Curve + Send + Sync>>,
 }

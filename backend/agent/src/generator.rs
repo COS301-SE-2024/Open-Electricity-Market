@@ -1,10 +1,10 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use super::curve::Curve;
 
 pub mod production_curve;
 
-#[derive(Deserialize, Clone, Copy)]
+#[derive(Serialize,Deserialize, Clone, Copy)]
 pub struct GeneratorDetail {
     pub circuit: u32,
     pub generator: u32,
@@ -24,7 +24,7 @@ impl GeneratorDetail {
         }
     }
 }
-
+#[derive(Serialize)]
 pub enum Generator {
     Acctive(AcctiveGeneratorCore),
     InAcctive,
@@ -39,6 +39,7 @@ impl Generator {
     }
 }
 
+#[derive(Serialize)]
 pub struct AcctiveGeneratorCore {
     pub grid_detail: GeneratorDetail,
     pub production_curve: Box<dyn Curve + Send + Sync>,

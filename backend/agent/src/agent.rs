@@ -1,6 +1,7 @@
 use core::time;
 use rand::Rng;
 use reqwest::header;
+use serde::Serialize;
 use std::time::Instant;
 use std::{env, f64, thread};
 
@@ -13,7 +14,7 @@ use crate::{
     smart_meter::{SmartMeter, SmartMeterDetail},
     AGENT_SPEED,
 };
-
+#[derive(Serialize )]
 pub struct Agent {
     pub email: String,
     pub password: String,
@@ -21,7 +22,7 @@ pub struct Agent {
     pub nodes: Vec<Node>,
     pub funds: f64,
     pub linked_to_user: bool,
-    pub extarnal_wealth_curve: Box<dyn Curve + Send + Sync>,
+    pub extarnal_wealth_curve: Box<dyn Curve + Send + Sync >,
 }
 
 impl Agent {

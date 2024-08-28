@@ -2,6 +2,13 @@
 
 pub mod open_em {
     diesel::table! {
+        open_em.agent_history (created_at) {
+            created_at -> Timestamptz,
+            agent_state -> Nullable<Jsonb>,
+        }
+    }
+
+    diesel::table! {
         open_em.buy_orders (buy_order_id) {
             buy_order_id -> Int8,
             buyer_id -> Uuid,
@@ -88,6 +95,7 @@ pub mod open_em {
     diesel::joinable!(transactions -> sell_orders (sell_order_id));
 
     diesel::allow_tables_to_appear_in_same_query!(
+        agent_history,
         buy_orders,
         grid_history,
         nodes,

@@ -1,6 +1,7 @@
 use core::time;
 use rand::Rng;
 use reqwest::header;
+use serde::Serialize;
 use std::time::Instant;
 use std::{env, f64, thread};
 
@@ -13,7 +14,7 @@ use crate::{
     smart_meter::{SmartMeter, SmartMeterDetail},
     AGENT_SPEED,
 };
-
+#[derive(Serialize)]
 pub struct Agent {
     pub email: String,
     pub password: String,

@@ -3,6 +3,11 @@ networks:
 services:
   simulation:
     build: ./simulation/
+    depends_on:
+      db:
+       condition: service_healthy
+    environment:
+       DATABASEHOST: db
     networks:
       - backend
   db:

@@ -4,7 +4,7 @@ use crate::curve::Curve;
 
 pub mod consumption_curve;
 
-#[derive(Serialize,Deserialize, Clone, Copy)]
+#[derive(Serialize, Deserialize, Clone, Copy)]
 pub struct SmartMeterDetail {
     pub circuit: u32,
     pub consumer: u32,

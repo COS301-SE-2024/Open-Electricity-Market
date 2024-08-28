@@ -4,7 +4,7 @@ use super::curve::Curve;
 
 pub mod production_curve;
 
-#[derive(Serialize,Deserialize, Clone, Copy)]
+#[derive(Serialize, Deserialize, Clone, Copy)]
 pub struct GeneratorDetail {
     pub circuit: u32,
     pub generator: u32,

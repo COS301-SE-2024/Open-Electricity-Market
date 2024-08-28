@@ -2,11 +2,14 @@
 extern crate rocket;
 
 use std::{
-    env, thread, sync::{Arc, Mutex}, time
+    env,
+    sync::{Arc, Mutex},
+    thread, time,
 };
 
 use agent::Agent;
 use curve::{CummutiveCurve, SineCurve};
+use diesel::RunQueryDsl;
 use diesel::{dsl::insert_into, Connection, ExpressionMethods, PgConnection};
 use dotenvy::dotenv;
 use generator::{
@@ -33,8 +36,7 @@ use serde::Deserialize;
 use serde_json::json;
 use smart_meter::consumption_curve::HomeApplianceType;
 use smart_meter::{consumption_curve::HomeAppliance, SmartMeter};
-use diesel::RunQueryDsl;
-use std::ops::Deref; 
+use std::ops::Deref;
 use std::thread::sleep;
 pub mod agent;
 pub mod curve;
@@ -43,8 +45,8 @@ pub mod location;
 pub mod net_structs;
 pub mod node;
 pub mod period;
-pub mod smart_meter;
 pub mod schema;
+pub mod smart_meter;
 
 const AGENT_SPEED: u64 = 5 * 60;
 
@@ -353,21 +355,16 @@ fn rocket() -> _ {
     let agents = Arc::new(Mutex::new(Vec::<Agent>::new()));
     let agents_clone = agents.clone();
 
-    thread::spawn( move | | {
-            loop {
-                use crate::agent_history::dsl::agent_history;
-                let agents = agents_clone.lock().unwrap();
-                let santas_address: serde_json::Value =
-                    serde_json::from_str(&serde_json::to_string(agents.deref()).unwrap())
-                        .expect("REASON");
-                let _ = insert_into(agent_history)
-                    .values(agent_state.eq(santas_address))
-                    .execute(&mut establish_connection());
-                thread::sleep(time::Duration::from_secs(50))
-    } 
+    thread::spawn(move || loop {
+        use crate::agent_history::dsl::agent_history;
+        let agents = agents_clone.lock().unwrap();
+        let santas_address: serde_json::Value =
+            serde_json::from_str(&serde_json::to_string(agents.deref()).unwrap()).expect("REASON");
+        let _ = insert_into(agent_history)
+            .values(agent_state.eq(santas_address))
+            .execute(&mut establish_connection());
+        thread::sleep(time::Duration::from_secs(50))
     });
-
-
 
     rocket::build()
         .attach(CORS)

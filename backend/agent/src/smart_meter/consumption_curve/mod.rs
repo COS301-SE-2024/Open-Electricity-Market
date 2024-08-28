@@ -59,7 +59,7 @@ impl HomeApplianceType {
     }
 }
 
-#[derive(Deserialize,Serialize)]
+#[derive(Deserialize, Serialize)]
 pub struct HomeAppliance {
     appliance_type: HomeApplianceType,
     on_periods: Vec<Period>,

@@ -10,9 +10,8 @@ use crate::grid::{
     ConsumerInterface, GeneratorInterface, Grid, OscilloscopeDetail, Resistance, Voltage,
     VoltageWrapper,
 };
-use core::time;
 use ::std::env;
-use std::thread;
+use core::time;
 use diesel::Connection;
 use diesel::ExpressionMethods;
 use diesel::RunQueryDsl;
@@ -30,6 +29,7 @@ use schema::open_em::grid_history::{self, grid_state};
 use std::any::Any;
 use std::ops::Deref;
 use std::sync::{Arc, Mutex};
+use std::thread;
 use std::time::Instant;
 
 pub struct CORS;

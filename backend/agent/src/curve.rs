@@ -1,7 +1,7 @@
 use erased_serde::serialize_trait_object;
 use serde::Serialize;
 
-pub trait Curve : erased_serde::Serialize {
+pub trait Curve: erased_serde::Serialize {
     fn sample(&mut self, time: f64) -> f64;
     fn total_in_24_hour(&mut self) -> f64;
     fn add_curve(&mut self, _curve: Box<dyn Curve + Send + Sync>) {

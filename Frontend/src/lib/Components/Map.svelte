@@ -59,26 +59,28 @@
     });
 
      async function fetchData() {
-    try {
-      const response = await fetch(`${API_URL_GRID}/info`, {
-        method: "POST", 
-        headers: {
-          'Content-Type': 'application/json' 
+      if (browser) {
+        try {
+          const response = await fetch(`${API_URL_GRID}/info`, {
+            method: "POST", 
+            headers: {
+              'Content-Type': 'application/json' 
+            }
+          });
+          //console.log("Request being sent...");
+          const fdata = await response.json();
+          //console.log("Fetched data:", fdata);
+          data = fdata.circuits[0] || {};
+          console.log("This is circuits...");
+          console.log(data);
+          updateMarkers();
+          resizeMap();
+          
+          
+        } catch (error) {
+          console.log("There was an error fetching the JSON for the info:", error);
         }
-      });
-      //console.log("Request being sent...");
-      const fdata = await response.json();
-      //console.log("Fetched data:", fdata);
-      data = fdata.circuits[0] || {};
-      console.log("This is circuits...");
-      console.log(data);
-      updateMarkers();
-      resizeMap();
-      
-      
-    } catch (error) {
-      console.log("There was an error fetching the JSON for the info:", error);
-    }
+      }
   }
 
     
@@ -168,7 +170,7 @@
     //     updateMarkers();
     // }
 
-     $: if (map && mapdata) {
+     $: if (map && mapdata && browser) {
     console.log("Reactive if was triggered...");
     updateMarkers(mapdata);
   }
@@ -176,18 +178,20 @@
 
 
    function resizeMap() {
-    if (window.innerWidth <= 450) {
-      // chart.style.width = '100%';
-      mapContainer.style.height = '350px';
-      mapContainer.style.width = '290px'; 
-      // chartCanvas.style.width = '300px';
-      // chartCanvas.style.width = '200px'; 
-      console.log("If statement is running...");
-    } else {
-      mapContainer.style.height = '700px';
-      // chartCanvas.style.width = '900px'; 
-      console.log("Else was executed...");
-      // chart.style.height = '600px';
+    if (browser) {
+      if (window.innerWidth <= 450) {
+        // chart.style.width = '100%';
+        mapContainer.style.height = '350px';
+        mapContainer.style.width = '290px'; 
+        // chartCanvas.style.width = '300px';
+        // chartCanvas.style.width = '200px'; 
+        console.log("If statement is running...");
+      } else {
+        mapContainer.style.height = '700px';
+        // chartCanvas.style.width = '900px'; 
+        console.log("Else was executed...");
+        // chart.style.height = '600px';
+      }
     }
   }
 
@@ -208,6 +212,7 @@
        @import 'leaflet/dist/leaflet.css';
        div {
        height: 700px;
+       z-index: 0; 
        }
     </style>
 

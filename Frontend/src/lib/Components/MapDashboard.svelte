@@ -3,21 +3,12 @@
      
     import { onMount, onDestroy, createEventDispatcher } from 'svelte';
     import { browser } from '$app/environment';
-    import {tick} from 'svelte';
     import iconmarkerpng from '$lib/assets/marker-icon.png';
-  import { icon } from 'leaflet';
     
     let mapContainer;
     let map;
-    let lm; 
-    
-    let interval; 
-    let data = {};
     let marker;
     export let onMapClick;
-    const dispatch = createEventDispatcher();
-
-
     
     onMount(async () => {
        if(browser) {

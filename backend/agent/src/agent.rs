@@ -151,7 +151,7 @@ impl Agent {
     }
 
     pub fn intialise(&mut self) {
-        if self.token == "" {
+        if self.token.is_empty() {
             self.token = Agent::login_or_register_agent(self.email.clone(), self.password.clone());
         }
         println!("{}", self.token.clone());
@@ -411,11 +411,34 @@ impl Agent {
         }
     }
 
+    fn update_credit(token: String, amount: f64) {
+        println!("trying to add {amount} credit");
+        let detail = AddFundDetails { funds: amount };
+        let url = env::var("MURL").unwrap();
+        let client = reqwest::blocking::Client::new();
+        let res = client
+            .post(format!("http://{url}:8001/add_funds"))
+            .header(header::AUTHORIZATION, format!("Bearer {token}"))
+            .json(&detail)
+            .send()
+            .unwrap();
+
+        let result: AddFundResult = res.json().unwrap();
+        println!("{}", result.message.clone());
+        if result.message == "Funds added" {
+            println!("Added {amount} credit")
+        }
+    }
+
     fn update(&mut self, accumlated_time: f64) -> Result<(), ()> {
+        // update credit based on income_curve
+        Agent::update_credit(
+            self.token.clone(),
+            self.extarnal_wealth_curve.sample(accumlated_time),
+        );
+
         // get credit
         let credit = Agent::get_credit(self.token.clone());
-        // uppdate credit based on income_curve
-        self.funds += self.extarnal_wealth_curve.sample(accumlated_time);
 
         //foreach node
         for node in self.nodes.iter_mut() {
@@ -549,10 +572,9 @@ impl Agent {
     }
 
     pub fn async_run(&mut self, mut accumilated_time: f64) -> f64 {
-        let elapsed;
         let now = Instant::now();
         let _ = self.update(accumilated_time);
-        elapsed = now.elapsed().as_secs_f64();
+        let elapsed = now.elapsed().as_secs_f64();
         accumilated_time += elapsed;
         accumilated_time
     }

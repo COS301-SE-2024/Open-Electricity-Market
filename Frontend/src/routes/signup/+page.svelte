@@ -97,7 +97,9 @@
       const json = await res.json();
       if(json.status == "ok")
       {
+
         sessionStorage.setItem("Token",json.data.token);
+        await addAgent();
         goto("/Main/Dashboard");
       }
       else
@@ -114,7 +116,7 @@
     let details = {
     "email": email,
     "password": password,
-    "session_id": Cookies.get('session_id'),
+    "token": sessionStorage.getItem("Token"),
   }
     try {
       const res = await fetch(`${API_URL_AGENT}/add_agent`, {

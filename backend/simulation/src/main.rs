@@ -188,14 +188,16 @@ fn start(grid: &State<Arc<Mutex<Grid>>>) -> String {
 
         tokio::spawn(async move {
             loop {
-                use crate::grid_history::dsl::grid_history;
-                let grid = clone2.lock().unwrap();
-                let santas_address: serde_json::Value =
-                    serde_json::from_str(&serde_json::to_string(grid.deref()).unwrap())
-                        .expect("REASON");
-                let _ = insert_into(grid_history)
-                    .values(grid_state.eq(santas_address))
-                    .execute(&mut establish_connection());
+                {
+                    use crate::grid_history::dsl::grid_history;
+                    let grid = clone2.lock().unwrap();
+                    let santas_address: serde_json::Value =
+                        serde_json::from_str(&serde_json::to_string(grid.deref()).unwrap())
+                            .expect("REASON");
+                    let _ = insert_into(grid_history)
+                        .values(grid_state.eq(santas_address))
+                        .execute(&mut establish_connection());
+                }
                 thread::sleep(time::Duration::from_secs(50))
             }
         });

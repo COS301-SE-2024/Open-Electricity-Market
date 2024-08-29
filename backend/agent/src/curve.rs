@@ -28,7 +28,7 @@ impl SineCurve {
 
 impl Curve for SineCurve {
     fn sample(&mut self, time: f64) -> f64 {
-        f64::abs(f64::sin(time))
+        f64::abs(f64::sin(time)) * 300.0
     }
 
     fn total_in_24_hour(&mut self) -> f64 {

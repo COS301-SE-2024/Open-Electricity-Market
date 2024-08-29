@@ -432,32 +432,33 @@
     return value.slice(2, value.length);
   }
 
-  let details = {
-        "email": email,
-        "node_id": sessionStorage.getItem("node_id"),
-        "appliances": []
-    };
+
 
   let details2 = {
     "email": email, 
-    "node_id": sessionStorage.getItem("node_id"),
+    "node_id":selectedNodeID,
     "generators": [] ,
   }
 
   async function addAppliance(){
+    let details = {
+      "email": email,
+      "node_id": selectedNodeID,
+      "appliances": []
+    };
 
-    let onPeriods = {
+    let onPeriods = [{
       "start": 15.0, 
       "end": 800.0,
-    }
+    }];
       if(appliance){
         let applianceDetails = {
           "appliance_type": appliance.replace(/\s/g,''),
           "on_periods": onPeriods 
-        }; 
+        };
         details.appliances.push(applianceDetails);
         try {
-          const response = await fetch(`${API_URL_AGENT}/add_agent`, {
+          const response = await fetch(`${API_URL_AGENT}/add_appliances`, {
         method: "POST",
         body : JSON.stringify(details), 
         headers: {

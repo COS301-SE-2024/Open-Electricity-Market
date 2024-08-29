@@ -474,7 +474,7 @@
 
     if(generator && category){
       let generatorDetails = {
-        "generator_type": {generator: category}
+        "generator_type": json.parse(`{${generator}: ${category}}`)
       }
       details2.generators.push(generatorDetails);
       details2.generators.push(onPeriods); 

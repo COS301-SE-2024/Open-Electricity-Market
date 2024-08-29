@@ -3,7 +3,14 @@ import Chart from "$lib/Components/Chart.svelte";
 import {onMount} from "svelte";
 import { goto } from '$app/navigation';
 import { API_URL_GRID, API_URL_MARKET } from '$lib/config.js';
+import { createChart } from 'lightweight-charts';
+import PriceChartD3 from "$lib/Components/PriceChartD3.svelte";
+// ***********************************************
 
+
+
+
+// **********************************************
 let selectedPrice = 0;
 $: price = 0;
 let units = 1;
@@ -102,7 +109,8 @@ async function fetchData() {
   <div class="md:flex md:flex-row">
     <div class="md:basis-2/3 bg-base-100 md:card md:mr-5 md:p-4">
       <h1 class="md:text-5xl md:font-bold md:pt-8">Marketplace</h1>
-      <Chart {data} class = "" />
+      <!-- <Chart {data} class = "" /> -->
+       <PriceChartD3  /> 
     </div>
     <div class="md:basis-1/3 md:card bg-base-100 md:p-4 xs:pt-10">
       <span class="text-lg">Selected Node: </span> <br>

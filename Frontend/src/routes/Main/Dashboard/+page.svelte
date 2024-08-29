@@ -23,7 +23,7 @@
   $: nodes = [];
   let amount; 
   let withdrawamount; 
-  let totalamount = 0;
+  $: totalamount = null; // this is "Available credit"
   $: firstname = null;
   $: lastname = null;
   $: email = null;
@@ -81,11 +81,23 @@
 
 
   onMount(async () => {
+
+    // clearInterval(buyOrderInterval);
+    // clearInterval(sellOrderInterval);
+
     await fetchStart();
     await fetchNodes();
     await getUserDetails();
     await listOpenBuys();
     await listOpenSells();
+
+    // const buyOrderInterval = setInterval(listOpenBuys, 10000);
+    // const sellOrderInterval = setInterval(listOpenSells, 10000);
+
+    // return () => {
+    //   clearInterval(buyOrderInterval);
+    //   clearInterval(sellOrderInterval);
+    // }
   }); 
 
   async function fetchStart() {
@@ -420,32 +432,33 @@
     return value.slice(2, value.length);
   }
 
-  let details = {
-        "email": email,
-        "node_id": sessionStorage.getItem("node_id"),
-        "appliances": []
-    };
+
 
   let details2 = {
     "email": email, 
-    "node_id": sessionStorage.getItem("node_id"),
+    "node_id":selectedNodeID,
     "generators": [] ,
   }
 
   async function addAppliance(){
+    let details = {
+      "email": email,
+      "node_id": selectedNodeID,
+      "appliances": []
+    };
 
-    let onPeriods = {
+    let onPeriods = [{
       "start": 15.0, 
       "end": 800.0,
-    }
+    }];
       if(appliance){
         let applianceDetails = {
           "appliance_type": appliance.replace(/\s/g,''),
           "on_periods": onPeriods 
-        }; 
+        };
         details.appliances.push(applianceDetails);
         try {
-          const response = await fetch(`${API_URL_AGENT}/add_agent`, {
+          const response = await fetch(`${API_URL_AGENT}/add_appliances`, {
         method: "POST",
         body : JSON.stringify(details), 
         headers: {
@@ -499,10 +512,15 @@
 
 </script>
 
-<main class="container mx-auto w-full sm:flex justify-center">
+<main class="container mx-4 sm:mx-auto w-full sm:flex justify-center">
 
-  <div class="min-w-1/6">
+  <div class="sm:w-1/3">
     
+    <div class="flex-col">
+      <span class="text-3xl text-white font-thin justify-start pl-2">
+        Personal Information
+      </span>
+    </div>
     <!-- change funds modals -->
 
     <dialog id = "add_modal" class="modal">
@@ -539,10 +557,14 @@
       </div>
     </dialog>
 
-    <div class="stats stats-vertical"> 
+    <div class="stats stats-vertical w-full"> 
       <div class="stat">
         <div class="stat-title">Available Credit</div>
+        {#if totalamount == null}
+        <span class="loading loading-spinner loading-lg"></span>
+        {:else}
         <div class="stat-value font-normal">{formatCurrency(totalamount)}</div>
+        {/if}
       </div>
 
       <div class="flex-col min-w-max">
@@ -583,7 +605,7 @@
     </div>
   </div>
 
-  <div class="min-w-max min-h-fit mx-4 flex-row">
+  <div class="sm:w-1/3 min-h-fit mx-4 flex-row">
 
     <div class="flex-col">
       <span class="text-3xl text-white font-thin justify-start pl-2">
@@ -650,7 +672,7 @@
 
     {#each nodes as node}
     {#if node.name == nodeNameDetail}
-      <div class="card card-side border-2 border-accent min-w-1/3 bg-base-100 my-2">
+      <div class="card card-side border-2 border-accent min-w-1/3 bg-base-100 mb-4">
         <figure class="w-1/5 p-10">
           <img
             src="../src/images/house.png"
@@ -664,7 +686,7 @@
         </div>
       </div>  
     {:else}
-      <div class="card card-side min-w-1/3 bg-base-100 my-2">
+      <div class="card card-side min-w-1/3 bg-base-100 mb-4">
         <figure class="w-1/5 p-10">
           <img
             src="../src/images/house.png"
@@ -687,9 +709,9 @@
     </div>
   </div>
 
-  <div class="min-w-1/6">
+  <div class="sm:w-1/3">
     {#if nodeNameDetail != ''}
-      <div class="stats stats-vertical"> 
+      <div class="stats stats-vertical w-full"> 
         <div class="stat">
           <div class="stat-title">Node</div>
           <div class="stat-value font-light">{nodeNameDetail}</div>
@@ -791,7 +813,7 @@
             Units bought: {Intl.NumberFormat().format(buyorder.sought_units) + "Wh"}<br>
           </p>
           <div class="card-actions ">
-            
+            <progress class="progress progress-primary" value="{buyorder.filled_units}" max="{buyorder.sought_units}"></progress>
           </div>
         </div>
       </div>
@@ -808,7 +830,7 @@
             Min price: {formatCurrency(sellorder.min_price)}<br>
           </p>
           <div class="card-actions">
-            
+            <progress class="progress progress-accent" value="{sellorder.claimed_units}" max="{sellorder.offered_units}"></progress>
           </div>
         </div>
       </div>

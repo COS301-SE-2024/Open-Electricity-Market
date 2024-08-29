@@ -1,4 +1,4 @@
-FROM rust:1.70
+FROM rust:latest
 LABEL authors="simon"
 
 RUN wget https://github.com/mozilla/sccache/releases/download/v0.8.1/sccache-v0.8.1-x86_64-unknown-linux-musl.tar.gz \

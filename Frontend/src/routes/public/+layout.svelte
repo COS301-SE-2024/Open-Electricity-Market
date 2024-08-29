@@ -25,16 +25,7 @@
   }
 
   onMount(() => {
-    const session = Cookies.get('session_id');
-    // console.log("Session id is: ", session);
-    if(session){
-      loggedIn = true; 
-    }
-    else{
-      loggedIn = false; 
-      window.location.href = '/login';
-    }
-    // loggedIn = session === 'loggedIn';
+    
   });
 
   async function removeAccount(){

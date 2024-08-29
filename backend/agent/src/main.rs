@@ -7,9 +7,10 @@ use std::{
     thread, time,
 };
 
-use crate::tokio::time::sleep;
 use agent::Agent;
 use curve::{CummutiveCurve, SineCurve};
+use diesel::RunQueryDsl;
+use diesel::{dsl::insert_into, Connection, ExpressionMethods, PgConnection};
 use dotenvy::dotenv;
 use generator::{
     production_curve::{
@@ -25,16 +26,17 @@ use rocket::{
     fairing::{Fairing, Info, Kind},
     State,
 };
-use rocket::{form::validate::Len, response::content, tokio};
 use rocket::{
     http::{Header, Method, Status},
     Request, Response,
 };
+use rocket::{response::content, tokio};
+use schema::open_em::agent_history::{self, agent_state};
 use serde::Deserialize;
 use serde_json::json;
 use smart_meter::consumption_curve::HomeApplianceType;
 use smart_meter::{consumption_curve::HomeAppliance, SmartMeter};
-
+use std::ops::Deref;
 pub mod agent;
 pub mod curve;
 pub mod generator;
@@ -42,9 +44,10 @@ pub mod location;
 pub mod net_structs;
 pub mod node;
 pub mod period;
+pub mod schema;
 pub mod smart_meter;
 
-const AGENT_SPEED: u64 = 5 * 60;
+const AGENT_SPEED: u64 = 5 * 3;
 
 pub struct CORS;
 
@@ -257,7 +260,7 @@ fn set_session(
         );
     }
     let agent_index = agent_index.unwrap();
-    agents[agent_index].token = data.token.clone();
+    agents[agent_index].token.clone_from(&data.token);
 
     let message = "Succesfully set session id".to_string();
     content::RawJson(json!({"status": "ok", "message": message, "data": {}}).to_string())
@@ -312,6 +315,14 @@ fn add_agent(
     content::RawJson(json!({"status": "ok", "message": message, "data": {}}).to_string())
 }
 
+pub fn establish_connection() -> PgConnection {
+    dotenv().ok();
+
+    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    PgConnection::establish(&database_url)
+        .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
+}
+
 #[launch]
 fn rocket() -> _ {
     thread::spawn(move || {
@@ -340,6 +351,23 @@ fn rocket() -> _ {
         }
     });
 
+    let agents = Arc::new(Mutex::new(Vec::<Agent>::new()));
+    let agents_clone = agents.clone();
+
+    thread::spawn(move || loop {
+        {
+            use crate::agent_history::dsl::agent_history;
+            let agents = agents_clone.lock().unwrap();
+            let santas_address: serde_json::Value =
+                serde_json::from_str(&serde_json::to_string(agents.deref()).unwrap())
+                    .expect("REASON");
+            let _ = insert_into(agent_history)
+                .values(agent_state.eq(santas_address))
+                .execute(&mut establish_connection());
+        }
+        thread::sleep(time::Duration::from_secs(50))
+    });
+
     rocket::build()
         .attach(CORS)
         .configure(rocket::Config::figment().merge(("port", 8002)))
@@ -355,5 +383,5 @@ fn rocket() -> _ {
                 set_session
             ],
         )
-        .manage(Arc::new(Mutex::new(Vec::<Agent>::new())))
+        .manage(agents)
 }

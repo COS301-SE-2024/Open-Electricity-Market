@@ -11,10 +11,15 @@ services:
       - amplify
   simulation:
     build: ./backend/simulation/
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASEHOST: db
     networks:
       - amplify
   db:
-    image: postgres
+    image: timescale/timescaledb-ha:pg16
     volumes:
       - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
       - pgdata:/var/lib/postgresql/data

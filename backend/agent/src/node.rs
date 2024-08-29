@@ -1,5 +1,8 @@
+use serde::Serialize;
+
 use crate::{generator::Generator, location::Location, smart_meter::SmartMeter};
 
+#[derive(Serialize)]
 pub struct Node {
     pub node_id: String,
     pub location: Location,

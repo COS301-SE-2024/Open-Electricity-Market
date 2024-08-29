@@ -130,3 +130,4 @@ winget
 Cargo.lock
 Frontend/Caddyfile
 Frontend/src/lib/config.js
+Frontend/bun.lockb

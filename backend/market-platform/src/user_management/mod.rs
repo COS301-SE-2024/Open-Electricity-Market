@@ -252,19 +252,19 @@ pub fn login(credentials: Json<Credentials>) -> Value {
             }
             json!({ "status": "error",
                 "message": "Username or password invalid".to_string(),
-                "data": { "session_id": "".to_string()}
+                "data": { "token": "".to_string()}
             })
         }
         Err(_) => json!({ "status": "error",
             "message": "Username or password invalid".to_string(),
-            "data": { "session_id": "".to_string()}
+            "data": { "token": "".to_string()}
         }),
     }
 }
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct RemoveFundsReq {
+pub struct RemoveFundsReq {
     funds: f64,
 }
 
@@ -307,7 +307,7 @@ pub fn remove_funds(remove_funds_req: Json<RemoveFundsReq>, claims: Claims) -> V
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct AddFundsReq {
+pub struct AddFundsReq {
     funds: f64,
 }
 

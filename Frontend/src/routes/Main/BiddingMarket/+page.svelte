@@ -13,8 +13,12 @@ let selected_node_name = sessionStorage.getItem("node_name");
 
 let data = {};
 
-async function place_buy_order() {
+async function place_buy_order(at_market_price = false) {
   // TODO: add a check that fails if units <= 0
+
+  if (at_market_price) {
+    selectedPrice = price;
+  }
 
   let data = {
     "node_id": selected_node_id,
@@ -36,8 +40,12 @@ async function place_buy_order() {
   goto('../Main/Dashboard');
 }
 
-async function place_sell_order() {
+async function place_sell_order(at_market_price = false) {
   // TODO: add a check that fails if units <= 0
+
+  if (at_market_price) {
+    selectedPrice = price;
+  }
 
   let data = {
     "node_id": selected_node_id,
@@ -122,7 +130,7 @@ async function fetchData() {
         </div>
 
         <div class="mt-1 xs:pt-5">
-          <button class="btn btn-success" onclick="my_modal_1.showModal()">Buy</button>
+          <button class="btn btn-primary" onclick="my_modal_1.showModal()">Buy</button>
           <dialog id="my_modal_1" class="modal">
             <div class="modal-box">
               <h3 class="text-lg font-bold">Confirm Buy Order</h3>
@@ -136,21 +144,21 @@ async function fetchData() {
             </div>
           </dialog>
 
-          <button class="btn btn-success" onclick="my_modal_3.showModal()">Buy at Market Price</button>
+          <button class="btn btn-primary" onclick="my_modal_3.showModal()">Buy at Market Price</button>
           <dialog id="my_modal_3" class="modal">
             <div class="modal-box">
               <h3 class="text-lg font-bold">Confirm Buy Order</h3>
               <p class="py-4">Please confirm your buy order for {units} units at R{selectedPrice} </p>
               <div class="modal-action">
                 <form method="dialog">
-                  <button class="btn bg-green-600" on:click={place_buy_order} >Continue</button>
+                  <button class="btn bg-green-600" on:click={() => place_buy_order(true)} >Continue</button>
                   <button class="btn bg-red-500">Cancel</button>
                 </form>
               </div>
             </div>
           </dialog>
 
-          <button class="btn btn-error" onclick="my_modal_2.showModal()">Sell</button>
+          <button class="btn btn-accent" onclick="my_modal_2.showModal()">Sell</button>
           <dialog id="my_modal_2" class="modal">
             <div class="modal-box">
               <h3 class="text-lg font-bold">Confirm Sell Order</h3>
@@ -158,6 +166,20 @@ async function fetchData() {
               <div class="modal-action">
                 <form method="dialog">
                   <button class="btn bg-green-600" on:click={place_sell_order}>Continue</button>
+                  <button class="btn bg-red-500">Cancel</button>
+                </form>
+              </div>
+            </div>
+          </dialog>
+
+          <button class="btn btn-accent" onclick="my_modal_2.showModal()">Sell at Market Price</button>
+          <dialog id="my_modal_2" class="modal">
+            <div class="modal-box">
+              <h3 class="text-lg font-bold">Confirm Sell Order</h3>
+              <p class="py-4">Please confirm your sell order for {units} units at R{selectedPrice} </p>
+              <div class="modal-action">
+                <form method="dialog">
+                  <button class="btn bg-green-600" on:click={() => place_sell_order(true)}>Continue</button>
                   <button class="btn bg-red-500">Cancel</button>
                 </form>
               </div>

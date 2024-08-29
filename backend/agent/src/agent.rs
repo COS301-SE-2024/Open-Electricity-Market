@@ -424,7 +424,7 @@ impl Agent {
             .unwrap();
 
         let result: AddFundResult = res.json().unwrap();
-        println!("{}",result.message.clone());
+        println!("{}", result.message.clone());
         if result.message == "Funds added" {
             println!("Added {amount} credit")
         }

@@ -508,7 +508,7 @@ impl Agent {
                 SmartMeter::InActtive => {}
             }
 
-            if self.linked_to_user {
+            if !self.linked_to_user {
                 // Check if meet 24 hour requirment
                 match &mut node.smart_meter {
                     SmartMeter::Acctive(core) => {

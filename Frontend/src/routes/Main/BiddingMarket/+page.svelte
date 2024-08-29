@@ -16,7 +16,7 @@ let data = {};
 async function place_buy_order(at_market_price) {
   // TODO: add a check that fails if units <= 0
 
-  if (at_market_price) {
+  if (at_market_price == true) {
     selectedPrice = price;
   }
 
@@ -43,7 +43,7 @@ async function place_buy_order(at_market_price) {
 async function place_sell_order(at_market_price) {
   // TODO: add a check that fails if units <= 0
 
-  if (at_market_price) {
+  if (at_market_price == true) {
     selectedPrice = price;
   }
 
@@ -172,8 +172,8 @@ async function fetchData() {
             </div>
           </dialog>
 
-          <button class="btn btn-accent" onclick="my_modal_2.showModal()">Sell at Market Price</button>
-          <dialog id="my_modal_2" class="modal">
+          <button class="btn btn-accent" onclick="my_modal_4.showModal()">Sell at Market Price</button>
+          <dialog id="my_modal_4" class="modal">
             <div class="modal-box">
               <h3 class="text-lg font-bold">Confirm Sell Order</h3>
               <p class="py-4">Please confirm your sell order for {units} units at R{price.toFixed(2)} </p>

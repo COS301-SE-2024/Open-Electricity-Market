@@ -11,7 +11,6 @@ CREATE TABLE buy_orders(
     CONSTRAINT fk_buyer_id
         FOREIGN KEY (buyer_id)
         REFERENCES users(user_id)
-        ON DELETE CASCADE
 );
 
 SELECT create_hypertable('buy_orders',by_range('created_at'));

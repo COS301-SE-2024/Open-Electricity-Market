@@ -5,11 +5,12 @@ CREATE OR REPLACE FUNCTION set_sell_orders_inactive()
 RETURNS TRIGGER
 AS $$
     BEGIN
-        IF (!new.node_active) THEN
+        IF (new.node_active = false) THEN
             UPDATE sell_orders
             SET active = false
-            WHERE seller_id = new.node_id;
+            WHERE producer_id = new.node_id;
         END IF;
+        RETURN new;
     END;
 $$ LANGUAGE plpgsql;
 
@@ -23,11 +24,12 @@ CREATE OR REPLACE FUNCTION set_buy_orders_inactive()
 RETURNS TRIGGER
 AS $$
     BEGIN
-        IF (!new.node_active) THEN
+        IF (new.node_active = false) THEN
             UPDATE buy_orders
             SET active = false
-            WHERE buyer_id = new.node_id;
+            WHERE consumer_id = new.node_id;
         END IF;
+        RETURN new;
     END;
 $$ LANGUAGE plpgsql;
 

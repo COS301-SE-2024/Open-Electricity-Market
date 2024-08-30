@@ -15,6 +15,7 @@ use rocket::serde::{
 };
 use std::env;
 use uuid::Uuid;
+use crate::schema::open_em::buy_orders::{buyer_id, consumer_id};
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
@@ -819,4 +820,79 @@ pub fn estimate_sell_fee(fee_estimation_request: Json<FeeEstimationRequest>) -> 
 
     let data = FeeEstimation { fee: temp };
     json!({"status": "ok", "message": message, "data": data})
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct CancelOrderRequest {
+    order_id: String,
+}
+
+#[post(
+    "/cancel_buy_order",
+    format = "application/json",
+    data = "<cancel_buy_request>"
+)]
+pub fn cancel_buy_order(cancel_buy_request: Json<CancelOrderRequest>, claims: Claims) -> Value {
+    use crate::schema::open_em::buy_orders::dsl::*;
+    use crate::schema::open_em::nodes::dsl::*;
+
+    let user_id_parse = Uuid::parse_str(&*claims.user_id);
+    if user_id_parse.is_err() {
+        return json!({"status": "error", "message": "Invalid User ID".to_string()});
+    }
+    let claim_user_id = user_id_parse.unwrap();
+
+    let order_id_parse = Uuid::parse_str(&*cancel_buy_request.order_id);
+    if order_id_parse.is_err() {
+        return json!({"status": "error", "message": "Invalid Order ID".to_string()});
+    }
+    let request_order_id = order_id_parse.unwrap();
+
+    let connection = &mut establish_connection();
+
+    match diesel::update(buy_orders)
+        .filter(buyer_id.eq(claim_user_id))
+        .filter(buy_order_id.eq(request_order_id))
+        .filter(active.eq(true))
+        .set(active.eq(false))
+        .execute(connection) {
+        Ok(_) => {json!({"status": "ok", "message": "Order successfully cancelled"})}
+        Err(_) => {json!({"status": "ok", "message": "Order already cancelled"})}
+    }
+}
+
+#[post(
+    "/cancel_sell_order",
+    format = "application/json",
+    data = "<cancel_sell_request>"
+)]
+pub fn cancel_sell_order(cancel_sell_request: Json<CancelOrderRequest>, claims: Claims) -> Value {
+    use crate::schema::open_em::sell_orders::dsl::*;
+    use crate::schema::open_em::nodes::dsl::*;
+
+    let connection = &mut establish_connection();
+
+    let user_id_parse = Uuid::parse_str(&*claims.user_id);
+    if user_id_parse.is_err() {
+        return json!({"status": "error", "message": "Invalid User ID".to_string()});
+    }
+    let claim_user_id = user_id_parse.unwrap();
+
+    let order_id_parse = Uuid::parse_str(&*cancel_sell_request.order_id);
+    if order_id_parse.is_err() {
+        return json!({"status": "error", "message": "Invalid Order ID".to_string()});
+    }
+    let request_order_id = order_id_parse.unwrap();
+
+    match diesel::update(sell_orders)
+        .filter(seller_id.eq(claim_user_id))
+        .filter(sell_order_id.eq(request_order_id))
+        .filter(active.eq(true))
+        .set(active.eq(false))
+        .execute(connection) {
+        Ok(_) => {json!({"status": "ok", "message": "Order successfully cancelled"})}
+        Err(_) => {json!({"status": "ok", "message": "Order already cancelled"})}
+    }
+
 }

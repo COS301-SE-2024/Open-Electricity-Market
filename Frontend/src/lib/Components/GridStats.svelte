@@ -32,7 +32,8 @@
       const response = await fetch(`${API_URL_GRID}/stats`, {
         method: "POST", 
         headers: {
-          'Content-Type': 'application/json' 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         }
       });
       

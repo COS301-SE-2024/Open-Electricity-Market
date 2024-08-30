@@ -87,22 +87,20 @@
       
     <div class="navbar-center hidden lg:flex">
       <ul class="menu menu-horizontal px-1">
-        <li class="px-2"><a class="w-28 justify-center btn-ghost" href="/public/GridSimulation">Grid</a></li>
-        <li class="px-2"><a class=" btn-ghost w-22" href="/Main/Dashboard">Dashboard</a></li>
+        <li class="px-2"><a class="btn btn-ghost rounded-btn font-normal" href="/public/GridSimulation">Simulation</a></li>
+        <li class="px-2"><a class="btn btn-ghost rounded-btn font-normal" href="/Main/Dashboard">Dashboard</a></li>
       </ul>
     </div>
       
     <div class="navbar-end">
 
   <div class = "xs: hidden md:flex">
-  <ul class="menu menu-horizontal px-3">
-    <li class="px-2"><a class="w-22 btn-ghost" on:click={showModal}>Help</a></li>
-  </ul>
       <div class="dropdown dropdown-end">
-        <div tabindex="0" role="button" class="btn btn-ghost rounded-btn font-normal">Account</div>
+        <a class="btn btn-ghost rounded-btn font-normal mx-2" on:click={showModal}>Help</a>
+        <div tabindex="0" role="button" class="btn btn-ghost rounded-btn font-normal mx-2">Account</div>
         <ul class="menu dropdown-content bg-base-100 rounded-box z-[1] mt-4 w-52 p-2 shadow">
-          <button class="btn" onclick="removeaccount_modal.showModal()">Remove Account</button>
-          <button class="btn mt-2" on:click={logout}>Log out</button>
+          <button class="btn mb-2" on:click={logout}>Log out</button>
+          <button class="btn btn-error" onclick="removeaccount_modal.showModal()">Remove Account</button>
         </ul>
       </div>
       </div>
@@ -154,7 +152,7 @@
         <!-- svelte-ignore a11y-missing-attribute -->
         <li><a href="/">Landing</a></li>
         <!-- svelte-ignore a11y-missing-attribute -->
-        <li><a href="/public/GridSimulation">Grid</a></li>
+        <li><a href="/public/GridSimulation">Simulation</a></li>
         <!-- svelte-ignore a11y-missing-attribute -->
         <li><a href="/Main/Dashboard">Dashboard</a></li>
       </ul>

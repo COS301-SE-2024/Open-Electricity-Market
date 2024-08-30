@@ -10,10 +10,12 @@
   import market_image from "$lib/assets/pexels-energepic-com-27411-159888.jpg"
   import strategy_image from "$lib/assets/pexels-pixabay-163064.jpg"
   import breaker_image from "$lib/assets/troy-bridges-maXnRLszYY0-unsplash.jpg"
+  import { onMount } from "svelte";
 
   let scrollY
   let element
   let height
+  let loggedIn = false;
 
   const options = {
     threshold: [0.4, 0.8]
@@ -29,6 +31,14 @@
         }
     }); 
   }; 
+
+  onMount(() => {
+    const session = sessionStorage.getItem('Token');
+    // console.log("Session id is: ", session);
+    if(session){
+      loggedIn = true; 
+    }
+  });
 
   function scrollDown() {
     document.getElementById("Second").scrollIntoView({behavior: "smooth"});
@@ -49,7 +59,11 @@
       <h2 class="text-4xl font-bold  card-title text-white w-128">Transform the way you manage energy.</h2>
       <br>
       <div class="card-actions ">
+        {#if loggedIn}
+        <a class="btn btn-outline text-xl text-white" href="/Main/Dashboard">Dashboard</a>
+        {:else}
         <a class="btn btn-outline text-xl text-white" href="/login">Sign in</a>
+        {/if}
         <a class="btn btn-outline text-xl text-white" href="/public/GridSimulation">Simulation</a>
       </div>
       <br>

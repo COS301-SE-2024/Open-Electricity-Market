@@ -64,7 +64,8 @@
           const response = await fetch(`${API_URL_GRID}/info`, {
             method: "POST", 
             headers: {
-              'Content-Type': 'application/json' 
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
             }
           });
           //console.log("Request being sent...");

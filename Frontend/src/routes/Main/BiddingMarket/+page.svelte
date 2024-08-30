@@ -14,6 +14,7 @@ import PriceChartD3 from "$lib/Components/PriceChartD3.svelte";
 let selectedPrice = 0;
 $: price = 0;
 let units = 1;
+let chartPeriod; 
 
 let selected_node_id = sessionStorage.getItem("node_id");
 let selected_node_name = sessionStorage.getItem("node_name");
@@ -75,8 +76,8 @@ async function place_sell_order(at_market_price) {
 }
 
 onMount(async () => {
-  fetchData();
-  let interval = setInterval(fetchData, 2000);
+  fetchPriceHistory();
+  let interval = setInterval({fetchPriceHistory, fetchData}, 2000);
 
   selectedPrice = price;
 
@@ -111,12 +112,55 @@ async function fetchData() {
 }
 
 
+async function fetchPriceHistory(){
+
+    try {
+      const response = await fetch(`${API_URL_MARKET}/price_history`, {
+        method: "POST", 
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        credentials: "include", 
+        body: JSON.stringify({
+          hours: 24
+        })
+      });
+      
+      const fdata = await response.json();
+      // console.log(fdata);  
+      // data = fdata.data;
+      let priceHistory = []; 
+      console.log(fdata.data.length); 
+      for(let index = 0; index<fdata.data.length; index++){
+        let price = fdata.data[index].price.toFixed(2); 
+        priceHistory.push(price); 
+      }
+      data = priceHistory;  
+
+      
+    } catch (error) {
+      console.log("An error occurred while fetching price history", error);
+    }
+
+  };
+
+
 </script>
 
 <main class="container mx-auto p-4">
   <div class="md:flex md:flex-row">
     <div class="md:basis-2/3 bg-base-100 md:card md:mr-5 md:p-4">
       <h1 class="md:text-5xl md:font-bold md:pt-8">Marketplace</h1>
+       <div class="form-control">
+          <!-- svelte-ignore a11y-label-has-associated-control -->
+          <select bind:value={chartPeriod} class="select select-bordered max-h-40 overflow-y-auto">
+              <option value="" disabled selected></option>
+                  <option value="1">1h</option>
+                  <option value="24">24h</option>
+                  <option value="168">1w</option>
+          </select>
+      </div>
       <Chart {data} class = "" />
        <!-- <PriceChartD3 id = "chartPrice" />  -->
     </div>
@@ -145,8 +189,8 @@ async function fetchData() {
               <p class="py-4">Please confirm your buy order for {units} units at R{selectedPrice.toFixed(2)} </p>
               <div class="modal-action">
                 <form method="dialog">
-                  <button class="btn bg-green-600" on:click={() => place_buy_order(false)} >Continue</button>
-                  <button class="btn bg-red-500">Cancel</button>
+                  <button class="btn btn-secondary" on:click={() => place_buy_order(false)} >Continue</button>
+                  <button class="btn btn-error">Cancel</button>
                 </form>
               </div>
             </div>
@@ -159,8 +203,8 @@ async function fetchData() {
               <p class="py-4">Please confirm your buy order for {units} units at R{price.toFixed(2)} </p>
               <div class="modal-action">
                 <form method="dialog">
-                  <button class="btn bg-green-600" on:click={() => place_buy_order(true)} >Continue</button>
-                  <button class="btn bg-red-500">Cancel</button>
+                  <button class="btn btn-secondary" on:click={() => place_buy_order(true)} >Continue</button>
+                  <button class="btn btn-error">Cancel</button>
                 </form>
               </div>
             </div>
@@ -173,8 +217,8 @@ async function fetchData() {
               <p class="py-4">Please confirm your sell order for {units} units at R{selectedPrice.toFixed(2)} </p>
               <div class="modal-action">
                 <form method="dialog">
-                  <button class="btn bg-green-600" on:click={() => place_sell_order(false)}>Continue</button>
-                  <button class="btn bg-red-500">Cancel</button>
+                  <button class="btn btn-secondary" on:click={() => place_sell_order(false)}>Continue</button>
+                  <button class="btn btn-error">Cancel</button>
                 </form>
               </div>
             </div>
@@ -187,8 +231,8 @@ async function fetchData() {
               <p class="py-4">Please confirm your sell order for {units} units at R{price.toFixed(2)} </p>
               <div class="modal-action">
                 <form method="dialog">
-                  <button class="btn bg-green-600" on:click={() => place_sell_order(true)}>Continue</button>
-                  <button class="btn bg-red-500">Cancel</button>
+                  <button class="btn btn-secondary" on:click={() => place_sell_order(true)}>Continue</button>
+                  <button class="btn btn-error">Cancel</button>
                 </form>
               </div>
             </div>

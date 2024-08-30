@@ -1,7 +1,13 @@
 <script>
   import { onMount } from 'svelte';
   import { createChart } from 'lightweight-charts';
+  import { API_URL_GRID, API_URL_MARKET, API_URL_AGENT } from '$lib/config.js';
+
+  let data = ''; 
+  let areaSeries; 
+
   onMount(() => {
+    fetchPriceHistory(); 
     const chartElement = document.getElementById('chartPrice');
     if (chartElement) {
       const chart = createChart(chartElement, {
@@ -9,22 +15,16 @@
         height: 400,
         layout: { textColor: 'black', background: { type: 'solid', color: 'white' } }
       });
-      const candleStickSeries = chart.addCandlestickSeries({
+    areaSeries = chart.addAreaSeries({
+    lineColor: '#2962FF', topColor: '#2962FF',
+    bottomColor: 'rgba(41, 98, 255, 0.28)',
+});
+
+    const candlestickSeries = chart.addCandlestickSeries({
     upColor: '#26a69a', downColor: '#ef5350', borderVisible: false,
     wickUpColor: '#26a69a', wickDownColor: '#ef5350',
-    });
-      candleStickSeries.setData([
-        { time: '2024-01-01', value: 32.51 },
-        { time: '2024-01-02', value: 31.11 },
-        
-      ]);
-      // candleStickSeries.update({time: '2024-01-03', value: 30.12}); 
-      // candleStickSeries.update({time: '2024-01-04', value: 39.12}); 
-      // candleStickSeries.update({time: '2024-01-05', value: 36.12}); 
-      // candleStickSeries.update({time: '2024-01-06', value: 23.12}); 
-      // candleStickSeries.update({time: '2024-01-07', value: 43.12}); 
-      // candleStickSeries.update({time: '2024-01-08', value: 23.12}); 
-      candleStickSeries.setData([
+});
+candlestickSeries.setData([
     { time: '2018-12-22', open: 75.16, high: 82.84, low: 36.16, close: 45.72 },
     { time: '2018-12-23', open: 45.12, high: 53.90, low: 45.12, close: 48.09 },
     { time: '2018-12-24', open: 60.71, high: 60.71, low: 53.39, close: 59.29 },
@@ -36,11 +36,49 @@
     { time: '2018-12-30', open: 106.33, high: 110.20, low: 90.39, close: 98.10 },
     { time: '2018-12-31', open: 109.87, high: 114.69, low: 85.66, close: 111.26 },
 ]);
+
+    
+
+    
+     
+     
       chart.timeScale().fitContent();
     } else {
       console.error('Element with ID "chartPrice" not found.');
     }
   });
+
+
+  async function fetchPriceHistory(){
+
+    try {
+      const response = await fetch(`${API_URL_MARKET}/price_history`, {
+        method: "POST", 
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        credentials: "include", 
+        body: JSON.stringify({
+          hours: 24
+        })
+      });
+      
+      const fdata = await response.json();
+      console.log(fdata); 
+      data = fdata.data; 
+
+      for (let index = 0; index < data.length; index++) {
+      const element = data[index];
+      console.log(element);
+      areaSeries.update(element.timeScale, element.price); 
+      console.log(element.timeScale); 
+      }
+    } catch (error) {
+      console.log("An error occurred while fetching price history", error);
+    }
+
+  };
 </script>
 
 <div id="chartPrice" style="width: 600px; height: 400px;"></div>

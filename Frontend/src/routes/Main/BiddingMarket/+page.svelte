@@ -118,7 +118,7 @@ async function fetchData() {
     <div class="md:basis-2/3 bg-base-100 md:card md:mr-5 md:p-4">
       <h1 class="md:text-5xl md:font-bold md:pt-8">Marketplace</h1>
       <!-- <Chart {data} class = "" /> -->
-       <PriceChartD3  /> 
+       <PriceChartD3 id = "chartPrice" /> 
     </div>
     <div class="md:basis-1/3 md:card bg-base-100 md:p-4 xs:pt-10">
       <span class="text-lg">Selected Node: </span> <br>

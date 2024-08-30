@@ -1,6 +1,7 @@
 use crate::models::{
     BuyOrder, NewBuyOrder, NewSellOrder, NewTransaction, Node, SellOrder, Transaction,
 };
+use crate::schema::open_em::buy_orders::{buyer_id, consumer_id};
 use crate::user_management::Claims;
 use crate::{
     establish_connection, schema, IMPEDANCE_RATE, SUPPLY_DEMAND_RATE, TARGET_HISTORY_POINTS,
@@ -15,7 +16,6 @@ use rocket::serde::{
 };
 use std::env;
 use uuid::Uuid;
-use crate::schema::open_em::buy_orders::{buyer_id, consumer_id};
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
@@ -856,9 +856,14 @@ pub fn cancel_buy_order(cancel_buy_request: Json<CancelOrderRequest>, claims: Cl
         .filter(buy_order_id.eq(request_order_id))
         .filter(active.eq(true))
         .set(active.eq(false))
-        .execute(connection) {
-        Ok(_) => {json!({"status": "ok", "message": "Order successfully cancelled"})}
-        Err(_) => {json!({"status": "ok", "message": "Order already cancelled"})}
+        .execute(connection)
+    {
+        Ok(_) => {
+            json!({"status": "ok", "message": "Order successfully cancelled"})
+        }
+        Err(_) => {
+            json!({"status": "ok", "message": "Order already cancelled"})
+        }
     }
 }
 
@@ -868,8 +873,8 @@ pub fn cancel_buy_order(cancel_buy_request: Json<CancelOrderRequest>, claims: Cl
     data = "<cancel_sell_request>"
 )]
 pub fn cancel_sell_order(cancel_sell_request: Json<CancelOrderRequest>, claims: Claims) -> Value {
-    use crate::schema::open_em::sell_orders::dsl::*;
     use crate::schema::open_em::nodes::dsl::*;
+    use crate::schema::open_em::sell_orders::dsl::*;
 
     let connection = &mut establish_connection();
 
@@ -890,9 +895,13 @@ pub fn cancel_sell_order(cancel_sell_request: Json<CancelOrderRequest>, claims: 
         .filter(sell_order_id.eq(request_order_id))
         .filter(active.eq(true))
         .set(active.eq(false))
-        .execute(connection) {
-        Ok(_) => {json!({"status": "ok", "message": "Order successfully cancelled"})}
-        Err(_) => {json!({"status": "ok", "message": "Order already cancelled"})}
+        .execute(connection)
+    {
+        Ok(_) => {
+            json!({"status": "ok", "message": "Order successfully cancelled"})
+        }
+        Err(_) => {
+            json!({"status": "ok", "message": "Order already cancelled"})
+        }
     }
-
 }

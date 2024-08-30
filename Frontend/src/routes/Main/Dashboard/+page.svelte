@@ -483,8 +483,10 @@
     }
 
     let onPeriods = {
+      "onPeriods":{
       "start": 15.0, 
       "end": 800, 
+      }
     }
 
     if(generator && category){

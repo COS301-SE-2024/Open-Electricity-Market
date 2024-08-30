@@ -1,7 +1,5 @@
 <script>
   import { onMount } from "svelte";
-  import Chart from "$lib/Components/Chart.svelte";
-  import Cookies from 'js-cookie';
   import {goto} from "$app/navigation";
   import Map from '$lib/Components/MapDashboard.svelte';
   import { API_URL_GRID, API_URL_MARKET, API_URL_AGENT } from '$lib/config.js';
@@ -81,10 +79,6 @@
 
 
   onMount(async () => {
-
-    // clearInterval(buyOrderInterval);
-    // clearInterval(sellOrderInterval);
-
     await fetchStart();
     await fetchNodes();
     await getUserDetails();
@@ -105,7 +99,8 @@
       const response = await fetch(`${API_URL_GRID}/start`, {
       method: "POST", 
       headers: {
-        'Content-Type': 'application/json' 
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
       }
     });
     } catch(error){
@@ -252,6 +247,7 @@
         method: "POST", 
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
           'Authorization': `Bearer ${sessionStorage.getItem("Token")}`
         },
         body: JSON.stringify({
@@ -291,6 +287,7 @@
         method: "POST", 
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
           'Authorization': `Bearer ${sessionStorage.getItem("Token")}`
         },
         body: JSON.stringify({
@@ -326,6 +323,7 @@
         method: "POST", 
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
           'Authorization': `Bearer ${sessionStorage.getItem("Token")}`
         },
         credentials: "include",
@@ -363,6 +361,7 @@
         method: "POST", 
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
           'Authorization': `Bearer ${sessionStorage.getItem("Token")}`
         },
         credentials: "include",
@@ -392,6 +391,7 @@
         method: "POST", 
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
           'Authorization': `Bearer ${sessionStorage.getItem("Token")}`
         },
         credentials: "include",
@@ -458,7 +458,8 @@
         method: "POST",
         body : JSON.stringify(details), 
         headers: {
-          'Content-Type': 'application/json' 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
         credentials: "include",
       });
@@ -503,7 +504,8 @@
         method: "POST", 
         body: JSON.stringify(details2), 
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
         credentials: "include",
       });
@@ -523,11 +525,9 @@
 
   <div class="sm:w-1/3">
     
-    <div class="flex-col">
-      <span class="text-3xl text-white font-thin justify-start pl-2">
-        Personal Information
-      </span>
-    </div>
+    <span class="text-3xl text-white font-thin justify-start pl-2">
+      Personal Information
+    </span>
     <!-- change funds modals -->
 
     <dialog id = "add_modal" class="modal">
@@ -574,14 +574,10 @@
         {/if}
       </div>
 
-      <div class="flex-col min-w-max">
-        <button class="btn btn-success mx-2 w-48" onclick="add_modal.showModal()">Add funds</button>
-        <button class="btn btn-error mx-2 w-48" onclick="remove_modal.showModal()">Withdraw funds</button>
+      <div class="stat flex min-w-max py-0 justify-center">
+        <button class="btn btn-success w-6/12" onclick="add_modal.showModal()">Add funds</button>
+        <button class="btn btn-error w-6/12" onclick="remove_modal.showModal()">Withdraw funds</button>
       </div>
-      
-      <h1 class="stat text-lg font-normal">
-        Personal Information:
-      </h1>
   
       <div class="stat">
           <div class="stat-title  ">Firstname</div>
@@ -709,7 +705,7 @@
     {/if}
     {/each}
 
-    <div class="card card-side min-w-1/3 bg-base-100 my-2">
+    <div class="card card-side min-w-1/3 bg-base-100">
       <div class="card-body">
         <button class="btn btn-outline" on:click={createModal}>Add a New Node</button>
       </div>
@@ -718,6 +714,9 @@
 
   <div class="sm:w-1/3">
     {#if nodeNameDetail != ''}
+      <span class="text-3xl text-white font-thin justify-start pl-2">
+        Node Details
+      </span>
       <div class="stats stats-vertical w-full"> 
         <div class="stat">
           <div class="stat-title">Node</div>
@@ -744,19 +743,19 @@
 
       </div>
 
-      <div class="flex-col min-w-max">
-        <button class="btn btn-primary mx-2 w-48 mt-3" on:click={() => {
+      <div class="stat flex min-w-max py-0 justify-center mt-2">
+        <button class="btn btn-primary mx-2 w-5/12" on:click={() => {
             sessionStorage.setItem("node_id", selectedNodeID);
             sessionStorage.setItem("node_name", nodeNameDetail);
             //reroute to market 
             goto('../Main/BiddingMarket');
           }}>Transact with this node</button>
-        <button class="btn btn-error mx-2 w-48" on:click={() => {
+        <button class="btn btn-error mx-2 w-5/12" on:click={() => {
             document.getElementById("removeNodeConfirmation").showModal();
           }}>Remove this node</button>
       </div>
 
-      <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
+      <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 my-2">
 
         <div class="form-control">
           <!-- svelte-ignore a11y-label-has-associated-control -->
@@ -771,41 +770,35 @@
           </select>
       </div>
       <button on:click={addAppliance} class="btn btn-primary mt-4">Add Appliance</button>
-
-
-
-
-
-
-        <div class = "form-control">
-          <!-- svelte-ignore a11y-label-has-associated-control -->
-          <label class = "label">
-            <span class = "label-text">Select a generator</span>
-          </label>
-          <select bind:value={generator} class="select select-bordered max-h-40 overflow-y-auto">
-            <option value = "" disabled selected>Select a generator</option>
-            {#each uniqueGens as type}
-                  <option value={type}>{type}</option>
-            {/each}
-          </select>
-        </div>
+      <div class = "form-control">
+        <!-- svelte-ignore a11y-label-has-associated-control -->
+        <label class = "label">
+          <span class = "label-text">Select a generator</span>
+        </label>
+        <select bind:value={generator} class="select select-bordered max-h-40 overflow-y-auto">
+          <option value = "" disabled selected>Select a generator</option>
+          {#each uniqueGens as type}
+                <option value={type}>{type}</option>
+          {/each}
+        </select>
+      </div>
         
-        <!-- selecting category  -->
-        <div class = "form-control mt-4">
-          <select bind:value={category} class = "select select-bordered max-h-40 overflow-y-auto" disabled={!generator}>
-            <option value = "" disabled selected>Select a category</option>
-            {#each generators.filter(g=>g.type === generator) as {category}}
-            <option value = {category}>{category}</option>
-            {/each}
-          </select>
-        </div>
-        
-        <button on:click={addGenerator} class="btn btn-primary mt-4">Add Generator</button>
+      <!-- selecting category  -->
+      <div class = "form-control mt-4">
+        <select bind:value={category} class = "select select-bordered max-h-40 overflow-y-auto" disabled={!generator}>
+          <option value = "" disabled selected>Select a category</option>
+          {#each generators.filter(g=>g.type === generator) as {category}}
+          <option value = {category}>{category}</option>
+          {/each}
+        </select>
+      </div>
+      
+      <button on:click={addGenerator} class="btn btn-primary mt-4">Add Generator</button>
 
 
 
       
-      </div>
+    </div>
 
     {/if}
     <div class = "my-10"></div>

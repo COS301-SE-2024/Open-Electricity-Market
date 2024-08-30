@@ -46,7 +46,7 @@
    let appliances = [
         'Washing Machine', 'Router', 'Vacuum', 'Dishwasher', 'Boiler', 'Hair Purifier',
         'Sound System', 'Coffee Machine', 'Phone Charger', 'Fridge', 'Radiator',
-        'Dehumidifier', 'Microwave Oven', 'Laptop', 'Tv', 'Screen', 'Solar Panel',
+        'Dehumidifier', 'Microwave Oven', 'Laptop', 'Tv', 'Screen',
         'Fan', 'Air Conditioner', 'Computer', 'Printer', 'Dryer', 'Freezer'
     ];
 

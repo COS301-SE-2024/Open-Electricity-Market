@@ -483,19 +483,20 @@
     }
 
     let onPeriods = {
-      "onPeriods":{
+     
       "start": 15.0, 
-      "end": 800, 
-      }
+      "end": 800.0, 
+      
     }
 
     if(generator && category){
       console.log(generator + " "+ category); 
       let generatorDetails = {
-        "generator_type": {[generator]: category}
+        "generator_type": {[generator]: category}, 
+        "on_periods": [onPeriods]
       }
       details2.generators.push(generatorDetails);
-      details2.generators.push(onPeriods); 
+      //details2.generators.generator_type.push(onPeriods); 
       console.log(details2);
       try {
         const response = await fetch(`${API_URL_AGENT}/add_generators`,{

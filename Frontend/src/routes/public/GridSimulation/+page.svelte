@@ -122,7 +122,7 @@
       <div class="statsection my-2 bottom-0">
         <GridStats /> 
       </div>
-      <div class="chartsection md:w-2/5 md:h-min p-5 xs:w-full bg-base-100 rounded-2xl">   
+      <div class="chartsection md:w-2/5 md:h-min p-5 xs:w-full bg-base-100 rounded-2xl hidden">   
         <Chart {data} />  
       </div>
     </div>

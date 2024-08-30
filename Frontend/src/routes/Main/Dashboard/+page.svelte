@@ -344,7 +344,7 @@
     } else {
       // this is intended to reroute the user to the login page if they send an invalid session id
       sessionStorage.clear();
-      goto("/login");
+      window.location.replace("/login");
     }
   }
 
@@ -432,10 +432,6 @@
     return value.slice(2, value.length);
   }
 
-
-
- 
-
   async function addAppliance(){
     let details = {
       "email": email,
@@ -447,32 +443,32 @@
       "start": 15.0, 
       "end": 800.0,
     }];
-      if(appliance){
-        let applianceDetails = {
-          "appliance_type": appliance.replace(/\s/g,''),
-          "on_periods": onPeriods 
-        };
-        details.appliances.push(applianceDetails);
-        try {
-          const response = await fetch(`${API_URL_AGENT}/add_appliances`, {
-        method: "POST",
-        body : JSON.stringify(details), 
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        credentials: "include",
-      });
-      const fdata = await response.json();
-      data = fdata;
-      console.log("Data received from user details is: ", data);
-        } catch (error) {
-          console.log("There was an error with the add appliance endpoint: ", error); 
-        }
+    if(appliance){
+      let applianceDetails = {
+        "appliance_type": appliance.replace(/\s/g,''),
+        "on_periods": onPeriods 
+      };
+      details.appliances.push(applianceDetails);
+      try {
+        const response = await fetch(`${API_URL_AGENT}/add_appliances`, {
+          method: "POST",
+          body : JSON.stringify(details), 
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          credentials: "include",
+        });
+        const fdata = await response.json();
+        data = fdata;
+        console.log("Data received from user details is: ", data);
+      } catch (error) {
+        console.log("There was an error with the add appliance endpoint: ", error); 
       }
-      else{
-        console.log("Appliance was not selected."); 
-      }
+    }
+    else{
+      console.log("Appliance was not selected."); 
+    }
   }
 
   async function addGenerator(){
@@ -521,7 +517,7 @@
 
 </script>
 
-<main class="container mx-4 sm:mx-auto w-full sm:flex justify-center">
+<main class="container sm:mx-auto w-full h-full sm:flex justify-center">
 
   <div class="sm:w-1/3">
     
@@ -552,9 +548,9 @@
       <div class="modal-box">
         <h3 class="text-lg font-bold">Withdraw funds</h3>
         <p>Please ente ran amount you would like to withdraw.</p>
-          <div class="form-control mt-4">
-              <input class="input input-bordered" type="number" placeholder="Amount" required bind:value={withdrawamount}>
-            </div>
+        <div class="form-control mt-4">
+          <input class="input input-bordered" type="number" placeholder="Amount" required bind:value={withdrawamount}>
+        </div>
         <div class="modal-action">
           <form method="dialog">
             <button class="btn bg-green-600" on:click={withdrawFunds}>Continue</button>
@@ -575,8 +571,8 @@
       </div>
 
       <div class="stat flex min-w-max py-0 justify-center">
-        <button class="btn btn-success w-6/12" onclick="add_modal.showModal()">Add funds</button>
-        <button class="btn btn-error w-6/12" onclick="remove_modal.showModal()">Withdraw funds</button>
+        <button class="btn btn-primary w-6/12" onclick="add_modal.showModal()">Add funds</button>
+        <button class="btn btn-accent w-6/12" onclick="remove_modal.showModal()">Withdraw funds</button>
       </div>
   
       <div class="stat">
@@ -598,7 +594,7 @@
       </div>
   
       <div class="stat">
-          <div class="stat-title">Email</div>
+          <div class="stat-title">Email</div> 
           {#if email == null}
             <span class="loading loading-spinner loading-lg"></span>
           {:else}
@@ -675,7 +671,7 @@
 
     {#each nodes as node}
     {#if node.name == nodeNameDetail}
-      <div class="card card-side border-2 border-accent min-w-1/3 bg-base-100 mb-4">
+      <div class="card card-side border-4 border-primary min-w-1/3 bg-base-100 mb-2">
         <figure class="w-1/5 p-10">
           <img
             src="../src/images/house.png"
@@ -684,12 +680,12 @@
         <div class="card-body">
           <h2 class="card-title font-light text-3xl">{node.name}</h2>
           <div class="card-actions justify-end">
-            <button class="btn btn-accent" on:click={() => {fetchNodeDetails(node.node_id)}}>Details</button>
+            <button class="btn btn-primary" on:click={() => {fetchNodeDetails(node.node_id)}}>Details</button>
           </div>
         </div>
       </div>  
     {:else}
-      <div class="card card-side min-w-1/3 bg-base-100 mb-4">
+      <div class="card card-side border-4 border-base-100 min-w-1/3 bg-base-100 mb-2">
         <figure class="w-1/5 p-10">
           <img
             src="../src/images/house.png"
@@ -698,7 +694,7 @@
         <div class="card-body">
           <h2 class="card-title font-light text-3xl">{node.name}</h2>
           <div class="card-actions justify-end">
-            <button class="btn btn-accent" on:click={() => {fetchNodeDetails(node.node_id)}}>Details</button>
+            <button class="btn btn-primary" on:click={() => {fetchNodeDetails(node.node_id)}}>Details</button>
           </div>
         </div>
       </div>
@@ -743,7 +739,7 @@
 
       </div>
 
-      <div class="stat flex min-w-max py-0 justify-center mt-2">
+      <div class="stat flex w-full py-0 justify-center mt-2">
         <button class="btn btn-primary mx-2 w-5/12" on:click={() => {
             sessionStorage.setItem("node_id", selectedNodeID);
             sessionStorage.setItem("node_name", nodeNameDetail);
@@ -756,48 +752,39 @@
       </div>
 
       <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 my-2">
+        <span class="text-3xl font-thin justify-start">
+          Add an Appliance
+        </span>
 
         <div class="form-control">
-          <!-- svelte-ignore a11y-label-has-associated-control -->
-          <label class="label">
-              <span class="label-text">Select Appliance</span>
-          </label>
-          <select bind:value={appliance} class="select select-bordered max-h-40 overflow-y-auto">
+          <select bind:value={appliance} class="select select-bordered max-h-40 overflow-y-auto my-2">
               <option value="" disabled selected>Select an appliance</option>
               {#each appliances as appliance}
                   <option value={appliance}>{appliance}</option>
               {/each}
           </select>
-      </div>
-      <button on:click={addAppliance} class="btn btn-primary mt-4">Add Appliance</button>
-      <div class = "form-control">
-        <!-- svelte-ignore a11y-label-has-associated-control -->
-        <label class = "label">
-          <span class = "label-text">Select a generator</span>
-        </label>
-        <select bind:value={generator} class="select select-bordered max-h-40 overflow-y-auto">
-          <option value = "" disabled selected>Select a generator</option>
-          {#each uniqueGens as type}
-                <option value={type}>{type}</option>
-          {/each}
-        </select>
-      </div>
-        
-      <!-- selecting category  -->
-      <div class = "form-control mt-4">
-        <select bind:value={category} class = "select select-bordered max-h-40 overflow-y-auto" disabled={!generator}>
-          <option value = "" disabled selected>Select a category</option>
-          {#each generators.filter(g=>g.type === generator) as {category}}
-          <option value = {category}>{category}</option>
-          {/each}
-        </select>
-      </div>
-      
-      <button on:click={addGenerator} class="btn btn-primary mt-4">Add Generator</button>
-
-
-
-      
+          <button on:click={addAppliance} class="btn btn-primary my-2">Add Appliance</button>
+        </div>
+        <!-- selecting category  -->
+        <div class = "form-control">
+          <span class = "label">
+            <span class = "label-text">Select a generator</span>
+          </span>
+          <select bind:value={generator} class="select select-bordered max-h-40 overflow-y-auto">
+            <option value = "" disabled selected>Select a generator</option>
+            {#each uniqueGens as type}
+                  <option value={type}>{type}</option>
+            {/each}
+          </select>
+          
+          <select bind:value={category} class = "select select-bordered max-h-40 overflow-y-auto mt-4" disabled={!generator}>
+            <option value = "" disabled selected>Select a category</option>
+            {#each generators.filter(g=>g.type === generator) as {category}}
+            <option value = {category}>{category}</option>
+            {/each}
+          </select>
+          <button on:click={addGenerator} class="btn btn-primary mt-4">Add Generator</button>
+        </div>
     </div>
 
     {/if}

@@ -63,7 +63,7 @@
   }
 
   function logout() {
-    Cookies.remove("session_id");
+    sessionStorage.removeItem("Token");
     window.location.href = '/login';
   }
 

@@ -46,7 +46,7 @@
    let appliances = [
         'Washing Machine', 'Router', 'Vacuum', 'Dishwasher', 'Boiler', 'Hair Purifier',
         'Sound System', 'Coffee Machine', 'Phone Charger', 'Fridge', 'Radiator',
-        'Dehumidifier', 'Microwave Oven', 'Laptop', 'Tv', 'Screen', 'Solar Panel',
+        'Dehumidifier', 'Microwave Oven', 'Laptop', 'Tv', 'Screen',
         'Fan', 'Air Conditioner', 'Computer', 'Printer', 'Dryer', 'Freezer'
     ];
 
@@ -434,11 +434,7 @@
 
 
 
-  let details2 = {
-    "email": email, 
-    "node_id":selectedNodeID,
-    "generators": [] ,
-  }
+ 
 
   async function addAppliance(){
     let details = {
@@ -480,17 +476,28 @@
 
   async function addGenerator(){
 
+     let details2 = {
+    "email": email, 
+    "node_id":selectedNodeID,
+    "generators": [] ,
+    }
+
     let onPeriods = {
+     
       "start": 15.0, 
-      "end": 800, 
+      "end": 800.0, 
+      
     }
 
     if(generator && category){
+      console.log(generator + " "+ category); 
       let generatorDetails = {
-        "generator_type": {generator: category}
+        "generator_type": {[generator]: category}, 
+        "on_periods": [onPeriods]
       }
       details2.generators.push(generatorDetails);
-      details2.generators.push(onPeriods); 
+      //details2.generators.generator_type.push(onPeriods); 
+      console.log(details2);
       try {
         const response = await fetch(`${API_URL_AGENT}/add_generators`,{
         method: "POST", 
@@ -738,7 +745,7 @@
       </div>
 
       <div class="flex-col min-w-max">
-        <button class="btn btn-primary mx-2 w-48" on:click={() => {
+        <button class="btn btn-primary mx-2 w-48 mt-3" on:click={() => {
             sessionStorage.setItem("node_id", selectedNodeID);
             sessionStorage.setItem("node_name", nodeNameDetail);
             //reroute to market 
@@ -749,7 +756,7 @@
           }}>Remove this node</button>
       </div>
 
-      <div class="flex-col min-w-3/4">
+      <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
 
         <div class="form-control">
           <!-- svelte-ignore a11y-label-has-associated-control -->

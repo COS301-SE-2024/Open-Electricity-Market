@@ -480,7 +480,7 @@ pub fn sell_order(sell_order_request: Json<OrderRequest>, claims: Claims) -> Val
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
 struct OpenSell {
-    order_id: i64,
+    order_id: String,
     offered_units: f64,
     claimed_units: f64,
     max_price: f64,
@@ -531,7 +531,7 @@ pub fn list_open_sells(claims: Claims) -> Value {
                         Err(_) => {}
                     }
                     data.push(OpenSell {
-                        order_id: order.sell_order_id,
+                        order_id: String::from(order.sell_order_id),
                         offered_units: order.offered_units,
                         claimed_units: order.claimed_units,
                         max_price: order.max_price,
@@ -559,7 +559,7 @@ pub fn list_open_sells(claims: Claims) -> Value {
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
 struct OpenBuy {
-    order_id: i64,
+    order_id: String,
     sought_units: f64,
     filled_units: f64,
     max_price: f64,
@@ -608,7 +608,7 @@ pub fn list_open_buys(claims: Claims) -> Value {
                         Err(_) => {}
                     }
                     data.push(OpenBuy {
-                        order_id: order.buy_order_id,
+                        order_id: String::from(order.buy_order_id),
                         sought_units: order.sought_units,
                         filled_units: order.filled_units,
                         max_price: order.max_price,
@@ -679,7 +679,7 @@ pub fn all_open_buy(all_open_buy_request: Json<ListAllRequest>) -> Value {
                         Err(_) => {}
                     }
                     data.push(OpenBuy {
-                        order_id: order.buy_order_id,
+                        order_id: String::from(order.buy_order_id),
                         sought_units: order.sought_units,
                         filled_units: order.filled_units,
                         max_price: order.max_price,
@@ -746,7 +746,7 @@ pub fn all_open_sell(all_open_sell_request: Json<ListAllRequest>) -> Value {
                         Err(_) => {}
                     }
                     data.push(OpenSell {
-                        order_id: order.sell_order_id,
+                        order_id: String::from(order.sell_order_id),
                         offered_units: order.offered_units,
                         claimed_units: order.claimed_units,
                         max_price: order.max_price,

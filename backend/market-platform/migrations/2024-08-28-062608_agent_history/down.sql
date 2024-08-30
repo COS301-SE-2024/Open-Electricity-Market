@@ -1,2 +1,2 @@
 -- This file should undo anything in `up.sql`
-Drop Table agent_history; 
+DROP TABLE agent_history;

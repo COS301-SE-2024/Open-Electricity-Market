@@ -161,6 +161,7 @@ pub fn node_details(node_details_request: Json<NodeDetailsReq>, claims: Claims) 
                                     .eq(schema::open_em::transactions::dsl::buy_order_id)),
                             )
                             .filter(producer_id.eq(node.node_id))
+                            .filter(schema::open_em::sell_orders::active.eq(true))
                             .filter(schema::open_em::transactions::created_at.gt(timestamp))
                             .select(diesel::dsl::sql::<diesel::sql_types::Double>(
                                 "SUM(transacted_units - units_produced)",
@@ -179,6 +180,7 @@ pub fn node_details(node_details_request: Json<NodeDetailsReq>, claims: Claims) 
                                     .eq(schema::open_em::transactions::dsl::buy_order_id)),
                             )
                             .filter(consumer_id.eq(node.node_id))
+                            .filter(schema::open_em::buy_orders::dsl::active.eq(true))
                             .filter(schema::open_em::transactions::created_at.gt(timestamp))
                             .select(diesel::dsl::sql::<diesel::sql_types::Double>(
                                 "SUM(transacted_units - units_consumed)",
@@ -259,6 +261,7 @@ pub fn update_consumed_units(mut update_request: Json<UpdateUnits>, claims: Clai
                             .eq(schema::open_em::transactions::dsl::buy_order_id)),
                     )
                     .filter(consumer_id.eq(node.node_id))
+                    .filter(active.eq(true))
                     .filter(schema::open_em::transactions::created_at.gt(timestamp))
                     .order_by(schema::open_em::transactions::created_at.asc())
                     .select((Transaction::as_select(), BuyOrder::as_select()))
@@ -355,6 +358,7 @@ pub fn update_produced_units(mut update_request: Json<UpdateUnits>, claims: Clai
                             .eq(schema::open_em::transactions::dsl::sell_order_id)),
                     )
                     .filter(producer_id.eq(node.node_id))
+                    .filter(active.eq(true))
                     .filter(schema::open_em::transactions::created_at.gt(timestamp))
                     .order_by(schema::open_em::transactions::created_at.asc())
                     .select((Transaction::as_select(), SellOrder::as_select()))

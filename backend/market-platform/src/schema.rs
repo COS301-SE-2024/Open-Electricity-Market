@@ -17,6 +17,7 @@ pub mod open_em {
             max_price -> Float8,
             min_price -> Float8,
             created_at -> Timestamptz,
+            active -> Bool,
             consumer_id -> Uuid,
         }
     }
@@ -56,6 +57,7 @@ pub mod open_em {
             claimed_units -> Float8,
             max_price -> Float8,
             min_price -> Float8,
+            active -> Bool,
             producer_id -> Uuid,
         }
     }

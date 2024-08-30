@@ -434,11 +434,7 @@
 
 
 
-  let details2 = {
-    "email": email, 
-    "node_id":selectedNodeID,
-    "generators": [] ,
-  }
+ 
 
   async function addAppliance(){
     let details = {
@@ -480,17 +476,25 @@
 
   async function addGenerator(){
 
+     let details2 = {
+    "email": email, 
+    "node_id":selectedNodeID,
+    "generators": [] ,
+    }
+
     let onPeriods = {
       "start": 15.0, 
       "end": 800, 
     }
 
     if(generator && category){
+      console.log(generator + " "+ category); 
       let generatorDetails = {
-        "generator_type": json.parse(`{${generator}: ${category}}`)
+        "generator_type": {[generator]: category}
       }
       details2.generators.push(generatorDetails);
       details2.generators.push(onPeriods); 
+      console.log(details2);
       try {
         const response = await fetch(`${API_URL_AGENT}/add_generators`,{
         method: "POST", 

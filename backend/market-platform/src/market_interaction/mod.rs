@@ -36,7 +36,7 @@ fn buy_fee_calc(units: f64, price: f64) -> f64 {
 
     match buy_orders
         .filter(sought_units.gt(filled_units))
-        // .filter(active.eq(true))
+        .filter(schema::open_em::buy_orders::dsl::active.eq(true))
         .execute(connection)
     {
         Ok(num_buys) => demand = num_buys as f64,
@@ -46,7 +46,7 @@ fn buy_fee_calc(units: f64, price: f64) -> f64 {
     let mut supply = 0f64;
     match sell_orders
         .filter(offered_units.gt(claimed_units))
-        // .filter(active.eq(true))
+        .filter(schema::open_em::sell_orders::dsl::active.eq(true))
         .execute(connection)
     {
         Ok(num_sells) => supply = num_sells as f64,
@@ -88,7 +88,7 @@ fn sell_fee_calc(units: f64, price: f64) -> f64 {
 
     match buy_orders
         .filter(sought_units.gt(filled_units))
-        // .filter(active.eq(true))
+        .filter(schema::open_em::buy_orders::dsl::active.eq(true))
         .execute(connection)
     {
         Ok(num_buys) => demand = num_buys as f64,
@@ -98,7 +98,7 @@ fn sell_fee_calc(units: f64, price: f64) -> f64 {
     let mut supply = 0f64;
     match sell_orders
         .filter(offered_units.gt(claimed_units))
-        // .filter(active.eq(true))
+        .filter(schema::open_em::sell_orders::dsl::active.eq(true))
         .execute(connection)
     {
         Ok(num_sells) => supply = num_sells as f64,
@@ -271,6 +271,7 @@ pub fn buy_order(buy_order_request: Json<OrderRequest>, claims: Claims) -> Value
     match nodes
         .filter(node_id.eq(request_node_id))
         .filter(node_owner.eq(claim_user_id))
+        .filter(node_active.eq(true))
         .select(Node::as_select())
         .first(connection)
     {
@@ -297,6 +298,7 @@ pub fn buy_order(buy_order_request: Json<OrderRequest>, claims: Claims) -> Value
                             .filter(schema::open_em::sell_orders::max_price.le(order.max_price))
                             .filter(seller_id.ne(order.buyer_id))
                             .filter(producer_id.ne(order.consumer_id))
+                            .filter(schema::open_em::sell_orders::dsl::active.eq(true))
                             .order_by(schema::open_em::sell_orders::created_at.asc())
                             .select(SellOrder::as_select())
                             .load::<SellOrder>(connection)
@@ -388,6 +390,7 @@ pub fn sell_order(sell_order_request: Json<OrderRequest>, claims: Claims) -> Val
     match nodes
         .filter(node_id.eq(request_node_id))
         .filter(node_owner.eq(claim_user_id))
+        .filter(node_active.eq(true))
         .select(Node::as_select())
         .first(connection)
     {
@@ -414,6 +417,7 @@ pub fn sell_order(sell_order_request: Json<OrderRequest>, claims: Claims) -> Val
                             .filter(schema::open_em::buy_orders::min_price.ge(order.min_price))
                             .filter(buyer_id.ne(order.seller_id))
                             .filter(consumer_id.ne(order.producer_id))
+                            .filter(schema::open_em::buy_orders::dsl::active.eq(true))
                             .order_by(schema::open_em::buy_orders::created_at.asc())
                             .select(BuyOrder::as_select())
                             .load::<BuyOrder>(connection)
@@ -506,6 +510,7 @@ pub fn list_open_sells(claims: Claims) -> Value {
     match sell_orders
         .filter(seller_id.eq(claim_user_id))
         .filter(offered_units.gt(claimed_units))
+        .filter(active.eq(true))
         .select(SellOrder::as_select())
         .load::<SellOrder>(connection)
     {
@@ -585,6 +590,7 @@ pub fn list_open_buys(claims: Claims) -> Value {
     match buy_orders
         .filter(buyer_id.eq(claim_user_id))
         .filter(sought_units.gt(filled_units))
+        .filter(active.eq(true))
         .select(BuyOrder::as_select())
         .load::<BuyOrder>(connection)
     {
@@ -654,6 +660,7 @@ pub fn all_open_buy(all_open_buy_request: Json<ListAllRequest>) -> Value {
 
     match buy_orders
         .filter(sought_units.gt(filled_units))
+        .filter(active.eq(true))
         .order_by(schema::open_em::buy_orders::buy_order_id)
         .select(BuyOrder::as_select())
         .limit(all_open_buy_request.limit as i64)
@@ -719,6 +726,7 @@ pub fn all_open_sell(all_open_sell_request: Json<ListAllRequest>) -> Value {
 
     match sell_orders
         .filter(offered_units.gt(claimed_units))
+        .filter(active.eq(true))
         .order_by(schema::open_em::sell_orders::sell_order_id.asc())
         .select(SellOrder::as_select())
         .limit(all_open_sell_request.limit as i64)

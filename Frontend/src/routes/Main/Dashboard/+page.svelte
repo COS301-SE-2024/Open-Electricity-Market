@@ -745,7 +745,7 @@
       </div>
 
       <div class="flex-col min-w-max">
-        <button class="btn btn-primary mx-2 w-48" on:click={() => {
+        <button class="btn btn-primary mx-2 w-48 mt-3" on:click={() => {
             sessionStorage.setItem("node_id", selectedNodeID);
             sessionStorage.setItem("node_name", nodeNameDetail);
             //reroute to market 

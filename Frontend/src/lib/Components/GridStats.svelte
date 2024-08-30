@@ -7,7 +7,7 @@
   onMount(async () => {
 
     fetchData();
-    interval = setInterval(fetchData, 11000);
+    let interval = setInterval(fetchData, 11000);
 
 
     return () => {

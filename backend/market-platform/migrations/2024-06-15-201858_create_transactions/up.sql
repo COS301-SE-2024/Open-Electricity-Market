@@ -6,6 +6,7 @@ CREATE TABLE buy_orders(
     max_price float8 NOT NULL,
     min_price float8 NOT NULL,
     created_at timestamptz NOT NULL DEFAULT now(),
+    active boolean DEFAULT true,
     PRIMARY KEY (buy_order_id, created_at),
     CONSTRAINT fk_buyer_id
         FOREIGN KEY (buyer_id)

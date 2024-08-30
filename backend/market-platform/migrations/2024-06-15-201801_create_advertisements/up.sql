@@ -6,6 +6,7 @@ CREATE TABLE sell_orders(
     claimed_units float8 NOT NULL DEFAULT 0,
     max_price float8 NOT NULL,
     min_price float8 NOT NULL,
+    active bool DEFAULT true,
     PRIMARY KEY (sell_order_id, created_at),
     CONSTRAINT fk_seller_id
         FOREIGN KEY (seller_id)

@@ -14,7 +14,7 @@ import PriceChartD3 from "$lib/Components/PriceChartD3.svelte";
 let selectedPrice = 0;
 $: price = 0;
 let units = 1;
-let chartPeriod; 
+let chartPeriod = "24"; 
 
 let selected_node_id = sessionStorage.getItem("node_id");
 let selected_node_name = sessionStorage.getItem("node_name");
@@ -76,14 +76,14 @@ async function place_sell_order(at_market_price) {
 }
 
 onMount(async () => {
-  await fetchPriceHistory();
-  let interval = setInterval(fetchPriceHistory, 2000);
+  await fetchPriceHistory(chartPeriod);
+  // let interval = setInterval(fetchPriceHistory, 2000);
   
   selectedPrice = price;
 
   //return function runs when the component is unmounted
   return() => {
-    clearInterval(interval);
+    // clearInterval(interval);
   };
 });
 
@@ -112,7 +112,7 @@ async function fetchData() {
 }
 
 
- async function fetchPriceHistory(){
+ async function fetchPriceHistory(numhours){
 
     try {
       const response = await fetch(`${API_URL_MARKET}/price_history`, {
@@ -123,7 +123,7 @@ async function fetchData() {
         },
         credentials: "include", 
         body: JSON.stringify({
-          hours: 48
+          hours: parseInt(numhours)
         })
       });
       
@@ -153,11 +153,11 @@ async function fetchData() {
       <h1 class="md:text-5xl md:font-bold md:pt-8">Marketplace</h1>
        <div class="form-control">
           <!-- svelte-ignore a11y-label-has-associated-control -->
-          <select bind:value={chartPeriod} class="select select-bordered max-h-40 overflow-y-auto">
-              <option value="" disabled selected></option>
-                  <option value="1">1h</option> 
-                  <option value="24">24h</option>
-                  <option value="168">1w</option>
+          <select bind:value={chartPeriod} class="select select-bordered max-h-40 overflow-y-auto" on:change={()=> fetchPriceHistory(chartPeriod)}>
+                  <option value="24" default>24h</option>
+                  <option value="168">7d</option>
+                  <option value="720">1M</option> 
+                  <!-- This works so long as the endpoint retrieves different num values for longer hours etc... to be discussed with ruan -->
           </select>
       </div>
       <Chart {data}  />

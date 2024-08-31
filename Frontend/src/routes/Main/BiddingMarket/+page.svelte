@@ -19,7 +19,7 @@ let chartPeriod;
 let selected_node_id = sessionStorage.getItem("node_id");
 let selected_node_name = sessionStorage.getItem("node_name");
 
-let data = {};
+let data = [];
 
 async function place_buy_order(at_market_price) {
   // TODO: add a check that fails if units <= 0
@@ -76,9 +76,9 @@ async function place_sell_order(at_market_price) {
 }
 
 onMount(async () => {
-  fetchPriceHistory();
-  let interval = setInterval({fetchPriceHistory, fetchData}, 2000);
-
+  await fetchPriceHistory();
+  let interval = setInterval(fetchPriceHistory, 2000);
+  
   selectedPrice = price;
 
   //return function runs when the component is unmounted
@@ -112,7 +112,7 @@ async function fetchData() {
 }
 
 
-async function fetchPriceHistory(){
+ async function fetchPriceHistory(){
 
     try {
       const response = await fetch(`${API_URL_MARKET}/price_history`, {
@@ -123,20 +123,19 @@ async function fetchPriceHistory(){
         },
         credentials: "include", 
         body: JSON.stringify({
-          hours: 24
+          hours: 48
         })
       });
       
       const fdata = await response.json();
-      // console.log(fdata);  
-      // data = fdata.data;
-      let priceHistory = []; 
-      console.log(fdata.data.length); 
-      for(let index = 0; index<fdata.data.length; index++){
-        let price = fdata.data[index].price.toFixed(2); 
-        priceHistory.push(price); 
-      }
-      data = priceHistory;  
+      console.log(fdata); 
+      data = fdata.data.map(item => parseFloat(item.price.toFixed(2)));
+      price = data.length > 0 ? data[data.length - 1] : 0;
+      console.log("This is data for the chart: " + data); 
+      
+      
+      
+      
 
       
     } catch (error) {
@@ -156,12 +155,12 @@ async function fetchPriceHistory(){
           <!-- svelte-ignore a11y-label-has-associated-control -->
           <select bind:value={chartPeriod} class="select select-bordered max-h-40 overflow-y-auto">
               <option value="" disabled selected></option>
-                  <option value="1">1h</option>
+                  <option value="1">1h</option> 
                   <option value="24">24h</option>
                   <option value="168">1w</option>
           </select>
       </div>
-      <Chart {data} class = "" />
+      <Chart {data}  />
        <!-- <PriceChartD3 id = "chartPrice" />  -->
     </div>
     <div class="md:basis-1/3 md:card bg-base-100 md:p-4 xs:pt-10">

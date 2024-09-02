@@ -148,13 +148,13 @@
       <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
       <ul
         tabindex="0"
-        class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-28 p-2 shadow align-super fixed right-0">
+        class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-48 p-2 shadow align-super fixed right-0">
         <!-- svelte-ignore a11y-missing-attribute -->
-        <li><a href="/">Landing</a></li>
+        <li><a href="/" class="text-lg">Landing</a></li>
         <!-- svelte-ignore a11y-missing-attribute -->
-        <li><a href="/public/GridSimulation">Simulation</a></li>
+        <li><a href="/public/GridSimulation" class="text-lg">Simulation</a></li>
         <!-- svelte-ignore a11y-missing-attribute -->
-        <li><a href="/Main/Dashboard">Dashboard</a></li>
+        <li><a href="/Main/Dashboard" class="text-lg">Dashboard</a></li>
       </ul>
     </div>
   </div>

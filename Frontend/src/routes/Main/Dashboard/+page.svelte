@@ -149,15 +149,23 @@
 
     const fdata = await response.json();
 
-    data = fdata.data;
-    console.log(data);
+    if (fdata.error) {
+      // console.log(fdata.error.code);
+      if (fdata.error.code = '403') {
+        goto('/login');
+      }
+    } else {
+      data = fdata.data;
+      // console.log(data);
+  
+      nodeNameDetail = data.name;
+      nodeLatitudeDetail = data.location_x;
+      nodeLongitudeDetail = data.location_y;
+      nodeToProduce = data.units_to_produce;
+      nodeToConsume = data.units_to_consume;
+      selectedNodeID = data.node_id;
+    }
 
-    nodeNameDetail = data.name;
-    nodeLatitudeDetail = data.location_x;
-    nodeLongitudeDetail = data.location_y;
-    nodeToProduce = data.units_to_produce;
-    nodeToConsume = data.units_to_consume;
-    selectedNodeID = data.node_id;
   }
 
 

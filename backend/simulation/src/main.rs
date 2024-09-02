@@ -12,12 +12,14 @@ use crate::grid::{
 };
 use ::std::env;
 use core::time;
+use std::sync::mpsc::{self, sync_channel, Receiver, SyncSender};
 use diesel::Connection;
 use diesel::ExpressionMethods;
 use diesel::RunQueryDsl;
 use diesel::{insert_into, PgConnection};
 use dotenvy::dotenv;
 use grid::transformer::Transformer;
+use grid::GridStats;
 use rocket::fairing::{Fairing, Info, Kind};
 use rocket::http::{Header, Method, Status};
 use rocket::response::content;
@@ -147,11 +149,14 @@ fn current_voltage(grid: &State<Arc<Mutex<Grid>>>) -> content::RawJson<String> {
 }
 
 #[post("/stats")]
-fn stats(grid: &State<Arc<Mutex<Grid>>>) -> content::RawJson<String> {
-    // let g;
-    let g = grid.lock().unwrap();
+fn stats(man: &State<Arc<Mutex<ChannelManager>>>) -> content::RawJson<String> {   
+    let (tx,rx) = mpsc::sync_channel(1);
+    {
+        let mut manager = man.lock().unwrap();
+        manager.stats.as_mut().unwrap().push(tx);
+    }
 
-    let stats = g.get_grid_stats();
+    let stats = rx.recv().unwrap();
     let stats = serde_json::to_string(&stats).unwrap();
     content::RawJson(stats)
 }
@@ -168,21 +173,25 @@ fn info(grid: &State<Arc<Mutex<Grid>>>) -> content::RawJson<String> {
 }
 
 #[post("/start", format = "application/json")]
-fn start(grid: &State<Arc<Mutex<Grid>>>) -> String {
+fn start(grid: &State<Arc<Mutex<Grid>>>,man: &State<Arc<Mutex<ChannelManager>>>) -> String {
     let mut g = grid.lock().unwrap();
     if !g.started {
         g.started = true;
-        let clone = grid.inner().clone();
+        let grid_clone = grid.inner().clone();
+        let manager_clone = man.inner().clone();
         tokio::spawn(async move {
             let mut start = Instant::now();
             let mut elapsed_time = 0.0;
             let mut count = 0;
             loop {
+                //Time calc
                 let duration = start.elapsed();
                 elapsed_time += duration.as_secs_f32();
                 start = Instant::now();
-                let mut grid = clone.lock().unwrap();
+                let mut grid = grid_clone.lock().unwrap();
+                //Update grid
                 grid.update(elapsed_time);
+                //Save to database
                 if elapsed_time > count as f32*50.0 {
                     use crate::grid_history::dsl::grid_history;
                     count+=1;
@@ -194,7 +203,18 @@ fn start(grid: &State<Arc<Mutex<Grid>>>) -> String {
                         .values(grid_state.eq(serialized_data))
                         .execute(&mut establish_connection());
                 }
-            }
+                //Transfer stats
+                let stats_tx;
+                {
+                let mut manager =manager_clone.lock().unwrap();
+                stats_tx = manager.stats.take().unwrap();
+                manager.stats = Some(vec![]); 
+                }
+
+                for tx in stats_tx {
+                    tx.send(grid.get_grid_stats()).unwrap();
+                }
+                }
         });
  
         json!({
@@ -215,6 +235,10 @@ pub fn establish_connection() -> PgConnection {
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     PgConnection::establish(&database_url)
         .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
+}
+
+struct ChannelManager {
+   stats : Option<Vec<SyncSender<GridStats>>>
 }
 
 #[launch]
@@ -238,7 +262,6 @@ fn rocket() -> _ {
             longitude: 0.0,
         },
     };
-
     let trans_ref = Arc::new(Mutex::new(transformer));
 
     rocket::build()
@@ -256,6 +279,7 @@ fn rocket() -> _ {
                 current_voltage
             ],
         )
+        .manage(Arc::new(Mutex::new(ChannelManager { stats: Some(vec![]) })))
         .manage(Arc::new(Mutex::new(Grid {
             circuits: vec![Circuit {
                 id: 0,

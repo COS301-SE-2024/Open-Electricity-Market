@@ -173,34 +173,30 @@ fn start(grid: &State<Arc<Mutex<Grid>>>) -> String {
     if !g.started {
         g.started = true;
         let clone = grid.inner().clone();
-        let clone2 = clone.clone();
         tokio::spawn(async move {
             let mut start = Instant::now();
             let mut elapsed_time = 0.0;
+            let mut count = 0;
             loop {
                 let duration = start.elapsed();
                 elapsed_time += duration.as_secs_f32();
                 start = Instant::now();
                 let mut grid = clone.lock().unwrap();
                 grid.update(elapsed_time);
-            }
-        });
-
-        tokio::spawn(async move {
-            loop {
-                {
+                if elapsed_time > count as f32*50.0 {
                     use crate::grid_history::dsl::grid_history;
-                    let grid = clone2.lock().unwrap();
-                    let santas_address: serde_json::Value =
+                    count+=1;
+                    let serialized_data: serde_json::Value =
                         serde_json::from_str(&serde_json::to_string(grid.deref()).unwrap())
                             .expect("REASON");
+                    println!("Stored to database {}",serialized_data.clone());
                     let _ = insert_into(grid_history)
-                        .values(grid_state.eq(santas_address))
+                        .values(grid_state.eq(serialized_data))
                         .execute(&mut establish_connection());
                 }
-                thread::sleep(time::Duration::from_secs(50))
             }
         });
+ 
         json!({
             "Message": "Started Grid"
         })

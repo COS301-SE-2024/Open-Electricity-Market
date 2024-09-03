@@ -7,7 +7,7 @@ use rocket::serde::{
     json::{serde_json::json, Json, Value},
     Deserialize, Serialize,
 };
-use uuid::{Error, Uuid};
+use uuid::Uuid;
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]

@@ -26,7 +26,7 @@ const TRANSACTION_LIFETIME: i64 = 24; // Lifetime in hours
 const UNIT_PRICE_RATE: f64 = 0.005;
 const IMPEDANCE_RATE: f64 = 0.05;
 const SUPPLY_DEMAND_RATE: f64 = 0.05;
-const TARGET_HISTORY_POINTS: i64 = 100;
+// const TARGET_HISTORY_POINTS: i64 = 100;
 
 const TOKEN_EXPIRATION: Duration = Duration::minutes(15);
 

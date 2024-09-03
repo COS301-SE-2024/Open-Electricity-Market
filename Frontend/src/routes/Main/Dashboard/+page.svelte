@@ -621,32 +621,6 @@
     </div>
 
     <!-- new node modals -->
-    <dialog id="newNodeModal" class="modal">  
-      <div class="modal-box">
-        <h3 class="font-bold text-lg ">Add a Node</h3>
-        <form class="">
-          <div class="form-control mt-4">
-            <input class="input input-bordered" type="text" placeholder="Name" bind:value={nodeName}>
-          </div>
-          <div class="form-control mt-4">
-            <input class="input input-bordered" type="text" placeholder="Latitude" bind:value={nodeLatitude}>
-          </div>
-          <div class="form-control mt-4">
-            <input class="input input-bordered" type="text" placeholder="Longtitude" bind:value={nodeLongitude}>
-          </div>
-          <div class="form-control mt-4">
-            <button class="btn btn-primary" on:click={createNode}>Confirm</button>
-          </div>
-        </form>
-      </div>
-
-
-      <form method="dialog" class="modal-backdrop">
-        <button>close</button>
-      </form>
-    </dialog>
-
-    
     <dialog id="mapModal" class="modal">  
       <div class="modal-box">
         <h3 class="font-bold text-lg ">Add a Node</h3>
@@ -726,7 +700,19 @@
           <div class="stat-title">Node</div>
           <div class="stat-value font-light">{nodeNameDetail}</div>
         </div>
-      
+      <!-- flex min-w-max py-0 justify-center -->
+        <div class="stat flex w-full py-0 justify-center">
+          <button class="btn btn-primary w-6/12" on:click={() => {
+              sessionStorage.setItem("node_id", selectedNodeID);
+              sessionStorage.setItem("node_name", nodeNameDetail);
+              //reroute to market 
+              goto('../Main/BiddingMarket');
+            }}>Transact with this node</button>
+          <button class="btn btn-error w-6/12" on:click={() => {
+              document.getElementById("removeNodeConfirmation").showModal();
+            }}>Remove node</button>
+        </div>
+        
         <div class="stat">
           <div class="stat-title">Node Location</div>
           <div class="stat-value font-light">
@@ -745,18 +731,6 @@
           <div class="stat-value font-light">{Intl.NumberFormat().format(nodeToProduce)} Wh</div>
         </div>
 
-      </div>
-
-      <div class="stat flex w-full py-0 justify-center mt-2">
-        <button class="btn btn-primary mx-2 w-5/12" on:click={() => {
-            sessionStorage.setItem("node_id", selectedNodeID);
-            sessionStorage.setItem("node_name", nodeNameDetail);
-            //reroute to market 
-            goto('../Main/BiddingMarket');
-          }}>Transact with this node</button>
-        <button class="btn btn-error mx-2 w-5/12" on:click={() => {
-            document.getElementById("removeNodeConfirmation").showModal();
-          }}>Remove this node</button>
       </div>
 
       <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 my-2">

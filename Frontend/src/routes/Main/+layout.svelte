@@ -94,75 +94,52 @@
       
     <div class="navbar-end">
 
-  <div class = "xs: hidden md:flex">
-      <div class="dropdown dropdown-end">
-        <a class="btn btn-ghost rounded-btn font-normal mx-2" on:click={showModal}>Help</a>
-        <div tabindex="0" role="button" class="btn btn-ghost rounded-btn font-normal mx-2">Account</div>
-        <ul class="menu dropdown-content bg-base-100 rounded-box z-[1] mt-4 w-52 p-2 shadow">
-          <button class="btn mb-2" on:click={logout}>Log out</button>
-          <button class="btn btn-error" onclick="removeaccount_modal.showModal()">Remove Account</button>
-        </ul>
+      <div class = "xs: hidden md:flex">
+        <div class="dropdown dropdown-end">
+          <a class="btn btn-ghost rounded-btn font-normal mx-2" on:click={showModal}>Help</a>
+          <span tabindex="0" role="button" class="btn btn-ghost rounded-btn font-normal mx-2">Account</span>
+          <ul class="menu dropdown-content bg-base-100 rounded-box z-[1] mt-4 w-52 p-2 shadow">
+            <button class="btn mb-2" on:click={logout}>Log out</button>
+            <button class="btn btn-error" onclick="removeaccount_modal.showModal()">Remove Account</button>
+          </ul>
+        </div>
       </div>
+
+
+      <!-- mobile hamburger menu-->
+
+      <!-- svelte-ignore a11y-click-events-have-key-events -->
+      <!-- svelte-ignore a11y-no-static-element-interactions -->
+      <div on:click={toggleHamburger} class ="md:hidden xs:flex">
+        <div class="navbar-end">
+        <div class="dropdown">
+          <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h16M4 18h7" />
+            </svg>
+          </div>
+          <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+          <ul
+            tabindex="0"
+            class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-48 p-2 shadow align-super fixed right-0">
+            <!-- svelte-ignore a11y-missing-attribute -->
+            <li><a href="/" class="text-lg">Landing</a></li>
+            <!-- svelte-ignore a11y-missing-attribute -->
+            <li><a href="/public/GridSimulation" class="text-lg">Simulation</a></li>
+            <!-- svelte-ignore a11y-missing-attribute -->
+            <li><a href="/Main/Dashboard" class="text-lg">Dashboard</a></li>
+          </ul>
+        </div>
       </div>
-
-
-
-<!-- mobile hamburger menu-->
-
-  <!-- svelte-ignore a11y-click-events-have-key-events -->
-  <!-- svelte-ignore a11y-no-static-element-interactions -->
-  <div on:click={toggleHamburger} class ="md:hidden xs:flex">
-
-      <!-- <button class="btn btn-square btn-ghost {showIcon ? '' : 'hidden'}">
-        <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        class="inline-block h-5 w-5 stroke-current">
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M4 6h16M4 12h16M4 18h16"></path>
-      </svg>
-      </button> -->
-
-
-      
-    <div class="navbar-end">
-    <div class="dropdown">
-      <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-5 w-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M4 6h16M4 12h16M4 18h7" />
-        </svg>
-      </div>
-      <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-      <ul
-        tabindex="0"
-        class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-48 p-2 shadow align-super fixed right-0">
-        <!-- svelte-ignore a11y-missing-attribute -->
-        <li><a href="/" class="text-lg">Landing</a></li>
-        <!-- svelte-ignore a11y-missing-attribute -->
-        <li><a href="/public/GridSimulation" class="text-lg">Simulation</a></li>
-        <!-- svelte-ignore a11y-missing-attribute -->
-        <li><a href="/Main/Dashboard" class="text-lg">Dashboard</a></li>
-      </ul>
-    </div>
-  </div>
-
-
-  </div>
-
-
     </div>
   </div>
 
@@ -289,7 +266,7 @@
     </dialog>
 
 
-  </header>
+</header>
   
   <main id="main" class="container mx-auto mt-8">
     {#if loggedIn}

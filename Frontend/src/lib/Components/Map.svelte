@@ -12,10 +12,8 @@
     
     let mapContainer;
     let map;
-    let lm; 
     let markerIcon;
     
-    let interval; 
     let data = {};
     let markers = [];
     export let mapdata; 
@@ -39,23 +37,26 @@
             shadowSize: [41, 41], 
             shadowAnchor: [12, 41]
           });
-
-    
        }
 
        
        await fetchData();
       //  resizeMap(); 
-       interval = setInterval(fetchData, 10000);
+       const interval = setInterval(fetchData, 10000);
       //  setInterval(resizeMap, 10000); 
+
+      return () => {
+        clearInterval(interval);
+        if(map) {
+          map.remove();
+        }
+      };
     });
 
    
     
     onDestroy(async () => {
-       if(map) {
-          map.remove();
-       }
+       
     });
 
      async function fetchData() {
@@ -64,7 +65,8 @@
           const response = await fetch(`${API_URL_GRID}/info`, {
             method: "POST", 
             headers: {
-              'Content-Type': 'application/json' 
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
             }
           });
           //console.log("Request being sent...");
@@ -177,7 +179,7 @@
 
 
 
-   function resizeMap() {
+  function resizeMap() {
     if (browser) {
       if (window.innerWidth <= 450) {
         // chart.style.width = '100%';
@@ -194,37 +196,30 @@
       }
     }
   }
-
-
-  
-
-   
-
-
-    </script>
+</script>
     
     
-    <main>
-       <div bind:this={mapContainer}></div>
-    </main>
+<main class="min-w-full min-h-full">
+  <div bind:this={mapContainer}></div>
+</main>
     
-    <style>
-       @import 'leaflet/dist/leaflet.css';
-       div {
-       height: 700px;
-       z-index: 0; 
-       }
-    </style>
+<style>
+  @import 'leaflet/dist/leaflet.css';
+  div {
+    height: 700px;
+    z-index: 0; 
+  }
+</style>
 
 
 
-    <dialog id="test_modal" class="modal">  
-        <div class="modal-box">
-          <h3 class="font-bold text-lg ">Voltage</h3>
-          <Chart {data}/>
-        </div>
-        <form method="dialog" class="modal-backdrop">
-          <button>close</button>
-        </form>
-      </dialog>
+<dialog id="test_modal" class="modal">  
+  <div class="modal-box">
+    <h3 class="font-bold text-lg ">Voltage</h3>
+    <Chart {data}/>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button>close</button>
+  </form>
+</dialog>
 

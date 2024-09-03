@@ -63,7 +63,7 @@
   }
 
   function logout() {
-    Cookies.remove("session_id");
+    sessionStorage.removeItem("Token");
     window.location.href = '/login';
   }
 
@@ -87,84 +87,59 @@
       
     <div class="navbar-center hidden lg:flex">
       <ul class="menu menu-horizontal px-1">
-        <li class="px-2"><a class="w-28 justify-center btn-ghost" href="/public/GridSimulation">Grid</a></li>
-        <li class="px-2"><a class=" btn-ghost w-22" href="/Main/Dashboard">Dashboard</a></li>
+        <li class="px-2"><a class="btn btn-ghost rounded-btn font-normal" href="/public/GridSimulation">Simulation</a></li>
+        <li class="px-2"><a class="btn btn-ghost rounded-btn font-normal" href="/Main/Dashboard">Dashboard</a></li>
       </ul>
     </div>
       
     <div class="navbar-end">
 
-  <div class = "xs: hidden md:flex">
-  <ul class="menu menu-horizontal px-3">
-    <li class="px-2"><a class="w-22 btn-ghost" on:click={showModal}>Help</a></li>
-  </ul>
-      <div class="dropdown dropdown-end">
-        <div tabindex="0" role="button" class="btn btn-ghost rounded-btn font-normal">Account</div>
-        <ul class="menu dropdown-content bg-base-100 rounded-box z-[1] mt-4 w-52 p-2 shadow">
-          <button class="btn" onclick="removeaccount_modal.showModal()">Remove Account</button>
-          <button class="btn mt-2" on:click={logout}>Log out</button>
-        </ul>
-      </div>
+      <div class = "xs: hidden md:flex">
+        <div class="dropdown dropdown-end">
+          <a class="btn btn-ghost rounded-btn font-normal mx-2" on:click={showModal}>Help</a>
+          <span tabindex="0" role="button" class="btn btn-ghost rounded-btn font-normal mx-2">Account</span>
+          <ul class="menu dropdown-content bg-base-100 rounded-box z-[1] mt-4 w-52 p-2 shadow">
+            <button class="btn mb-2" on:click={logout}>Log out</button>
+            <button class="btn btn-error" onclick="removeaccount_modal.showModal()">Remove Account</button>
+          </ul>
+        </div>
       </div>
 
 
+      <!-- mobile hamburger menu-->
 
-<!-- mobile hamburger menu-->
-
-  <!-- svelte-ignore a11y-click-events-have-key-events -->
-  <!-- svelte-ignore a11y-no-static-element-interactions -->
-  <div on:click={toggleHamburger} class ="md:hidden xs:flex">
-
-      <!-- <button class="btn btn-square btn-ghost {showIcon ? '' : 'hidden'}">
-        <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        class="inline-block h-5 w-5 stroke-current">
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M4 6h16M4 12h16M4 18h16"></path>
-      </svg>
-      </button> -->
-
-
-      
-    <div class="navbar-end">
-    <div class="dropdown">
-      <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-5 w-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M4 6h16M4 12h16M4 18h7" />
-        </svg>
+      <!-- svelte-ignore a11y-click-events-have-key-events -->
+      <!-- svelte-ignore a11y-no-static-element-interactions -->
+      <div on:click={toggleHamburger} class ="md:hidden xs:flex">
+        <div class="navbar-end">
+        <div class="dropdown">
+          <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h16M4 18h7" />
+            </svg>
+          </div>
+          <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+          <ul
+            tabindex="0"
+            class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-48 p-2 shadow align-super fixed right-0">
+            <!-- svelte-ignore a11y-missing-attribute -->
+            <li><a href="/" class="text-lg">Landing</a></li>
+            <!-- svelte-ignore a11y-missing-attribute -->
+            <li><a href="/public/GridSimulation" class="text-lg">Simulation</a></li>
+            <!-- svelte-ignore a11y-missing-attribute -->
+            <li><a href="/Main/Dashboard" class="text-lg">Dashboard</a></li>
+          </ul>
+        </div>
       </div>
-      <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-      <ul
-        tabindex="0"
-        class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-28 p-2 shadow align-super fixed right-0">
-        <!-- svelte-ignore a11y-missing-attribute -->
-        <li><a href="/">Landing</a></li>
-        <!-- svelte-ignore a11y-missing-attribute -->
-        <li><a href="/public/GridSimulation">Grid</a></li>
-        <!-- svelte-ignore a11y-missing-attribute -->
-        <li><a href="/Main/Dashboard">Dashboard</a></li>
-      </ul>
-    </div>
-  </div>
-
-
-  </div>
-
-
     </div>
   </div>
 
@@ -291,7 +266,7 @@
     </dialog>
 
 
-  </header>
+</header>
   
   <main id="main" class="container mx-auto mt-8">
     {#if loggedIn}

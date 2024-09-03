@@ -4,7 +4,6 @@
   import { fade } from "svelte/transition";
   import { cubicIn, cubicOut } from "svelte/easing";
   import { fly } from "svelte/transition";
-  import { onMount } from "svelte";
   export let data;
 </script>
 

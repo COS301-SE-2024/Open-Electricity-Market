@@ -306,7 +306,7 @@
 
 </script>
 
-<div style="display: flex; max-width: 100%;"> 
+<div class="flex min-w-full min-h-full"> 
   <canvas bind:this={chartCanvas} height = 310  ></canvas>
 </div>
 

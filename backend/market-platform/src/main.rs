@@ -9,6 +9,7 @@ mod node_management;
 mod pg_functions;
 mod schema;
 mod user_management;
+mod analytics;
 
 use chrono::Duration;
 use diesel::pg::PgConnection;
@@ -99,6 +100,13 @@ fn rocket() -> _ {
                 market_interaction::all_open_sell,
                 market_interaction::cancel_buy_order,
                 market_interaction::cancel_sell_order,
+                analytics::average_buy_stat,
+                analytics::average_sell_stat,
+                analytics::max_sell_stat,
+                analytics::min_buy_stat,
+                analytics::buy_history_stat,
+                analytics::sell_history_stat,
+                analytics::bought_vs_sold_stat,
             ],
         )
         .configure(rocket::Config::figment().merge(("port", 8001)))

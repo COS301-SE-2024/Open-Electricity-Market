@@ -131,9 +131,9 @@ fn sell_fee_calc(units: f64, price: f64) -> f64 {
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct Price {
-    price: f64,
-    timestamp: String,
+pub struct Price {
+    pub price: f64,
+    pub timestamp: String,
 }
 
 #[post("/price_view")]
@@ -171,7 +171,7 @@ pub fn price_view() -> Value {
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-enum TimeFrame {
+pub enum TimeFrame {
     Day1,
     Week1,
     Month1,
@@ -182,7 +182,7 @@ enum TimeFrame {
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct PriceHistoryRequest {
+pub struct PriceHistoryRequest {
     time_frame: TimeFrame,
 }
 
@@ -272,7 +272,7 @@ pub fn price_history(price_history_request: Json<PriceHistoryRequest>) -> Value 
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct OrderRequest {
+pub struct OrderRequest {
     node_id: String,
     max_price: f64,
     min_price: f64,
@@ -290,8 +290,6 @@ pub fn buy_order(buy_order_request: Json<OrderRequest>, claims: Claims) -> Value
     use crate::schema::open_em::sell_orders::dsl::*;
     use crate::schema::open_em::transactions::dsl::*;
 
-    let connection = &mut establish_connection();
-
     let user_id_parse = Uuid::parse_str(&*claims.user_id);
     if user_id_parse.is_err() {
         return json!({"status": "error", "message": "Invalid User ID".to_string()});
@@ -303,6 +301,8 @@ pub fn buy_order(buy_order_request: Json<OrderRequest>, claims: Claims) -> Value
         return json!({"status": "error", "message": "Invalid Node ID".to_string()});
     }
     let request_node_id = node_id_parse.unwrap();
+
+    let connection = &mut establish_connection();
 
     match nodes
         .filter(node_id.eq(request_node_id))
@@ -519,7 +519,7 @@ pub fn sell_order(sell_order_request: Json<OrderRequest>, claims: Claims) -> Val
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct OpenSell {
+pub struct OpenSell {
     order_id: String,
     offered_units: f64,
     claimed_units: f64,
@@ -599,7 +599,7 @@ pub fn list_open_sells(claims: Claims) -> Value {
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct OpenBuy {
+pub struct OpenBuy {
     order_id: String,
     sought_units: f64,
     filled_units: f64,
@@ -677,7 +677,7 @@ pub fn list_open_buys(claims: Claims) -> Value {
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct ListAllRequest {
+pub struct ListAllRequest {
     limit: u64,
 }
 
@@ -817,14 +817,14 @@ pub fn all_open_sell(all_open_sell_request: Json<ListAllRequest>) -> Value {
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct FeeEstimationRequest {
+pub struct FeeEstimationRequest {
     price: f64,
     units: f64,
 }
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct FeeEstimation {
+pub struct FeeEstimation {
     fee: f64,
 }
 
@@ -859,7 +859,7 @@ pub fn estimate_sell_fee(fee_estimation_request: Json<FeeEstimationRequest>) -> 
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct CancelOrderRequest {
+pub struct CancelOrderRequest {
     order_id: String,
 }
 

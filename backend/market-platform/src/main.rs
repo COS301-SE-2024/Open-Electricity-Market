@@ -3,6 +3,7 @@ extern crate rocket;
 extern crate deadqueue;
 extern crate reqwest;
 
+mod analytics;
 mod market_interaction;
 mod models;
 mod node_management;
@@ -99,6 +100,11 @@ fn rocket() -> _ {
                 market_interaction::all_open_sell,
                 market_interaction::cancel_buy_order,
                 market_interaction::cancel_sell_order,
+                analytics::user_buy_stats,
+                analytics::user_sell_stats,
+                analytics::buy_history_stat,
+                analytics::sell_history_stat,
+                analytics::bought_vs_sold_stat,
             ],
         )
         .configure(rocket::Config::figment().merge(("port", 8001)))

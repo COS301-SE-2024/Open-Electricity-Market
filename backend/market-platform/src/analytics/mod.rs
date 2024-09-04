@@ -1,7 +1,5 @@
 use crate::user_management::Claims;
-use crate::{
-    establish_connection, schema,
-};
+use crate::{establish_connection, schema};
 use chrono::{DateTime, Duration, Utc};
 use diesel::prelude::*;
 use rocket::serde::{
@@ -12,16 +10,22 @@ use uuid::Uuid;
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-pub struct AvgStatResponse {
+pub struct StatResponse {
+    min_price: f64,
+    max_price: f64,
     average_price: f64,
 }
 
-#[post("/average_buy_stat")]
-pub fn average_buy_stat(claims: Claims) -> Value {
+#[post("/user_buy_stats")]
+pub fn user_buy_stats(claims: Claims) -> Value {
     use schema::open_em::buy_orders::dsl::*;
     use schema::open_em::transactions::dsl::*;
 
-    let mut data = AvgStatResponse { average_price: 0.0 };
+    let mut data = StatResponse {
+        min_price: 0.0,
+        max_price: 0.0,
+        average_price: 0.0,
+    };
 
     let user_id_parse = Uuid::parse_str(&*claims.user_id);
     if user_id_parse.is_err() {
@@ -37,16 +41,22 @@ pub fn average_buy_stat(claims: Claims) -> Value {
                 .eq(schema::open_em::transactions::dsl::buy_order_id)),
         )
         .filter(buyer_id.eq(claim_user_id))
-        .select(diesel::dsl::sql::<diesel::sql_types::Double>(
-            "AVG(transacted_price)",
+        .select(diesel::dsl::sql::<(
+            diesel::sql_types::Double,
+            diesel::sql_types::Double,
+            diesel::sql_types::Double,
+        )>(
+            "MIN(transacted_price), MAX(transacted_price), AVG(transacted_price)",
         ))
-        .first::<f64>(connection)
+        .first::<(f64, f64, f64)>(connection)
     {
         Ok(result) => {
-            data.average_price = result;
+            data.min_price = result.0;
+            data.max_price = result.1;
+            data.average_price = result.2;
             json!(
                 {"status": "ok",
-                "message": "User's average buying price successfully retrieved",
+                "message": "User's buying stats successfully retrieved",
                 "data": data}
             )
         }
@@ -54,12 +64,16 @@ pub fn average_buy_stat(claims: Claims) -> Value {
     }
 }
 
-#[post("/average_sell_stat")]
-pub fn average_sell_stat(claims: Claims) -> Value {
+#[post("/user_sell_stats")]
+pub fn user_sell_stats(claims: Claims) -> Value {
     use schema::open_em::sell_orders::dsl::*;
     use schema::open_em::transactions::dsl::*;
 
-    let mut data = AvgStatResponse { average_price: 0.0 };
+    let mut data = StatResponse {
+        min_price: 0.0,
+        max_price: 0.0,
+        average_price: 0.0,
+    };
 
     let user_id_parse = Uuid::parse_str(&*claims.user_id);
     if user_id_parse.is_err() {
@@ -75,41 +89,27 @@ pub fn average_sell_stat(claims: Claims) -> Value {
                 .eq(schema::open_em::transactions::dsl::sell_order_id)),
         )
         .filter(seller_id.eq(claim_user_id))
-        .select(diesel::dsl::sql::<diesel::sql_types::Double>(
-            "AVG(transacted_price)",
+        .select(diesel::dsl::sql::<(
+            diesel::sql_types::Double,
+            diesel::sql_types::Double,
+            diesel::sql_types::Double,
+        )>(
+            "MIN(transacted_price), MAX(transacted_price), AVG(transacted_price)",
         ))
-        .first::<f64>(connection)
+        .first::<(f64, f64, f64)>(connection)
     {
         Ok(result) => {
-            data.average_price = result;
+            data.min_price = result.0;
+            data.max_price = result.1;
+            data.average_price = result.2;
             json!(
                 {"status": "ok",
-                "message": "User's average selling price successfully retrieved",
+                "message": "User's selling stats successfully retrieved",
                 "data": data}
             )
         }
         Err(_) => json!({"status": "err", "message": "Something went wrong", "data": data}),
     }
-}
-
-#[post("/min_buy_stat")]
-pub fn min_buy_stat(claims: Claims) -> Value {
-    let user_id_parse = Uuid::parse_str(&*claims.user_id);
-    if user_id_parse.is_err() {
-        return json!({"status": "error", "message": "Invalid User ID".to_string()});
-    }
-    // let claim_user_id = user_id_parse.unwrap();
-    json!({"status": "ok"})
-}
-
-#[post("/max_sell_stat")]
-pub fn max_sell_stat(claims: Claims) -> Value {
-    let user_id_parse = Uuid::parse_str(&*claims.user_id);
-    if user_id_parse.is_err() {
-        return json!({"status": "error", "message": "Invalid User ID".to_string()});
-    }
-    // let claim_user_id = user_id_parse.unwrap();
-    json!({"status": "ok"})
 }
 
 #[post("/buy_history_stat")]

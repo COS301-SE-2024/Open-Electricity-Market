@@ -132,8 +132,8 @@ fn sell_fee_calc(units: f64, price: f64) -> f64 {
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
 pub struct Price {
-    price: f64,
-    timestamp: String,
+    pub price: f64,
+    pub timestamp: String,
 }
 
 #[post("/price_view")]

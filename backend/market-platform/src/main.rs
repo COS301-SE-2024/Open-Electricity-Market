@@ -3,13 +3,13 @@ extern crate rocket;
 extern crate deadqueue;
 extern crate reqwest;
 
+mod analytics;
 mod market_interaction;
 mod models;
 mod node_management;
 mod pg_functions;
 mod schema;
 mod user_management;
-mod analytics;
 
 use chrono::Duration;
 use diesel::pg::PgConnection;

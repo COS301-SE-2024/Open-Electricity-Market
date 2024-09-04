@@ -11,7 +11,7 @@ use uuid::Uuid;
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct AddNodeReq<'r> {
+pub struct AddNodeReq<'r> {
     name: &'r str,
     location_x: f64,
     location_y: f64,
@@ -41,13 +41,13 @@ pub fn add_node(add_node_req: Json<AddNodeReq<'_>>, claims: Claims) -> Value {
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct GetNodesReq {
+pub struct GetNodesReq {
     limit: i64,
 }
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct ShortNodeRet {
+pub struct ShortNodeRet {
     node_id: String,
     name: String,
 }
@@ -100,7 +100,7 @@ pub fn get_nodes(get_nodes_request: Json<GetNodesReq>, claims: Claims) -> Value 
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct NodeDetails {
+pub struct NodeDetails {
     node_id: String,
     name: String,
     location_x: f64,
@@ -111,7 +111,7 @@ struct NodeDetails {
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct NodeDetailsReq {
+pub struct NodeDetailsReq {
     node_id: String,
 }
 
@@ -126,8 +126,6 @@ pub fn node_details(node_details_request: Json<NodeDetailsReq>, claims: Claims) 
     use crate::schema::open_em::sell_orders::dsl::*;
     use crate::schema::open_em::transactions::dsl::*;
 
-    let connection = &mut establish_connection();
-
     let mut data = NodeDetails {
         node_id: "".to_string(),
         name: "".to_string(),
@@ -137,86 +135,87 @@ pub fn node_details(node_details_request: Json<NodeDetailsReq>, claims: Claims) 
         units_to_consume: 0.0,
     };
 
-    match Uuid::parse_str(&*claims.user_id) {
-        Ok(claim_user_id) => match Uuid::parse_str(&*node_details_request.node_id) {
-            Ok(request_node_id) => {
-                match nodes
-                    .filter(node_id.eq(request_node_id))
-                    .filter(node_owner.eq(claim_user_id))
-                    .filter(node_active.eq(true))
-                    .select(Node::as_select())
-                    .first(connection)
-                {
-                    Ok(node) => {
-                        data.node_id = String::from(node.node_id);
-                        data.name = node.name.clone();
-                        data.location_x = node.location_x;
-                        data.location_y = node.location_y;
+    let user_id_parse = Uuid::parse_str(&*claims.user_id);
+    if user_id_parse.is_err() {
+        return json!({"status": "error", "message": "Invalid User ID".to_string(), "data": data});
+    }
+    let claim_user_id = user_id_parse.unwrap();
 
-                        let timestamp = Utc::now() - Duration::hours(TRANSACTION_LIFETIME);
+    let node_id_parse = Uuid::parse_str(&*node_details_request.node_id);
+    if node_id_parse.is_err() {
+        return json!({"status": "error", "message": "Invalid Node ID".to_string()});
+    }
+    let request_node_id = node_id_parse.unwrap();
 
-                        match transactions
-                            .inner_join(
-                                sell_orders.on(schema::open_em::sell_orders::dsl::sell_order_id
-                                    .eq(schema::open_em::transactions::dsl::buy_order_id)),
-                            )
-                            .filter(producer_id.eq(node.node_id))
-                            .filter(schema::open_em::sell_orders::active.eq(true))
-                            .filter(schema::open_em::transactions::created_at.gt(timestamp))
-                            .select(diesel::dsl::sql::<diesel::sql_types::Double>(
-                                "SUM(transacted_units - units_produced)",
-                            ))
-                            .first(connection)
-                        {
-                            Ok(result) => {
-                                data.units_to_produce = result;
-                            }
-                            Err(_) => {}
-                        };
+    let connection = &mut establish_connection();
 
-                        match transactions
-                            .inner_join(
-                                buy_orders.on(schema::open_em::buy_orders::dsl::buy_order_id
-                                    .eq(schema::open_em::transactions::dsl::buy_order_id)),
-                            )
-                            .filter(consumer_id.eq(node.node_id))
-                            .filter(schema::open_em::buy_orders::dsl::active.eq(true))
-                            .filter(schema::open_em::transactions::created_at.gt(timestamp))
-                            .select(diesel::dsl::sql::<diesel::sql_types::Double>(
-                                "SUM(transacted_units - units_consumed)",
-                            ))
-                            .first(connection)
-                        {
-                            Ok(result) => {
-                                data.units_to_consume = result;
-                            }
-                            Err(_) => {}
-                        };
-                        json!({"status": "ok",
-                            "message": "Node details retrieved succesfully".to_string(),
-                            "data": data
-                        })
-                    }
-                    Err(_) => json!({"status": "error",
-                        "message": "No matching node".to_string(),
-                        "data": data
-                    }),
+    match nodes
+        .filter(node_id.eq(request_node_id))
+        .filter(node_owner.eq(claim_user_id))
+        .filter(node_active.eq(true))
+        .select(Node::as_select())
+        .first(connection)
+    {
+        Ok(node) => {
+            data.node_id = String::from(node.node_id);
+            data.name = node.name.clone();
+            data.location_x = node.location_x;
+            data.location_y = node.location_y;
+
+            let timestamp = Utc::now() - Duration::hours(TRANSACTION_LIFETIME);
+
+            match transactions
+                .inner_join(
+                    sell_orders.on(schema::open_em::sell_orders::dsl::sell_order_id
+                        .eq(schema::open_em::transactions::dsl::buy_order_id)),
+                )
+                .filter(producer_id.eq(node.node_id))
+                .filter(schema::open_em::sell_orders::active.eq(true))
+                .filter(schema::open_em::transactions::created_at.gt(timestamp))
+                .select(diesel::dsl::sql::<diesel::sql_types::Double>(
+                    "SUM(transacted_units - units_produced)",
+                ))
+                .first(connection)
+            {
+                Ok(result) => {
+                    data.units_to_produce = result;
                 }
-            }
-            Err(_) => json!({"status": "error",
-                "message": "Invalid Node ID".to_string(),
+                Err(_) => {}
+            };
+
+            match transactions
+                .inner_join(
+                    buy_orders.on(schema::open_em::buy_orders::dsl::buy_order_id
+                        .eq(schema::open_em::transactions::dsl::buy_order_id)),
+                )
+                .filter(consumer_id.eq(node.node_id))
+                .filter(schema::open_em::buy_orders::dsl::active.eq(true))
+                .filter(schema::open_em::transactions::created_at.gt(timestamp))
+                .select(diesel::dsl::sql::<diesel::sql_types::Double>(
+                    "SUM(transacted_units - units_consumed)",
+                ))
+                .first(connection)
+            {
+                Ok(result) => {
+                    data.units_to_consume = result;
+                }
+                Err(_) => {}
+            };
+            json!({"status": "ok",
+                "message": "Node details retrieved succesfully".to_string(),
                 "data": data
-            }),
-        },
-        Err(_) => {
-            json!({"status": "error", "message": "Invalid User ID".to_string(), "data": data})
+            })
         }
+        Err(_) => json!({"status": "error",
+            "message": "No matching node".to_string(),
+            "data": data
+        }),
     }
 }
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct UpdateUnits {
+pub struct UpdateUnits {
     units: f64,
     node_id: String,
 }
@@ -416,7 +415,7 @@ pub fn update_produced_units(mut update_request: Json<UpdateUnits>, claims: Clai
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct RemoveNode {
+pub struct RemoveNode {
     node_id: String,
 }
 

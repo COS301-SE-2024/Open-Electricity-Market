@@ -34,24 +34,45 @@ import ConsumptionCurve from "$lib/Components/ConsumptionCurve.svelte";
 
 </script>
 
-<div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
-    <PieChart />
+<div class = "flex">
+
+    <div id = "lhs" class = "w-1/2 pr-4">
+
+        <!-- market stats to go here -->
+        <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
+            <span class = "font-light">Market Stats</span>
+            <br>
+            <span class = "font-light">Minimum price bought at: </span>
+            <br>
+            <span class = "font-light">Maximum price sold at: </span>
+        </div>
+
+
+        <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
+            <PieChart />
+        </div>
+
+    
+    </div>
+
+    <div id = "rhs" class = "w-1/2">
+
+        <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
+            <PieChart />
+        </div>
+        <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
+            <ConsumptionCurve />
+        </div>
+        <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
+            <ProductionCurve />
+        </div>
+    
+    </div>
+
 </div>
-<div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
-   <ConsumptionCurve />
-</div>
-<div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
-    <ProductionCurve />
-</div>
-<div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
-    <PieChart />
-</div>
-<div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
-    <span class = "font-light">Market Stats</span>
-    <br>
-    <span class = "font-light">Minimum price bought at: </span>
-    <br>
-    <span class = "font-light">Maximum price sold at: </span>
-</div>
+
+
+
+
 
 

@@ -7,6 +7,7 @@ CREATE TABLE nodes(
     CONSTRAINT fk_node_owner
         FOREIGN KEY(node_owner)
         REFERENCES users(user_id)
+        ON DELETE CASCADE
 );
 
 ALTER TABLE sell_orders

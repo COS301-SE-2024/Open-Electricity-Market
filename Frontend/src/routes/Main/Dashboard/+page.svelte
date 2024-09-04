@@ -1,7 +1,5 @@
 <script>
   import { onMount } from "svelte";
-  import Chart from "$lib/Components/Chart.svelte";
-  import Cookies from 'js-cookie';
   import {goto} from "$app/navigation";
   import Map from '$lib/Components/MapDashboard.svelte';
   import { API_URL_GRID, API_URL_MARKET, API_URL_AGENT } from '$lib/config.js';
@@ -46,7 +44,7 @@
    let appliances = [
         'Washing Machine', 'Router', 'Vacuum', 'Dishwasher', 'Boiler', 'Hair Purifier',
         'Sound System', 'Coffee Machine', 'Phone Charger', 'Fridge', 'Radiator',
-        'Dehumidifier', 'Microwave Oven', 'Laptop', 'Tv', 'Screen', 'Solar Panel',
+        'Dehumidifier', 'Microwave Oven', 'Laptop', 'Tv', 'Screen',
         'Fan', 'Air Conditioner', 'Computer', 'Printer', 'Dryer', 'Freezer'
     ];
 
@@ -81,10 +79,6 @@
 
 
   onMount(async () => {
-
-    // clearInterval(buyOrderInterval);
-    // clearInterval(sellOrderInterval);
-
     await fetchStart();
     await fetchNodes();
     await getUserDetails();
@@ -105,7 +99,8 @@
       const response = await fetch(`${API_URL_GRID}/start`, {
       method: "POST", 
       headers: {
-        'Content-Type': 'application/json' 
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
       }
     });
     } catch(error){
@@ -154,15 +149,23 @@
 
     const fdata = await response.json();
 
-    data = fdata.data;
-    console.log(data);
+    if (fdata.error) {
+      // console.log(fdata.error.code);
+      if (fdata.error.code = '403') {
+        goto('/login');
+      }
+    } else {
+      data = fdata.data;
+      // console.log(data);
+  
+      nodeNameDetail = data.name;
+      nodeLatitudeDetail = data.location_x;
+      nodeLongitudeDetail = data.location_y;
+      nodeToProduce = data.units_to_produce;
+      nodeToConsume = data.units_to_consume;
+      selectedNodeID = data.node_id;
+    }
 
-    nodeNameDetail = data.name;
-    nodeLatitudeDetail = data.location_x;
-    nodeLongitudeDetail = data.location_y;
-    nodeToProduce = data.units_to_produce;
-    nodeToConsume = data.units_to_consume;
-    selectedNodeID = data.node_id;
   }
 
 
@@ -252,6 +255,7 @@
         method: "POST", 
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
           'Authorization': `Bearer ${sessionStorage.getItem("Token")}`
         },
         body: JSON.stringify({
@@ -291,6 +295,7 @@
         method: "POST", 
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
           'Authorization': `Bearer ${sessionStorage.getItem("Token")}`
         },
         body: JSON.stringify({
@@ -326,6 +331,7 @@
         method: "POST", 
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
           'Authorization': `Bearer ${sessionStorage.getItem("Token")}`
         },
         credentials: "include",
@@ -346,7 +352,7 @@
     } else {
       // this is intended to reroute the user to the login page if they send an invalid session id
       sessionStorage.clear();
-      goto("/login");
+      window.location.replace("/login");
     }
   }
 
@@ -363,6 +369,7 @@
         method: "POST", 
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
           'Authorization': `Bearer ${sessionStorage.getItem("Token")}`
         },
         credentials: "include",
@@ -392,6 +399,7 @@
         method: "POST", 
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
           'Authorization': `Bearer ${sessionStorage.getItem("Token")}`
         },
         credentials: "include",
@@ -432,14 +440,6 @@
     return value.slice(2, value.length);
   }
 
-
-
-  let details2 = {
-    "email": email, 
-    "node_id":selectedNodeID,
-    "generators": [] ,
-  }
-
   async function addAppliance(){
     let details = {
       "email": email,
@@ -451,52 +451,65 @@
       "start": 15.0, 
       "end": 800.0,
     }];
-      if(appliance){
-        let applianceDetails = {
-          "appliance_type": appliance.replace(/\s/g,''),
-          "on_periods": onPeriods 
-        };
-        details.appliances.push(applianceDetails);
-        try {
-          const response = await fetch(`${API_URL_AGENT}/add_appliances`, {
-        method: "POST",
-        body : JSON.stringify(details), 
-        headers: {
-          'Content-Type': 'application/json' 
-        },
-        credentials: "include",
-      });
-      const fdata = await response.json();
-      data = fdata;
-      console.log("Data received from user details is: ", data);
-        } catch (error) {
-          console.log("There was an error with the add appliance endpoint: ", error); 
-        }
+    if(appliance){
+      let applianceDetails = {
+        "appliance_type": appliance.replace(/\s/g,''),
+        "on_periods": onPeriods 
+      };
+      details.appliances.push(applianceDetails);
+      try {
+        const response = await fetch(`${API_URL_AGENT}/add_appliances`, {
+          method: "POST",
+          body : JSON.stringify(details), 
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+          credentials: "include",
+        });
+        const fdata = await response.json();
+        data = fdata;
+        console.log("Data received from user details is: ", data);
+      } catch (error) {
+        console.log("There was an error with the add appliance endpoint: ", error); 
       }
-      else{
-        console.log("Appliance was not selected."); 
-      }
+    }
+    else{
+      console.log("Appliance was not selected."); 
+    }
   }
 
   async function addGenerator(){
 
+     let details2 = {
+    "email": email, 
+    "node_id":selectedNodeID,
+    "generators": [] ,
+    }
+
     let onPeriods = {
+     
       "start": 15.0, 
-      "end": 800, 
+      "end": 800.0, 
+      
     }
 
     if(generator && category){
+      console.log(generator + " "+ category); 
       let generatorDetails = {
-        "generator_type": {generator: category}
+        "generator_type": {[generator]: category}, 
+        "on_periods": [onPeriods]
       }
       details2.generators.push(generatorDetails);
-      details2.generators.push(onPeriods); 
+      //details2.generators.generator_type.push(onPeriods); 
+      console.log(details2);
       try {
         const response = await fetch(`${API_URL_AGENT}/add_generators`,{
         method: "POST", 
         body: JSON.stringify(details2), 
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
         credentials: "include",
       });
@@ -512,15 +525,13 @@
 
 </script>
 
-<main class="container mx-4 sm:mx-auto w-full sm:flex justify-center">
+<main class="container sm:mx-auto w-full h-full sm:flex justify-center">
 
   <div class="sm:w-1/3">
     
-    <div class="flex-col">
-      <span class="text-3xl text-white font-thin justify-start pl-2">
-        Personal Information
-      </span>
-    </div>
+    <span class="text-3xl text-white font-thin justify-start pl-2">
+      Personal Information
+    </span>
     <!-- change funds modals -->
 
     <dialog id = "add_modal" class="modal">
@@ -545,9 +556,9 @@
       <div class="modal-box">
         <h3 class="text-lg font-bold">Withdraw funds</h3>
         <p>Please ente ran amount you would like to withdraw.</p>
-          <div class="form-control mt-4">
-              <input class="input input-bordered" type="number" placeholder="Amount" required bind:value={withdrawamount}>
-            </div>
+        <div class="form-control mt-4">
+          <input class="input input-bordered" type="number" placeholder="Amount" required bind:value={withdrawamount}>
+        </div>
         <div class="modal-action">
           <form method="dialog">
             <button class="btn bg-green-600" on:click={withdrawFunds}>Continue</button>
@@ -567,14 +578,10 @@
         {/if}
       </div>
 
-      <div class="flex-col min-w-max">
-        <button class="btn btn-success mx-2 w-48" onclick="add_modal.showModal()">Add funds</button>
-        <button class="btn btn-error mx-2 w-48" onclick="remove_modal.showModal()">Withdraw funds</button>
+      <div class="stat flex min-w-max py-0 justify-center">
+        <button class="btn btn-primary w-6/12" onclick="add_modal.showModal()">Add funds</button>
+        <button class="btn btn-accent w-6/12" onclick="remove_modal.showModal()">Withdraw funds</button>
       </div>
-      
-      <h1 class="stat text-lg font-normal">
-        Personal Information:
-      </h1>
   
       <div class="stat">
           <div class="stat-title  ">Firstname</div>
@@ -595,7 +602,7 @@
       </div>
   
       <div class="stat">
-          <div class="stat-title">Email</div>
+          <div class="stat-title">Email</div> 
           {#if email == null}
             <span class="loading loading-spinner loading-lg"></span>
           {:else}
@@ -614,32 +621,6 @@
     </div>
 
     <!-- new node modals -->
-    <dialog id="newNodeModal" class="modal">  
-      <div class="modal-box">
-        <h3 class="font-bold text-lg ">Add a Node</h3>
-        <form class="">
-          <div class="form-control mt-4">
-            <input class="input input-bordered" type="text" placeholder="Name" bind:value={nodeName}>
-          </div>
-          <div class="form-control mt-4">
-            <input class="input input-bordered" type="text" placeholder="Latitude" bind:value={nodeLatitude}>
-          </div>
-          <div class="form-control mt-4">
-            <input class="input input-bordered" type="text" placeholder="Longtitude" bind:value={nodeLongitude}>
-          </div>
-          <div class="form-control mt-4">
-            <button class="btn btn-primary" on:click={createNode}>Confirm</button>
-          </div>
-        </form>
-      </div>
-
-
-      <form method="dialog" class="modal-backdrop">
-        <button>close</button>
-      </form>
-    </dialog>
-
-    
     <dialog id="mapModal" class="modal">  
       <div class="modal-box">
         <h3 class="font-bold text-lg ">Add a Node</h3>
@@ -672,7 +653,7 @@
 
     {#each nodes as node}
     {#if node.name == nodeNameDetail}
-      <div class="card card-side border-2 border-accent min-w-1/3 bg-base-100 mb-4">
+      <div class="card card-side border-4 border-primary min-w-1/3 bg-base-100 mb-2">
         <figure class="w-1/5 p-10">
           <img
             src="../src/images/house.png"
@@ -681,12 +662,12 @@
         <div class="card-body">
           <h2 class="card-title font-light text-3xl">{node.name}</h2>
           <div class="card-actions justify-end">
-            <button class="btn btn-accent" on:click={() => {fetchNodeDetails(node.node_id)}}>Details</button>
+            <button class="btn btn-primary" on:click={() => {fetchNodeDetails(node.node_id)}}>Details</button>
           </div>
         </div>
       </div>  
     {:else}
-      <div class="card card-side min-w-1/3 bg-base-100 mb-4">
+      <div class="card card-side border-4 border-base-100 min-w-1/3 bg-base-100 mb-2">
         <figure class="w-1/5 p-10">
           <img
             src="../src/images/house.png"
@@ -695,14 +676,14 @@
         <div class="card-body">
           <h2 class="card-title font-light text-3xl">{node.name}</h2>
           <div class="card-actions justify-end">
-            <button class="btn btn-accent" on:click={() => {fetchNodeDetails(node.node_id)}}>Details</button>
+            <button class="btn btn-primary" on:click={() => {fetchNodeDetails(node.node_id)}}>Details</button>
           </div>
         </div>
       </div>
     {/if}
     {/each}
 
-    <div class="card card-side min-w-1/3 bg-base-100 my-2">
+    <div class="card card-side min-w-1/3 bg-base-100">
       <div class="card-body">
         <button class="btn btn-outline" on:click={createModal}>Add a New Node</button>
       </div>
@@ -711,12 +692,27 @@
 
   <div class="sm:w-1/3">
     {#if nodeNameDetail != ''}
+      <span class="text-3xl text-white font-thin justify-start pl-2">
+        Node Details
+      </span>
       <div class="stats stats-vertical w-full"> 
         <div class="stat">
           <div class="stat-title">Node</div>
           <div class="stat-value font-light">{nodeNameDetail}</div>
         </div>
-      
+      <!-- flex min-w-max py-0 justify-center -->
+        <div class="stat flex w-full py-0 justify-center">
+          <button class="btn btn-primary w-6/12" on:click={() => {
+              sessionStorage.setItem("node_id", selectedNodeID);
+              sessionStorage.setItem("node_name", nodeNameDetail);
+              //reroute to market 
+              goto('../Main/BiddingMarket');
+            }}>Transact with this node</button>
+          <button class="btn btn-error w-6/12" on:click={() => {
+              document.getElementById("removeNodeConfirmation").showModal();
+            }}>Remove node</button>
+        </div>
+        
         <div class="stat">
           <div class="stat-title">Node Location</div>
           <div class="stat-value font-light">
@@ -737,68 +733,41 @@
 
       </div>
 
-      <div class="flex-col min-w-max">
-        <button class="btn btn-primary mx-2 w-48" on:click={() => {
-            sessionStorage.setItem("node_id", selectedNodeID);
-            sessionStorage.setItem("node_name", nodeNameDetail);
-            //reroute to market 
-            goto('../Main/BiddingMarket');
-          }}>Transact with this node</button>
-        <button class="btn btn-error mx-2 w-48" on:click={() => {
-            document.getElementById("removeNodeConfirmation").showModal();
-          }}>Remove this node</button>
-      </div>
-
-      <div class="flex-col min-w-3/4">
+      <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 my-2">
+        <span class="text-3xl font-thin justify-start">
+          Add an Appliance
+        </span>
 
         <div class="form-control">
-          <!-- svelte-ignore a11y-label-has-associated-control -->
-          <label class="label">
-              <span class="label-text">Select Appliance</span>
-          </label>
-          <select bind:value={appliance} class="select select-bordered max-h-40 overflow-y-auto">
+          <select bind:value={appliance} class="select select-bordered max-h-40 overflow-y-auto my-2">
               <option value="" disabled selected>Select an appliance</option>
               {#each appliances as appliance}
                   <option value={appliance}>{appliance}</option>
               {/each}
           </select>
-      </div>
-      <button on:click={addAppliance} class="btn btn-primary mt-4">Add Appliance</button>
-
-
-
-
-
-
+          <button on:click={addAppliance} class="btn btn-primary my-2">Add Appliance</button>
+        </div>
+        <!-- selecting category  -->
         <div class = "form-control">
-          <!-- svelte-ignore a11y-label-has-associated-control -->
-          <label class = "label">
+          <span class = "label">
             <span class = "label-text">Select a generator</span>
-          </label>
+          </span>
           <select bind:value={generator} class="select select-bordered max-h-40 overflow-y-auto">
             <option value = "" disabled selected>Select a generator</option>
             {#each uniqueGens as type}
                   <option value={type}>{type}</option>
             {/each}
           </select>
-        </div>
-        
-        <!-- selecting category  -->
-        <div class = "form-control mt-4">
-          <select bind:value={category} class = "select select-bordered max-h-40 overflow-y-auto" disabled={!generator}>
+          
+          <select bind:value={category} class = "select select-bordered max-h-40 overflow-y-auto mt-4" disabled={!generator}>
             <option value = "" disabled selected>Select a category</option>
             {#each generators.filter(g=>g.type === generator) as {category}}
             <option value = {category}>{category}</option>
             {/each}
           </select>
+          <button on:click={addGenerator} class="btn btn-primary mt-4">Add Generator</button>
         </div>
-        
-        <button on:click={addGenerator} class="btn btn-primary mt-4">Add Generator</button>
-
-
-
-      
-      </div>
+    </div>
 
     {/if}
     <div class = "my-10"></div>

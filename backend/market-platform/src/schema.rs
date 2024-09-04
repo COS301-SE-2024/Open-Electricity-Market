@@ -9,6 +9,7 @@ pub mod open_em {
     }
 
     diesel::table! {
+
         open_em.appliance_data (time, appliance) {
             time -> Timestamptz,
             data -> Nullable<Float8>,
@@ -25,6 +26,7 @@ pub mod open_em {
             max_price -> Float8,
             min_price -> Float8,
             created_at -> Timestamptz,
+            active -> Bool,
             consumer_id -> Uuid,
         }
     }
@@ -56,23 +58,24 @@ pub mod open_em {
     }
 
     diesel::table! {
-        open_em.sell_orders (sell_order_id) {
-            sell_order_id -> Int8,
+        open_em.sell_orders (sell_order_id, created_at) {
+            sell_order_id -> Uuid,
             seller_id -> Uuid,
             created_at -> Timestamptz,
             offered_units -> Float8,
             claimed_units -> Float8,
             max_price -> Float8,
             min_price -> Float8,
+            active -> Bool,
             producer_id -> Uuid,
         }
     }
 
     diesel::table! {
-        open_em.transactions (transaction_id) {
-            transaction_id -> Int8,
-            sell_order_id -> Int8,
-            buy_order_id -> Int8,
+        open_em.transactions (transaction_id, created_at) {
+            transaction_id -> Uuid,
+            sell_order_id -> Uuid,
+            buy_order_id -> Uuid,
             transacted_units -> Float8,
             transacted_price -> Float8,
             created_at -> Timestamptz,
@@ -99,8 +102,6 @@ pub mod open_em {
     diesel::joinable!(profiles -> users (profile_user_id));
     diesel::joinable!(sell_orders -> nodes (producer_id));
     diesel::joinable!(sell_orders -> users (seller_id));
-    diesel::joinable!(transactions -> buy_orders (buy_order_id));
-    diesel::joinable!(transactions -> sell_orders (sell_order_id));
 
     diesel::allow_tables_to_appear_in_same_query!(
         agent_history,

@@ -6,6 +6,7 @@ extern crate reqwest;
 mod market_interaction;
 mod models;
 mod node_management;
+mod pg_functions;
 mod schema;
 mod user_management;
 
@@ -25,7 +26,7 @@ const TRANSACTION_LIFETIME: i64 = 24; // Lifetime in hours
 const UNIT_PRICE_RATE: f64 = 0.005;
 const IMPEDANCE_RATE: f64 = 0.05;
 const SUPPLY_DEMAND_RATE: f64 = 0.05;
-const TARGET_HISTORY_POINTS: i64 = 100;
+// const TARGET_HISTORY_POINTS: i64 = 100;
 
 const TOKEN_EXPIRATION: Duration = Duration::minutes(15);
 
@@ -96,6 +97,8 @@ fn rocket() -> _ {
                 market_interaction::estimate_sell_fee,
                 market_interaction::all_open_buy,
                 market_interaction::all_open_sell,
+                market_interaction::cancel_buy_order,
+                market_interaction::cancel_sell_order,
             ],
         )
         .configure(rocket::Config::figment().merge(("port", 8001)))

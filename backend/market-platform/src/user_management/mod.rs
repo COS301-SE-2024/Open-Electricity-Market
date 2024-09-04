@@ -9,7 +9,7 @@ use jsonwebtoken::{
 use pwhash::bcrypt;
 use regex::Regex;
 use rocket::{
-    http::{CookieJar, Status},
+    http::Status,
     request::{FromRequest, Outcome},
     response::status::Custom,
     serde::{
@@ -212,7 +212,7 @@ pub fn login(credentials: Json<Credentials>) -> Value {
         Err(_) => {
             return json!({ "status": "error",
                 "message": "Email address format invalid",
-                "data": { "session_id": "".to_string()}
+                "data": { "token": "".to_string()}
             })
         }
     }

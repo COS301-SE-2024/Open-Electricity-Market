@@ -1,6 +1,7 @@
 #[macro_use]
 extern crate rocket;
 
+use std::sync::mpsc::SyncSender;
 use std::{
     env,
     sync::{Arc, Mutex},
@@ -80,9 +81,54 @@ impl Fairing for CORS {
     }
 }
 
-#[post("/stats")]
-fn stats() -> content::RawJson<String> {
-    content::RawJson(json!({}).to_string())
+#[derive(Deserialize)]
+struct GetCurveDetail {
+    email: String,
+    node_id: String,
+}
+
+#[post("/get_curve", format = "application/json", data = "<data>")]
+fn get_curve(
+    agents: &State<Arc<Mutex<Vec<Agent>>>>,
+    data: Json<GetCurveDetail>,
+) -> content::RawJson<String> {
+    let email = data.email.clone();
+    let node_id = data.node_id.clone();
+    let production;
+    let consumption;
+    {
+        let agents = agents.lock().unwrap();
+        let agent_index = agents.iter().position(|a| return a.email == email);
+        if agent_index.is_none() {
+            return content::RawJson(
+                json!({"status": "error", "message": "Invalid Email or node_id", "data": {}})
+                    .to_string(),
+            );
+        }
+        let agent_index = agent_index.unwrap();
+        let node_index = agents[agent_index]
+            .nodes
+            .iter()
+            .position(|n| return n.node_id == node_id);
+        if node_index.is_none() {
+            return content::RawJson(
+                json!({"status": "error", "message": "Invalid Email or node_id" , "data": {}})
+                    .to_string(),
+            );
+        }
+        let node_index = node_index.unwrap();
+
+        consumption =
+            serde_json::to_string(&agents[agent_index].nodes[node_index].smart_meter).unwrap();
+        production =
+            serde_json::to_string(&agents[agent_index].nodes[node_index].smart_meter).unwrap();
+    }
+
+    content::RawJson(
+        json!({"status": "ok", "message": "Here is the detail", "data": {  "consumption" : consumption,
+        "production" :  production}})
+        .to_string(),
+    )
 }
 
 #[post("/availible_generators")]
@@ -374,7 +420,7 @@ fn rocket() -> _ {
         .mount(
             "/",
             routes![
-                stats,
+                get_curve,
                 availible_appliances,
                 add_appliances,
                 add_agent,

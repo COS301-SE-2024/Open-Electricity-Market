@@ -3,12 +3,11 @@ use crate::models::{
 };
 use crate::user_management::Claims;
 use crate::{
-    establish_connection, schema, IMPEDANCE_RATE, SUPPLY_DEMAND_RATE, TARGET_HISTORY_POINTS,
-    TRANSACTION_LIFETIME, UNIT_PRICE_RATE,
+    establish_connection, schema, IMPEDANCE_RATE, SUPPLY_DEMAND_RATE, TRANSACTION_LIFETIME,
+    UNIT_PRICE_RATE,
 };
-use chrono::{Duration, Utc};
+use chrono::{DateTime, Duration, Utc};
 use diesel::prelude::*;
-use rocket::http::CookieJar;
 use rocket::serde::{
     json::{serde_json::json, Json, Value},
     Deserialize, Serialize,
@@ -36,7 +35,7 @@ fn buy_fee_calc(units: f64, price: f64) -> f64 {
 
     match buy_orders
         .filter(sought_units.gt(filled_units))
-        // .filter(active.eq(true))
+        .filter(schema::open_em::buy_orders::dsl::active.eq(true))
         .execute(connection)
     {
         Ok(num_buys) => demand = num_buys as f64,
@@ -46,7 +45,7 @@ fn buy_fee_calc(units: f64, price: f64) -> f64 {
     let mut supply = 0f64;
     match sell_orders
         .filter(offered_units.gt(claimed_units))
-        // .filter(active.eq(true))
+        .filter(schema::open_em::sell_orders::dsl::active.eq(true))
         .execute(connection)
     {
         Ok(num_sells) => supply = num_sells as f64,
@@ -88,7 +87,7 @@ fn sell_fee_calc(units: f64, price: f64) -> f64 {
 
     match buy_orders
         .filter(sought_units.gt(filled_units))
-        // .filter(active.eq(true))
+        .filter(schema::open_em::buy_orders::dsl::active.eq(true))
         .execute(connection)
     {
         Ok(num_buys) => demand = num_buys as f64,
@@ -98,7 +97,7 @@ fn sell_fee_calc(units: f64, price: f64) -> f64 {
     let mut supply = 0f64;
     match sell_orders
         .filter(offered_units.gt(claimed_units))
-        // .filter(active.eq(true))
+        .filter(schema::open_em::sell_orders::dsl::active.eq(true))
         .execute(connection)
     {
         Ok(num_sells) => supply = num_sells as f64,
@@ -148,23 +147,21 @@ pub fn price_view() -> Value {
         timestamp: Utc::now().to_string(),
     };
 
-    let timestamp = Utc::now() - Duration::hours(TRANSACTION_LIFETIME);
-
     match transactions
-        .filter(created_at.gt(timestamp))
-        .order_by(created_at.desc())
+        .filter(
+            created_at.eq(diesel::dsl::sql::<diesel::sql_types::Timestamptz>(
+                "(SELECT MAX(created_at) FROM transactions)",
+            )),
+        )
         .select(Transaction::as_select())
-        .load::<Transaction>(connection)
+        .first(connection)
     {
-        Ok(transactions_vec) => {
-            if transactions_vec.len() > 0 {
-                data = Price {
-                    price: transactions_vec[0].transacted_price,
-                    timestamp: transactions_vec[0].created_at.to_string(),
-                };
-                return json!({"status": "ok", "message": "Successfully retrieved price".to_string(), "data": data});
-            }
-            json!({"status": "error", "message": "Something went wrong".to_string(), "data": data})
+        Ok(transaction) => {
+            data = Price {
+                price: transaction.transacted_price,
+                timestamp: transaction.created_at.to_string(),
+            };
+            json!({"status": "ok", "message": "Successfully retrieved price".to_string(), "data": data})
         }
         Err(_) => {
             json!({"status": "error", "message": "Something went wrong".to_string(), "data": data})
@@ -174,8 +171,19 @@ pub fn price_view() -> Value {
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
+enum TimeFrame {
+    Day1,
+    Week1,
+    Month1,
+    Month3,
+    Month6,
+    Year1,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
 struct PriceHistoryRequest {
-    hours: i64,
+    time_frame: TimeFrame,
 }
 
 #[post(
@@ -190,40 +198,68 @@ pub fn price_history(price_history_request: Json<PriceHistoryRequest>) -> Value 
 
     let mut data = vec![];
 
-    let timestamp = Utc::now() - Duration::hours(price_history_request.hours);
+    let (timestamp_str, time_bucket) = match price_history_request.time_frame {
+        TimeFrame::Day1 => (
+            "NOW() - INTERVAL '1 day'",
+            "time_bucket('5 minutes', created_at)".to_string(),
+        ),
+        TimeFrame::Week1 => (
+            "NOW() - INTERVAL '1 week'",
+            "time_bucket('1 hour', created_at)".to_string(),
+        ),
+        TimeFrame::Month1 => (
+            "NOW() - INTERVAL '1 month'",
+            "time_bucket('1 day', created_at)".to_string(),
+        ),
+        TimeFrame::Month3 => (
+            "NOW() - INTERVAL '3 months'",
+            "time_bucket('1 day', created_at)".to_string(),
+        ),
+        TimeFrame::Month6 => (
+            "NOW() - INTERVAL '6 months'",
+            "time_bucket('1 day', created_at)".to_string(),
+        ),
+        TimeFrame::Year1 => (
+            "NOW() - INTERVAL '1 year'",
+            "time_bucket('1 day', created_at)".to_string(),
+        ),
+    };
+
+    let select_str = time_bucket.clone() + &*", AVG(transacted_price)".to_string();
 
     match transactions
-        .filter(created_at.gt(timestamp))
-        .order_by(created_at.asc())
-        .select(Transaction::as_select())
-        .load::<Transaction>(connection)
+        .filter(
+            created_at.gt(diesel::dsl::sql::<diesel::sql_types::Timestamptz>(
+                timestamp_str,
+            )),
+        )
+        .group_by(diesel::dsl::sql::<diesel::sql_types::Timestamptz>(
+            &*(time_bucket.clone()),
+        ))
+        .order_by(diesel::dsl::sql::<diesel::sql_types::Timestamptz>(
+            &*(time_bucket),
+        ))
+        .select(diesel::dsl::sql::<(
+            diesel::sql_types::Timestamptz,
+            diesel::sql_types::Double,
+        )>(&*select_str))
+        .load::<(DateTime<Utc>, f64)>(connection)
     {
-        Ok(transactions_vec) => {
-            if transactions_vec.len() as i64 <= TARGET_HISTORY_POINTS {
-                for transaction in transactions_vec {
-                    data.push(Price {
-                        price: transaction.transacted_price,
-                        timestamp: transaction.created_at.to_string(),
-                    })
-                }
-            } else {
-                let interval = transactions_vec.len() / 100;
-                let mut count = 0;
-                let mut interval_count = 0usize;
-                while count < transactions_vec.len() {
-                    if interval_count == interval {
-                        data.push(Price {
-                            price: transactions_vec[count].transacted_price,
-                            timestamp: transactions_vec[count].created_at.to_string(),
-                        });
-                        interval_count = 0;
-                    }
-                    interval_count += 1;
-                    count += 1;
-                }
+        Ok(result_vec) => {
+            // if result_vec.len() == 0 {
+            //     return json!({"status": "ok",
+            //         "message": "Successfully retrieved price history".to_string(),
+            //         "data": data
+            //     })
+            // }
+            for result in result_vec {
+                data.push(Price {
+                    price: result.1,
+                    timestamp: result.0.to_string(),
+                })
             }
             json!({"status": "ok",
-                "message": "Successfully retrieved price".to_string(),
+                "message": "Successfully retrieved price history".to_string(),
                 "data": data
             })
         }
@@ -271,6 +307,7 @@ pub fn buy_order(buy_order_request: Json<OrderRequest>, claims: Claims) -> Value
     match nodes
         .filter(node_id.eq(request_node_id))
         .filter(node_owner.eq(claim_user_id))
+        .filter(node_active.eq(true))
         .select(Node::as_select())
         .first(connection)
     {
@@ -297,6 +334,7 @@ pub fn buy_order(buy_order_request: Json<OrderRequest>, claims: Claims) -> Value
                             .filter(schema::open_em::sell_orders::max_price.le(order.max_price))
                             .filter(seller_id.ne(order.buyer_id))
                             .filter(producer_id.ne(order.consumer_id))
+                            .filter(schema::open_em::sell_orders::dsl::active.eq(true))
                             .order_by(schema::open_em::sell_orders::created_at.asc())
                             .select(SellOrder::as_select())
                             .load::<SellOrder>(connection)
@@ -388,6 +426,7 @@ pub fn sell_order(sell_order_request: Json<OrderRequest>, claims: Claims) -> Val
     match nodes
         .filter(node_id.eq(request_node_id))
         .filter(node_owner.eq(claim_user_id))
+        .filter(node_active.eq(true))
         .select(Node::as_select())
         .first(connection)
     {
@@ -414,6 +453,7 @@ pub fn sell_order(sell_order_request: Json<OrderRequest>, claims: Claims) -> Val
                             .filter(schema::open_em::buy_orders::min_price.ge(order.min_price))
                             .filter(buyer_id.ne(order.seller_id))
                             .filter(consumer_id.ne(order.producer_id))
+                            .filter(schema::open_em::buy_orders::dsl::active.eq(true))
                             .order_by(schema::open_em::buy_orders::created_at.asc())
                             .select(BuyOrder::as_select())
                             .load::<BuyOrder>(connection)
@@ -480,7 +520,7 @@ pub fn sell_order(sell_order_request: Json<OrderRequest>, claims: Claims) -> Val
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
 struct OpenSell {
-    order_id: i64,
+    order_id: String,
     offered_units: f64,
     claimed_units: f64,
     max_price: f64,
@@ -506,6 +546,7 @@ pub fn list_open_sells(claims: Claims) -> Value {
     match sell_orders
         .filter(seller_id.eq(claim_user_id))
         .filter(offered_units.gt(claimed_units))
+        .filter(active.eq(true))
         .select(SellOrder::as_select())
         .load::<SellOrder>(connection)
     {
@@ -531,7 +572,7 @@ pub fn list_open_sells(claims: Claims) -> Value {
                         Err(_) => {}
                     }
                     data.push(OpenSell {
-                        order_id: order.sell_order_id,
+                        order_id: String::from(order.sell_order_id),
                         offered_units: order.offered_units,
                         claimed_units: order.claimed_units,
                         max_price: order.max_price,
@@ -559,7 +600,7 @@ pub fn list_open_sells(claims: Claims) -> Value {
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
 struct OpenBuy {
-    order_id: i64,
+    order_id: String,
     sought_units: f64,
     filled_units: f64,
     max_price: f64,
@@ -585,6 +626,7 @@ pub fn list_open_buys(claims: Claims) -> Value {
     match buy_orders
         .filter(buyer_id.eq(claim_user_id))
         .filter(sought_units.gt(filled_units))
+        .filter(active.eq(true))
         .select(BuyOrder::as_select())
         .load::<BuyOrder>(connection)
     {
@@ -608,7 +650,7 @@ pub fn list_open_buys(claims: Claims) -> Value {
                         Err(_) => {}
                     }
                     data.push(OpenBuy {
-                        order_id: order.buy_order_id,
+                        order_id: String::from(order.buy_order_id),
                         sought_units: order.sought_units,
                         filled_units: order.filled_units,
                         max_price: order.max_price,
@@ -654,6 +696,7 @@ pub fn all_open_buy(all_open_buy_request: Json<ListAllRequest>) -> Value {
 
     match buy_orders
         .filter(sought_units.gt(filled_units))
+        .filter(active.eq(true))
         .order_by(schema::open_em::buy_orders::buy_order_id)
         .select(BuyOrder::as_select())
         .limit(all_open_buy_request.limit as i64)
@@ -679,7 +722,7 @@ pub fn all_open_buy(all_open_buy_request: Json<ListAllRequest>) -> Value {
                         Err(_) => {}
                     }
                     data.push(OpenBuy {
-                        order_id: order.buy_order_id,
+                        order_id: String::from(order.buy_order_id),
                         sought_units: order.sought_units,
                         filled_units: order.filled_units,
                         max_price: order.max_price,
@@ -719,6 +762,7 @@ pub fn all_open_sell(all_open_sell_request: Json<ListAllRequest>) -> Value {
 
     match sell_orders
         .filter(offered_units.gt(claimed_units))
+        .filter(active.eq(true))
         .order_by(schema::open_em::sell_orders::sell_order_id.asc())
         .select(SellOrder::as_select())
         .limit(all_open_sell_request.limit as i64)
@@ -746,7 +790,7 @@ pub fn all_open_sell(all_open_sell_request: Json<ListAllRequest>) -> Value {
                         Err(_) => {}
                     }
                     data.push(OpenSell {
-                        order_id: order.sell_order_id,
+                        order_id: String::from(order.sell_order_id),
                         offered_units: order.offered_units,
                         claimed_units: order.claimed_units,
                         max_price: order.max_price,
@@ -811,4 +855,86 @@ pub fn estimate_sell_fee(fee_estimation_request: Json<FeeEstimationRequest>) -> 
 
     let data = FeeEstimation { fee: temp };
     json!({"status": "ok", "message": message, "data": data})
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct CancelOrderRequest {
+    order_id: String,
+}
+
+#[post(
+    "/cancel_buy_order",
+    format = "application/json",
+    data = "<cancel_buy_request>"
+)]
+pub fn cancel_buy_order(cancel_buy_request: Json<CancelOrderRequest>, claims: Claims) -> Value {
+    use crate::schema::open_em::buy_orders::dsl::*;
+
+    let user_id_parse = Uuid::parse_str(&*claims.user_id);
+    if user_id_parse.is_err() {
+        return json!({"status": "error", "message": "Invalid User ID".to_string()});
+    }
+    let claim_user_id = user_id_parse.unwrap();
+
+    let order_id_parse = Uuid::parse_str(&*cancel_buy_request.order_id);
+    if order_id_parse.is_err() {
+        return json!({"status": "error", "message": "Invalid Order ID".to_string()});
+    }
+    let request_order_id = order_id_parse.unwrap();
+
+    let connection = &mut establish_connection();
+
+    match diesel::update(buy_orders)
+        .filter(buyer_id.eq(claim_user_id))
+        .filter(buy_order_id.eq(request_order_id))
+        .filter(active.eq(true))
+        .set(active.eq(false))
+        .execute(connection)
+    {
+        Ok(_) => {
+            json!({"status": "ok", "message": "Order successfully cancelled"})
+        }
+        Err(_) => {
+            json!({"status": "ok", "message": "Order already cancelled"})
+        }
+    }
+}
+
+#[post(
+    "/cancel_sell_order",
+    format = "application/json",
+    data = "<cancel_sell_request>"
+)]
+pub fn cancel_sell_order(cancel_sell_request: Json<CancelOrderRequest>, claims: Claims) -> Value {
+    use crate::schema::open_em::sell_orders::dsl::*;
+
+    let connection = &mut establish_connection();
+
+    let user_id_parse = Uuid::parse_str(&*claims.user_id);
+    if user_id_parse.is_err() {
+        return json!({"status": "error", "message": "Invalid User ID".to_string()});
+    }
+    let claim_user_id = user_id_parse.unwrap();
+
+    let order_id_parse = Uuid::parse_str(&*cancel_sell_request.order_id);
+    if order_id_parse.is_err() {
+        return json!({"status": "error", "message": "Invalid Order ID".to_string()});
+    }
+    let request_order_id = order_id_parse.unwrap();
+
+    match diesel::update(sell_orders)
+        .filter(seller_id.eq(claim_user_id))
+        .filter(sell_order_id.eq(request_order_id))
+        .filter(active.eq(true))
+        .set(active.eq(false))
+        .execute(connection)
+    {
+        Ok(_) => {
+            json!({"status": "ok", "message": "Order successfully cancelled"})
+        }
+        Err(_) => {
+            json!({"status": "ok", "message": "Order already cancelled"})
+        }
+    }
 }

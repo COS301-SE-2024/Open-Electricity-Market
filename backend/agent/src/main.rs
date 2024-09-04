@@ -1,7 +1,6 @@
 #[macro_use]
 extern crate rocket;
 
-use std::sync::mpsc::SyncSender;
 use std::{
     env,
     sync::{Arc, Mutex},
@@ -10,8 +9,8 @@ use std::{
 
 use agent::Agent;
 use curve::{CummutiveCurve, SineCurve};
-use diesel::RunQueryDsl;
 use diesel::{dsl::insert_into, Connection, ExpressionMethods, PgConnection};
+use diesel::{JoinOnDsl, QueryDsl, RunQueryDsl};
 use dotenvy::dotenv;
 use generator::{
     production_curve::{
@@ -38,10 +37,12 @@ use serde_json::json;
 use smart_meter::consumption_curve::HomeApplianceType;
 use smart_meter::{consumption_curve::HomeAppliance, SmartMeter};
 use std::ops::Deref;
+use uuid::Uuid;
 pub mod agent;
 pub mod curve;
 pub mod generator;
 pub mod location;
+pub mod models;
 pub mod net_structs;
 pub mod node;
 pub mod period;
@@ -79,6 +80,77 @@ impl Fairing for CORS {
         response.set_header(Header::new("Access-Control-Allow-Origin", frontend_url));
         response.set_header(Header::new("Access-Control-Allow-Credentials", "true"));
     }
+}
+
+#[derive(Deserialize)]
+struct GetConsumedProduced {
+    node_id: String,
+}
+
+#[post("/get_consumed_produced", format = "application/json", data = "<data>")]
+fn get_consumed_produced(data: Json<GetConsumedProduced>) -> content::RawJson<String> {
+    use crate::schema::open_em::buy_orders::dsl::*;
+    // use crate::schema::open_em::nodes::dsl::*;
+    use crate::schema::open_em::sell_orders::dsl::*;
+    use crate::schema::open_em::transactions::dsl::*;
+
+    let node_id = Uuid::parse_str(&data.node_id).unwrap();
+
+    let connection = &mut establish_connection();
+
+    let produced: f64;
+    match transactions
+        .inner_join(
+            sell_orders.on(schema::open_em::sell_orders::dsl::sell_order_id
+                .eq(schema::open_em::transactions::dsl::buy_order_id)),
+        )
+        .filter(producer_id.eq(node_id))
+        .select(diesel::dsl::sql::<diesel::sql_types::Double>(
+            "SUM(units_produced)",
+        ))
+        .first(connection)
+    {
+        Ok(a) => {
+            produced = a;
+        }
+        Err(_) => {
+            return content::RawJson(
+                json!({"status": "error", "message": "Something went wrong" , "data": {}})
+                    .to_string(),
+            );
+        }
+    }
+
+    let consumed: f64 ;
+    match transactions
+        .inner_join(
+            buy_orders.on(schema::open_em::buy_orders::dsl::buy_order_id
+                .eq(schema::open_em::transactions::dsl::buy_order_id)),
+        )
+        .filter(consumer_id.eq(node_id))
+        .select(diesel::dsl::sql::<diesel::sql_types::Double>(
+            "SUM(units_consumed)",
+        ))
+        .first(connection)
+    {
+        Ok(a) => {
+            consumed = a;
+        }
+        Err(_) => {
+            return content::RawJson(
+                json!({"status": "error", "message": "Something went wrong" , "data": {}})
+                    .to_string(),
+            );
+        }
+    }
+
+    content::RawJson(
+        json!({"status": "ok", "message": "Here is the detail", "data": {
+            "produced":produced,
+            "consumed":consumed,
+        }})
+        .to_string(),
+    )
 }
 
 #[derive(Deserialize)]
@@ -426,7 +498,8 @@ fn rocket() -> _ {
                 add_agent,
                 availible_generators,
                 add_generators,
-                set_session
+                set_session,
+                get_consumed_produced
             ],
         )
         .manage(agents)

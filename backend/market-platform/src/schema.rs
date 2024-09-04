@@ -9,7 +9,6 @@ pub mod open_em {
     }
 
     diesel::table! {
-
         open_em.appliance_data (time, appliance) {
             time -> Timestamptz,
             data -> Nullable<Float8>,
@@ -18,8 +17,8 @@ pub mod open_em {
     }
 
     diesel::table! {
-        open_em.buy_orders (buy_order_id) {
-            buy_order_id -> Int8,
+        open_em.buy_orders (buy_order_id, created_at) {
+            buy_order_id -> Uuid,
             buyer_id -> Uuid,
             sought_units -> Float8,
             filled_units -> Float8,

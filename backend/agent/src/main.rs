@@ -121,7 +121,7 @@ fn get_consumed_produced(data: Json<GetConsumedProduced>) -> content::RawJson<St
         }
     }
 
-    let consumed: f64 ;
+    let consumed: f64;
     match transactions
         .inner_join(
             buy_orders.on(schema::open_em::buy_orders::dsl::buy_order_id

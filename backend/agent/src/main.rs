@@ -102,7 +102,7 @@ fn get_consumed_produced(data: Json<GetConsumedProduced>) -> content::RawJson<St
     match transactions
         .inner_join(
             sell_orders.on(schema::open_em::sell_orders::dsl::sell_order_id
-                .eq(schema::open_em::transactions::dsl::buy_order_id)),
+                .eq(schema::open_em::transactions::dsl::sell_order_id)),
         )
         .filter(producer_id.eq(node_id))
         .select(diesel::dsl::sql::<diesel::sql_types::Double>(

@@ -297,12 +297,73 @@ pub fn sell_history_stat(sell_history_request: Json<UserHistoryRequest>, claims:
     }
 }
 
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+pub struct BoughtVsSold {
+    units_bought: f64,
+    units_sold: f64,
+}
+
 #[post("/bought_vs_sold_stat")]
 pub fn bought_vs_sold_stat(claims: Claims) -> Value {
+    use schema::open_em::buy_orders::dsl::*;
+    use schema::open_em::sell_orders::dsl::*;
+    use schema::open_em::transactions::dsl::*;
+
+    let mut data = BoughtVsSold {
+        units_bought: 0.0,
+        units_sold: 0.0,
+    };
+
     let user_id_parse = Uuid::parse_str(&*claims.user_id);
     if user_id_parse.is_err() {
         return json!({"status": "error", "message": "Invalid User ID".to_string()});
     }
-    // let claim_user_id = user_id_parse.unwrap();
-    json!({"status": "ok"})
+    let claim_user_id = user_id_parse.unwrap();
+
+    let connection = &mut establish_connection();
+
+    match transactions
+        .inner_join(
+            buy_orders.on(schema::open_em::buy_orders::dsl::buy_order_id
+                .eq(schema::open_em::transactions::dsl::buy_order_id)),
+        )
+        .filter(buyer_id.eq(claim_user_id))
+        .select(diesel::dsl::sql::<diesel::sql_types::Double>(
+            "SUM(transacted_units)",
+        ))
+        .first::<f64>(connection)
+    {
+        Ok(result) => data.units_bought = result,
+        Err(_) => {
+            return json!({"status": "error",
+                "message": "Something went wrong".to_string(),
+                "data": data
+            })
+        }
+    }
+
+    match transactions
+        .inner_join(
+            sell_orders.on(schema::open_em::sell_orders::dsl::sell_order_id
+                .eq(schema::open_em::transactions::dsl::sell_order_id)),
+        )
+        .filter(seller_id.eq(claim_user_id))
+        .select(diesel::dsl::sql::<diesel::sql_types::Double>(
+            "SUM(transacted_units)",
+        ))
+        .first::<f64>(connection)
+    {
+        Ok(result) => {
+            data.units_sold = result;
+            json!({"status": "ok",
+                "message": "Successfully retrieved user bought and sold units".to_string(),
+                "data": data
+            })
+        }
+        Err(_) => json!({"status": "error",
+            "message": "Something went wrong".to_string(),
+            "data": data
+        }),
+    }
 }

@@ -175,7 +175,7 @@ pub fn node_details(node_details_request: Json<NodeDetailsReq>, claims: Claims) 
                 .select(diesel::dsl::sql::<diesel::sql_types::Double>(
                     "SUM(transacted_units - units_produced)",
                 ))
-                .first(connection)
+                .first::<f64>(connection)
             {
                 Ok(result) => {
                     data.units_to_produce = result;
@@ -194,7 +194,7 @@ pub fn node_details(node_details_request: Json<NodeDetailsReq>, claims: Claims) 
                 .select(diesel::dsl::sql::<diesel::sql_types::Double>(
                     "SUM(transacted_units - units_consumed)",
                 ))
-                .first(connection)
+                .first::<f64>(connection)
             {
                 Ok(result) => {
                     data.units_to_consume = result;

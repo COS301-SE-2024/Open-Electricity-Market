@@ -131,7 +131,7 @@ fn add_generator(
     man: &State<Arc<Mutex<ChannelManager>>>,
     data: Json<AddLocation>,
 ) -> content::RawJson<String> {
-  let (tx, rx) = mpsc::sync_channel(1);
+    let (tx, rx) = mpsc::sync_channel(1);
     {
         let mut manager = man.lock().unwrap();
         manager
@@ -246,8 +246,9 @@ fn start(grid: &State<Arc<Mutex<Grid>>>, man: &State<Arc<Mutex<ChannelManager>>>
 
                 //Add generator
                 for (location, tx) in add_generator_tx {
-                     let (circuit, generator) = grid.create_producer(location.latitude, location.longitude);
-                     tx.send(Ok(NewGenerator { circuit, generator })).unwrap();
+                    let (circuit, generator) =
+                        grid.create_producer(location.latitude, location.longitude);
+                    tx.send(Ok(NewGenerator { circuit, generator })).unwrap();
                 }
 
                 //Transfer stats

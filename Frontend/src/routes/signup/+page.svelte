@@ -145,7 +145,7 @@
         <div class="hero-overlay bg-opacity-60 "></div>
         <div class="hero-content max-w-screen-md max-h-min flex-col lg:flex-row-reverse rounded-2xl bg-base-100">
           <div class="text-center lg:text-left">
-            <h1 class="text-5xl font-bold">Amplify</h1>
+            <a class="text-5xl font-bold" href="/">Amplify</a>
             <p class="py-6">Discover a revolutionary open market platform where you can buy and sell electricity in real-time.</p>
           </div>
           <div class="card shrink-0 w-full max-w-sm shadow-2xl bg-base-100">

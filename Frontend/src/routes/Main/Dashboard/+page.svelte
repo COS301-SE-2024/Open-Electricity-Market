@@ -106,7 +106,7 @@
     } catch(error){
       console.log("An error occurred sending a post to /start endpoint.");
     }
-  };
+  }
 
   async function fetchNodes() {
     try {
@@ -131,7 +131,7 @@
     } catch (error) {
       console.log("An error occurred while fetching nodes..\n", error);
     }
-  };
+  }
 
   async function fetchNodeDetails(node_id_in) {
     const response = await fetch(`${API_URL_MARKET}/node_details`, {

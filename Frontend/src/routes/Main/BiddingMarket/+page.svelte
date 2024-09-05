@@ -115,12 +115,12 @@ async function fetchData() {
 
 <main class="container mx-auto p-4 ">
   <div class="md:flex md:flex-row ">
-    <div class="md:basis-2/3 bg-base-100 md:card md:mr-5 md:p-4">
+    <div class="md:basis-3/5 bg-base-100 md:card md:mr-5 md:p-4">
       <h1 class="md:text-5xl md:font-light md:pt-8">Marketplace</h1>
       <!-- <Chart {data} class = "" /> -->
        <PriceChartD3  /> 
     </div>
-    <div class="md:basis-1/3 md:card bg-base-100 md:p-4 xs:pt-10 width: 3000px">
+    <div class="md:basis-2/5 md:card bg-base-100 md:p-4 xs:pt-10 ">
       <h1 class="md:text-5xl md:font-light md:pt-4">Node Info</h1>
       <hr>
       <br>
@@ -145,6 +145,7 @@ async function fetchData() {
         <div class="mt-1 xs:pt-5">
           <hr>
           <br>
+          <span>
           <button class="btn btn-primary font-light" onclick="my_modal_1.showModal()">Buy</button>
           <dialog id="my_modal_1" class="modal">
             <div class="modal-box">
@@ -172,7 +173,8 @@ async function fetchData() {
               </div>
             </div>
           </dialog>
-
+        </span>
+          <div>
           <button class="btn btn-accent font-light" onclick="my_modal_2.showModal()">Sell</button>
           <dialog id="my_modal_2" class="modal">
             <div class="modal-box">
@@ -200,7 +202,7 @@ async function fetchData() {
               </div>
             </div>
           </dialog>
-
+          </div>
           <!-- <button class="btn btn-success" onclick="my_modal_1.showModal()">Buy at market price</button> -->
         </div>
 

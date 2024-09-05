@@ -9,7 +9,7 @@ use jsonwebtoken::{
 use pwhash::bcrypt;
 use regex::Regex;
 use rocket::{
-    http::{CookieJar, Status},
+    http::Status,
     request::{FromRequest, Outcome},
     response::status::Custom,
     serde::{

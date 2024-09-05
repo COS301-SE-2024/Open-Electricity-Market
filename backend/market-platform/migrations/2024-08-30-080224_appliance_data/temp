@@ -1,0 +1,21 @@
+cp migrations/2024-08-30-080224_appliance_data/csv/dehumidifier_310.csv   migrations/2024-08-30-125827_dehumidifier/up.sql
+cp migrations/2024-08-30-080224_appliance_data/csv/internet_router_131.csv   migrations/2024-08-30-125827_internet_router/up.sql
+cp migrations/2024-08-30-080224_appliance_data/csv/screen_146.csv migrations/2024-08-30-125827_screen/up.sql
+cp migrations/2024-08-30-080224_appliance_data/csv/dishwasher_53.csv  migrations/2024-08-30-125827_dishwasher/up.sql
+cp migrations/2024-08-30-080224_appliance_data/csv/laptop_64.csv  migrations/2024-08-30-125827_laptop/up.sql
+cp migrations/2024-08-30-080224_appliance_data/csv/solar_panel_325.csv migrations/2024-08-30-125827_solar_panel/up.sql
+cp migrations/2024-08-30-080224_appliance_data/csv/dryer_219.csv  migrations/2024-08-30-125827_dryer/up.sql
+cp migrations/2024-08-30-080224_appliance_data/csv/micro_wave_oven_147.csv  migrations/2024-08-30-125827_micro_wave_oven/up.sql
+cp migrations/2024-08-30-080224_appliance_data/csv/sound_system_252.csv migrations/2024-08-30-125827_sound_system/up.sql
+cp migrations/2024-08-30-080224_appliance_data/csv/fan_215.csv  migrations/2024-08-30-125827_fan/up.sql
+cp migrations/2024-08-30-080224_appliance_data/csv/phone_charger_282.csv  migrations/2024-08-30-125827_phone_charger/up.sql
+cp migrations/2024-08-30-080224_appliance_data/csv/tv_290.csv migrations/2024-08-30-125827_tv/up.sql
+cp migrations/2024-08-30-080224_appliance_data/csv/freezer_249.csv  migrations/2024-08-30-125827_freezer/up.sql
+cp migrations/2024-08-30-080224_appliance_data/csv/printer_286.csv   migrations/2024-08-30-125827_printer/up.sql
+cp migrations/2024-08-30-080224_appliance_data/csv/vacuum_236.csv migrations/2024-08-30-125827_vacuum/up.sql
+cp migrations/2024-08-30-080224_appliance_data/csv/computer_44.csv    migrations/2024-08-30-125827_computer/up.sql
+cp migrations/2024-08-30-080224_appliance_data/csv/fridge_98.csv    migrations/2024-08-30-125827_fridge/up.sql
+cp migrations/2024-08-30-080224_appliance_data/csv/radiator_309.csv  migrations/2024-08-30-125827_radiator/up.sql
+cp migrations/2024-08-30-080224_appliance_data/csv/washing_machine_32.csv migrations/2024-08-30-125827_washing_machine/up.sql
+
+

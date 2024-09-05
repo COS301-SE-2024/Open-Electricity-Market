@@ -1,15 +1,13 @@
 use crate::models::{
     BuyOrder, NewBuyOrder, NewSellOrder, NewTransaction, Node, SellOrder, Transaction,
 };
-use crate::schema::open_em::buy_orders::{buyer_id, consumer_id};
 use crate::user_management::Claims;
 use crate::{
-    establish_connection, schema, IMPEDANCE_RATE, SUPPLY_DEMAND_RATE, TARGET_HISTORY_POINTS,
-    TRANSACTION_LIFETIME, UNIT_PRICE_RATE,
+    establish_connection, schema, IMPEDANCE_RATE, SUPPLY_DEMAND_RATE, TRANSACTION_LIFETIME,
+    UNIT_PRICE_RATE,
 };
-use chrono::{Duration, Utc};
+use chrono::{DateTime, Duration, Utc};
 use diesel::prelude::*;
-use rocket::http::CookieJar;
 use rocket::serde::{
     json::{serde_json::json, Json, Value},
     Deserialize, Serialize,
@@ -133,9 +131,9 @@ fn sell_fee_calc(units: f64, price: f64) -> f64 {
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct Price {
-    price: f64,
-    timestamp: String,
+pub struct Price {
+    pub price: f64,
+    pub timestamp: String,
 }
 
 #[post("/price_view")]
@@ -149,23 +147,21 @@ pub fn price_view() -> Value {
         timestamp: Utc::now().to_string(),
     };
 
-    let timestamp = Utc::now() - Duration::hours(TRANSACTION_LIFETIME);
-
     match transactions
-        .filter(created_at.gt(timestamp))
-        .order_by(created_at.desc())
+        .filter(
+            created_at.eq(diesel::dsl::sql::<diesel::sql_types::Timestamptz>(
+                "(SELECT MAX(created_at) FROM transactions)",
+            )),
+        )
         .select(Transaction::as_select())
-        .load::<Transaction>(connection)
+        .first(connection)
     {
-        Ok(transactions_vec) => {
-            if transactions_vec.len() > 0 {
-                data = Price {
-                    price: transactions_vec[0].transacted_price,
-                    timestamp: transactions_vec[0].created_at.to_string(),
-                };
-                return json!({"status": "ok", "message": "Successfully retrieved price".to_string(), "data": data});
-            }
-            json!({"status": "error", "message": "Something went wrong".to_string(), "data": data})
+        Ok(transaction) => {
+            data = Price {
+                price: transaction.transacted_price,
+                timestamp: transaction.created_at.to_string(),
+            };
+            json!({"status": "ok", "message": "Successfully retrieved price".to_string(), "data": data})
         }
         Err(_) => {
             json!({"status": "error", "message": "Something went wrong".to_string(), "data": data})
@@ -175,8 +171,19 @@ pub fn price_view() -> Value {
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct PriceHistoryRequest {
-    hours: i64,
+pub enum TimeFrame {
+    Day1,
+    Week1,
+    Month1,
+    Month3,
+    Month6,
+    Year1,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+pub struct PriceHistoryRequest {
+    time_frame: TimeFrame,
 }
 
 #[post(
@@ -191,40 +198,68 @@ pub fn price_history(price_history_request: Json<PriceHistoryRequest>) -> Value 
 
     let mut data = vec![];
 
-    let timestamp = Utc::now() - Duration::hours(price_history_request.hours);
+    let (timestamp_str, time_bucket) = match price_history_request.time_frame {
+        TimeFrame::Day1 => (
+            "NOW() - INTERVAL '1 day'",
+            "time_bucket('5 minutes', created_at)".to_string(),
+        ),
+        TimeFrame::Week1 => (
+            "NOW() - INTERVAL '1 week'",
+            "time_bucket('1 hour', created_at)".to_string(),
+        ),
+        TimeFrame::Month1 => (
+            "NOW() - INTERVAL '1 month'",
+            "time_bucket('1 day', created_at)".to_string(),
+        ),
+        TimeFrame::Month3 => (
+            "NOW() - INTERVAL '3 months'",
+            "time_bucket('1 day', created_at)".to_string(),
+        ),
+        TimeFrame::Month6 => (
+            "NOW() - INTERVAL '6 months'",
+            "time_bucket('1 day', created_at)".to_string(),
+        ),
+        TimeFrame::Year1 => (
+            "NOW() - INTERVAL '1 year'",
+            "time_bucket('1 day', created_at)".to_string(),
+        ),
+    };
+
+    let select_str = time_bucket.clone() + &*", AVG(transacted_price)".to_string();
 
     match transactions
-        .filter(created_at.gt(timestamp))
-        .order_by(created_at.asc())
-        .select(Transaction::as_select())
-        .load::<Transaction>(connection)
+        .filter(
+            created_at.gt(diesel::dsl::sql::<diesel::sql_types::Timestamptz>(
+                timestamp_str,
+            )),
+        )
+        .group_by(diesel::dsl::sql::<diesel::sql_types::Timestamptz>(
+            &*(time_bucket.clone()),
+        ))
+        .order_by(diesel::dsl::sql::<diesel::sql_types::Timestamptz>(
+            &*(time_bucket),
+        ))
+        .select(diesel::dsl::sql::<(
+            diesel::sql_types::Timestamptz,
+            diesel::sql_types::Double,
+        )>(&*select_str))
+        .load::<(DateTime<Utc>, f64)>(connection)
     {
-        Ok(transactions_vec) => {
-            if transactions_vec.len() as i64 <= TARGET_HISTORY_POINTS {
-                for transaction in transactions_vec {
-                    data.push(Price {
-                        price: transaction.transacted_price,
-                        timestamp: transaction.created_at.to_string(),
-                    })
-                }
-            } else {
-                let interval = transactions_vec.len() / 100;
-                let mut count = 0;
-                let mut interval_count = 0usize;
-                while count < transactions_vec.len() {
-                    if interval_count == interval {
-                        data.push(Price {
-                            price: transactions_vec[count].transacted_price,
-                            timestamp: transactions_vec[count].created_at.to_string(),
-                        });
-                        interval_count = 0;
-                    }
-                    interval_count += 1;
-                    count += 1;
-                }
+        Ok(result_vec) => {
+            // if result_vec.len() == 0 {
+            //     return json!({"status": "ok",
+            //         "message": "Successfully retrieved price history".to_string(),
+            //         "data": data
+            //     })
+            // }
+            for result in result_vec {
+                data.push(Price {
+                    price: result.1,
+                    timestamp: result.0.to_string(),
+                })
             }
             json!({"status": "ok",
-                "message": "Successfully retrieved price".to_string(),
+                "message": "Successfully retrieved price history".to_string(),
                 "data": data
             })
         }
@@ -237,7 +272,7 @@ pub fn price_history(price_history_request: Json<PriceHistoryRequest>) -> Value 
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct OrderRequest {
+pub struct OrderRequest {
     node_id: String,
     max_price: f64,
     min_price: f64,
@@ -255,8 +290,6 @@ pub fn buy_order(buy_order_request: Json<OrderRequest>, claims: Claims) -> Value
     use crate::schema::open_em::sell_orders::dsl::*;
     use crate::schema::open_em::transactions::dsl::*;
 
-    let connection = &mut establish_connection();
-
     let user_id_parse = Uuid::parse_str(&*claims.user_id);
     if user_id_parse.is_err() {
         return json!({"status": "error", "message": "Invalid User ID".to_string()});
@@ -268,6 +301,8 @@ pub fn buy_order(buy_order_request: Json<OrderRequest>, claims: Claims) -> Value
         return json!({"status": "error", "message": "Invalid Node ID".to_string()});
     }
     let request_node_id = node_id_parse.unwrap();
+
+    let connection = &mut establish_connection();
 
     match nodes
         .filter(node_id.eq(request_node_id))
@@ -484,7 +519,7 @@ pub fn sell_order(sell_order_request: Json<OrderRequest>, claims: Claims) -> Val
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct OpenSell {
+pub struct OpenSell {
     order_id: String,
     offered_units: f64,
     claimed_units: f64,
@@ -564,7 +599,7 @@ pub fn list_open_sells(claims: Claims) -> Value {
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct OpenBuy {
+pub struct OpenBuy {
     order_id: String,
     sought_units: f64,
     filled_units: f64,
@@ -642,7 +677,7 @@ pub fn list_open_buys(claims: Claims) -> Value {
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct ListAllRequest {
+pub struct ListAllRequest {
     limit: u64,
 }
 
@@ -782,14 +817,14 @@ pub fn all_open_sell(all_open_sell_request: Json<ListAllRequest>) -> Value {
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct FeeEstimationRequest {
+pub struct FeeEstimationRequest {
     price: f64,
     units: f64,
 }
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct FeeEstimation {
+pub struct FeeEstimation {
     fee: f64,
 }
 
@@ -824,7 +859,7 @@ pub fn estimate_sell_fee(fee_estimation_request: Json<FeeEstimationRequest>) -> 
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
-struct CancelOrderRequest {
+pub struct CancelOrderRequest {
     order_id: String,
 }
 
@@ -835,7 +870,6 @@ struct CancelOrderRequest {
 )]
 pub fn cancel_buy_order(cancel_buy_request: Json<CancelOrderRequest>, claims: Claims) -> Value {
     use crate::schema::open_em::buy_orders::dsl::*;
-    use crate::schema::open_em::nodes::dsl::*;
 
     let user_id_parse = Uuid::parse_str(&*claims.user_id);
     if user_id_parse.is_err() {
@@ -873,7 +907,6 @@ pub fn cancel_buy_order(cancel_buy_request: Json<CancelOrderRequest>, claims: Cl
     data = "<cancel_sell_request>"
 )]
 pub fn cancel_sell_order(cancel_sell_request: Json<CancelOrderRequest>, claims: Claims) -> Value {
-    use crate::schema::open_em::nodes::dsl::*;
     use crate::schema::open_em::sell_orders::dsl::*;
 
     let connection = &mut establish_connection();

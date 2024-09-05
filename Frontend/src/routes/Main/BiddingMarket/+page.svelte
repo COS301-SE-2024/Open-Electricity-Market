@@ -121,22 +121,24 @@ async function fetchData() {
        <PriceChartD3  /> 
     </div>
     <div class="md:basis-1/3 md:card bg-base-100 md:p-4 xs:pt-10 width: 3000px">
-      <h1 class="md:text-5xl md:font-light md:pt-8">Node Info</h1>
+      <h1 class="md:text-5xl md:font-light md:pt-4">Node Info</h1>
       <hr>
-      <div class="text-lg font-light">Selected Node: </div> <br>
+      <br>
+      <div class="text-lg font-light">Selected Node: </div> 
       <span class="text-3xl">{selected_node_name}</span> <br>
       <hr>
-      <span class="text-lg font-light">Current Average Market Price: </span> <br>
+      <br>
+      <span class="text-lg font-light">Current Average Market Price: </span> 
       <span class="text-3xl">R {price.toFixed(2)}</span> <br>
       <hr>
-      <form>
+      <div>
         <div class="form-control mt-1">
           <label for="buy_price" class = "text-lg font-light"> Price </label>
           <input id="buy_price" type="number" placeholder="{selectedPrice}" class="input input-bordered font-bold" name="buy_price" required bind:value={selectedPrice}/>
         </div>
 
         <div class="form-control mt-1">
-          <label for="amount" class = "text-lg font-light"> Number of units </label>
+          <label for="amount" class = "text-lg font-light"> Watt-hours </label>
           <input id="buy_units" type="number" placeholder="{units}" class="input input-bordered font-bold" name="amount" required bind:value={units}/>
         </div>
         
@@ -202,7 +204,7 @@ async function fetchData() {
           <!-- <button class="btn btn-success" onclick="my_modal_1.showModal()">Buy at market price</button> -->
         </div>
 
-      </form>
+      </div>
 
     </div>
   </div>

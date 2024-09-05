@@ -74,12 +74,12 @@
     return { datasin, labels };
   }
 
+  let iteration = 0;
   function updateChart() {
     if (!initialized || !chart) {
       return;
     }
 
-    let iteration = 0;
     const currentTime = Date.now();
     const offset = currentTime % (duration * 1000);
     // currentTime += 1;

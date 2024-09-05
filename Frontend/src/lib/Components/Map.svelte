@@ -83,23 +83,24 @@
       }
     });
 
-    mapdata.generators.forEach((generator) => {
-      const marker = L.marker([
-        generator.location.longitude,
-        generator.location.latitude,
-      ]).addTo(map);
-      marker.bindPopup(
-        "Generator " +
-          (generator.id +
-            1 +
-            "<br>" +
-            generator.location.longitude +
-            " " +
-            generator.location.latitude)
-      );
-      // marker.on("click", () => showMarkerPopup(marker, generator));
-      markers.push(marker);
-    });
+    // These markers are usually in the same positions as the load markers, and cover them completely
+    // mapdata.generators.forEach((generator) => {
+    //   const marker = L.marker([
+    //     generator.location.longitude,
+    //     generator.location.latitude,
+    //   ]).addTo(map);
+    //   marker.bindPopup(
+    //     "Generator " +
+    //       (generator.id +
+    //         1 +
+    //         "<br>" +
+    //         generator.location.longitude +
+    //         " " +
+    //         generator.location.latitude)
+    //   );
+    //   // marker.on("click", () => showMarkerPopup(marker, generator));
+    //   markers.push(marker);
+    // });
   }
 
   async function showModal() {

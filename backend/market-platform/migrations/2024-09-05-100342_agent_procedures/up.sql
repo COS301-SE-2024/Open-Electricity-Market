@@ -11,14 +11,17 @@ CREATE FUNCTION total_appliance(text) RETURNS float8 AS $$
 select SUM(data) as total from appliance_data where appliance = $1;
 $$ LANGUAGE sql;
 
-CREATE FUNCTION appliance_curve(text[]) RETURNS TABLE (
-        appliance text,
-        data float8 ) AS $$
-select appliance,data from (SELECT appliance,time_bucket('1 hour', time) AS bucket,
-  avg(data) AS data
+
+
+CREATE FUNCTION appliance_curve(text[]) RETURNS JSON AS $$
+	
+select json_agg(a) from (select appliance,data from (SELECT appliance,time_bucket('1 hour', time) AS bucket,
+avg(data) AS data
 FROM appliance_data
-WHERE appliance = ANY ('{"printer","printer_3D"}'::text[])
+WHERE appliance = ANY ($1)
 GROUP BY appliance,bucket
-ORDER BY appliance,bucket ASC);
-$$ LANGUAGE sql;
+ORDER BY appliance,bucket ASC)) a;
+
+$$ LANGUAGE SQL;
+
 

@@ -66,7 +66,7 @@ impl HomeApplianceType {
 
 #[derive(Deserialize, Serialize)]
 pub struct HomeAppliance {
-    appliance_type: HomeApplianceType,
+    pub appliance_type: HomeApplianceType,
 }
 
 define_sql_function! { fn sample_appliance(value: Float8, appliance: Text) -> Float8;}

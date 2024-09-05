@@ -9,7 +9,7 @@ use std::{
 
 use agent::Agent;
 use curve::{CummutiveCurve, SineCurve};
-use diesel::{dsl::insert_into, Connection, ExpressionMethods, PgConnection};
+use diesel::{define_sql_function, dsl::insert_into,  Connection, ExpressionMethods, PgConnection};
 use diesel::{JoinOnDsl, QueryDsl, RunQueryDsl};
 use dotenvy::dotenv;
 use generator::{
@@ -21,7 +21,6 @@ use generator::{
     Generator,
 };
 use node::Node;
-use rocket::serde::json::Json;
 use rocket::{
     fairing::{Fairing, Info, Kind},
     State,
@@ -33,11 +32,17 @@ use rocket::{
 use rocket::{response::content, tokio};
 use schema::open_em::agent_history::{self, agent_state};
 use serde::Deserialize;
-use serde_json::json;
+use serde_json::{json, Value};
 use smart_meter::consumption_curve::HomeApplianceType;
 use smart_meter::{consumption_curve::HomeAppliance, SmartMeter};
 use std::ops::Deref;
 use uuid::Uuid;
+use diesel::pg::sql_types::Array;
+use diesel::sql_types::Text;
+use rocket::serde::json::Json;
+
+
+
 pub mod agent;
 pub mod curve;
 pub mod generator;
@@ -159,6 +164,11 @@ struct GetCurveDetail {
     node_id: String,
 }
 
+
+
+define_sql_function! {fn appliance_curve(appliances : Array<Text>) -> diesel::sql_types::Json;} 
+
+
 #[post("/get_curve", format = "application/json", data = "<data>")]
 fn get_curve(
     agents: &State<Arc<Mutex<Vec<Agent>>>>,
@@ -167,7 +177,7 @@ fn get_curve(
     let email = data.email.clone();
     let node_id = data.node_id.clone();
     let production;
-    let consumption;
+    let consumption: Value;
     {
         let agents = agents.lock().unwrap();
         let agent_index = agents.iter().position(|a| return a.email == email);
@@ -190,10 +200,30 @@ fn get_curve(
         }
         let node_index = node_index.unwrap();
 
-        consumption =
-            serde_json::to_string(&agents[agent_index].nodes[node_index].smart_meter).unwrap();
+      
+
+        match  &agents[agent_index].nodes[node_index].smart_meter {
+            SmartMeter::Acctive(core) => {
+                  let serlised = serde_json::to_string(&core.consumption_curve).unwrap();
+                  let appliances : Vec<HomeAppliance> = serde_json::from_str(&serlised).unwrap();
+
+                  let mut argumet = vec![];
+                  for a in appliances {
+                    argumet.push(a.appliance_type.to_string())
+                  }
+
+                  let conn = &mut establish_connection();
+                  let appliance_curve = appliance_curve(argumet);
+                  consumption  = diesel::select(appliance_curve).first(conn).unwrap();
+            },
+            SmartMeter::InActtive => {consumption = serde_json::from_str("{}").unwrap();}
+        }
+        
+
+        
+
         production =
-            serde_json::to_string(&agents[agent_index].nodes[node_index].smart_meter).unwrap();
+            serde_json::to_string(&agents[agent_index].nodes[node_index].generator).unwrap();
     }
 
     content::RawJson(

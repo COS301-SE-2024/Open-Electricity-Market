@@ -2,3 +2,5 @@
 Drop function sample_appliance;
 Drop function total_appliance;
 Drop function appliance_curve;
+
+

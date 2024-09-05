@@ -11,6 +11,10 @@ let selectedAppliances = ['asdf', 'jkl', 'oiu'];  //by default should be all of 
 let appliances = ['asdf', 'jkl', 'oiu']; 
 let dropdownvisible = false;
 
+//required for curve endpoint
+let email = ''; 
+let nodeid = ''; 
+
 function toggleDropdown(){
     dropdownvisible = !dropdownvisible; 
 }
@@ -99,7 +103,7 @@ function toggleDropdown(){
   async function getBuyHistory(){
 
          try {
-      const response = await fetch(`${API_URL_MARKET}/user_sell_stats`, {
+      const response = await fetch(`${API_URL_MARKET}/buy_history_stat`, {
         method: "POST", 
         headers: {
           'Content-Type': 'application/json',
@@ -118,10 +122,92 @@ function toggleDropdown(){
       console.log(fdata);
   
     } catch (error) {
-      console.log("An error occurred while fetching user_sell_stats data..\n", error);
+      console.log("An error occurred while fetching buy_history_stat data..\n", error);
     }
 
   }
+
+
+  async function getSellHistory(){
+
+      try {
+      const response = await fetch(`${API_URL_MARKET}/sell_history_stat`, {
+        method: "POST", 
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${sessionStorage.getItem("Token")}`
+        },
+        body: JSON.stringify({
+            //options include Day1, Week1, Month1, Month3, Month6, Year1
+            time_frame: Day1
+          }),
+        credentials: "include", 
+      });
+   
+      
+      const fdata = await response.json();
+      console.log(fdata);
+  
+    } catch (error) {
+      console.log("An error occurred while fetching sell_history_stat data..\n", error);
+    }
+
+  }
+
+
+  async function getBoughtSold(){
+
+     try {
+      const response = await fetch(`${API_URL_MARKET}/bought_vs_sold_stat`, {
+        method: "POST", 
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${sessionStorage.getItem("Token")}`
+        },
+        credentials: "include", 
+      });
+   
+      
+      const fdata = await response.json();
+      console.log(fdata);
+  
+    } catch (error) {
+      console.log("An error occurred while fetching bought_vs_sold data..\n", error);
+    }
+
+  }
+
+
+  async function getCurve(){
+
+     try {
+      const response = await fetch(`${API_URL_AGENT}/get_curve`, {
+        method: "POST", 
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${sessionStorage.getItem("Token")}`
+        },
+         body: JSON.stringify({
+            email: email,
+            node_id: nodeid,
+          }),
+        credentials: "include", 
+      });
+   
+      
+      const fdata = await response.json();
+      console.log(fdata);
+  
+    } catch (error) {
+      console.log("An error occurred while fetching getCurve data..\n", error);
+    }
+
+  }
+
+
 
 
 

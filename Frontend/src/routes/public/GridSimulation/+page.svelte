@@ -3,12 +3,12 @@
   import Map from "$lib/Components/Map.svelte";
   import Chart from "$lib/Components/Chart2.svelte";
   import GridStats from "../../../lib/Components/GridStats.svelte";
-  import { API_URL_GRID, API_URL_MARKET } from "$lib/config.js";
+  import { API_URL_GRID } from "$lib/config.js";
 
   let data = {};
-  let interval;
+  // let interval;
   // let dropdownViewable = false;
-  let mapdata;
+  $: mapdata = null;
 
   // function toggleDropdown() {
   //   dropdownViewable = !dropdownViewable;
@@ -16,11 +16,10 @@
 
   onMount(async () => {
     await fetchData();
-    await fetchstart();
-    interval = setInterval(fetchData, 10000);
+    // interval = setInterval(fetchData, 10000);
 
     return () => {
-      clearInterval(interval);
+      // clearInterval(interval);
       Map.destroy();
     };
   });
@@ -41,10 +40,7 @@
       //Voltage 1,2,3 as well as price
       //updateChart(data.Phase1, data.Phase2);
     } catch (error) {
-      console.log(
-        "There was an error fetching the JSON for the chart..",
-        error
-      );
+      console.log("There was an error fetching the JSON for start()..", error);
     }
   }
 
@@ -59,8 +55,11 @@
       });
       //console.log("Request being sent...");
       const fdata = await response.json();
-      console.log("Fetched data4:", fdata);
-      mapdata = fdata.circuits[0];
+      console.log("Fetched data [gridsim /info]:", fdata);
+      mapdata = fdata.circuits[0]; // TODO: multiple circuits exist
+      if (!fdata.started) {
+        await fetchstart();
+      }
     } catch (error) {
       console.log(
         "There was an error fetching the JSON for the overview:",
@@ -69,12 +68,12 @@
     }
   }
 
+  // this is not running for some reason
   function handleMarkerClick(entity) {
-    // console.log(entity.detail.voltage);
-    // data = entity.detail;
+    console.log(entity.detail.voltage);
     const markerData = entity.detail;
     data = { ...markerData.voltage };
-    console.log("Updated data is this: ", data);
+    // console.log("Updated data is this: ", data);
   }
 </script>
 
@@ -82,7 +81,9 @@
   <div class="fullsection flex xs:flex-row -mt-6 w-full">
     <div class="bg-base-100 mx-2 p-4 rounded-2xl h-4/6 w-2/3">
       <div class="mapsection md:w-full xs:w-full">
-        <Map {mapdata} on:markerClick={handleMarkerClick} />
+        {#if mapdata != null}
+          <Map {mapdata} on:markerClick={handleMarkerClick} />
+        {/if}
       </div>
 
       <div class="statsection my-2 bottom-0">

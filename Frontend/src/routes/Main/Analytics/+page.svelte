@@ -52,6 +52,83 @@ function toggleDropdown(){
   }
 
 
+  async function getBuyStats(){
+     try {
+      const response = await fetch(`${API_URL_MARKET}/user_buy_stats`, {
+        method: "POST", 
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${sessionStorage.getItem("Token")}`
+        },
+        credentials: "include", 
+      });
+   
+      
+      const fdata = await response.json();
+      console.log(fdata);
+  
+    } catch (error) {
+      console.log("An error occurred while fetching user_buy_stats data..\n", error);
+    }
+  }
+
+
+  async function getSellStats(){
+     try {
+      const response = await fetch(`${API_URL_MARKET}/user_sell_stats`, {
+        method: "POST", 
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${sessionStorage.getItem("Token")}`
+        },
+        credentials: "include", 
+      });
+   
+      
+      const fdata = await response.json();
+      console.log(fdata);
+  
+    } catch (error) {
+      console.log("An error occurred while fetching user_sell_stats data..\n", error);
+    }
+  }
+
+
+  async function getBuyHistory(){
+
+         try {
+      const response = await fetch(`${API_URL_MARKET}/user_sell_stats`, {
+        method: "POST", 
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${sessionStorage.getItem("Token")}`
+        },
+        body: JSON.stringify({
+            //options include Day1, Week1, Month1, Month3, Month6, Year1
+            time_frame: Day1
+          }),
+        credentials: "include", 
+      });
+   
+      
+      const fdata = await response.json();
+      console.log(fdata);
+  
+    } catch (error) {
+      console.log("An error occurred while fetching user_sell_stats data..\n", error);
+    }
+
+  }
+
+
+
+
+
+
+
 </script>
 
 <div class = "flex">

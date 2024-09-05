@@ -167,7 +167,7 @@ pub fn node_details(node_details_request: Json<NodeDetailsReq>, claims: Claims) 
             match transactions
                 .inner_join(
                     sell_orders.on(schema::open_em::sell_orders::dsl::sell_order_id
-                        .eq(schema::open_em::transactions::dsl::buy_order_id)),
+                        .eq(schema::open_em::transactions::dsl::sell_order_id)),
                 )
                 .filter(producer_id.eq(node.node_id))
                 .filter(schema::open_em::sell_orders::active.eq(true))

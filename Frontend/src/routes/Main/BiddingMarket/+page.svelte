@@ -129,7 +129,7 @@ async function fetchData() {
       <span class="text-lg font-light">Current Average Market Price: </span> <br>
       <span class="text-3xl">R {price.toFixed(2)}</span> <br>
       <hr>
-      <form>
+      <div>
         <div class="form-control mt-1">
           <label for="buy_price" class = "font-light"> Price </label>
           <input id="buy_price" type="number" placeholder="{selectedPrice}" class="input input-bordered font-bold" name="buy_price" required bind:value={selectedPrice}/>
@@ -200,7 +200,7 @@ async function fetchData() {
           <!-- <button class="btn btn-success" onclick="my_modal_1.showModal()">Buy at market price</button> -->
         </div>
 
-      </form>
+      </div>
 
     </div>
   </div>

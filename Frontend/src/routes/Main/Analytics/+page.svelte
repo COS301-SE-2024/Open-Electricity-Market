@@ -249,7 +249,7 @@
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
-          Authorization: `Bearer ${sessionStorage.getItem("Token")}`,
+          Authorization: `Bearer ${sessionStorage.getItem("Token")}`,   
         },
         body: JSON.stringify({
           node_id: nodeid,
@@ -259,6 +259,12 @@
 
       const fdata = await response.json();
       console.log(fdata);
+      if(fdata.message == "Here is the detail"){
+
+        unitsconsumed = fdata.data.consumed;
+        unitsproduced = fdata.data.produced;
+
+      }
     } catch (error) {
       console.log(
         "An error occurred while fetching getConsumedProduced data..\n",

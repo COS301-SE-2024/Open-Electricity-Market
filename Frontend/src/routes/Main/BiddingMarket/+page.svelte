@@ -136,7 +136,7 @@ async function fetchData() {
         <div class="form-control mt-1">
           <label for="buy_price" class = "font-light"> Price </label>
           <input id="buy_price" type="number" placeholder="{selectedPrice}" class="input input-bordered font-bold" name="buy_price" required bind:value={selectedPrice}/>
-          <button class = "btn btn-primary font-light" on on:click={reset_price}>Market price</button>
+          <button class = "btn btn-primary font-light" title = "Resets price back to current average market price" on on:click={reset_price}>Market price</button>
         </div>
         <hr>
         <div class="form-control mt-1">

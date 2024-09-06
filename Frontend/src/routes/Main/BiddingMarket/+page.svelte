@@ -127,11 +127,11 @@ async function fetchData() {
       <h1 class = "md:text-4xl md:font-light md:pt-4">Node Info</h1>
       <hr>
       <br>
-      <span class="text-lg font-light">Selected Node: </span> <br>
+      <span class="text-lg font-light">Selected Node: </span>
       <span class="text-3xl">{selected_node_name}</span> <br>
       <hr>
       <br>
-      <span class="text-lg font-light">Current Average Market Price: </span> <br>
+      <span class="text-lg font-light">Current Average Market Price: </span>
       <span class="text-3xl">R {price.toFixed(2)}</span> <br>
       <hr>
       <br>

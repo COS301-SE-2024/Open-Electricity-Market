@@ -19,6 +19,9 @@ let selected_node_id = sessionStorage.getItem("node_id");
 let selected_node_name = sessionStorage.getItem("node_name");
 
 let data = {};
+async function reset_price(){
+  selectedPrice = price;
+}
 
 async function place_buy_order(at_market_price) {
   // TODO: add a check that fails if units <= 0
@@ -133,7 +136,7 @@ async function fetchData() {
         <div class="form-control mt-1">
           <label for="buy_price" class = "font-light"> Price </label>
           <input id="buy_price" type="number" placeholder="{selectedPrice}" class="input input-bordered font-bold" name="buy_price" required bind:value={selectedPrice}/>
-          <button class = "btn btn-primary font-light">Market price</button>
+          <button class = "btn btn-primary font-light" on on:click={reset_price}>Market price</button>
         </div>
         <hr>
         <div class="form-control mt-1">

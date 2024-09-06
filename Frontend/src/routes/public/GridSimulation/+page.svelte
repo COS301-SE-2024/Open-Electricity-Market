@@ -1,83 +1,76 @@
-
-
 <script>
   import { onMount } from "svelte";
-  import Map from '$lib/Components/Map.svelte';
+  import Map from "$lib/Components/Map.svelte";
   import Chart from "$lib/Components/Chart2.svelte";
   import GridStats from "../../../lib/Components/GridStats.svelte";
-  import { API_URL_GRID, API_URL_MARKET } from '$lib/config.js';
-
-
- 
+  import { API_URL_GRID, API_URL_MARKET } from "$lib/config.js";
 
   let data = {};
-  let interval; 
-  let numDecimals = 2; 
-  let advancedView = false; 
-  let dropdownViewable = false; 
-  let mapdata; 
+  let interval;
+  let numDecimals = 2;
+  let advancedView = false;
+  let dropdownViewable = false;
+  let mapdata;
   let oscilloscopedata = null;
 
-  function toggleDropdown(){
-    dropdownViewable = !dropdownViewable; 
+  function toggleDropdown() {
+    dropdownViewable = !dropdownViewable;
   }
 
   onMount(async () => {
     await fetchData();
-    await fetchstart();  
-    interval = setInterval(fetchData, 10000); 
-    
-   
+    await fetchstart();
+    interval = setInterval(fetchData, 10000);
+
     return () => {
       clearInterval(interval);
     };
   });
 
-     async function fetchstart() {
-
-      try {
-        const response = await fetch(`${API_URL_GRID}/start`, {
-      method: "POST", 
-      headers: {
-        'Content-Type': 'application/json' 
-      }
-
-    });
-        console.log("start being sent...");
-        // const response = fetch("http://localhost:8000");
-        const startdata = await response.json();
-        console.log(startdata);
-        //Voltage 1,2,3 as well as price
-        //updateChart(data.Phase1, data.Phase2);
-      } catch (error) {
-        console.log("There was an error fetching the JSON for the chart..", error);
-        
-      }
-  };
-
-   function setAdvancedView(){
-    advancedView = !advancedView;
-    if(advancedView){
-      numDecimals = 7; 
+  async function fetchstart() {
+    try {
+      const response = await fetch(`${API_URL_GRID}/start`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      console.log("start being sent...");
+      // const response = fetch("http://localhost:8000");
+      const startdata = await response.json();
+      console.log(startdata);
+      //Voltage 1,2,3 as well as price
+      //updateChart(data.Phase1, data.Phase2);
+    } catch (error) {
+      console.log(
+        "There was an error fetching the JSON for the chart..",
+        error
+      );
     }
-    else{
-      numDecimals = 2;  
+  }
+
+  function setAdvancedView() {
+    advancedView = !advancedView;
+    if (advancedView) {
+      numDecimals = 7;
+    } else {
+      numDecimals = 2;
     }
   }
 
   async function fetchData() {
     try {
       const response = await fetch(`${API_URL_GRID}/info`, {
-        method: "POST", 
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json' 
-        }
+          "Content-Type": "application/json",
+        },
       });
       //console.log("Request being sent...");
       const fdata = await response.json();
       console.log("Fetched data:", fdata);
       mapdata = fdata.circuits[0];
-      // data = null; 
+      // data = null;
       // data = {
       //   ...fdata,
       //   Consumers: fdata.Consumers.map(item => JSON.parse(item)),
@@ -88,27 +81,26 @@
       // console.log("Data is this: ");
       // console.log(data);
       // chartdata = data[Consumers.Voltage.Phase1];
-      
     } catch (error) {
-      console.log("There was an error fetching the JSON for the overview:", error);
+      console.log(
+        "There was an error fetching the JSON for the overview:",
+        error
+      );
     }
   }
 
-
-  function handleMarkerClick(entity){
+  function handleMarkerClick(entity) {
     // console.log(entity.detail.voltage);
-    // data = entity.detail; 
+    // data = entity.detail;
     const markerData = entity.detail;
-    console.log('Marker clicked:', markerData);  
+    console.log("Marker clicked:", markerData);
     data = { ...markerData.voltage };
     console.log("Updated data is this: ", data);
   }
-
 </script>
 
 <main class="container mx-auto p-4">
-
- <!-- <div class="dropdown mr-3 mt-3">
+  <!-- <div class="dropdown mr-3 mt-3">
   <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6a1.5 1.5 0 110 3 1.5 1.5 0 010-3zm0 4.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zm0 4.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3z" />
@@ -125,9 +117,8 @@
     </ul>
   </div> -->
 
-
   <!-- <button class="btn" onclick="my_modal_2.showModal()">Help</button> -->
-    <!-- <dialog id="my_modal_2" class="modal">  
+  <!-- <dialog id="my_modal_2" class="modal">  
       <div class="modal-box">
         <h3 class="font-bold text-lg ">Grid Simulation Page</h3>
         <p class="py-4">The grid simulation page contains an overview of the current 
@@ -146,8 +137,6 @@
   </label>
   </div> -->
 
-   
- 
   <!-- {#if Object.keys(data).length > 0}
     
     <section class="mb-8">
@@ -220,25 +209,19 @@
   {/if} -->
 
   <div class="fullsection flex md:flex-row xs:flex-col">
-
-    <div class="mapsection md:w-3/5  xs:w-full xs:p-0 left-0">
-      <Map {mapdata} on:markerClick = {handleMarkerClick} class="xs:rounded-md"  /> 
+    <div class="mapsection md:w-3/5 xs:w-full xs:p-0 left-0">
+      <Map {mapdata} on:markerClick={handleMarkerClick} class="xs:rounded-md" />
 
       <div class="statsection my-2">
-        <GridStats /> 
+        <GridStats />
       </div>
     </div>
 
-    <div class="chartsection md:w-2/5 md:h-full p-5 xs:w-full xs:">   
-      <Chart {data} />  
+    <div class="chartsection md:w-2/5 md:h-full p-5 xs:w-full xs:">
+      <Chart {data} />
     </div>
-
   </div>
 </main>
 
 <style>
-
-  
 </style>
-
-      

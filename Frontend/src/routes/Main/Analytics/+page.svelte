@@ -29,6 +29,7 @@
   let consumptioncurvedata = [];
   let unitsproduced;
   let unitsconsumed;
+  let productioncurvedata = []; 
 
   onMount(async () => {
     await getNodes();
@@ -235,6 +236,16 @@
           }
           consumptioncurvedata[index] += item.data;
         });
+        let temp2 = fdata.production;
+
+        temp2.forEach((generator) => {
+            //should be the value
+            // productioncurvedata = temp2[1];
+            for(let index = 0; index<24; index++){
+                productioncurvedata[index] = temp2[1]; 
+            } 
+        });
+
         console.log("This is consumption curve data:", consumptioncurvedata);
       }
     } catch (error) {
@@ -296,6 +307,7 @@
         listofnodeids = fdata.data.map((nodes) => nodes.node_id);
         console.log(listofnodes);
         console.log(listofnodeids);
+        nodeid = listofnodeids[0]; 
       }
     } catch (error) {
       console.log("An error occurred while fetching getNodes data..\n", error);

@@ -133,6 +133,7 @@ async function fetchData() {
         <div class="form-control mt-1">
           <label for="buy_price" class = "font-light"> Price </label>
           <input id="buy_price" type="number" placeholder="{selectedPrice}" class="input input-bordered font-bold" name="buy_price" required bind:value={selectedPrice}/>
+          <button class = "btn btn-primary font-light">Market price</button>
         </div>
         <hr>
         <div class="form-control mt-1">
@@ -155,7 +156,7 @@ async function fetchData() {
             </div>
           </dialog>
 
-          <button class="btn btn-primary font-light" onclick="my_modal_3.showModal()">Buy at Market Price</button>
+          <!--<button class="btn btn-primary font-light" onclick="my_modal_3.showModal()">Buy at Market Price</button>
           <dialog id="my_modal_3" class="modal">
             <div class="modal-box">
               <h3 class="text-lg font-bold">Confirm Buy Order</h3>
@@ -167,7 +168,7 @@ async function fetchData() {
                 </form>
               </div>
             </div>
-          </dialog>
+          </dialog>-->
 
           <button class="btn btn-accent font-light" onclick="my_modal_2.showModal()">Sell</button>
           <dialog id="my_modal_2" class="modal">
@@ -183,7 +184,7 @@ async function fetchData() {
             </div>
           </dialog>
 
-          <button class="btn btn-accent font-light" onclick="my_modal_4.showModal()">Sell at Market Price</button>
+          <!--<button class="btn btn-accent font-light" onclick="my_modal_4.showModal()">Sell at Market Price</button>
           <dialog id="my_modal_4" class="modal">
             <div class="modal-box">
               <h3 class="text-lg font-bold">Confirm Sell Order</h3>
@@ -195,7 +196,7 @@ async function fetchData() {
                 </form>
               </div>
             </div>
-          </dialog>
+          </dialog>-->
 
           <!-- <button class="btn btn-success" onclick="my_modal_1.showModal()">Buy at market price</button> -->
         </div>

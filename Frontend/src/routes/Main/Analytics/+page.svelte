@@ -25,11 +25,20 @@ let avgsell;
 let unitsbought; 
 let unitssold; 
 let listofnodeids = []; 
+let marketpiedata; 
 
 
 onMount(async () => {
 
     await getNodes(); 
+    await getSellStats(); 
+    await getBuyStats(); 
+    await getBoughtSold(); 
+    // await getBuyHistory(); 
+    // await getSellHistory(); 
+    // await getConsumedProduced(); 
+    // await getCurve(); 
+  
 
   }); 
 
@@ -205,6 +214,7 @@ function toggleDropdown(){
       if(fdata.message == "Successfully retrieved user bought and sold units"){
         unitsbought = fdata.data.units_bought; 
         unitssold = fdata.data.units_sold; 
+        marketpiedata = {unitsbought, unitssold}; 
       }
   
     } catch (error) {
@@ -336,7 +346,7 @@ function toggleDropdown(){
 
 
         <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
-            <PieChart />
+            <PieChart data = {marketpiedata} />
         </div>
 
     

@@ -37,7 +37,9 @@
     
 
      $: if (chart && data.length>0) {
-     updateChart();
+         chart.data.labels = ["Units Bought", "Units Sold"];
+         chart.data.datasets[0].data = [data[0], data[1]]; 
+         updateChart();
   }
 
 

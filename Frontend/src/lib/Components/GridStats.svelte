@@ -31,7 +31,7 @@
       });
 
       const fdata = await response.json();
-      console.log("Fetched statistics:", fdata);
+      // console.log("Fetched statistics:", fdata);
       consumers = fdata.consumer_count;
       producers = fdata.producer_count;
       generation = fdata.total_generation;

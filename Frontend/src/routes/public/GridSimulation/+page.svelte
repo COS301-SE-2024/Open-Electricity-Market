@@ -5,7 +5,7 @@
   import GridStats from "../../../lib/Components/GridStats.svelte";
   import { API_URL_GRID } from "$lib/config.js";
 
-  let data = {};
+  $: voltageData = null;
   // let interval;
   // let dropdownViewable = false;
   $: mapdata = null;
@@ -55,7 +55,7 @@
       });
       //console.log("Request being sent...");
       const fdata = await response.json();
-      console.log("Fetched data [gridsim /info]:", fdata);
+      // console.log("Fetched data [gridsim /info]:", fdata);
       mapdata = fdata.circuits[0]; // TODO: multiple circuits exist
       if (!fdata.started) {
         await fetchstart();
@@ -68,12 +68,11 @@
     }
   }
 
-  // this is not running for some reason
+  let markerDetails = null;
   function handleMarkerClick(entity) {
-    console.log(entity.detail.voltage);
-    const markerData = entity.detail;
-    data = { ...markerData.voltage };
-    // console.log("Updated data is this: ", data);
+    console.log(entity);
+    markerDetails = entity.detail;
+    voltageData = { ...markerDetails.voltage };
   }
 </script>
 
@@ -90,13 +89,46 @@
         <GridStats />
       </div>
     </div>
-    <div
-      class="chartsection md:w-1/4 mx-2 p-5 xs:w-full bg-base-100 rounded-2xl"
-    >
-      <Chart {data} />
-    </div>
+    {#if voltageData != null}
+      <div
+        class="chartsection md:w-1/4 mx-2 p-5 xs:w-full bg-base-100 rounded-2xl flex flex-col max-w-full"
+      >
+        <h1 class="text-2xl">Consumer Details</h1>
+        <span>
+          <span class="font-light text-lg mt-10">Impedance: </span><br />
+          <span class="text-2xl"
+            >{Intl.NumberFormat().format(markerDetails.resistance.toFixed(2))} Ω</span
+          >
+        </span>
+        {#if markerDetails.generators != []}
+          <span>
+            <span class="font-light text-lg">Generators: </span> <br />
+            {#each markerDetails.generators as generator}
+              <span class="text-2xl">Generator ID: {generator.id}</span><br />
+              <span class="text-2xl"
+                >Current Generation: {generator.max_voltage.toFixed(2)}</span
+              >
+            {/each}
+          </span>
+        {/if}
+        <div class="h-1/4 w-full">
+          <Chart data={voltageData} />
+        </div>
+      </div>
+    {:else}
+      <div
+        class="chartsection md:w-1/4 mx-2 p-5 xs:w-full bg-base-100 rounded-2xl"
+      >
+        <p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, quia
+          dolorum ipsa sed, ex vitae exercitationem doloribus possimus dolore
+          cupiditate deleniti fugiat modi voluptate quod tempore necessitatibus
+          magnam ut voluptatem!
+        </p>
+      </div>
+    {/if}
   </div>
-  <div class="w-full py-20 flex justify-center">
+  <!-- <div class="w-full py-20 flex justify-center">
     <div class="card glass bg-base-100 p-6 w-2/3">
       <h1 class="text-2xl">This is a paragraph</h1>
       <p>
@@ -109,5 +141,5 @@
         mollit anim id est laborum.
       </p>
     </div>
-  </div>
+  </div> -->
 </main>

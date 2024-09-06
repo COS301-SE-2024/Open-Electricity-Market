@@ -1,15 +1,12 @@
 <script>
   import { onMount, onDestroy, createEventDispatcher } from "svelte";
   import { browser } from "$app/environment";
-  import Chart from "./Chart2.svelte";
-  import { API_URL_GRID, API_URL_MARKET } from "$lib/config.js";
   import iconmarkerpng from "$lib/assets/marker-icon.png";
 
   let mapContainer;
   let map;
   let markerIcon;
 
-  let data = {};
   let markers = [];
   export let mapdata;
   const dispatch = createEventDispatcher();
@@ -58,6 +55,8 @@
     markers = [];
 
     mapdata.loads.forEach((load) => {
+      if (load.id == 0) return;
+
       if (load.load_type.Consumer) {
         const consumer = load.load_type.Consumer;
         const marker = L.marker(
@@ -68,15 +67,26 @@
         marker.bindPopup(
           "Consumer " +
             (load.id +
-              1 +
               "<br>" +
               consumer.location.longitude +
               " " +
               consumer.location.latitude)
         );
+
+        let generators = [];
+        mapdata.generators.forEach((generator) => {
+          if (
+            consumer.location.longitude == generator.location.longitude &&
+            consumer.location.latitude == generator.location.latitude
+          ) {
+            generators.push(generator);
+          }
+        });
+
         // marker.on("click", () => showMarkerPopup(marker, consumer));
-        //marker.on('click', ()=> updateChart(consumer));
+        // marker.on('click', ()=> updateChart(consumer));
         marker.on("click", () => {
+          consumer["generators"] = generators;
           dispatch("markerClick", consumer);
         });
         markers.push(marker);
@@ -84,6 +94,7 @@
     });
 
     // These markers are usually in the same positions as the load markers, and cover them completely
+    // Might need to add any generators that do not have corresponding loads
     // mapdata.generators.forEach((generator) => {
     //   const marker = L.marker([
     //     generator.location.longitude,
@@ -99,53 +110,12 @@
     //         generator.location.latitude)
     //   );
     //   // marker.on("click", () => showMarkerPopup(marker, generator));
+    //   marker.on("click", () => {
+    //     generator["type"] = "generator";
+    //     dispatch("markerClick", generator);
+    //   });
     //   markers.push(marker);
     // });
-  }
-
-  async function showModal() {
-    document.getElementById("test_modal").showModal();
-  }
-
-  function updateChart(entity) {
-    if (entity.voltage.oscilliscope_detail) {
-      console.log("This was successful");
-    }
-  }
-
-  // function extractChartData(data){
-  //     let chartData = [];
-  //     if(data.Consumers){
-  //         chartData = data.Consumers[0].Voltage["Phase 1"];
-  //     }
-  //     return chartData;
-  // }
-
-  // $: if(data){
-  //     updateMarkers();
-  // }
-
-  // $: if (map && mapdata && browser) {
-  //   console.log("Reactive if was triggered...");
-  //   updateMarkers(mapdata);
-  // }
-
-  function resizeMap() {
-    if (browser) {
-      if (window.innerWidth <= 450) {
-        // chart.style.width = '100%';
-        mapContainer.style.height = "350px";
-        mapContainer.style.width = "290px";
-        // chartCanvas.style.width = '300px';
-        // chartCanvas.style.width = '200px';
-        console.log("If statement is running...");
-      } else {
-        mapContainer.style.height = "700px";
-        // chartCanvas.style.width = '900px';
-        console.log("Else was executed...");
-        // chart.style.height = '600px';
-      }
-    }
   }
 </script>
 

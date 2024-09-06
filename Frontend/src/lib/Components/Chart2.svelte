@@ -46,11 +46,11 @@
   $: if (data && data.oscilloscope_detail) {
     initialized = true;
     updateChart();
-    console.log("Reactive if was triggered... [chart2]");
-    console.log(
-      "Data oscilloscope detail is below, should be amplitude frequency phase"
-    );
-    console.log(data.oscilloscope_detail);
+    // console.log("Reactive if was triggered... [chart2]");
+    // console.log(
+    //   "Data oscilloscope detail is below, should be amplitude frequency phase"
+    // );
+    // console.log(data.oscilloscope_detail);
   }
 
   function generateSineWave(

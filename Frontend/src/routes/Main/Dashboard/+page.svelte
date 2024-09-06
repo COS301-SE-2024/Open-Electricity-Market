@@ -2,12 +2,10 @@
   import { onMount } from "svelte";
   import { goto } from "$app/navigation";
   import Map from "$lib/Components/MapDashboard.svelte";
-  import { API_URL_GRID, API_URL_MARKET, API_URL_AGENT } from "$lib/config.js";
+  import { API_URL_MARKET, API_URL_AGENT } from "$lib/config.js";
 
   let data = {};
   let nodeName = "";
-  let nodeLongitude = "";
-  let nodeLatitude = "";
 
   $: nodeNameDetail = "";
   $: nodeLongitudeDetail = "";
@@ -168,7 +166,6 @@
   }
 
   function createModal() {
-    nodeName = nodeLatitude = nodeLongitude = "";
     document.getElementById("mapModal").showModal();
   }
 
@@ -240,11 +237,11 @@
 
   async function addFunds() {
     if (!amount) {
-      console.log("No amount was given.");
+      // console.log("No amount was given.");
       return;
     }
 
-    console.log("Add funds function was called " + amount);
+    // console.log("Add funds function was called " + amount);
     try {
       const response = await fetch(`${API_URL_MARKET}/add_funds`, {
         method: "POST",
@@ -260,7 +257,7 @@
       });
       const fdata = await response.json();
       data = fdata;
-      console.log("Data received from add funds endpoint is this: ", data);
+      // console.log("Data received from add funds endpoint is this: ", data);
     } catch (error) {
       console.log(
         "There was an error fetching the JSON for the add funds endpoint:",
@@ -280,7 +277,7 @@
 
   async function withdrawFunds() {
     if (!withdrawamount) {
-      console.log("No amount was given.");
+      // console.log("No amount was given.");
       return;
     }
 
@@ -299,7 +296,7 @@
       });
       const fdata = await response.json();
       data = fdata;
-      console.log("Data received from withdraw funds endpoint is this: ", data);
+      // console.log("Data received from withdraw funds endpoint is this: ", data);
     } catch (error) {
       console.log(
         "There was an error fetching the JSON for the withdrawfunds:",
@@ -330,7 +327,7 @@
       });
       const fdata = await response.json();
       data = fdata;
-      console.log("Data received from user details is: ", data);
+      // console.log("Data received from user details is: ", data);
     } catch (error) {
       console.log("There was an error fetching user details:", error);
     }
@@ -365,7 +362,7 @@
       });
       const fdata = await response.json();
       data = fdata;
-      console.log("Data received from user details is: ", data);
+      // console.log("Data received from user details is: ", data);
     } catch (error) {
       console.log("There was an error fetching user details:", error);
     }
@@ -392,7 +389,7 @@
       });
       const fdata = await response.json();
       data = fdata;
-      console.log("Data received from user details is: ", data);
+      // console.log("Data received from user details is: ", data);
     } catch (error) {
       console.log("There was an error fetching user details:", error);
     }
@@ -409,7 +406,7 @@
   function handleMapClick(lat, lng) {
     latitude = lat;
     longtitude = lng;
-    console.log("Marker position updated: " + lat + " " + lng);
+    // console.log("Marker position updated: " + lat + " " + lng);
   }
 
   function formatCurrency(value) {
@@ -456,7 +453,7 @@
         });
         const fdata = await response.json();
         data = fdata;
-        console.log("Data received from user details is: ", data);
+        // console.log("Data received from user details is: ", data);
       } catch (error) {
         console.log(
           "There was an error with the add appliance endpoint: ",
@@ -481,14 +478,14 @@
     };
 
     if (generator && category) {
-      console.log(generator + " " + category);
+      // console.log(generator + " " + category);
       let generatorDetails = {
         generator_type: { [generator]: category },
         on_periods: [onPeriods],
       };
       details2.generators.push(generatorDetails);
       //details2.generators.generator_type.push(onPeriods);
-      console.log(details2);
+      // console.log(details2);
       try {
         const response = await fetch(`${API_URL_AGENT}/add_generators`, {
           method: "POST",
@@ -501,7 +498,7 @@
         });
         const fdata = await response.json();
         data = fdata;
-        console.log("Data received from add gen endpoint: ", data);
+        // console.log("Data received from add gen endpoint: ", data);
       } catch (error) {
         console.log(
           "There was an error with the add generator endpoint: ",

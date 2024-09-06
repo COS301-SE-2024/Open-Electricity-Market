@@ -121,6 +121,8 @@ async function fetchData() {
        <PriceChartD3  /> 
     </div>
     <div class="md:basis-1/3 md:card bg-base-100 md:p-4 xs:pt-10">
+      <h1 class = "md:text-4xl md:font-light md:pt-4">Node Info</h1>
+      <hr>
       <span class="text-lg font-light">Selected Node: </span> <br>
       <span class="text-3xl">{selected_node_name}</span> <br>
       <hr>

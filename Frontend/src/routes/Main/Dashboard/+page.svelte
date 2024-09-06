@@ -526,7 +526,6 @@
 </script>
 
 <main class="container sm:mx-auto w-full h-full sm:flex justify-center">
-
   <div class="sm:w-1/3">
     
     <span class="text-3xl text-white font-thin justify-start pl-2">

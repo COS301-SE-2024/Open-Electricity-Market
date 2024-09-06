@@ -19,6 +19,9 @@ let selected_node_id = sessionStorage.getItem("node_id");
 let selected_node_name = sessionStorage.getItem("node_name");
 
 let data = {};
+async function reset_price(){
+  selectedPrice = price;
+}
 
 async function place_buy_order(at_market_price) {
   // TODO: add a check that fails if units <= 0
@@ -52,6 +55,7 @@ async function place_sell_order(at_market_price) {
 
   if (at_market_price == true) {
     selectedPrice = price;
+    print(selectedPrice);
   }
 
   let data = {
@@ -143,7 +147,7 @@ async function fetchData() {
             <span class = "md:p-1">
             
             </span>
-            <button class = "basis-1/4 btn btn-primary font-light p-0 " title = "Resets price back to current average market price">Market price</button>
+            <button class = "basis-1/4 btn btn-primary font-light p-0 " title = "Resets price back to current average market price" on on:click={reset_price}>Market price</button>
           </div>
         </div>
         

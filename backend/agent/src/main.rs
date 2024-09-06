@@ -196,7 +196,7 @@ fn get_curve(
         let node_index = node_index.unwrap();
 
         match &mut agents[agent_index].nodes[node_index].smart_meter {
-            SmartMeter::Acctive(core) => { 
+            SmartMeter::Acctive(core) => {
                 let argument = core.consumption_curve.get_appliance_list_if_possible();
 
                 let conn = &mut establish_connection();

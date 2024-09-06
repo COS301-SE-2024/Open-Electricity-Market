@@ -693,8 +693,10 @@
             <div class="card-actions justify-end">
               <button
                 class="btn btn-primary"
-                on:click={() => {
-                  fetchNodeDetails(node.node_id);
+                on:click={async () => {
+                  await fetchNodeDetails(node.node_id);
+                  sessionStorage.setItem("node_id", selectedNodeID);
+                  sessionStorage.setItem("node_name", nodeNameDetail);
                 }}>Details</button
               >
             </div>
@@ -727,8 +729,9 @@
           <button
             class="btn btn-primary w-6/12"
             on:click={() => {
-              sessionStorage.setItem("node_id", selectedNodeID);
-              sessionStorage.setItem("node_name", nodeNameDetail);
+              // moved this to the 'Details' button
+              // sessionStorage.setItem("node_id", selectedNodeID);
+              // sessionStorage.setItem("node_name", nodeNameDetail);
               //reroute to market
               goto("../Main/BiddingMarket");
             }}>Transact with this node</button

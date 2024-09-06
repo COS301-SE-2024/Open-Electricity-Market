@@ -89,4 +89,8 @@ impl Curve for HomeAppliance {
 
         total
     }
+
+    fn get_appliance_list_if_possible(&mut self) -> Vec<String> {
+        return vec![self.appliance_type.to_string()];
+    }
 }

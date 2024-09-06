@@ -21,7 +21,7 @@
      
     if (typeof window !== 'undefined') {
       chart = createChart(chartCanvas, sampleChartConfig);
-      fillChart();
+      
     }
     
     window.addEventListener('resize', resizeChart);

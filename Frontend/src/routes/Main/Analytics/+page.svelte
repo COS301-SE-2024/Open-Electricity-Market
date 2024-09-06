@@ -26,6 +26,7 @@ let unitsbought;
 let unitssold; 
 let listofnodeids = []; 
 let marketpiedata; 
+let consumptioncurvedata = []; 
 
 
 onMount(async () => {
@@ -244,6 +245,18 @@ function toggleDropdown(){
       
       const fdata = await response.json();
       console.log(fdata);
+
+      if(fdata.message == "Here is the detail"){
+        
+        let temp = fdata.consumption; 
+            consumption.forEach((item, index) => {
+            if (!consumptioncurvedata[index]) {
+                consumptioncurvedata[index] = 0;
+            }
+            consumptioncurvedata[index] += item.data;
+         });
+         console.log("This is consumption curve data:", consumptioncurvedata); 
+      }
   
     } catch (error) {
       console.log("An error occurred while fetching getCurve data..\n", error);
@@ -401,9 +414,9 @@ function toggleDropdown(){
            
         </div>
         <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
-             <ProductionCurve  />
-        </div>
-    
+            <ProductionCurve  />
+       </div>
+            
     </div>
 
 </div>

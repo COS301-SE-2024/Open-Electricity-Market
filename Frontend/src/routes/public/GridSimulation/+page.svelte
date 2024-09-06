@@ -85,7 +85,7 @@
         {/if}
       </div>
 
-      <div class="statsection my-2 bottom-0">
+      <div class="statsection mt-2">
         <GridStats />
       </div>
     </div>
@@ -93,27 +93,33 @@
       <div
         class="chartsection md:w-1/4 mx-2 p-5 xs:w-full bg-base-100 rounded-2xl flex flex-col max-w-full"
       >
-        <h1 class="text-2xl">Consumer Details</h1>
-        <span>
+        <h1 class="text-3xl">Consumer Details</h1>
+        <hr />
+        <span class="pt-5">
           <span class="font-light text-lg mt-10">Impedance: </span><br />
-          <span class="text-2xl"
+          <span class="text-4xl"
             >{Intl.NumberFormat().format(
               (markerDetails.resistance / 1000).toFixed(3)
             )} kΩ</span
           >
         </span>
         {#if markerDetails.generators != []}
-          <span>
+          <span class="pt-5">
             <span class="font-light text-lg">Generators: </span> <br />
             {#each markerDetails.generators as generator}
               <span class="text-2xl">Generator ID: {generator.id}</span><br />
               <span class="text-2xl"
-                >Current Generation: {generator.max_voltage.toFixed(2)}</span
+                >Current Generation: {(
+                  Math.pow(generator.max_voltage, 2) /
+                  markerDetails.resistance /
+                  1000
+                ).toFixed(3)} kW</span
               >
             {/each}
           </span>
         {/if}
-        <div class="h-1/4 w-full">
+        <h1 class="font-light text-lg pt-5"><!--Grid state--></h1>
+        <div class="h-max w-full">
           <Chart data={voltageData} />
         </div>
       </div>

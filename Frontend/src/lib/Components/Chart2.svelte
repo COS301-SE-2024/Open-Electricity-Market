@@ -9,13 +9,11 @@
   let interval;
   const duration = 4;
   const sampleRate = 1000;
-  const windowsize = 1;
   let initialized = false;
 
   let datasin = [];
   let datasin2 = [];
   let datasin3 = [];
-  let labels = [];
 
   onMount(() => {
     if (typeof window !== "undefined") {
@@ -24,7 +22,7 @@
       // fetchData();
       //updateChart(data);
       if (!interval) {
-        interval = setInterval(updateChart, 500);
+        interval = setInterval(updateChart, 300);
       }
     }
   });
@@ -74,19 +72,18 @@
     return { datasin, labels };
   }
 
+  // this makes the lines move
   let iteration = 0;
   function updateChart() {
     if (!initialized || !chart) {
       return;
     }
 
-    const currentTime = Date.now();
-    const offset = currentTime % (duration * 1000);
-    // currentTime += 1;
-    iteration += 0.5;
+    iteration += 0.12;
+    // iteration += 0.5;
     // console.log(iteration);
 
-    const { amplitude, frequency, phase } = data.oscilloscope_detail;
+    const { amplitude, frequency } = data.oscilloscope_detail;
 
     const jedandva = (2 * Math.PI) / 3;
 
@@ -136,5 +133,5 @@
 </script>
 
 <div class="flex min-w-full min-h-full">
-  <canvas bind:this={chartCanvas} height="310"></canvas>
+  <canvas bind:this={chartCanvas} height="210"></canvas>
 </div>

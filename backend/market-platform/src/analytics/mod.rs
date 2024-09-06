@@ -286,7 +286,7 @@ pub fn sell_history_stat(sell_history_request: Json<UserHistoryRequest>, claims:
                 })
             }
             json!({"status": "ok",
-                "message": "Successfully retrieved user buy history".to_string(),
+                "message": "Successfully retrieved user sell history".to_string(),
                 "data": data
             })
         }

@@ -11,7 +11,7 @@ import PriceChartD3 from "$lib/Components/PriceChartD3.svelte";
 
 
 // **********************************************
-let selectedPrice = 0;
+$: selectedPrice = 0;
 $: price = 0;
 let units = 1;
 
@@ -20,6 +20,7 @@ let selected_node_name = sessionStorage.getItem("node_name");
 
 let data = {};
 async function reset_price(){
+  // console.log("setting price to " + price);
   selectedPrice = price;
 }
 
@@ -143,7 +144,7 @@ async function fetchData() {
             <span class = "md:p-1">
             
             </span>
-            <button class = "basis-1/4 btn btn-primary font-light" title = "Resets price back to current average market price" on on:click={reset_price}>Market price</button>
+            <button class = "basis-1/4 btn btn-primary font-light" title = "Resets price back to current average market price" on:click={reset_price}>Market price</button>
           </div>
         </div>
         <br>
@@ -151,7 +152,7 @@ async function fetchData() {
         <br>
         <div class="form-control mt-1">
           <label for="amount" class = "font-light"> Watt-hours </label>
-          <input id="buy_units" type="number" placeholder="{units}" class="input input-bordered font-bold" name="amount" required bind:value={units}/>
+          <input id="buy_units" type="number" placeholder="{(units == null ? 1 : units)}" class="input input-bordered font-bold" name="amount" required bind:value={units}/>
         </div>
         <br>
         <hr>
@@ -160,7 +161,7 @@ async function fetchData() {
           <dialog id="my_modal_1" class="modal">
             <div class="modal-box">
               <h3 class="text-lg font-bold">Confirm Buy Order</h3>
-              <p class="py-4">Please confirm your buy order for {units} units at R{selectedPrice.toFixed(2)} </p>
+              <p class="py-4">Please confirm your buy order for {(units == null ? 1 : units)} units at R{(selectedPrice == null ? selectedPrice = price : selectedPrice).toFixed(2)} </p>
               <div class="modal-action">
                 <form method="dialog">
                   <button class="btn bg-green-600" on:click={() => place_buy_order(false)} >Continue</button>
@@ -191,7 +192,7 @@ async function fetchData() {
           <dialog id="my_modal_2" class="modal">
             <div class="modal-box">
               <h3 class="text-lg font-bold">Confirm Sell Order</h3>
-              <p class="py-4">Please confirm your sell order for {units} units at R{selectedPrice.toFixed(2)} </p>
+              <p class="py-4">Please confirm your sell order for {(units == null ? 1 : units)} units at R{(selectedPrice == null ? selectedPrice = price : selectedPrice).toFixed(2)} </p>
               <div class="modal-action">
                 <form method="dialog">
                   <button class="btn bg-green-600" on:click={() => place_sell_order(false)}>Continue</button>

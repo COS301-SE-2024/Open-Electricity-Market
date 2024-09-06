@@ -123,9 +123,10 @@ async function fetchData() {
     <div class="md:basis-1/3 md:card bg-base-100 md:p-4 xs:pt-10">
       <span class="text-lg">Selected Node: </span> <br>
       <span class="text-3xl">{selected_node_name}</span> <br>
+      <hr>
       <span class="text-lg">Current Average Market Price: </span> <br>
       <span class="text-3xl">R {price.toFixed(2)}</span> <br>
-      
+      <hr>
       <form>
         <div class="form-control mt-1">
           <label for="buy_price"> Price </label>
@@ -136,7 +137,7 @@ async function fetchData() {
           <label for="amount"> Number of units </label>
           <input id="buy_units" type="number" placeholder="{units}" class="input input-bordered" name="amount" required bind:value={units}/>
         </div>
-
+        <hr>
         <div class="mt-1 xs:pt-5">
           <button class="btn btn-primary" onclick="my_modal_1.showModal()">Buy</button>
           <dialog id="my_modal_1" class="modal">

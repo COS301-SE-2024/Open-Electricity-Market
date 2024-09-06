@@ -7,7 +7,7 @@
   onMount(async () => {
 
     fetchData();
-    interval = setInterval(fetchData, 11000);
+    let interval = setInterval(fetchData, 11000);
 
 
     return () => {
@@ -32,7 +32,8 @@
       const response = await fetch(`${API_URL_GRID}/stats`, {
         method: "POST", 
         headers: {
-          'Content-Type': 'application/json' 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         }
       });
       

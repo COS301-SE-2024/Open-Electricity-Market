@@ -55,7 +55,7 @@ module.exports = {
           "accent-content": "#130601",
           neutral: "#2d2b26",
           "neutral-content": "#d1d0cf",
-          "base-100": "#FFF4E9", // d1dddd / f4f5f7 / FFF4E9
+          "base-100": "#F9FAFF", // d1dddd / f4f5f7 / FFF4E9
           "base-200": "#4f444b",
           "base-300": "#da8c5e",
           "base-content": "#101111",

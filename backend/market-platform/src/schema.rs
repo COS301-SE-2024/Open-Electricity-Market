@@ -9,6 +9,14 @@ pub mod open_em {
     }
 
     diesel::table! {
+        open_em.appliance_data (time, appliance) {
+            time -> Timestamptz,
+            data -> Nullable<Float8>,
+            appliance -> Text,
+        }
+    }
+
+    diesel::table! {
         open_em.buy_orders (buy_order_id, created_at) {
             buy_order_id -> Uuid,
             buyer_id -> Uuid,
@@ -96,6 +104,7 @@ pub mod open_em {
 
     diesel::allow_tables_to_appear_in_same_query!(
         agent_history,
+        appliance_data,
         buy_orders,
         grid_history,
         nodes,

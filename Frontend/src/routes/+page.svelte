@@ -10,10 +10,12 @@
   import market_image from "$lib/assets/pexels-energepic-com-27411-159888.jpg"
   import strategy_image from "$lib/assets/pexels-pixabay-163064.jpg"
   import breaker_image from "$lib/assets/troy-bridges-maXnRLszYY0-unsplash.jpg"
+  import { onMount } from "svelte";
 
   let scrollY
   let element
   let height
+  let loggedIn = false;
 
   const options = {
     threshold: [0.4, 0.8]
@@ -29,6 +31,14 @@
         }
     }); 
   }; 
+
+  onMount(() => {
+    const session = sessionStorage.getItem('Token');
+    // console.log("Session id is: ", session);
+    if(session){
+      loggedIn = true; 
+    }
+  });
 
   function scrollDown() {
     document.getElementById("Second").scrollIntoView({behavior: "smooth"});
@@ -49,7 +59,11 @@
       <h2 class="text-4xl font-bold  card-title text-white w-128">Transform the way you manage energy.</h2>
       <br>
       <div class="card-actions ">
+        {#if loggedIn}
+        <a class="btn btn-outline text-xl text-white" href="/Main/Dashboard">Dashboard</a>
+        {:else}
         <a class="btn btn-outline text-xl text-white" href="/login">Sign in</a>
+        {/if}
         <a class="btn btn-outline text-xl text-white" href="/public/GridSimulation">Simulation</a>
       </div>
       <br>
@@ -82,10 +96,10 @@
         </figure>
         <div class="card-body text-white">
           <h2 class="card-title text-4xl">Free market</h2>
-          <p>
-            Amplify provides users with an open market to buy and sell electricity. Analytic
-            tools such as price charts as well as simulations are provided to give users a history of the grid state and help them make
-            informed decisions.
+          <p class="text-xl">
+            Amplify provides users with an open market to buy and sell electricity. <br>
+            We also provide the analytic tools such as price charts as well as simulations to give users a history of the grid state,
+            and ultimately help them make informed decisions.
           </p>
         </div>
       </div>
@@ -97,8 +111,10 @@
         </figure>
         <div class="card-body text-white">
           <h2 class="card-title text-4xl">User asset management</h2>
-          <p>Powerful tools are provided for users to manage their own nodes (electrical equipment). This allows
-          users to manage there own electricity on a nation wide level.</p>
+          <p class="text-xl">
+            Powerful tools are provided for users to manage their own nodes, and the appliances they choose to connect. <br>
+            This any user in the nation to easily observe and manage their use of electricity. 
+          </p>
         </div>
       </div>
 
@@ -108,8 +124,10 @@
         </figure>
         <div class="card-body text-white">
           <h2 class="card-title text-4xl">Controlled Market</h2>
-          <p>The market features several control systems to ensure a fair market as well as a stable grid. Price is
-          adjusted to ensure the grid load stays<br> within predetermined limits, thus providing a more stable grid. Electricity that is bought has a lifetime in order to avoid hoarding.</p>
+          <p class="text-xl">
+            The market features several control systems to ensure a fair market as well as maintain a stable grid. <br>
+            Market price is adjusted to ensure the grid load stays within predetermined limits, and bought electricity has a lifetime in order to avoid hoarding.
+          </p>
         </div>
       </div>
 
@@ -128,10 +146,10 @@
         </figure>
         <div class="card-body text-white">
           <h2 class="card-title text-4xl">Real-time grid simulation</h2>
-          <p>The market platform is built on top of a accurate electrical grid simulation. This simulation takes
-          the following into account:
-            <li>Kriscoff's Voltage law</li>
-            <li>Kriscoff's Current law</li>
+          <p class="text-xl">The market platform is built on top of a accurate electrical grid simulation. <br>
+            Our simulation takes the following into account:
+            <li>Kirchhoff's Voltage law</li>
+            <li>Kirchhoff's Current law</li>
             <li>Inductive impedance</li>
             <li>3 Phase AC (alternating current)</li>
           </p>

@@ -9,8 +9,10 @@ use std::{
 
 use agent::Agent;
 use curve::{CummutiveCurve, SineCurve};
-use diesel::RunQueryDsl;
-use diesel::{dsl::insert_into, Connection, ExpressionMethods, PgConnection};
+use diesel::pg::sql_types::Array;
+use diesel::sql_types::Text;
+use diesel::{define_sql_function, dsl::insert_into, Connection, ExpressionMethods, PgConnection};
+use diesel::{JoinOnDsl, QueryDsl, RunQueryDsl};
 use dotenvy::dotenv;
 use generator::{
     production_curve::{
@@ -33,14 +35,17 @@ use rocket::{
 use rocket::{response::content, tokio};
 use schema::open_em::agent_history::{self, agent_state};
 use serde::Deserialize;
-use serde_json::json;
+use serde_json::{json, Value};
 use smart_meter::consumption_curve::HomeApplianceType;
 use smart_meter::{consumption_curve::HomeAppliance, SmartMeter};
 use std::ops::Deref;
+use uuid::Uuid;
+
 pub mod agent;
 pub mod curve;
 pub mod generator;
 pub mod location;
+pub mod models;
 pub mod net_structs;
 pub mod node;
 pub mod period;
@@ -80,9 +85,142 @@ impl Fairing for CORS {
     }
 }
 
-#[post("/stats")]
-fn stats() -> content::RawJson<String> {
-    content::RawJson(json!({}).to_string())
+#[derive(Deserialize)]
+struct GetConsumedProduced {
+    node_id: String,
+}
+
+#[post("/get_consumed_produced", format = "application/json", data = "<data>")]
+fn get_consumed_produced(data: Json<GetConsumedProduced>) -> content::RawJson<String> {
+    use crate::schema::open_em::buy_orders::dsl::*;
+    // use crate::schema::open_em::nodes::dsl::*;
+    use crate::schema::open_em::sell_orders::dsl::*;
+    use crate::schema::open_em::transactions::dsl::*;
+
+    let node_id = Uuid::parse_str(&data.node_id).unwrap();
+
+    let connection = &mut establish_connection();
+
+    let produced: f64;
+    match transactions
+        .inner_join(
+            sell_orders.on(schema::open_em::sell_orders::dsl::sell_order_id
+                .eq(schema::open_em::transactions::dsl::sell_order_id)),
+        )
+        .filter(producer_id.eq(node_id))
+        .select(diesel::dsl::sql::<diesel::sql_types::Double>(
+            "SUM(units_produced)",
+        ))
+        .first(connection)
+    {
+        Ok(a) => {
+            produced = a;
+        }
+        Err(_) => {
+            return content::RawJson(
+                json!({"status": "error", "message": "Something went wrong" , "data": {}})
+                    .to_string(),
+            );
+        }
+    }
+
+    let consumed: f64;
+    match transactions
+        .inner_join(
+            buy_orders.on(schema::open_em::buy_orders::dsl::buy_order_id
+                .eq(schema::open_em::transactions::dsl::buy_order_id)),
+        )
+        .filter(consumer_id.eq(node_id))
+        .select(diesel::dsl::sql::<diesel::sql_types::Double>(
+            "SUM(units_consumed)",
+        ))
+        .first(connection)
+    {
+        Ok(a) => {
+            consumed = a;
+        }
+        Err(_) => {
+            return content::RawJson(
+                json!({"status": "error", "message": "Something went wrong" , "data": {}})
+                    .to_string(),
+            );
+        }
+    }
+
+    content::RawJson(
+        json!({"status": "ok", "message": "Here is the detail", "data": {
+            "produced":produced,
+            "consumed":consumed,
+        }})
+        .to_string(),
+    )
+}
+
+#[derive(Deserialize)]
+struct GetCurveDetail {
+    email: String,
+    node_id: String,
+}
+
+define_sql_function! {fn appliance_curve(appliances : Array<Text>) -> diesel::sql_types::Json;}
+
+#[post("/get_curve", format = "application/json", data = "<data>")]
+fn get_curve(
+    agents: &State<Arc<Mutex<Vec<Agent>>>>,
+    data: Json<GetCurveDetail>,
+) -> content::RawJson<String> {
+    let email = data.email.clone();
+    let node_id = data.node_id.clone();
+    let production;
+    let consumption: Value;
+    {
+        let mut agents = agents.lock().unwrap();
+        let agent_index = agents.iter().position(|a| return a.email == email);
+        if agent_index.is_none() {
+            return content::RawJson(
+                json!({"status": "error", "message": "Invalid Email or node_id", "data": {}})
+                    .to_string(),
+            );
+        }
+        let agent_index = agent_index.unwrap();
+        let node_index = agents[agent_index]
+            .nodes
+            .iter()
+            .position(|n| return n.node_id == node_id);
+        if node_index.is_none() {
+            return content::RawJson(
+                json!({"status": "error", "message": "Invalid Email or node_id" , "data": {}})
+                    .to_string(),
+            );
+        }
+        let node_index = node_index.unwrap();
+
+        match &mut agents[agent_index].nodes[node_index].smart_meter {
+            SmartMeter::Acctive(core) => {
+                let argument = core.consumption_curve.get_appliance_list_if_possible();
+
+                let conn = &mut establish_connection();
+                let appliance_curve = appliance_curve(argument);
+                consumption = diesel::select(appliance_curve).first(conn).unwrap();
+            }
+            SmartMeter::InActtive => {
+                consumption = serde_json::from_str("{}").unwrap();
+            }
+        }
+
+        production = match &mut agents[agent_index].nodes[node_index].generator {
+            Generator::Acctive(core) => core.production_curve.get_generator_curve_if_possible(),
+            Generator::InAcctive => {
+                vec![]
+            }
+        };
+    }
+
+    content::RawJson(
+        json!({"status": "ok", "message": "Here is the detail", "data": {  "consumption" : consumption,
+        "production" :  production}})
+        .to_string(),
+    )
 }
 
 #[post("/availible_generators")]
@@ -374,13 +512,14 @@ fn rocket() -> _ {
         .mount(
             "/",
             routes![
-                stats,
+                get_curve,
                 availible_appliances,
                 add_appliances,
                 add_agent,
                 availible_generators,
                 add_generators,
-                set_session
+                set_session,
+                get_consumed_produced
             ],
         )
         .manage(agents)

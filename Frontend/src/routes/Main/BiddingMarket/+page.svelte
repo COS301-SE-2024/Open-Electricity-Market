@@ -155,8 +155,8 @@ async function fetchData() {
         </div>
         <br>
         <hr>
-        <div class="mt-1 xs:pt-5">
-          <button class="btn btn-primary font-light" onclick="my_modal_1.showModal()">Buy</button>
+        <div class="mt-1 xs:pt-5 flex">
+          <button class="md:basis-1/2 btn btn-primary font-light" onclick="my_modal_1.showModal()">Buy</button>
           <dialog id="my_modal_1" class="modal">
             <div class="modal-box">
               <h3 class="text-lg font-bold">Confirm Buy Order</h3>
@@ -183,8 +183,11 @@ async function fetchData() {
               </div>
             </div>
           </dialog>-->
+          <span class = "xs:p-1">
+            
+          </span>
 
-          <button class="btn btn-accent font-light" onclick="my_modal_2.showModal()">Sell</button>
+          <button class="md:basis-1/2 btn btn-accent font-light" onclick="my_modal_2.showModal()">Sell</button>
           <dialog id="my_modal_2" class="modal">
             <div class="modal-box">
               <h3 class="text-lg font-bold">Confirm Sell Order</h3>

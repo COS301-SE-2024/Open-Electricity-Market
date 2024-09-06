@@ -115,12 +115,12 @@ async function fetchData() {
 
 <main class="container mx-auto p-4 ">
   <div class="md:flex md:flex-row ">
-    <div class="md:basis-3/5 bg-base-100 md:card md:mr-5 md:p-4">
+    <div class="md:basis-2/3 bg-base-100 md:card md:mr-5 md:p-4">
       <h1 class="md:text-5xl md:font-light md:pt-8">Marketplace</h1>
       <!-- <Chart {data} class = "" /> -->
        <PriceChartD3  /> 
     </div>
-    <div class="md:basis-2/5 md:card bg-base-100 md:p-4 xs:pt-10 ">
+    <div class="md:basis-1/3 md:card bg-base-100 md:p-4 xs:pt-10 ">
       <h1 class="md:text-5xl md:font-light md:pt-4">Node Info</h1>
       <hr>
       <br>
@@ -136,26 +136,28 @@ async function fetchData() {
       <br>
       <div>
         
-        <span class="form-control">
+        <div class="form-control mt-1">
           <label for="buy_price" class = "text-lg font-light"> Price </label>
-          <span class = "md:flex">
-            <input id="buy_price" type="number" placeholder="{selectedPrice}" class="input input-bordered font-bold" name="buy_price" required bind:value={selectedPrice}/>
-            <button class = "btn btn-primary font-light">Revert back to Market price</button>
-          </span >
-        </span>
+          <div class = "flex ">
+            <input id="buy_price" type="number" placeholder="{selectedPrice}" class="basis-2/3 input input-bordered font-bold " name="buy_price" required bind:value={selectedPrice}/>
+            <span class = "md:p-1">
+            
+            </span>
+            <button class = "basis-1/4 btn btn-primary font-light p-0 " title = "Resets price back to current average market price">Market price</button>
+          </div>
+        </div>
         
         <br>
         <hr>
+        <br>
         <div class="form-control mt-1">
           <label for="amount" class = "text-lg font-light"> Watt-hours </label>
           <input id="buy_units" type="number" placeholder="{units}" class="input input-bordered font-bold" name="amount" required bind:value={units}/>
         </div>
-        
-        <div class="mt-1 xs:pt-5 ">
-          <hr>
-          <br>
-          <span class = "xs:p-1">
-            <button class="btn btn-primary font-light" onclick="my_modal_1.showModal()">Buy</button>
+        <br>
+        <hr>
+        <div class="mt-1 xs:pt-5 flex ">
+          <button class="md:basis-1/2 btn btn-primary font-light" onclick="my_modal_1.showModal()">Buy</button>
             <dialog id="my_modal_1" class="modal">
               <div class="modal-box">
                 <h3 class="text-lg font-bold">Confirm Buy Order</h3>
@@ -182,10 +184,10 @@ async function fetchData() {
                 </div>
               </div>
             </dialog>-->
-          </span>
-          
           <span class = "xs:p-1">
-            <button class="btn btn-accent font-light" onclick="my_modal_2.showModal()">Sell</button>
+            
+          </span>
+          <button class="btn btn-accent font-light md:basis-1/2" onclick="my_modal_2.showModal()">Sell</button>
             <dialog id="my_modal_2" class="modal">
               <div class="modal-box">
                 <h3 class="text-lg font-bold">Confirm Sell Order</h3>
@@ -213,7 +215,7 @@ async function fetchData() {
               </div>
             </dialog>-->
             <!-- <button class="btn btn-success" onclick="my_modal_1.showModal()">Buy at market price</button> -->
-          </span>
+          
         </div>
       </div>
     </div>

@@ -58,8 +58,8 @@
   }
 
   function logout() {
-    Cookies.remove("session_id");
-    window.location.href = "/login";
+    sessionStorage.removeItem("Token");
+    window.location.href = '/login';
   }
 
   let showMenu = false;

@@ -51,37 +51,40 @@
     }
   });
 
-  async function fetchData() {
-    if (browser) {
-      try {
-        const response = await fetch(`${API_URL_GRID}/info`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        //console.log("Request being sent...");
-        const fdata = await response.json();
-        //console.log("Fetched data:", fdata);
-        data = fdata.circuits[0] || {};
-        console.log("This is circuits...");
-        console.log(data);
-        updateMarkers();
-        resizeMap();
-      } catch (error) {
-        console.log(
-          "There was an error fetching the JSON for the info:",
-          error
-        );
+     async function fetchData() {
+      if (browser) {
+        try {
+          const response = await fetch(`${API_URL_GRID}/info`, {
+            method: "POST", 
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            }
+          });
+          //console.log("Request being sent...");
+          const fdata = await response.json();
+          //console.log("Fetched data:", fdata);
+          data = fdata.circuits[0] || {};
+          console.log("This is circuits...");
+          console.log(data);
+          updateMarkers();
+          resizeMap();
+          
+          
+        } catch (error) {
+          console.log("There was an error fetching the JSON for the info:", error);
+        }
       }
-    }
   }
 
-  function updateMarkers() {
-    if (!data.loads || !data.generators) {
-      console.log("No loads or generators available");
-      return;
-    }
+    
+
+    function updateMarkers(){
+
+        if (!data.loads || !data.generators) {
+          console.log("No loads or generators available");
+          return;
+        }
 
     markers.forEach((marker) => marker.remove());
     markers = [];
@@ -192,15 +195,26 @@
     }
   }
 </script>
-
-<main>
+    
+    
+<main class="min-w-full min-h-full">
   <div bind:this={mapContainer}></div>
 </main>
+    
+<style>
+  @import 'leaflet/dist/leaflet.css';
+  div {
+    height: 700px;
+    z-index: 0; 
+  }
+</style>
 
-<dialog id="test_modal" class="modal">
+
+
+<dialog id="test_modal" class="modal">  
   <div class="modal-box">
-    <h3 class="font-bold text-lg">Voltage</h3>
-    <Chart {data} />
+    <h3 class="font-bold text-lg ">Voltage</h3>
+    <Chart {data}/>
   </div>
   <form method="dialog" class="modal-backdrop">
     <button>close</button>

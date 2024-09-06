@@ -9,6 +9,8 @@
 
   const currentpath = derived(page, $page => $page.url.pathname);
 
+  let loggedIn = false
+
   $: activebutton = $currentpath;
 
   function showModal(){
@@ -25,7 +27,11 @@
   }
 
   onMount(() => {
-    
+    const session = sessionStorage.getItem('Token');
+    // console.log("Session id is: ", session);
+    if(session){
+      loggedIn = true; 
+    }
   });
 
   async function removeAccount(){
@@ -52,8 +58,8 @@
   }
 
   function logout() {
-    Cookies.remove("session_id");
-    window.location.href = '/login';
+    sessionStorage.removeItem("Token");
+    window.location.replace('/login');
   }
 
   let showMenu = false; 
@@ -64,7 +70,6 @@
     showIcon = !showIcon; 
   }
   </script>
-  
 <body class = "w-full min-h-screen bg-gradient-to-b from-base-200 to-base-300">
 <header>
   <div class="navbar bg-base-100 border-b border-accent">
@@ -77,84 +82,72 @@
       
     <div class="navbar-center hidden lg:flex">
       <ul class="menu menu-horizontal px-1">
-        <li class="px-2"><a class="w-28 justify-center btn-ghost" href="/public/GridSimulation">Grid</a></li>
-        <li class="px-2"><a class=" btn-ghost w-22" href="/Main/Dashboard">Dashboard</a></li>
+        <li class="px-2"><a class="btn btn-ghost rounded-btn font-normal" href="/public/GridSimulation">Simulation</a></li>
+        <li class="px-2"><a class="btn btn-ghost rounded-btn font-normal" href="/Main/Dashboard">Dashboard</a></li>
       </ul>
     </div>
       
     <div class="navbar-end">
 
-  <div class = "xs: hidden md:flex">
-  <ul class="menu menu-horizontal px-3">
-    <li class="px-2"><a class="w-22 btn-ghost" on:click={showModal}>Help</a></li>
-  </ul>
-      <div class="dropdown dropdown-end">
-        <div tabindex="0" role="button" class="btn btn-ghost rounded-btn font-normal">Account</div>
-        <ul class="menu dropdown-content bg-base-100 rounded-box z-[1] mt-4 w-52 p-2 shadow">
-          <button class="btn" onclick="removeaccount_modal.showModal()">Remove Account</button>
-          <button class="btn mt-2" on:click={logout}>Log out</button>
-        </ul>
+      <div class = "xs: hidden md:flex">
+        <div class="dropdown dropdown-end">
+          <a class="btn btn-ghost rounded-btn font-normal mx-2" on:click={showModal}>Help</a>
+          {#if loggedIn}
+          <span tabindex="0" role="button" class="btn btn-ghost rounded-btn font-normal mx-2">Account</span>
+          <ul class="menu dropdown-content bg-base-100 rounded-box z-[1] mt-4 w-52 p-2 shadow">
+            <button class="btn mb-2" on:click={logout}>Log out</button>
+            <button class="btn btn-error" onclick="removeaccount_modal.showModal()">Remove Account</button>
+          </ul>
+          {:else}
+          <a tabindex="0" role="button" class="btn btn-ghost rounded-btn font-normal mx-2" href="/login">Log in</a>
+          {/if}
+        </div>
       </div>
+      <!-- mobile hamburger menu-->
+      <!-- svelte-ignore a11y-click-events-have-key-events -->
+      <!-- svelte-ignore a11y-no-static-element-interactions -->
+      <div on:click={toggleHamburger} class ="md:hidden xs:flex">
+        <div class="navbar-end">
+        <div class="dropdown">
+          <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 6h16M4 12h16M4 18h7" />
+            </svg>  
+          </div>
+          <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+          <ul
+            tabindex="0"
+            class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-48 p-2 shadow align-super fixed right-0 ">
+            <!-- svelte-ignore a11y-missing-attribute -->
+            <li><a href="/" class="text-lg">Landing</a></li>
+            <!-- svelte-ignore a11y-missing-attribute -->
+            <li><a href="/public/GridSimulation" class="text-lg">Simulation</a></li>
+            <!-- svelte-ignore a11y-missing-attribute -->
+            <li><a href="/Main/Dashboard" class="text-lg">Dashboard</a></li>
+            {#if loggedIn}
+            <li>
+              <button class="text-lg" on:click={logout}>Log out</button>
+            </li>
+            <li>
+              <button class="text-lg" onclick="removeaccount_modal.showModal()">Remove Account</button>
+            </li>
+            {:else}
+            <li>
+              <a tabindex="0" role="button" class="text-lg" href="/login">Log in</a>
+            </li>
+            {/if}
+          </ul>
+        </div>
       </div>
-
-
-
-<!-- mobile hamburger menu-->
-
-  <!-- svelte-ignore a11y-click-events-have-key-events -->
-  <!-- svelte-ignore a11y-no-static-element-interactions -->
-  <div on:click={toggleHamburger} class ="md:hidden xs:flex">
-
-      <!-- <button class="btn btn-square btn-ghost {showIcon ? '' : 'hidden'}">
-        <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        class="inline-block h-5 w-5 stroke-current">
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M4 6h16M4 12h16M4 18h16"></path>
-      </svg>
-      </button> -->
-
-
-      
-    <div class="navbar-end">
-    <div class="dropdown">
-      <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-5 w-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor">
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M4 6h16M4 12h16M4 18h7" />
-        </svg>  
-      </div>
-      <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-      <ul
-        tabindex="0"
-        class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-28 p-2 shadow align-super fixed right-0 ">
-        <!-- svelte-ignore a11y-missing-attribute -->
-        <li><a href="/">Landing</a></li>
-        <!-- svelte-ignore a11y-missing-attribute -->
-        <li><a href="/public/GridSimulation">Grid</a></li>
-        <!-- svelte-ignore a11y-missing-attribute -->
-        <li><a href="/Main/Dashboard">Dashboard</a></li>
-      </ul>
-    </div>
-  </div>
-
-
-  </div>
-
-
     </div>
   </div>
 
@@ -164,7 +157,8 @@
   <dialog id="my_modal_dash" class="modal">  
     <div class="modal-box">
       <h3 class="font-bold text-lg ">Dashboard</h3>
-      <p class="py-4">This is the central hub for controlling your nodes on the grid. <br>
+      <p class="py-4">
+        This is the central hub for controlling your nodes on the grid. <br>
         You can see your details, such as credit, on the left, and a list of your nodes and buy orders on the right. <br>
         If you plan on buying electricity, be sure to start by adding some funds to your account first. <br>
         Your credit is also where you will receive money for any electricity you sell, and you can withdraw from this at any time. <br>
@@ -181,7 +175,8 @@
   <dialog id="my_modal_grid" class="modal">  
     <div class="modal-box">
       <h3 class="font-bold text-lg ">Grid Simulation</h3>
-      <p class="py-4">The grid simulation page contains an overview of the current state of the electrical grid. <br>
+      <p class="py-4">
+        The grid simulation page contains an overview of the current state of the electrical grid. <br>
         On the map, you can see all the nodes that are connected to the simulated grid. <br>
         Clicking on one of these nodes will give you more information on them, and will show the voltage being generated at that point on the oscilloscope, on the right. <br>
         At the bottom you can see a few general statistics about the grid.
@@ -216,20 +211,10 @@
           <button class="btn bg-red-500" on:click={removeAccount}>Delete</button>
           <button class="btn bg-gray-600">Cancel</button>
         </form>
-        </div>
       </div>
-    </dialog>
+    </div>
+  </dialog>
 </header>
-
-<main class="container mx-auto mt-8">
- 
-    <slot />
-  
-
-
-  
-  
-  
   <main class="container mx-auto mt-8">
     <slot />
   </main>

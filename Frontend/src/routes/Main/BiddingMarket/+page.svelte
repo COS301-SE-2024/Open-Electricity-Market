@@ -17,6 +17,9 @@
   let selected_node_name = sessionStorage.getItem("node_name");
 
   let data = [];
+async function reset_price(){
+  selectedPrice = price;
+}
 
   async function place_buy_order(at_market_price) {
     // TODO: add a check that fails if units <= 0
@@ -136,7 +139,7 @@
 <main class="container mx-auto p-4">
   <div class="md:flex md:flex-row">
     <div class="md:basis-2/3 bg-base-100 md:card md:mr-5 md:p-4">
-      <h1 class="md:text-5xl md:font-bold md:pt-8">Marketplace</h1>
+      <h1 class="md:text-5xl md:font-light md:pt-8">Marketplace</h1>
       <div class="form-control">
         <!-- svelte-ignore a11y-label-has-associated-control -->
         <select
@@ -172,7 +175,9 @@
             bind:value={selectedPrice}
           />
         </div>
-
+        <br>
+        <hr>
+        <br>
         <div class="form-control mt-1">
           <label for="amount"> Number of units </label>
           <input
@@ -277,7 +282,7 @@
                 </form>
               </div>
             </div>
-          </dialog>
+          </dialog>-->
 
           <!-- <button class="btn btn-success" onclick="my_modal_1.showModal()">Buy at market price</button> -->
         </div>

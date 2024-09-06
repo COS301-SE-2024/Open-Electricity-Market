@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{curve::Curve, period::Period};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub enum SolarPanelType {
     Home,
     Industrial,
@@ -18,7 +18,7 @@ impl SolarPanelType {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub enum WindTurbineType {
     Small,
     Medium,
@@ -36,7 +36,7 @@ impl WindTurbineType {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub enum NuclearReactTypes {
     PWR,
     BWR,
@@ -62,7 +62,7 @@ impl NuclearReactTypes {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub enum DieselGeneratorType {
     Home,
     Industrial,
@@ -77,7 +77,7 @@ impl DieselGeneratorType {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub enum PetrolGeneratorType {
     Home,
     Industrial,
@@ -93,7 +93,7 @@ impl PetrolGeneratorType {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub enum CoalGeneratorType {
     Small,
     Medium,
@@ -111,7 +111,7 @@ impl CoalGeneratorType {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub enum HydraulicTurbineType {
     Small,
     Medium,
@@ -130,7 +130,7 @@ impl HydraulicTurbineType {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub enum GeneratorCurveType {
     SolarPanel(SolarPanelType),
     WindTurbine(WindTurbineType),
@@ -184,6 +184,14 @@ impl Curve for GeneratorCurve {
             total += period.duration() * self.generator_type.value();
         }
         total
+    }
+
+    fn get_generator_curve_if_possible(&mut self) -> Vec<(GeneratorCurveType, f64, Vec<Period>)> {
+        return vec![(
+            self.generator_type.clone(),
+            self.generator_type.value(),
+            self.on_periods.clone(),
+        )];
     }
 }
 

@@ -208,8 +208,12 @@ fn get_curve(
             }
         }
 
-        production =
-            serde_json::to_string(&agents[agent_index].nodes[node_index].generator).unwrap();
+        production = match &mut agents[agent_index].nodes[node_index].generator {
+            Generator::Acctive(core) => core.production_curve.get_generator_curve_if_possible(),
+            Generator::InAcctive => {
+                vec![]
+            }
+        };
     }
 
     content::RawJson(

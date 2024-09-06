@@ -3,11 +3,12 @@ use crate::models::{
 };
 use crate::user_management::Claims;
 use crate::{
-    establish_connection, schema, IMPEDANCE_RATE, SUPPLY_DEMAND_RATE, TRANSACTION_LIFETIME,
-    UNIT_PRICE_RATE,
+    establish_connection, schema, IMPEDANCE_RATE, SUPPLY_DEMAND_RATE, TARGET_VOLTAGE,
+    TRANSACTION_LIFETIME, UNIT_PRICE_RATE,
 };
 use chrono::{DateTime, Duration, Utc};
 use diesel::prelude::*;
+use dotenvy::dotenv;
 use rocket::serde::{
     json::{serde_json::json, Json, Value},
     Deserialize, Serialize,
@@ -25,48 +26,7 @@ struct GridStats {
     user_count: i64,
 }
 
-fn buy_fee_calc(units: f64, price: f64) -> f64 {
-    use self::schema::open_em::buy_orders::dsl::*;
-    use self::schema::open_em::sell_orders::dsl::*;
-
-    let connection = &mut establish_connection();
-
-    let mut demand = 0f64;
-
-    match buy_orders
-        .filter(sought_units.gt(filled_units))
-        .filter(schema::open_em::buy_orders::dsl::active.eq(true))
-        .execute(connection)
-    {
-        Ok(num_buys) => demand = num_buys as f64,
-        Err(_) => {}
-    }
-
-    let mut supply = 0f64;
-    match sell_orders
-        .filter(offered_units.gt(claimed_units))
-        .filter(schema::open_em::sell_orders::dsl::active.eq(true))
-        .execute(connection)
-    {
-        Ok(num_sells) => supply = num_sells as f64,
-        Err(_) => {}
-    }
-
-    let mut impedance = 1f64;
-    match env::var("GRID_URL") {
-        Ok(grid_url) => {
-            let client = reqwest::blocking::Client::new();
-            match client.post(grid_url + "/stats").send() {
-                Ok(response) => match response.json::<GridStats>() {
-                    Ok(grid_stats) => impedance = grid_stats.total_impedance,
-                    Err(_) => {}
-                },
-                Err(_) => {}
-            }
-        }
-        Err(_) => {}
-    }
-
+fn buy_fee_calc(units: f64, price: f64, supply: f64, demand: f64, impedance: f64) -> f64 {
     let mut demand_supply_diff = 1f64;
     if supply < demand {
         demand_supply_diff = demand - supply
@@ -77,48 +37,7 @@ fn buy_fee_calc(units: f64, price: f64) -> f64 {
         + (f64::log10(impedance) * IMPEDANCE_RATE)
 }
 
-fn sell_fee_calc(units: f64, price: f64) -> f64 {
-    use self::schema::open_em::buy_orders::dsl::*;
-    use self::schema::open_em::sell_orders::dsl::*;
-
-    let connection = &mut establish_connection();
-
-    let mut demand = 0f64;
-
-    match buy_orders
-        .filter(sought_units.gt(filled_units))
-        .filter(schema::open_em::buy_orders::dsl::active.eq(true))
-        .execute(connection)
-    {
-        Ok(num_buys) => demand = num_buys as f64,
-        Err(_) => {}
-    }
-
-    let mut supply = 0f64;
-    match sell_orders
-        .filter(offered_units.gt(claimed_units))
-        .filter(schema::open_em::sell_orders::dsl::active.eq(true))
-        .execute(connection)
-    {
-        Ok(num_sells) => supply = num_sells as f64,
-        Err(_) => {}
-    }
-
-    let mut impedance = 1f64;
-    match env::var("GRID_URL") {
-        Ok(grid_url) => {
-            let client = reqwest::blocking::Client::new();
-            match client.post(grid_url + "/stats").send() {
-                Ok(response) => match response.json::<GridStats>() {
-                    Ok(grid_stats) => impedance = grid_stats.total_impedance,
-                    Err(_) => {}
-                },
-                Err(_) => {}
-            }
-        }
-        Err(_) => {}
-    }
-
+fn sell_fee_calc(units: f64, price: f64, supply: f64, demand: f64, impedance: f64) -> f64 {
     let mut supply_demand_diff = 1f64;
     if demand < supply {
         supply_demand_diff = supply - demand
@@ -272,6 +191,14 @@ pub fn price_history(price_history_request: Json<PriceHistoryRequest>) -> Value 
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
+struct CurrentVoltage {
+    status: String,
+    message: String,
+    data: f32,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
 pub struct OrderRequest {
     node_id: String,
     max_price: f64,
@@ -314,6 +241,7 @@ pub fn buy_order(buy_order_request: Json<OrderRequest>, claims: Claims) -> Value
         Ok(node) => {
             if buy_order_request.max_price > 0f64
                 && buy_order_request.min_price > 0f64
+                && buy_order_request.min_price < buy_order_request.max_price
                 && buy_order_request.units > 0f64
             {
                 let new_buy_order = NewBuyOrder {
@@ -323,6 +251,61 @@ pub fn buy_order(buy_order_request: Json<OrderRequest>, claims: Claims) -> Value
                     max_price: buy_order_request.max_price,
                     min_price: buy_order_request.min_price,
                 };
+
+                let mut demand = 0f64;
+
+                match buy_orders
+                    .filter(sought_units.gt(filled_units))
+                    .filter(schema::open_em::buy_orders::dsl::active.eq(true))
+                    .execute(connection)
+                {
+                    Ok(num_buys) => demand = num_buys as f64,
+                    Err(_) => {}
+                }
+
+                let mut supply = 0f64;
+                match sell_orders
+                    .filter(offered_units.gt(claimed_units))
+                    .filter(schema::open_em::sell_orders::dsl::active.eq(true))
+                    .execute(connection)
+                {
+                    Ok(num_sells) => supply = num_sells as f64,
+                    Err(_) => {}
+                }
+
+                dotenv().ok();
+                let mut impedance = 1f64;
+                match env::var("GRID_URL") {
+                    Ok(grid_url) => {
+                        let client = reqwest::blocking::Client::new();
+                        match client.post(grid_url + "/stats").send() {
+                            Ok(response) => match response.json::<GridStats>() {
+                                Ok(grid_stats) => impedance = grid_stats.total_impedance,
+                                Err(_) => {}
+                            },
+                            Err(_) => {}
+                        }
+                    }
+                    Err(_) => {}
+                }
+
+                let mut current_voltage = 240f64;
+                match env::var("GRID_URL") {
+                    Ok(grid_url) => {
+                        let client = reqwest::blocking::Client::new();
+                        match client.post(grid_url + "/current_voltage").send() {
+                            Ok(response) => match response.json::<CurrentVoltage>() {
+                                Ok(curr_voltage_res) => {
+                                    current_voltage = curr_voltage_res.data as f64
+                                }
+                                Err(_) => {}
+                            },
+                            Err(_) => {}
+                        }
+                    }
+                    Err(_) => {}
+                }
+
                 match diesel::insert_into(buy_orders)
                     .values(new_buy_order)
                     .returning(BuyOrder::as_returning())
@@ -351,8 +334,25 @@ pub fn buy_order(buy_order_request: Json<OrderRequest>, claims: Claims) -> Value
                                         transaction_units =
                                             s_order.offered_units - s_order.claimed_units;
                                     }
-                                    let transaction_price = s_order.max_price; // Will be based on the direction the market needs to move for grid stability
-                                    let fee = buy_fee_calc(transaction_units, transaction_price);
+                                    let price_min = if order.min_price > s_order.min_price {
+                                        s_order.min_price
+                                    } else {
+                                        order.min_price
+                                    };
+                                    let transaction_price = ((1f64
+                                        / (1f64
+                                            + f64::exp(
+                                                -0.25 * (TARGET_VOLTAGE - current_voltage),
+                                            )))
+                                        * (s_order.max_price - price_min))
+                                        + price_min; // Will be based on the direction the market needs to move for grid stability
+                                    let fee = buy_fee_calc(
+                                        transaction_units,
+                                        transaction_price,
+                                        supply,
+                                        demand,
+                                        impedance,
+                                    );
                                     let new_transaction = NewTransaction {
                                         sell_order_id: s_order.sell_order_id,
                                         buy_order_id: order.buy_order_id,
@@ -433,6 +433,7 @@ pub fn sell_order(sell_order_request: Json<OrderRequest>, claims: Claims) -> Val
         Ok(node) => {
             if sell_order_request.max_price > 0f64
                 && sell_order_request.min_price > 0f64
+                && sell_order_request.min_price < sell_order_request.max_price
                 && sell_order_request.units > 0f64
             {
                 let new_sell_order = NewSellOrder {
@@ -442,6 +443,61 @@ pub fn sell_order(sell_order_request: Json<OrderRequest>, claims: Claims) -> Val
                     min_price: sell_order_request.min_price,
                     producer_id: node.node_id,
                 };
+
+                let mut demand = 0f64;
+
+                match buy_orders
+                    .filter(sought_units.gt(filled_units))
+                    .filter(schema::open_em::buy_orders::dsl::active.eq(true))
+                    .execute(connection)
+                {
+                    Ok(num_buys) => demand = num_buys as f64,
+                    Err(_) => {}
+                }
+
+                let mut supply = 0f64;
+                match sell_orders
+                    .filter(offered_units.gt(claimed_units))
+                    .filter(schema::open_em::sell_orders::dsl::active.eq(true))
+                    .execute(connection)
+                {
+                    Ok(num_sells) => supply = num_sells as f64,
+                    Err(_) => {}
+                }
+
+                dotenv().ok();
+                let mut impedance = 1f64;
+                match env::var("GRID_URL") {
+                    Ok(grid_url) => {
+                        let client = reqwest::blocking::Client::new();
+                        match client.post(grid_url + "/stats").send() {
+                            Ok(response) => match response.json::<GridStats>() {
+                                Ok(grid_stats) => impedance = grid_stats.total_impedance,
+                                Err(_) => {}
+                            },
+                            Err(_) => {}
+                        }
+                    }
+                    Err(_) => {}
+                }
+
+                let mut current_voltage = 240f64;
+                match env::var("GRID_URL") {
+                    Ok(grid_url) => {
+                        let client = reqwest::blocking::Client::new();
+                        match client.post(grid_url + "/current_voltage").send() {
+                            Ok(response) => match response.json::<CurrentVoltage>() {
+                                Ok(curr_voltage_res) => {
+                                    current_voltage = curr_voltage_res.data as f64
+                                }
+                                Err(_) => {}
+                            },
+                            Err(_) => {}
+                        }
+                    }
+                    Err(_) => {}
+                }
+
                 match diesel::insert_into(sell_orders)
                     .values(new_sell_order)
                     .returning(SellOrder::as_returning())
@@ -471,8 +527,25 @@ pub fn sell_order(sell_order_request: Json<OrderRequest>, claims: Claims) -> Val
                                         transaction_units =
                                             b_order.sought_units - b_order.filled_units;
                                     }
-                                    let transaction_price = b_order.min_price; // Will be based on the direction the market needs to move for grid stability
-                                    let fee = sell_fee_calc(transaction_units, transaction_price);
+                                    let price_max = if order.max_price > b_order.max_price {
+                                        order.max_price
+                                    } else {
+                                        b_order.max_price
+                                    };
+                                    let transaction_price = ((1f64
+                                        / (1f64
+                                            + f64::exp(
+                                                -0.25 * (TARGET_VOLTAGE - current_voltage),
+                                            )))
+                                        * (price_max - b_order.min_price))
+                                        + b_order.min_price; // Will be based on the direction the market needs to move for grid stability
+                                    let fee = sell_fee_calc(
+                                        transaction_units,
+                                        transaction_price,
+                                        supply,
+                                        demand,
+                                        impedance,
+                                    );
                                     let new_transaction = NewTransaction {
                                         buy_order_id: b_order.buy_order_id,
                                         sell_order_id: order.sell_order_id,
@@ -834,9 +907,57 @@ pub struct FeeEstimation {
     data = "<fee_estimation_request>"
 )]
 pub fn estimate_buy_fee(fee_estimation_request: Json<FeeEstimationRequest>) -> Value {
+    use self::schema::open_em::buy_orders::dsl::*;
+    use self::schema::open_em::sell_orders::dsl::*;
+
+    let connection = &mut establish_connection();
+
+    let mut demand = 0f64;
+
+    match buy_orders
+        .filter(sought_units.gt(filled_units))
+        .filter(schema::open_em::buy_orders::dsl::active.eq(true))
+        .execute(connection)
+    {
+        Ok(num_buys) => demand = num_buys as f64,
+        Err(_) => {}
+    }
+
+    let mut supply = 0f64;
+    match sell_orders
+        .filter(offered_units.gt(claimed_units))
+        .filter(schema::open_em::sell_orders::dsl::active.eq(true))
+        .execute(connection)
+    {
+        Ok(num_sells) => supply = num_sells as f64,
+        Err(_) => {}
+    }
+
+    dotenv().ok();
+    let mut impedance = 1f64;
+    match env::var("GRID_URL") {
+        Ok(grid_url) => {
+            let client = reqwest::blocking::Client::new();
+            match client.post(grid_url + "/stats").send() {
+                Ok(response) => match response.json::<GridStats>() {
+                    Ok(grid_stats) => impedance = grid_stats.total_impedance,
+                    Err(_) => {}
+                },
+                Err(_) => {}
+            }
+        }
+        Err(_) => {}
+    }
+
     let message = "Buy fee estimation".to_string();
 
-    let temp = buy_fee_calc(fee_estimation_request.units, fee_estimation_request.price);
+    let temp = buy_fee_calc(
+        fee_estimation_request.units,
+        fee_estimation_request.price,
+        supply,
+        demand,
+        impedance,
+    );
 
     let data = FeeEstimation { fee: temp };
 
@@ -849,9 +970,57 @@ pub fn estimate_buy_fee(fee_estimation_request: Json<FeeEstimationRequest>) -> V
     data = "<fee_estimation_request>"
 )]
 pub fn estimate_sell_fee(fee_estimation_request: Json<FeeEstimationRequest>) -> Value {
+    use self::schema::open_em::buy_orders::dsl::*;
+    use self::schema::open_em::sell_orders::dsl::*;
+
+    let connection = &mut establish_connection();
+
+    let mut demand = 0f64;
+
+    match buy_orders
+        .filter(sought_units.gt(filled_units))
+        .filter(schema::open_em::buy_orders::dsl::active.eq(true))
+        .execute(connection)
+    {
+        Ok(num_buys) => demand = num_buys as f64,
+        Err(_) => {}
+    }
+
+    let mut supply = 0f64;
+    match sell_orders
+        .filter(offered_units.gt(claimed_units))
+        .filter(schema::open_em::sell_orders::dsl::active.eq(true))
+        .execute(connection)
+    {
+        Ok(num_sells) => supply = num_sells as f64,
+        Err(_) => {}
+    }
+
+    dotenv().ok();
+    let mut impedance = 1f64;
+    match env::var("GRID_URL") {
+        Ok(grid_url) => {
+            let client = reqwest::blocking::Client::new();
+            match client.post(grid_url + "/stats").send() {
+                Ok(response) => match response.json::<GridStats>() {
+                    Ok(grid_stats) => impedance = grid_stats.total_impedance,
+                    Err(_) => {}
+                },
+                Err(_) => {}
+            }
+        }
+        Err(_) => {}
+    }
+
     let message = "Sell fee estimation".to_string();
 
-    let temp = sell_fee_calc(fee_estimation_request.units, fee_estimation_request.price);
+    let temp = sell_fee_calc(
+        fee_estimation_request.units,
+        fee_estimation_request.price,
+        supply,
+        demand,
+        impedance,
+    );
 
     let data = FeeEstimation { fee: temp };
     json!({"status": "ok", "message": message, "data": data})

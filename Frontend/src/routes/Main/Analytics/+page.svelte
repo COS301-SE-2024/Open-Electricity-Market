@@ -14,6 +14,24 @@ let dropdownvisible = false;
 //required for curve endpoint
 let email = ''; 
 let nodeid = ''; 
+let nodes; 
+let listofnodes = []; 
+let maxbuy; 
+let minbuy; 
+let avgbuy; 
+let maxsell; 
+let minsell; 
+let avgsell; 
+let unitsbought; 
+let unitssold; 
+let listofnodeids = []; 
+
+
+onMount(async () => {
+
+    await getNodes(); 
+
+  }); 
 
 function toggleDropdown(){
     dropdownvisible = !dropdownvisible; 
@@ -71,6 +89,12 @@ function toggleDropdown(){
       
       const fdata = await response.json();
       console.log(fdata);
+      if(fdata.message == "User's buying stats successfully retrieved"){
+        maxbuy = fdata.data.max_price; 
+        minbuy = fdata.data.min_price; 
+        avgbuy = fdata.data.average_price; 
+      }
+     
   
     } catch (error) {
       console.log("An error occurred while fetching user_buy_stats data..\n", error);
@@ -93,6 +117,12 @@ function toggleDropdown(){
       
       const fdata = await response.json();
       console.log(fdata);
+      if(fdata.message == "User's selling stats successfully retrieved"){
+        maxsell = fdata.data.max_price; 
+        minsell = fdata.data.min_price; 
+        avgsell = fdata.data.average_price; 
+      }
+     
   
     } catch (error) {
       console.log("An error occurred while fetching user_sell_stats data..\n", error);
@@ -172,6 +202,10 @@ function toggleDropdown(){
       
       const fdata = await response.json();
       console.log(fdata);
+      if(fdata.message == "Successfully retrieved user bought and sold units"){
+        unitsbought = fdata.data.units_bought; 
+        unitssold = fdata.data.units_sold; 
+      }
   
     } catch (error) {
       console.log("An error occurred while fetching bought_vs_sold data..\n", error);
@@ -208,6 +242,67 @@ function toggleDropdown(){
   }
 
 
+  async function getConsumedProduced(){
+
+    try {
+      const response = await fetch(`${API_URL_AGENT}/get_consumed_produced`, {
+        method: "POST", 
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${sessionStorage.getItem("Token")}`
+        },
+         body: JSON.stringify({
+            node_id: nodeid,
+          }),
+        credentials: "include", 
+      });
+   
+      
+      const fdata = await response.json();
+      console.log(fdata);
+  
+    } catch (error) {
+      console.log("An error occurred while fetching getConsumedProduced data..\n", error);
+    }
+
+  }
+
+
+  async function getNodes(){
+
+     try {
+      const response = await fetch(`${API_URL_MARKET}/get_nodes`, {
+        method: "POST", 
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': `Bearer ${sessionStorage.getItem("Token")}`
+        },
+         body: JSON.stringify({
+            limit: 10,
+          }),
+        credentials: "include", 
+      });
+   
+      
+      const fdata = await response.json();
+      console.log(fdata);
+      if(fdata.message == "List of nodes successfully retrieved"){
+         nodes = fdata.data; 
+         listofnodes = fdata.data.map(nodes => nodes.name); 
+         listofnodeids = fdata.data.map(nodes => nodes.node_id); 
+         console.log(listofnodes); 
+         console.log(listofnodeids); 
+      }
+     
+  
+    } catch (error) {
+      console.log("An error occurred while fetching getNodes data..\n", error);
+    }
+
+  }
+
 
 
 
@@ -222,13 +317,22 @@ function toggleDropdown(){
     <div id = "lhs" class = "w-1/2 pr-4">
 
         <!-- market stats to go here -->
-        <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
+         <!-- {#if minbuy} -->
+         <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
             <span class = "">Market Stats</span>
             <br>
-            <span class = "font-light">Minimum price bought at: </span>
+            <span class = "font-light">Minimum price bought at: {minbuy}</span>
             <br>
-            <span class = "font-light">Maximum price sold at: </span>
+            <span class = "font-light">Maximum price bought at: {maxbuy}</span>
+            <br>
+            <span class = "font-light">Minimum price sold at: {minsell}</span>
+            <br>
+            <span class = "font-light">Maximum price sold at: {maxsell}</span>
+
         </div>
+            
+         <!-- {/if} -->
+        
 
 
         <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
@@ -244,10 +348,10 @@ function toggleDropdown(){
 
            
               <select bind:value={selectednode} class="select select-bordered overflow-y-auto w-1/2 focus:outline-none">
-                    <option value="" disabled selected>Node</option>
-                     <!-- {#each nodes as node}
+                    <option value="" disabled selected>Select Node</option>
+                     {#each listofnodes as node}
                         <option value={node}>{node}</option>
-                     {/each} -->
+                     {/each}
                 </select>
          
           

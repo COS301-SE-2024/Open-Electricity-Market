@@ -126,23 +126,29 @@ async function fetchData() {
     <div class="md:basis-1/3 md:card bg-base-100 md:p-4 xs:pt-10">
       <h1 class = "md:text-4xl md:font-light md:pt-4">Node Info</h1>
       <hr>
+      <br>
       <span class="text-lg font-light">Selected Node: </span> <br>
       <span class="text-3xl">{selected_node_name}</span> <br>
       <hr>
+      <br>
       <span class="text-lg font-light">Current Average Market Price: </span> <br>
       <span class="text-3xl">R {price.toFixed(2)}</span> <br>
       <hr>
+      <br>
       <div>
         <div class="form-control mt-1">
           <label for="buy_price" class = "font-light"> Price </label>
           <input id="buy_price" type="number" placeholder="{selectedPrice}" class="input input-bordered font-bold" name="buy_price" required bind:value={selectedPrice}/>
           <button class = "btn btn-primary font-light" title = "Resets price back to current average market price" on on:click={reset_price}>Market price</button>
         </div>
+        <br>
         <hr>
+        <br>
         <div class="form-control mt-1">
           <label for="amount" class = "font-light"> Watt-hours </label>
           <input id="buy_units" type="number" placeholder="{units}" class="input input-bordered font-bold" name="amount" required bind:value={units}/>
         </div>
+        <br>
         <hr>
         <div class="mt-1 xs:pt-5">
           <button class="btn btn-primary font-light" onclick="my_modal_1.showModal()">Buy</button>

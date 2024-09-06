@@ -136,7 +136,7 @@ async function fetchData() {
         </div>
         <hr>
         <div class="form-control mt-1">
-          <label for="amount" class = "font-light"> Number of units </label>
+          <label for="amount" class = "font-light"> Watt-hours </label>
           <input id="buy_units" type="number" placeholder="{units}" class="input input-bordered font-bold" name="amount" required bind:value={units}/>
         </div>
         <hr>

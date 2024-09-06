@@ -125,89 +125,97 @@ async function fetchData() {
       <hr>
       <br>
       <div class="text-lg font-light">Selected Node: </div> 
-      <span class="text-3xl">{selected_node_name}</span> <br>
+      <div class="text-3xl">{selected_node_name}</div> 
+      <br>
       <hr>
       <br>
-      <span class="text-lg font-light">Current Average Market Price: </span> 
-      <span class="text-3xl">R {price.toFixed(2)}</span> <br>
+      <div class="text-lg font-light">Current Average Market Price: </div> 
+      <div class="text-3xl">R {price.toFixed(2)}</div> 
+      <br>
       <hr>
+      <br>
       <div>
-        <div class="form-control mt-1">
+        
+        <span class="form-control">
           <label for="buy_price" class = "text-lg font-light"> Price </label>
-          <input id="buy_price" type="number" placeholder="{selectedPrice}" class="input input-bordered font-bold" name="buy_price" required bind:value={selectedPrice}/>
-        </div>
-
+          <span class = "md:flex">
+            <input id="buy_price" type="number" placeholder="{selectedPrice}" class="input input-bordered font-bold" name="buy_price" required bind:value={selectedPrice}/>
+            <button class = "btn btn-primary font-light">Revert back to Market price</button>
+          </span >
+        </span>
+        
+        <br>
+        <hr>
         <div class="form-control mt-1">
           <label for="amount" class = "text-lg font-light"> Watt-hours </label>
           <input id="buy_units" type="number" placeholder="{units}" class="input input-bordered font-bold" name="amount" required bind:value={units}/>
         </div>
         
-        <div class="mt-1 xs:pt-5">
+        <div class="mt-1 xs:pt-5 ">
           <hr>
           <br>
-          <span>
-          <button class="btn btn-primary font-light" onclick="my_modal_1.showModal()">Buy</button>
-          <dialog id="my_modal_1" class="modal">
-            <div class="modal-box">
-              <h3 class="text-lg font-bold">Confirm Buy Order</h3>
-              <p class="py-4">Please confirm your buy order for {units} units at R{selectedPrice.toFixed(2)} </p>
-              <div class="modal-action">
-                <form method="dialog">
-                  <button class="btn bg-green-600" on:click={() => place_buy_order(false)} >Continue</button>
-                  <button class="btn bg-red-500">Cancel</button>
-                </form>
+          <span class = "xs:p-1">
+            <button class="btn btn-primary font-light" onclick="my_modal_1.showModal()">Buy</button>
+            <dialog id="my_modal_1" class="modal">
+              <div class="modal-box">
+                <h3 class="text-lg font-bold">Confirm Buy Order</h3>
+                <p class="py-4">Please confirm your buy order for {units} units at R{selectedPrice.toFixed(2)} </p>
+                <div class="modal-action">
+                  <form method="dialog">
+                    <button class="btn bg-green-600" on:click={() => place_buy_order(false)} >Continue</button>
+                    <button class="btn bg-red-500">Cancel</button>
+                  </form>
+                </div>
               </div>
-            </div>
-          </dialog>
+            </dialog>
 
-          <button class="btn btn-primary font-light" onclick="my_modal_3.showModal()">Buy at Market Price</button>
-          <dialog id="my_modal_3" class="modal">
-            <div class="modal-box">
-              <h3 class="text-lg font-bold">Confirm Buy Order</h3>
-              <p class="py-4">Please confirm your buy order for {units} units at R{price.toFixed(2)} </p>
-              <div class="modal-action">
-                <form method="dialog">
-                  <button class="btn bg-green-600" on:click={() => place_buy_order(true)} >Continue</button>
-                  <button class="btn bg-red-500">Cancel</button>
-                </form>
+            <!--<button class="btn btn-primary font-light" onclick="my_modal_3.showModal()">Buy at Market Price</button>
+            <dialog id="my_modal_3" class="modal">
+              <div class="modal-box">
+                <h3 class="text-lg font-bold">Confirm Buy Order</h3>
+                <p class="py-4">Please confirm your buy order for {units} units at R{price.toFixed(2)} </p>
+                <div class="modal-action">
+                  <form method="dialog">
+                    <button class="btn bg-green-600" on:click={() => place_buy_order(true)} >Continue</button>
+                    <button class="btn bg-red-500">Cancel</button>
+                  </form>
+                </div>
               </div>
-            </div>
-          </dialog>
-        </span>
-          <div>
-          <button class="btn btn-accent font-light" onclick="my_modal_2.showModal()">Sell</button>
-          <dialog id="my_modal_2" class="modal">
-            <div class="modal-box">
-              <h3 class="text-lg font-bold">Confirm Sell Order</h3>
-              <p class="py-4">Please confirm your sell order for {units} units at R{selectedPrice.toFixed(2)} </p>
-              <div class="modal-action">
-                <form method="dialog">
-                  <button class="btn bg-green-600" on:click={() => place_sell_order(false)}>Continue</button>
-                  <button class="btn bg-red-500">Cancel</button>
-                </form>
+            </dialog>-->
+          </span>
+          
+          <span class = "xs:p-1">
+            <button class="btn btn-accent font-light" onclick="my_modal_2.showModal()">Sell</button>
+            <dialog id="my_modal_2" class="modal">
+              <div class="modal-box">
+                <h3 class="text-lg font-bold">Confirm Sell Order</h3>
+                <p class="py-4">Please confirm your sell order for {units} units at R{selectedPrice.toFixed(2)} </p>
+                <div class="modal-action">
+                  <form method="dialog">
+                    <button class="btn bg-green-600" on:click={() => place_sell_order(false)}>Continue</button>
+                    <button class="btn bg-red-500">Cancel</button>
+                  </form>
+                </div>
               </div>
-            </div>
-          </dialog>
+            </dialog>
 
-          <button class="btn btn-accent font-light" onclick="my_modal_4.showModal()">Sell at Market Price</button>
-          <dialog id="my_modal_4" class="modal">
-            <div class="modal-box">
-              <h3 class="text-lg font-bold">Confirm Sell Order</h3>
-              <p class="py-4">Please confirm your sell order for {units} units at R{price.toFixed(2)} </p>
-              <div class="modal-action">
-                <form method="dialog">
-                  <button class="btn bg-green-600" on:click={() => place_sell_order(true)}>Continue</button>
-                  <button class="btn bg-red-500">Cancel</button>
-                </form>
+            <!--<button class="btn btn-accent font-light" onclick="my_modal_4.showModal()">Sell at Market Price</button>
+            <dialog id="my_modal_4" class="modal">
+              <div class="modal-box">
+                <h3 class="text-lg font-bold">Confirm Sell Order</h3>
+                <p class="py-4">Please confirm your sell order for {units} units at R{price.toFixed(2)} </p>
+                <div class="modal-action">
+                  <form method="dialog">
+                    <button class="btn bg-green-600" on:click={() => place_sell_order(true)}>Continue</button>
+                    <button class="btn bg-red-500">Cancel</button>
+                  </form>
+                </div>
               </div>
-            </div>
-          </dialog>
-          </div>
-          <!-- <button class="btn btn-success" onclick="my_modal_1.showModal()">Buy at market price</button> -->
+            </dialog>-->
+            <!-- <button class="btn btn-success" onclick="my_modal_1.showModal()">Buy at market price</button> -->
+          </span>
         </div>
-
       </div>
-
     </div>
   </div>
 </main>

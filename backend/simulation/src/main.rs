@@ -261,6 +261,8 @@ fn start(grid: &State<Arc<Mutex<Grid>>>, man: &State<Arc<Mutex<ChannelManager>>>
                     tx.send(serde_json::to_string(grid.deref()).unwrap())
                         .unwrap();
                 }
+
+                thread::sleep(time::Duration::from_millis(16));
             }
         });
 

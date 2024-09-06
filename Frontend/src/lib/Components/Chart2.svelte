@@ -30,16 +30,16 @@
   });
 
   onDestroy(() => {
-    console.log("On destroy called for grid sim");
+    // console.log("On destroy called for grid sim");
     if (interval) {
       clearInterval(interval);
       interval = null;
-      console.log("Interval cleared for grid sim.");
+      // console.log("Interval cleared for grid sim.");
     }
     if (chart) {
       chart.destroy();
       chart = null;
-      console.log("Chart destroy called for grid sim");
+      // console.log("Chart destroy called for grid sim");
     }
   });
 

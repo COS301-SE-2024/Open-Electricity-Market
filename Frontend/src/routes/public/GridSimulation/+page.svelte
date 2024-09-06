@@ -36,7 +36,7 @@
       console.log("start being sent...");
       // const response = fetch("http://localhost:8000");
       const startdata = await response.json();
-      console.log(startdata);
+      // console.log(startdata);
       //Voltage 1,2,3 as well as price
       //updateChart(data.Phase1, data.Phase2);
     } catch (error) {
@@ -70,14 +70,14 @@
 
   let markerDetails = null;
   function handleMarkerClick(entity) {
-    console.log(entity);
+    // console.log(entity);
     markerDetails = entity.detail;
     voltageData = { ...markerDetails.voltage };
   }
 </script>
 
 <main class="container sm:mx-auto">
-  <div class="fullsection flex xs:flex-row -mt-6 w-full">
+  <div class="fullsection flex xs:flex-row -mt-6 w-full justify-center">
     <div class="bg-base-100 mx-2 p-4 rounded-2xl h-4/6 w-2/3">
       <div class="mapsection md:w-full xs:w-full">
         {#if mapdata != null}
@@ -97,7 +97,9 @@
         <span>
           <span class="font-light text-lg mt-10">Impedance: </span><br />
           <span class="text-2xl"
-            >{Intl.NumberFormat().format(markerDetails.resistance.toFixed(2))} Ω</span
+            >{Intl.NumberFormat().format(
+              (markerDetails.resistance / 1000).toFixed(3)
+            )} kΩ</span
           >
         </span>
         {#if markerDetails.generators != []}

@@ -4,11 +4,11 @@
 
   onMount(async () => {
     fetchData();
-    let interval = setInterval(fetchData, 11000);
+    // let interval = setInterval(fetchData, 11000);
 
-    return () => {
-      clearInterval(interval);
-    };
+    // return () => {
+    //   clearInterval(interval);
+    // };
   });
 
   $: consumers = null;
@@ -112,7 +112,7 @@
       <span class="loading loading-spinner loading-lg"></span>
     {:else}
       <div class="stat-value font-normal">
-        {Intl.NumberFormat().format(impedance)} Ω
+        {Intl.NumberFormat().format(impedance / 1000)} kΩ
       </div>
     {/if}
     <div class="stat-desc">Measure of opposition to electrical flow</div>

@@ -177,6 +177,8 @@
                 <li><a href="/public/GridSimulation">Grid</a></li>
                 <!-- svelte-ignore a11y-missing-attribute -->
                 <li><a href="/Main/Dashboard">Dashboard</a></li>
+                <!-- svelte-ignore a11y-missing-attribute -->
+                <li><a href="/Main/Analytics">Analytics</a></li>
               </ul>
             </div>
           </div>

@@ -121,7 +121,7 @@ async function reset_price(){
         },
         credentials: "include",
         body: JSON.stringify({
-          hours: parseInt(numhours),
+          time_frame: numhours,
         }),
       });
 
@@ -147,9 +147,12 @@ async function reset_price(){
           class="select select-bordered max-h-40 overflow-y-auto"
           on:change={() => fetchPriceHistory(chartPeriod)}
         >
-          <option value="24" default>24h</option>
-          <option value="168">7d</option>
-          <option value="720">1M</option>
+          <option value="Day1" default>24h</option>
+          <option value="Week1">7d</option>
+          <option value="Month1">1M</option>
+          <option value="Month3">3M</option>
+          <option value="Month6">6M</option>
+          <option value="Year1">1Y</option>
           <!-- This works so long as the endpoint retrieves different num values for longer hours etc... to be discussed with ruan -->
         </select>
       </div>

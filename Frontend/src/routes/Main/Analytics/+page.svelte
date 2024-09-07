@@ -25,7 +25,7 @@
   let unitsbought;
   let unitssold;
   let listofnodeids = [];
-  let marketpiedata;
+  let marketpiedata = {};
   let consumptioncurvedata = [];
   let unitsproduced;
   let unitsconsumed;
@@ -36,6 +36,7 @@
     await getSellStats();
     await getBuyStats();
     await getBoughtSold();
+     
     // await getBuyHistory();
     // await getSellHistory();
     // await getConsumedProduced();
@@ -89,9 +90,9 @@
       const fdata = await response.json();
       console.log(fdata);
       if (fdata.message == "User's buying stats successfully retrieved") {
-        maxbuy = fdata.data.max_price;
-        minbuy = fdata.data.min_price;
-        avgbuy = fdata.data.average_price;
+        maxbuy = fdata.data.max_price.toFixed(2);
+        minbuy = fdata.data.min_price.toFixed(2);
+        avgbuy = fdata.data.average_price.toFixed(2);
       }
     } catch (error) {
       console.log(
@@ -116,9 +117,9 @@
       const fdata = await response.json();
       console.log(fdata);
       if (fdata.message == "User's selling stats successfully retrieved") {
-        maxsell = fdata.data.max_price;
-        minsell = fdata.data.min_price;
-        avgsell = fdata.data.average_price;
+        maxsell = fdata.data.max_price.toFixed(2);
+        minsell = fdata.data.min_price.toFixed(2);
+        avgsell = fdata.data.average_price.toFixed(2);
       }
     } catch (error) {
       console.log(
@@ -200,6 +201,7 @@
         unitsbought = fdata.data.units_bought;
         unitssold = fdata.data.units_sold;
         marketpiedata = { unitsbought, unitssold };
+        // console.log(marketpiedata);
       }
     } catch (error) {
       console.log(
@@ -322,19 +324,24 @@
     <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
       <span class="">Market Stats</span>
       <br />
-      <span class="font-light">Minimum price bought at: {minbuy}</span>
+      <span class="font-light">Minimum price bought at: <span class = "font-normal">R{minbuy}</span></span>
       <br />
-      <span class="font-light">Maximum price bought at: {maxbuy}</span>
+      <span class="font-light">Maximum price bought at: <span class = "font-normal">R{maxbuy}</span></span>
       <br />
-      <span class="font-light">Minimum price sold at: {minsell}</span>
+      <span class="font-light">Average price bought at: <span class = "font-normal">R{avgbuy}</span></span>
       <br />
-      <span class="font-light">Maximum price sold at: {maxsell}</span>
+      <span class="font-light">Minimum price sold at: <span class = "font-normal">R{minsell}</span></span>
+      <br />
+      <span class="font-light">Maximum price sold at: <span class = "font-normal">R{maxsell}</span></span>
+      <br />
+      <span class="font-light">Average price sold at: <span class = "font-normal">R{avgsell}</span></span>
     </div>
+    
 
     <!-- {/if} -->
 
     <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
-      <PieChart data={marketpiedata} />
+      <PieChart {marketpiedata} />
     </div>
   </div>
 

@@ -5,7 +5,7 @@
 
     let chart; 
     let chartCanvas; 
-    export let data = []; 
+    export let marketpiedata; 
     let interval; 
 
     function resizeRadar(){
@@ -21,7 +21,7 @@
 
         if(typeof window !== 'undefined'){
             chart = createChart(chartCanvas, config); 
-            
+            // fillChart(); 
         }
         window.addEventListener('resize', resizeRadar); 
 
@@ -36,12 +36,29 @@
 
     
 
-     $: if (chart && data.length>0) {
+     $: if (chart && marketpiedata && Object.keys(marketpiedata).length > 0) {
+         console.log("piechart data was successfully placed"); 
          chart.data.labels = ["Units Bought", "Units Sold"];
-         chart.data.datasets[0].data = [data[0], data[1]]; 
+         chart.data.datasets[0].data = [marketpiedata.unitsbought, marketpiedata.unitssold]; 
          updateChart();
+         
   }
 
+
+  async function fillChart(){
+    console.log("data is this: ", data);
+    console.log("unitsbought is this: ", data.unitsbought);  
+    if (chart && data.length > 0) {
+        console.log("this if was triggered"); 
+        chart.data.labels = ["Units Bought", "Units Sold"];
+        chart.data.datasets[0].data = [data.unitsbought, data.unitssold]; 
+        updateChart();
+    }
+  }
+
+  function updateChart(){
+    chart.update(); 
+  }
 
 
 

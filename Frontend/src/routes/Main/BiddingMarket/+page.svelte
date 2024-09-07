@@ -11,7 +11,7 @@
   let selectedPrice = 0;
   $: price = 0;
   let units = 1;
-  let chartPeriod = "24";
+  let chartPeriod = "Day1";
 
   let selected_node_id = sessionStorage.getItem("node_id");
   let selected_node_name = sessionStorage.getItem("node_name");
@@ -151,7 +151,7 @@ async function reset_price(){
           <option value="Week1">7d</option>
           <option value="Month1">1M</option>
           <option value="Month3">3M</option>
-          <option value="Month6">6M</option>
+          <option value="Month6">6M</option>  
           <option value="Year1">1Y</option>
           <!-- This works so long as the endpoint retrieves different num values for longer hours etc... to be discussed with ruan -->
         </select>
@@ -285,7 +285,7 @@ async function reset_price(){
                 </form>
               </div>
             </div>
-          </dialog>-->
+          </dialog>
 
           <!-- <button class="btn btn-success" onclick="my_modal_1.showModal()">Buy at market price</button> -->
         </div>

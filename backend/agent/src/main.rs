@@ -393,7 +393,6 @@ fn add_appliances(
         );
     }
 
-
     let mut agents = agents.lock().unwrap();
     let agent_index = agents.iter().position(|agent| agent.email == data.email);
     if agent_index.is_none() {
@@ -443,7 +442,6 @@ fn add_generators(
     data: Json<AddGeneratrosDetail>,
     claim: Claims,
 ) -> content::RawJson<String> {
-
     if !validate_email_and_node_id(
         Uuid::parse_str(&*claim.user_id).unwrap(),
         Some(data.email.clone()),
@@ -505,7 +503,7 @@ fn set_session(
     if !validate_email_and_node_id(
         Uuid::parse_str(&*claim.user_id).unwrap(),
         Some(data.email.clone()),
-        None
+        None,
     ) {
         return content::RawJson(
             json!({"status": "error", "message": "You don't seem to have permission" , "data": {}})
@@ -540,7 +538,6 @@ fn add_agent(
     data: Json<AddAgentDetail>,
     claim: Claims,
 ) -> content::RawJson<String> {
-
     if !validate_email_and_node_id(
         Uuid::parse_str(&*claim.user_id).unwrap(),
         Some(data.email.clone()),

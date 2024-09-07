@@ -201,15 +201,6 @@
   <div bind:this={mapContainer}></div>
 </main>
     
-<style>
-  @import 'leaflet/dist/leaflet.css';
-  div {
-    height: 700px;
-    z-index: 0; 
-  }
-</style>
-
-
 
 <dialog id="test_modal" class="modal">  
   <div class="modal-box">

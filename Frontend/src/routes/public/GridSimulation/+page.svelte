@@ -94,7 +94,7 @@
 
   function handleMarkerClick(entity) {
     // console.log(entity.detail.voltage);
-    // data = entity.detail;
+    // data = entity.detail;  
     const markerData = entity.detail;
     console.log("Marker clicked:", markerData);
     data = { ...markerData.voltage };

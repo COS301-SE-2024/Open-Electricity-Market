@@ -104,6 +104,14 @@ impl Claims {
 
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
+struct AddAgentRes {
+    status: String,
+    message: String,
+    data: Value,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
 pub struct NewUserRequest {
     email: String,
     first_name: String,
@@ -118,8 +126,6 @@ pub fn register(new_user_request: Json<NewUserRequest>) -> Value {
 
     let connection = &mut establish_connection();
 
-    let mut message = "Something went wrong".to_string();
-
     let mut email_valid = false;
     match Regex::new(
         r"^([a-z0-9_+]([a-z0-9_+.]*[a-z0-9_+])?)@([a-z0-9]+([\-.][a-z0-9]+)*\.[a-z]{2,6})",
@@ -127,7 +133,11 @@ pub fn register(new_user_request: Json<NewUserRequest>) -> Value {
         Ok(regex) => {
             email_valid = regex.is_match(&*new_user_request.email);
             if !email_valid {
-                message = "Invalid email address".to_string()
+                return json!({
+                    "status": "error",
+                    "message": "Invalid email address".to_string(),
+                    "data": {"token": "".to_string()},
+                });
             }
         }
         Err(_) => {}
@@ -137,7 +147,11 @@ pub fn register(new_user_request: Json<NewUserRequest>) -> Value {
     if new_user_request.password.len() >= 8 {
         password_valid = true
     } else {
-        message = "Password too short".to_string()
+        return json!({
+            "status": "error",
+            "message": "Password too short".to_string(),
+            "data": {"token": "".to_string()},
+        });
     }
 
     if email_valid && password_valid {
@@ -148,14 +162,12 @@ pub fn register(new_user_request: Json<NewUserRequest>) -> Value {
             pass_hash: binding,
         };
 
-        message = "Failed to create new user".to_string();
         match diesel::insert_into(users)
             .values(&new_user_insert)
             .returning(User::as_returning())
             .get_result::<User>(connection)
         {
             Ok(user) => {
-                message = "Failed to add user profile".to_string();
                 let new_profile_insert = NewProfileModel {
                     profile_user_id: user.user_id,
                     first_name: new_user_request.first_name.clone(),
@@ -169,27 +181,85 @@ pub fn register(new_user_request: Json<NewUserRequest>) -> Value {
                         let claim = Claims::from_name(user.user_id.to_string());
                         match claim.into_token() {
                             Ok(token) => {
-                                return json!({"status": "ok",
-                                    "message": "New user added".to_string(),
-                                    "data": {"token": token}
-                                })
+                                dotenv().ok();
+                                match env::var("AGENT_URL") {
+                                    Ok(agent_url) => {
+                                        let client = reqwest::blocking::Client::new();
+                                        match client.post(agent_url + "/add_agent").send() {
+                                            Ok(response) => match response.json::<AddAgentRes>() {
+                                                Ok(add_agent_res) => {
+                                                    if add_agent_res.status == "ok" {
+                                                        json!({"status": "ok",
+                                                            "message": "New user added".to_string(),
+                                                            "data": {"token": token}
+                                                        })
+                                                    } else {
+                                                        json!({"status": "error",
+                                                            "message": "Something went wrong".to_string(),
+                                                            "data": {"token": "".to_string()}
+                                                        })
+                                                    }
+                                                }
+                                                Err(_) => {
+                                                    json!({"status": "error",
+                                                        "message": "Something went wrong".to_string(),
+                                                        "data": {"token": "".to_string()}
+                                                    })
+                                                }
+                                            },
+                                            Err(_) => {
+                                                json!({"status": "error",
+                                                    "message": "Something went wrong".to_string(),
+                                                    "data": {"token": "".to_string()}
+                                                })
+                                            }
+                                        }
+                                    }
+                                    Err(_) => {
+                                        json!({"status": "error",
+                                            "message": "Something went wrong".to_string(),
+                                            "data": {"token": "".to_string()}
+                                        })
+                                    }
+                                }
                             }
                             Err(_) => {
-                                return json!({"status": "error",
+                                json!({"status": "error",
                                     "message": "Something went wrong".to_string(),
                                     "data": {"token": "".to_string()}
                                 })
                             }
                         }
                     }
-                    Err(_) => {}
+                    Err(_) => {
+                        json!({ "status": "error",
+                            "message": "Failed to add user profile".to_string(),
+                            "data": {"token": "".to_string()}
+                        })
+                    }
                 }
             }
-            Err(_) => {}
+            Err(_) => {
+                json!({ "status": "error",
+                    "message": "Failed to create new user".to_string(),
+                    "data": {"token": "".to_string()}
+                })
+            }
         }
+    } else {
+        json!({ "status": "error",
+            "message": "Email or password invalid".to_string(),
+            "data": {"token": "".to_string()}
+        })
     }
+}
 
-    json!({ "status": "error", "message": message, "data": {"token": "".to_string()}})
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct SetSessionRes {
+    status: String,
+    message: String,
+    data: Value,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -237,23 +307,61 @@ pub fn login(credentials: Json<Credentials>) -> Value {
                 let claim = Claims::from_name(user.user_id.to_string());
                 match claim.into_token() {
                     Ok(token) => {
-                        return json!({"status": "ok",
-                            "message": "User logged in".to_string(),
-                            "data": {"token": token}
-                        })
+                        dotenv().ok();
+                        match env::var("AGENT_URL") {
+                            Ok(agent_url) => {
+                                let client = reqwest::blocking::Client::new();
+                                match client.post(agent_url + "/set_session").send() {
+                                    Ok(response) => match response.json::<SetSessionRes>() {
+                                        Ok(set_session_res) => {
+                                            if set_session_res.status == "ok" {
+                                                json!({"status": "ok",
+                                                    "message": "User logged in".to_string(),
+                                                    "data": {"token": token}
+                                                })
+                                            } else {
+                                                json!({"status": "error",
+                                                    "message": "Something went wrong".to_string(),
+                                                    "data": {"token": "".to_string()}
+                                                })
+                                            }
+                                        }
+                                        Err(_) => {
+                                            json!({"status": "error",
+                                                "message": "Something went wrong".to_string(),
+                                                "data": {"token": "".to_string()}
+                                            })
+                                        }
+                                    },
+                                    Err(_) => {
+                                        json!({"status": "error",
+                                            "message": "Something went wrong".to_string(),
+                                            "data": {"token": "".to_string()}
+                                        })
+                                    }
+                                }
+                            }
+                            Err(_) => {
+                                json!({"status": "error",
+                                    "message": "Something went wrong".to_string(),
+                                    "data": {"token": "".to_string()}
+                                })
+                            }
+                        }
                     }
                     Err(_) => {
-                        return json!({"status": "error",
+                        json!({"status": "error",
                             "message": "Something went wrong".to_string(),
                             "data": {"token": "".to_string()}
                         })
                     }
                 }
+            } else {
+                json!({ "status": "error",
+                    "message": "Username or password invalid".to_string(),
+                    "data": { "token": "".to_string()}
+                })
             }
-            json!({ "status": "error",
-                "message": "Username or password invalid".to_string(),
-                "data": { "token": "".to_string()}
-            })
         }
         Err(_) => json!({ "status": "error",
             "message": "Username or password invalid".to_string(),
@@ -291,16 +399,26 @@ pub fn remove_funds(remove_funds_req: Json<RemoveFundsReq>, claims: Claims) -> V
                     .set(credit.eq(credit - remove_funds_req.funds))
                     .execute(connection)
                 {
-                    Ok(_) => return json!({"status": "ok", "message": "Funds removed".to_string()}),
+                    Ok(_) => {
+                        return json!({"status": "ok",
+                            "message": "Funds removed".to_string()
+                        })
+                    }
                     Err(_) => {
-                        return json!({"status": "error", "message": "Failed to remove funds".to_string()})
+                        return json!({"status": "error", "message":
+                            "Failed to remove funds".to_string()
+                        })
                     }
                 }
             }
-            json!({"status": "error", "message": "Insufficient funds".to_string()})
+            json!({"status": "error",
+                "message": "Insufficient funds".to_string()
+            })
         }
         Err(_) => {
-            json!({"status": "error", "message": "User not found".to_string()})
+            json!({"status": "error",
+                "message": "User not found".to_string()
+            })
         }
     }
 }
@@ -324,12 +442,22 @@ pub fn add_funds(add_funds_req: Json<AddFundsReq>, claims: Claims) -> Value {
             .set(credit.eq(credit + add_funds_req.funds))
             .execute(connection)
         {
-            Ok(_) => return json!({"status": "ok", "message": "Funds added".to_string()}),
-            Err(_) => return json!({"status": "error", "message": "User not found".to_string()}),
+            Ok(_) => {
+                return json!({"status": "ok",
+                    "message": "Funds added".to_string()
+                })
+            }
+            Err(_) => {
+                return json!({"status": "error",
+                    "message": "User not found".to_string()
+                })
+            }
         }
     }
 
-    json!({"status": "error", "message": "Invalid request"})
+    json!({"status": "error",
+        "message": "Invalid request"
+    })
 }
 
 #[derive(Serialize, Deserialize)]

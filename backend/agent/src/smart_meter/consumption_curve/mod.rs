@@ -1,6 +1,11 @@
+use diesel::define_sql_function;
+use diesel::sql_types::Float8;
+use diesel::sql_types::Text;
+use diesel::RunQueryDsl;
 use serde::{Deserialize, Serialize};
 
-use crate::{curve::Curve, period::Period};
+use crate::curve::Curve;
+use crate::establish_connection;
 
 #[derive(Serialize, Deserialize)]
 pub enum HomeApplianceType {
@@ -30,69 +35,62 @@ pub enum HomeApplianceType {
 }
 
 impl HomeApplianceType {
-    fn value(&self) -> f64 {
-        match self {
-            HomeApplianceType::WashingMachine => 2663.0,
-            HomeApplianceType::Router => 38.0,
-            HomeApplianceType::Vacuum => 44.0,
-            HomeApplianceType::Dishwasher => 1806.0,
-            HomeApplianceType::Boiler => 2664.0,
-            HomeApplianceType::HairPurifier => 22.0,
-            HomeApplianceType::SoundSystem => 17.0,
-            HomeApplianceType::Printer3d => 154.0,
-            HomeApplianceType::CoffeeMachine => 1481.0,
-            HomeApplianceType::PhoneCharger => 86.0,
-            HomeApplianceType::Fridge => 1436.0,
-            HomeApplianceType::Radiator => 1348.0,
-            HomeApplianceType::Dehumidifier => 1989.0,
-            HomeApplianceType::MicroWaveOven => 1712.0,
-            HomeApplianceType::Laptop => 61.0,
-            HomeApplianceType::Tv => 54.0,
-            HomeApplianceType::Screen => 30.0,
-            HomeApplianceType::Fan => 83.0,
-            HomeApplianceType::AirConditioner => 45.0,
-            HomeApplianceType::Computer => 280.0,
-            HomeApplianceType::Printer => 30.0,
-            HomeApplianceType::Dryer => 3267.0,
-            HomeApplianceType::Freezer => 1623.0,
-        }
+    pub fn to_string(&self) -> String {
+        return match self {
+            HomeApplianceType::WashingMachine => String::from("washing_machine"),
+            HomeApplianceType::Router => String::from("washing_machine"),
+            HomeApplianceType::Vacuum => String::from("vacuum"),
+            HomeApplianceType::Dishwasher => String::from("dish_washer"),
+            HomeApplianceType::Boiler => String::from("boiler"),
+            HomeApplianceType::HairPurifier => String::from("hair_purifier"),
+            HomeApplianceType::SoundSystem => String::from("sound_system"),
+            HomeApplianceType::Printer3d => String::from("printer_3D"),
+            HomeApplianceType::CoffeeMachine => String::from("coffee_machine"),
+            HomeApplianceType::PhoneCharger => String::from("phone_charger"),
+            HomeApplianceType::Fridge => String::from("fridge"),
+            HomeApplianceType::Radiator => String::from("radiator"),
+            HomeApplianceType::Dehumidifier => String::from("dehumifer"),
+            HomeApplianceType::MicroWaveOven => String::from("micro_wave_oven"),
+            HomeApplianceType::Laptop => String::from("laptop"),
+            HomeApplianceType::Tv => String::from("tv"),
+            HomeApplianceType::Screen => String::from("screen"),
+            HomeApplianceType::Fan => String::from("fan"),
+            HomeApplianceType::AirConditioner => String::from("air_conditioner"),
+            HomeApplianceType::Computer => String::from("computer"),
+            HomeApplianceType::Printer => String::from("printer"),
+            HomeApplianceType::Dryer => String::from("dryer"),
+            HomeApplianceType::Freezer => String::from("freezer"),
+        };
     }
 }
 
 #[derive(Deserialize, Serialize)]
 pub struct HomeAppliance {
-    appliance_type: HomeApplianceType,
-    on_periods: Vec<Period>,
+    pub appliance_type: HomeApplianceType,
 }
+
+define_sql_function! { fn sample_appliance(value: Float8, appliance: Text) -> Float8;}
+define_sql_function! { fn total_appliance(appliance: Text) -> Float8;}
 
 impl Curve for HomeAppliance {
     fn sample(&mut self, time: f64) -> f64 {
-        let time = time % 64.0;
-        let mut on = false;
-        for period in self.on_periods.iter() {
-            if period.during(time) {
-                on = true;
-                break;
-            }
-        }
-        if on {
-            self.appliance_type.value()
-        } else {
-            0.0
-        }
+        let time = time % 86400.0;
+        let conn = &mut establish_connection();
+        let sample_appliance = sample_appliance(time, self.appliance_type.to_string());
+        let sample: f64 = diesel::select(sample_appliance).first(conn).unwrap();
+
+        sample
     }
 
     fn total_in_24_hour(&mut self) -> f64 {
-        let mut total = 0.0;
-        for period in self.on_periods.iter() {
-            total += period.duration() * self.appliance_type.value();
-        }
+        let conn = &mut establish_connection();
+        let total_appliance = total_appliance(self.appliance_type.to_string());
+        let total = diesel::select(total_appliance).first(conn).unwrap();
+
         total
     }
-}
 
-impl HomeAppliance {
-    pub fn add_period(&mut self, period: Period) {
-        self.on_periods.push(period)
+    fn get_appliance_list_if_possible(&mut self) -> Vec<String> {
+        return vec![self.appliance_type.to_string()];
     }
 }

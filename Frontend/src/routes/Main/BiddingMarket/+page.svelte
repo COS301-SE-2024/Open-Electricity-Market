@@ -11,7 +11,7 @@ import PriceChartD3 from "$lib/Components/PriceChartD3.svelte";
 
 
 // **********************************************
-let selectedPrice = 0;
+$: selectedPrice = 0;
 $: price = 0;
 let units = 1;
 
@@ -19,6 +19,10 @@ let selected_node_id = sessionStorage.getItem("node_id");
 let selected_node_name = sessionStorage.getItem("node_name");
 
 let data = {};
+async function reset_price(){
+  // console.log("setting price to " + price);
+  selectedPrice = price;
+}
 
 async function place_buy_order(at_market_price) {
   // TODO: add a check that fails if units <= 0
@@ -116,33 +120,48 @@ async function fetchData() {
 <main class="container mx-auto p-4">
   <div class="md:flex md:flex-row">
     <div class="md:basis-2/3 bg-base-100 md:card md:mr-5 md:p-4">
-      <h1 class="md:text-5xl md:font-bold md:pt-8">Marketplace</h1>
+      <h1 class="md:text-5xl md:font-light md:pt-8">Marketplace</h1>
       <!-- <Chart {data} class = "" /> -->
        <PriceChartD3  /> 
     </div>
     <div class="md:basis-1/3 md:card bg-base-100 md:p-4 xs:pt-10">
-      <span class="text-lg">Selected Node: </span> <br>
+      <h1 class = "md:text-4xl md:font-light md:pt-4">Node Info</h1>
+      <hr>
+      <br>
+      <span class="text-lg font-light">Selected Node: </span>
       <span class="text-3xl">{selected_node_name}</span> <br>
-      <span class="text-lg">Current Average Market Price: </span> <br>
+      <hr>
+      <br>
+      <span class="text-lg font-light">Current Average Market Price: </span>
       <span class="text-3xl">R {price.toFixed(2)}</span> <br>
-      
-      <form>
+      <hr>
+      <br>
+      <div>
         <div class="form-control mt-1">
-          <label for="buy_price"> Price </label>
-          <input id="buy_price" type="number" placeholder="{selectedPrice}" class="input input-bordered" name="buy_price" required bind:value={selectedPrice}/>
+          <label for="buy_price" class = "font-light"> Price </label>
+          <div class = "flex">
+            <input id="buy_price" type="number" placeholder="{selectedPrice}" class="basis-2/3 input input-bordered font-bold" name="buy_price" required bind:value={selectedPrice}/>
+            <span class = "md:p-1">
+            
+            </span>
+            <button class = "basis-1/4 btn btn-primary font-light" title = "Resets price back to current average market price" on:click={reset_price}>Market price</button>
+          </div>
         </div>
-
+        <br>
+        <hr>
+        <br>
         <div class="form-control mt-1">
-          <label for="amount"> Number of units </label>
-          <input id="buy_units" type="number" placeholder="{units}" class="input input-bordered" name="amount" required bind:value={units}/>
+          <label for="amount" class = "font-light"> Watt-hours </label>
+          <input id="buy_units" type="number" placeholder="{(units == null ? 1 : units)}" class="input input-bordered font-bold" name="amount" required bind:value={units}/>
         </div>
-
-        <div class="mt-1 xs:pt-5">
-          <button class="btn btn-primary" onclick="my_modal_1.showModal()">Buy</button>
+        <br>
+        <hr>
+        <div class="mt-1 xs:pt-5 flex">
+          <button class="md:basis-1/2 btn btn-primary font-light" onclick="my_modal_1.showModal()">Buy</button>
           <dialog id="my_modal_1" class="modal">
             <div class="modal-box">
               <h3 class="text-lg font-bold">Confirm Buy Order</h3>
-              <p class="py-4">Please confirm your buy order for {units} units at R{selectedPrice.toFixed(2)} </p>
+              <p class="py-4">Please confirm your buy order for {(units == null ? 1 : units)} units at R{(selectedPrice == null ? selectedPrice = price : selectedPrice).toFixed(2)} </p>
               <div class="modal-action">
                 <form method="dialog">
                   <button class="btn bg-green-600" on:click={() => place_buy_order(false)} >Continue</button>
@@ -152,7 +171,7 @@ async function fetchData() {
             </div>
           </dialog>
 
-          <button class="btn btn-primary" onclick="my_modal_3.showModal()">Buy at Market Price</button>
+          <!--<button class="btn btn-primary font-light" onclick="my_modal_3.showModal()">Buy at Market Price</button>
           <dialog id="my_modal_3" class="modal">
             <div class="modal-box">
               <h3 class="text-lg font-bold">Confirm Buy Order</h3>
@@ -164,13 +183,16 @@ async function fetchData() {
                 </form>
               </div>
             </div>
-          </dialog>
+          </dialog>-->
+          <span class = "xs:p-1">
+            
+          </span>
 
-          <button class="btn btn-accent" onclick="my_modal_2.showModal()">Sell</button>
+          <button class="md:basis-1/2 btn btn-accent font-light" onclick="my_modal_2.showModal()">Sell</button>
           <dialog id="my_modal_2" class="modal">
             <div class="modal-box">
               <h3 class="text-lg font-bold">Confirm Sell Order</h3>
-              <p class="py-4">Please confirm your sell order for {units} units at R{selectedPrice.toFixed(2)} </p>
+              <p class="py-4">Please confirm your sell order for {(units == null ? 1 : units)} units at R{(selectedPrice == null ? selectedPrice = price : selectedPrice).toFixed(2)} </p>
               <div class="modal-action">
                 <form method="dialog">
                   <button class="btn bg-green-600" on:click={() => place_sell_order(false)}>Continue</button>
@@ -180,7 +202,7 @@ async function fetchData() {
             </div>
           </dialog>
 
-          <button class="btn btn-accent" onclick="my_modal_4.showModal()">Sell at Market Price</button>
+          <!--<button class="btn btn-accent font-light" onclick="my_modal_4.showModal()">Sell at Market Price</button>
           <dialog id="my_modal_4" class="modal">
             <div class="modal-box">
               <h3 class="text-lg font-bold">Confirm Sell Order</h3>
@@ -192,12 +214,12 @@ async function fetchData() {
                 </form>
               </div>
             </div>
-          </dialog>
+          </dialog>-->
 
           <!-- <button class="btn btn-success" onclick="my_modal_1.showModal()">Buy at market price</button> -->
         </div>
 
-      </form>
+      </div>
 
     </div>
   </div>

@@ -30,6 +30,7 @@ const SUPPLY_DEMAND_RATE: f64 = 0.05;
 // const TARGET_HISTORY_POINTS: i64 = 100;
 
 const TOKEN_EXPIRATION: Duration = Duration::minutes(15);
+const TARGET_VOLTAGE: f64 = 240f64;
 
 pub struct CORS;
 

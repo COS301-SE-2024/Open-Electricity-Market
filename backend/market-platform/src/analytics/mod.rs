@@ -335,12 +335,7 @@ pub fn bought_vs_sold_stat(claims: Claims) -> Value {
         .first::<f64>(connection)
     {
         Ok(result) => data.units_bought = result,
-        Err(_) => {
-            return json!({"status": "error",
-                "message": "Something went wrong".to_string(),
-                "data": data
-            })
-        }
+        Err(_) => {}
     }
 
     match transactions
@@ -354,16 +349,11 @@ pub fn bought_vs_sold_stat(claims: Claims) -> Value {
         ))
         .first::<f64>(connection)
     {
-        Ok(result) => {
-            data.units_sold = result;
-            json!({"status": "ok",
-                "message": "Successfully retrieved user bought and sold units".to_string(),
-                "data": data
-            })
-        }
-        Err(_) => json!({"status": "error",
-            "message": "Something went wrong".to_string(),
-            "data": data
-        }),
+        Ok(result) => data.units_sold = result,
+        Err(_) => {}
     }
+    json!({"status": "ok",
+        "message": "Successfully retrieved user bought and sold units".to_string(),
+        "data": data
+    })
 }

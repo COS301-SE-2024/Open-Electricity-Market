@@ -55,14 +55,13 @@ pub fn user_buy_stats(claims: Claims) -> Value {
             data.min_price = result.0;
             data.max_price = result.1;
             data.average_price = result.2;
-            json!(
-                {"status": "ok",
-                "message": "User's buying stats successfully retrieved",
-                "data": data}
-            )
         }
-        Err(_) => json!({"status": "err", "message": "Something went wrong", "data": data}),
+        Err(_) => {}
     }
+    json!({"status": "ok",
+        "message": "User's buying stats successfully retrieved",
+        "data": data
+    })
 }
 
 #[post("/user_sell_stats")]
@@ -103,14 +102,13 @@ pub fn user_sell_stats(claims: Claims) -> Value {
             data.min_price = result.0;
             data.max_price = result.1;
             data.average_price = result.2;
-            json!(
-                {"status": "ok",
-                "message": "User's selling stats successfully retrieved",
-                "data": data}
-            )
         }
-        Err(_) => json!({"status": "err", "message": "Something went wrong", "data": data}),
+        Err(_) => {}
     }
+    json!({"status": "ok",
+        "message": "User's selling stats successfully retrieved",
+        "data": data}
+    )
 }
 
 #[derive(Serialize, Deserialize)]

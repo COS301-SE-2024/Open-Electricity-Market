@@ -6,6 +6,7 @@
   import { API_URL_GRID } from "$lib/config.js";
 
   $: voltageData = null;
+  $: power = null;
   // let interval;
   // let dropdownViewable = false;
   $: mapdata = null;
@@ -73,6 +74,12 @@
     // console.log(entity);
     markerDetails = entity.detail;
     voltageData = { ...markerDetails.voltage };
+
+    power =
+      (Math.pow(markerDetails.voltage.oscilloscope_detail.amplitude) /
+        markerDetails.resistance,
+      2);
+    // console.log(power);
   }
 </script>
 
@@ -96,6 +103,10 @@
         <h1 class="text-3xl">Consumer Details</h1>
         <hr />
         <span class="pt-5">
+          <span class="font-light text-lg mt-10">Consumption: </span><br />
+          <span class="text-4xl"
+            >{Intl.NumberFormat().format(power / 1000)} kW</span
+          > <br />
           <span class="font-light text-lg mt-10">Impedance: </span><br />
           <span class="text-4xl"
             >{Intl.NumberFormat().format(
@@ -103,7 +114,7 @@
             )} kΩ</span
           >
         </span>
-        {#if markerDetails.generators != []}
+        {#if markerDetails.generators != null}
           <span class="pt-5">
             <span class="font-light text-lg">Generators: </span> <br />
             {#each markerDetails.generators as generator}
@@ -118,21 +129,25 @@
             {/each}
           </span>
         {/if}
-        <h1 class="font-light text-lg pt-5"><!--Grid state--></h1>
+        <h1 class="font-light text-lg pt-5">Voltage and Phase</h1>
         <div class="h-max w-full">
           <Chart data={voltageData} />
+        </div>
+        <div class="flex w-full justify-end -mt-4">
+          <span class="text-lg font-light"
+            >{voltageData.oscilloscope_detail.frequency} Hz</span
+          >
+          <!-- <span class="text-lg font-light"
+            >{voltageData.oscilloscope_detail.amplitude}</span
+          > -->
         </div>
       </div>
     {:else}
       <div
         class="chartsection md:w-1/4 mx-2 p-5 xs:w-full bg-base-100 rounded-2xl"
       >
-        <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem, quia
-          dolorum ipsa sed, ex vitae exercitationem doloribus possimus dolore
-          cupiditate deleniti fugiat modi voluptate quod tempore necessitatibus
-          magnam ut voluptatem!
-        </p>
+        <h1 class="text-4xl mb-6">Click on a marker to begin</h1>
+        <p>Click on a marker to learn more about the activity on our grid!</p>
       </div>
     {/if}
   </div>

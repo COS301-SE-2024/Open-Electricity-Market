@@ -98,12 +98,12 @@ export const sampleChartConfig = {
         },
       },
       y: {
-        grid: {
-          display: false,
-        },
-        ticks: {
-          display: false,
-        },
+        // grid: {
+        //   display: false,
+        // },
+        // ticks: {
+        //   display: false,
+        // },
       },
     },
     plugins: {

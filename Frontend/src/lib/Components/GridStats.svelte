@@ -112,7 +112,9 @@
       <span class="loading loading-spinner loading-lg"></span>
     {:else}
       <div class="stat-value font-normal">
-        {Intl.NumberFormat().format(impedance / 1000)} kΩ
+        {impedance > 8000000
+          ? Intl.NumberFormat().format(impedance / 1000000) + " M"
+          : Intl.NumberFormat().format(impedance / 1000) + " k"}Ω
       </div>
     {/if}
     <div class="stat-desc">Measure of opposition to electrical flow</div>

@@ -448,6 +448,7 @@
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
+            Authorization: `Bearer ${sessionStorage.getItem("Token")}`,
           },
           credentials: "include",
         });
@@ -493,6 +494,7 @@
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
+            Authorization: `Bearer ${sessionStorage.getItem("Token")}`,
           },
           credentials: "include",
         });

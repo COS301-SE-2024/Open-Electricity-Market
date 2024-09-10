@@ -519,7 +519,7 @@ fn set_session(
         );
     }
     let agent_index = agent_index.unwrap();
-    agents[agent_index].token.clone_from(&data.token);
+    agents[agent_index].market_token.clone_from(&data.token);
 
     let message = "Succesfully set session id".to_string();
     content::RawJson(json!({"status": "ok", "message": message, "data": {}}).to_string())
@@ -568,7 +568,7 @@ fn add_agent(
     ));
 
     let id = agents.len() - 1;
-    agents[id].token = data.token;
+    agents[id].market_token = data.token;
     agents[id].intialise();
     tokio::spawn(async move {
         let mut accumilated_time = 0.0;

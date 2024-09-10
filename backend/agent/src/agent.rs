@@ -18,7 +18,8 @@ use crate::{
 pub struct Agent {
     pub email: String,
     pub password: String,
-    pub token: String,
+    pub market_token: String,
+    pub grid_token: String,
     pub nodes: Vec<Node>,
     pub funds: f64,
     pub linked_to_user: bool,
@@ -37,19 +38,21 @@ impl Agent {
         Agent {
             email,
             password,
-            token: String::from(""),
+            market_token: String::from(""),
             nodes,
             funds,
             linked_to_user,
             extarnal_wealth_curve,
+            grid_token: String::from(""),
         }
     }
 
-    fn create_producer_grid(location: Location) -> GeneratorDetail {
+    fn create_producer_grid(location: Location,token: String) -> GeneratorDetail {
         let url = env::var("GURL").unwrap();
         let client = reqwest::blocking::Client::new();
         let res = client
             .post(format!("http://{url}:8000/add_generator"))
+            .header(header::AUTHORIZATION, format!("Bearer {token}"))
             .json(&location)
             .send()
             .unwrap();
@@ -58,11 +61,12 @@ impl Agent {
         serde_json::from_str(&text).unwrap()
     }
 
-    fn create_consumer_grid(location: Location) -> SmartMeterDetail {
+    fn create_consumer_grid(location: Location,token: String) -> SmartMeterDetail {
         let url = env::var("GURL").unwrap();
         let client = reqwest::blocking::Client::new();
         let res = client
             .post(format!("http://{url}:8000/add_consumer"))
+            .header(header::AUTHORIZATION, format!("Bearer {token}"))
             .json(&location)
             .send()
             .unwrap();
@@ -150,14 +154,27 @@ impl Agent {
         }
     }
 
+    pub fn get_grid_token(email: String) -> String {
+        let password = env::var("GRID_PASS").unwrap();
+        let detail = GetTokenDetail { email, password };
+        let url = env::var("GURL").unwrap();
+        let client = reqwest::blocking::Client::new();
+        let res = client
+            .post(format!("http://{url}:8000/get_token")) 
+            .json(&detail)
+            .send()
+            .unwrap();
+        let result: GetTokenResult = res.json().unwrap();
+        return result.token; 
+    }
+
     pub fn intialise(&mut self) {
-        if self.token.is_empty() {
-            self.token = Agent::login_or_register_agent(self.email.clone(), self.password.clone());
-        }
-        println!("{}", self.token.clone());
+        self.grid_token =  Agent::get_grid_token(self.email.clone());
+        self.market_token = Agent::login_or_register_agent(self.email.clone(), self.password.clone()); 
+        println!("{}", self.market_token.clone());
         let mut has_nodes = true;
 
-        let mut node_ids = Agent::get_nodes(1024, self.token.clone());
+        let mut node_ids = Agent::get_nodes(1024, self.market_token.clone());
         if node_ids.is_empty() {
             has_nodes = false;
         }
@@ -167,7 +184,7 @@ impl Agent {
             match &mut node.generator {
                 Generator::Acctive(core) => {
                     if core.grid_detail.generator == 0 {
-                        core.grid_detail = Agent::create_producer_grid(node.location);
+                        core.grid_detail = Agent::create_producer_grid(node.location,self.grid_token.clone() );
                     }
                 }
                 Generator::InAcctive => {}
@@ -176,7 +193,7 @@ impl Agent {
             match &mut node.smart_meter {
                 SmartMeter::Acctive(core) => {
                     if core.grid_detail.consumer == 0 {
-                        core.grid_detail = Agent::create_consumer_grid(node.location);
+                        core.grid_detail = Agent::create_consumer_grid(node.location,self.grid_token.clone() );
                     }
                 }
                 SmartMeter::InActtive => {}
@@ -187,13 +204,13 @@ impl Agent {
                 Agent::add_node(
                     node.location,
                     String::from("Simulated Node"),
-                    self.token.clone(),
+                    self.market_token.clone(),
                 )
             }
         }
 
         if !has_nodes {
-            node_ids = Agent::get_nodes(1024, self.token.clone());
+            node_ids = Agent::get_nodes(1024, self.market_token.clone());
         }
 
         println!("Is empty {}", self.nodes.is_empty());
@@ -292,7 +309,7 @@ impl Agent {
         println!("{}", result.message);
     }
 
-    fn update_grid_voltage(units: f64, detail: GeneratorDetail) {
+    fn update_grid_voltage(units: f64, detail: GeneratorDetail,token: String) {
         let voltage_update_detail = VoltageUpdateDetail {
             circuit: detail.circuit,
             generator: detail.generator,
@@ -302,6 +319,7 @@ impl Agent {
         let client = reqwest::blocking::Client::new();
         let res = client
             .post(format!("http://{url}:8000/set_generator"))
+            .header(header::AUTHORIZATION, format!("Bearer {token}"))
             .json(&voltage_update_detail)
             .send()
             .unwrap();
@@ -309,7 +327,7 @@ impl Agent {
         println!("{}", result.message);
     }
 
-    fn update_grid_impedance(units: f64, detail: SmartMeterDetail) {
+    fn update_grid_impedance(units: f64, detail: SmartMeterDetail,token: String) {
         let impedance_update_detail = ImpedanceUpdateDetail {
             circuit: detail.circuit,
             consumer: detail.consumer,
@@ -319,6 +337,7 @@ impl Agent {
         let client = reqwest::blocking::Client::new();
         let res = client
             .post(format!("http://{url}:8000/set_consumer"))
+            .header(header::AUTHORIZATION, format!("Bearer {token}"))
             .json(&impedance_update_detail)
             .send()
             .unwrap();
@@ -433,19 +452,19 @@ impl Agent {
     fn update(&mut self, accumlated_time: f64) -> Result<(), ()> {
         // update credit based on income_curve
         Agent::update_credit(
-            self.token.clone(),
+            self.market_token.clone(),
             self.extarnal_wealth_curve.sample(accumlated_time),
         );
 
         // get credit
-        let credit = Agent::get_credit(self.token.clone());
+        let credit = Agent::get_credit(self.market_token.clone());
 
         //foreach node
         for node in self.nodes.iter_mut() {
             // Get units_to_consume
             // Get units_to_produce
             let (units_to_consume, units_to_produce) =
-                Agent::get_units_to_produce_and_consume(node.node_id.clone(), self.token.clone());
+                Agent::get_units_to_produce_and_consume(node.node_id.clone(), self.market_token.clone());
 
             // Update units_to_consume based on consumption curve
             let consumed = match &mut node.smart_meter {
@@ -480,19 +499,19 @@ impl Agent {
 
             // Update units_to_consume on market
             if consumed > 0.0 {
-                Agent::update_units_consumed(consumed, self.token.clone(), node.node_id.clone());
+                Agent::update_units_consumed(consumed, self.market_token.clone(), node.node_id.clone());
             }
 
             // Update units_to_produce on market
             if produced > 0.0 {
-                Agent::update_units_produced(produced, self.token.clone(), node.node_id.clone());
+                Agent::update_units_produced(produced, self.market_token.clone(), node.node_id.clone());
             }
 
             // Set grid voltage for producer
             match &node.generator {
                 Generator::Acctive(core) => {
                     if produced > 0.0 {
-                        Agent::update_grid_voltage(produced, core.grid_detail)
+                        Agent::update_grid_voltage(produced, core.grid_detail,self.grid_token.clone())
                     }
                 }
                 Generator::InAcctive => {}
@@ -502,7 +521,7 @@ impl Agent {
             match &node.smart_meter {
                 SmartMeter::Acctive(core) => {
                     if consumed > 0.0 {
-                        Agent::update_grid_impedance(consumed, core.grid_detail)
+                        Agent::update_grid_impedance(consumed, core.grid_detail,self.grid_token.clone())
                     }
                 }
                 SmartMeter::InActtive => {}
@@ -519,7 +538,7 @@ impl Agent {
                         if gap > 0.0 && credit > 0.0 {
                             // buy electricity at market price
                             let spent = Agent::place_buy_order(
-                                self.token.clone(),
+                                self.market_token.clone(),
                                 node.node_id.clone(),
                                 gap,
                                 credit,
@@ -540,7 +559,7 @@ impl Agent {
                         let produced = core.production_curve.sample(accumlated_time) - produced;
                         if produced > to_produce {
                             Agent::place_sell_order(
-                                self.token.clone(),
+                                self.market_token.clone(),
                                 node.node_id.clone(),
                                 produced - to_produce,
                             );

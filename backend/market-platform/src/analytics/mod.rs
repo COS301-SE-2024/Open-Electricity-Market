@@ -55,14 +55,13 @@ pub fn user_buy_stats(claims: Claims) -> Value {
             data.min_price = result.0;
             data.max_price = result.1;
             data.average_price = result.2;
-            json!(
-                {"status": "ok",
-                "message": "User's buying stats successfully retrieved",
-                "data": data}
-            )
         }
-        Err(_) => json!({"status": "err", "message": "Something went wrong", "data": data}),
+        Err(_) => {}
     }
+    json!({"status": "ok",
+        "message": "User's buying stats successfully retrieved",
+        "data": data
+    })
 }
 
 #[post("/user_sell_stats")]
@@ -103,14 +102,13 @@ pub fn user_sell_stats(claims: Claims) -> Value {
             data.min_price = result.0;
             data.max_price = result.1;
             data.average_price = result.2;
-            json!(
-                {"status": "ok",
-                "message": "User's selling stats successfully retrieved",
-                "data": data}
-            )
         }
-        Err(_) => json!({"status": "err", "message": "Something went wrong", "data": data}),
+        Err(_) => {}
     }
+    json!({"status": "ok",
+        "message": "User's selling stats successfully retrieved",
+        "data": data}
+    )
 }
 
 #[derive(Serialize, Deserialize)]
@@ -335,12 +333,7 @@ pub fn bought_vs_sold_stat(claims: Claims) -> Value {
         .first::<f64>(connection)
     {
         Ok(result) => data.units_bought = result,
-        Err(_) => {
-            return json!({"status": "error",
-                "message": "Something went wrong".to_string(),
-                "data": data
-            })
-        }
+        Err(_) => {}
     }
 
     match transactions
@@ -354,16 +347,11 @@ pub fn bought_vs_sold_stat(claims: Claims) -> Value {
         ))
         .first::<f64>(connection)
     {
-        Ok(result) => {
-            data.units_sold = result;
-            json!({"status": "ok",
-                "message": "Successfully retrieved user bought and sold units".to_string(),
-                "data": data
-            })
-        }
-        Err(_) => json!({"status": "error",
-            "message": "Something went wrong".to_string(),
-            "data": data
-        }),
+        Ok(result) => data.units_sold = result,
+        Err(_) => {}
     }
+    json!({"status": "ok",
+        "message": "Successfully retrieved user bought and sold units".to_string(),
+        "data": data
+    })
 }

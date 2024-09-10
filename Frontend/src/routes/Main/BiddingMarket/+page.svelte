@@ -18,6 +18,7 @@
 
   let data = [];
 async function reset_price(){
+  // console.log("setting price to " + price);
   selectedPrice = price;
 }
 

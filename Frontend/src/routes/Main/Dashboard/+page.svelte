@@ -672,7 +672,7 @@
       </form>
     </dialog>
     
-    <div class = "max-h-80 overflow-auto">
+    <div class = "max-h-80 overflow-auto ">
       {#each nodes as node}
       {#if node.name == nodeNameDetail}
         <div class="card card-side border-4 border-primary min-w-1/3 bg-base-100 mb-2">
@@ -712,12 +712,14 @@
         <button class="btn btn-outline" on:click={createModal}>Add a New Node</button>
       </div>
     </div>
-    <span class="text-3xl text-white font-thin justify-start pl-2">
-        Sell Orders
-    </span>
-    <div class = "h-60 overflow-auto">
+    
+    <div class = "card bg-base-100">
+      <span class="text-3xl text-white font-thin justify-start pl-2">
+          Sell Orders
+      </span>
+      <div class = "h-60 overflow-auto">
         {#each sellorders as sellorder}
-        <div class="card card-side min-w-1/3 bg-base-100 my-2">
+        <div class="card card-side min-w-1/3 bg-base-100 my-2 border">
           <div class="card-body">
             <h2 class="card-title">Sell order</h2>
             <p>
@@ -733,6 +735,7 @@
         </div>
         {/each}
       </div>
+    </div>
   </div>
 
   <div class="sm:w-1/3 min-h-full overflow-y-auto">

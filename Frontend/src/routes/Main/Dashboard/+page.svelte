@@ -554,7 +554,7 @@
     <dialog id="remove_modal" class="modal">
       <div class="modal-box">
         <h3 class="text-lg font-bold">Withdraw funds</h3>
-        <p>Please ente ran amount you would like to withdraw.</p>
+        <p>Please enter an amount you would like to withdraw.</p>
         <div class="form-control mt-4">
           <input class="input input-bordered" type="number" placeholder="Amount" required bind:value={withdrawamount}>
         </div>
@@ -608,6 +608,42 @@
             <div class="stat-value font-light">{email}</div>
           {/if}
       </div>
+    </div>
+    <div class = "my-10"></div>
+    <div class=" h-scrollerOrders overflow-auto">
+      {#each buyorders as buyorder}
+        <div class="card min-w-1/3 bg-base-100 my-2">
+          <div class="card-body">
+            <h2 class="card-title">Buy order</h2>
+            <p>
+              Filled units: {buyorder.filled_units.toFixed(1) + "Wh"}<br>
+              Max price: {formatCurrency(buyorder.max_price)}<br>
+              Min price: {formatCurrency(buyorder.min_price)}<br>
+              Units bought: {Intl.NumberFormat().format(buyorder.sought_units) + "Wh"}<br>
+            </p>
+            <div class="card-actions ">
+              <progress class="progress progress-primary" value="{buyorder.filled_units}" max="{buyorder.sought_units}"></progress>
+            </div>
+          </div>
+        </div>
+      {/each}
+
+      {#each sellorders as sellorder}
+        <div class="card card-side min-w-1/3 bg-base-100 my-2">
+          <div class="card-body">
+            <h2 class="card-title">Sell order</h2>
+            <p>
+              Claimed Units: {sellorder.claimed_units.toFixed(1) + "Wh"}<br>
+              Offered Units: {sellorder.offered_units.toFixed(1) + "Wh"}<br>
+              Max price: {formatCurrency(sellorder.max_price)}<br>
+              Min price: {formatCurrency(sellorder.min_price)}<br>
+            </p>
+            <div class="card-actions">
+              <progress class="progress progress-accent" value="{sellorder.claimed_units}" max="{sellorder.offered_units}"></progress>
+            </div>
+          </div>
+        </div>
+      {/each}
     </div>
   </div>
 
@@ -770,39 +806,7 @@
 
     {/if}
     <div class = "my-10"></div>
-    {#each buyorders as buyorder}
-      <div class="card min-w-1/3 bg-base-100 my-2">
-        <div class="card-body">
-          <h2 class="card-title">Buy order</h2>
-          <p>
-            Filled units: {buyorder.filled_units.toFixed(1) + "Wh"}<br>
-            Max price: {formatCurrency(buyorder.max_price)}<br>
-            Min price: {formatCurrency(buyorder.min_price)}<br>
-            Units bought: {Intl.NumberFormat().format(buyorder.sought_units) + "Wh"}<br>
-          </p>
-          <div class="card-actions ">
-            <progress class="progress progress-primary" value="{buyorder.filled_units}" max="{buyorder.sought_units}"></progress>
-          </div>
-        </div>
-      </div>
-    {/each}
-
-    {#each sellorders as sellorder}
-      <div class="card card-side min-w-1/3 bg-base-100 my-2">
-        <div class="card-body">
-          <h2 class="card-title">Sell order</h2>
-          <p>
-            Claimed Units: {sellorder.claimed_units.toFixed(1) + "Wh"}<br>
-            Offered Units: {sellorder.offered_units.toFixed(1) + "Wh"}<br>
-            Max price: {formatCurrency(sellorder.max_price)}<br>
-            Min price: {formatCurrency(sellorder.min_price)}<br>
-          </p>
-          <div class="card-actions">
-            <progress class="progress progress-accent" value="{sellorder.claimed_units}" max="{sellorder.offered_units}"></progress>
-          </div>
-        </div>
-      </div>
-    {/each}
+    
   </div>
 
   <!-- confirm remove node modal -->

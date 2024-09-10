@@ -3,7 +3,7 @@
   import {goto} from "$app/navigation";
   import Map from '$lib/Components/MapDashboard.svelte';
   import { API_URL_GRID, API_URL_MARKET, API_URL_AGENT } from '$lib/config.js';
-
+  import Scroller from '@sveltejs/svelte-scroller';
   
 
   let data = {};
@@ -689,7 +689,7 @@
     </div>
   </div>
 
-  <div class="sm:w-1/3">
+  <div class="sm:w-1/3 h-scroller overflow-auto">
     {#if nodeNameDetail != ''}
       <span class="text-3xl text-white font-thin justify-start pl-2">
         Node Details

@@ -22,6 +22,7 @@ module.exports = {
         fillin: "43px",
         btn: "66px",
         page: "60px",
+        scroller: "480px"
       },
       colors: {
         fillin: "white",

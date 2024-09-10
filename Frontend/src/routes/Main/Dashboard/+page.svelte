@@ -609,8 +609,12 @@
           {/if}
       </div>
     </div>
-    <div class = "my-10"></div>
+    <!--<div class = "my-10"></div>-->
+    <span class="text-3xl text-white font-thin justify-start pl-2">
+        Buy Orders
+    </span>
     <div class=" h-60 overflow-auto">
+      
       {#each buyorders as buyorder}
         <div class="card min-w-1/3 bg-base-100 my-2">
           <div class="card-body">
@@ -668,44 +672,49 @@
       </form>
     </dialog>
     
-
-    {#each nodes as node}
-    {#if node.name == nodeNameDetail}
-      <div class="card card-side border-4 border-primary min-w-1/3 bg-base-100 mb-2">
-        <figure class="w-1/5 p-10">
-          <img
-            src="../src/images/house.png"
-            alt="House node" />
-        </figure>
-        <div class="card-body">
-          <h2 class="card-title font-light text-3xl">{node.name}</h2>
-          <div class="card-actions justify-end">
-            <button class="btn btn-primary" on:click={() => {fetchNodeDetails(node.node_id)}}>Details</button>
+    <div class = "max-h-80 overflow-auto">
+      {#each nodes as node}
+      {#if node.name == nodeNameDetail}
+        <div class="card card-side border-4 border-primary min-w-1/3 bg-base-100 mb-2">
+          <figure class="w-1/5 p-10">
+            <img
+              src="../src/images/house.png"
+              alt="House node" />
+          </figure>
+          <div class="card-body">
+            <h2 class="card-title font-light text-3xl">{node.name}</h2>
+            <div class="card-actions justify-end">
+              <button class="btn btn-primary" on:click={() => {fetchNodeDetails(node.node_id)}}>Details</button>
+            </div>
+          </div>
+        </div>  
+      {:else}
+        <div class="card card-side border-4 border-base-100 min-w-1/3 bg-base-100 mb-2">
+          <figure class="w-1/5 p-10">
+            <img
+              src="../src/images/house.png"
+              alt="House node" />
+          </figure>
+          <div class="card-body">
+            <h2 class="card-title font-light text-3xl">{node.name}</h2>
+            <div class="card-actions justify-end">
+              <button class="btn btn-primary" on:click={() => {fetchNodeDetails(node.node_id)}}>Details</button>
+            </div>
           </div>
         </div>
-      </div>  
-    {:else}
-      <div class="card card-side border-4 border-base-100 min-w-1/3 bg-base-100 mb-2">
-        <figure class="w-1/5 p-10">
-          <img
-            src="../src/images/house.png"
-            alt="House node" />
-        </figure>
-        <div class="card-body">
-          <h2 class="card-title font-light text-3xl">{node.name}</h2>
-          <div class="card-actions justify-end">
-            <button class="btn btn-primary" on:click={() => {fetchNodeDetails(node.node_id)}}>Details</button>
-          </div>
-        </div>
-      </div>
-    {/if}
-    {/each}
+      {/if}
+      {/each}
+    </div>
+    
 
     <div class="card card-side min-w-1/3 bg-base-100">
       <div class="card-body">
         <button class="btn btn-outline" on:click={createModal}>Add a New Node</button>
       </div>
     </div>
+    <span class="text-3xl text-white font-thin justify-start pl-2">
+        Sell Orders
+    </span>
     <div class = "h-60 overflow-auto">
         {#each sellorders as sellorder}
         <div class="card card-side min-w-1/3 bg-base-100 my-2">

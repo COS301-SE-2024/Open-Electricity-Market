@@ -1,33 +1,27 @@
-
-
 <script>
   import { onMount } from "svelte";
-  import Map from '$lib/Components/Map.svelte';
+  import Map from "$lib/Components/Map.svelte";
   import Chart from "$lib/Components/Chart2.svelte";
   import GridStats from "../../../lib/Components/GridStats.svelte";
-  import { API_URL_GRID, API_URL_MARKET } from '$lib/config.js';
-
-
- 
+  import { API_URL_GRID, API_URL_MARKET } from "$lib/config.js";
 
   let data = {};
-  let interval; 
-  let numDecimals = 2; 
-  let advancedView = false; 
-  let dropdownViewable = false; 
-  let mapdata; 
+  let interval;
+  let numDecimals = 2;
+  let advancedView = false;
+  let dropdownViewable = false;
+  let mapdata;
   let oscilloscopedata = null;
 
-  function toggleDropdown(){
-    dropdownViewable = !dropdownViewable; 
+  function toggleDropdown() {
+    dropdownViewable = !dropdownViewable;
   }
 
   onMount(async () => {
     await fetchData();
-    await fetchstart();  
-    interval = setInterval(fetchData, 10000); 
-    
-   
+    await fetchstart();
+    interval = setInterval(fetchData, 10000);
+
     return () => {
       clearInterval(interval);
       Map.destroy();
@@ -59,18 +53,17 @@
 
    function setAdvancedView(){
     advancedView = !advancedView;
-    if(advancedView){
-      numDecimals = 7; 
-    }
-    else{
-      numDecimals = 2;  
+    if (advancedView) {
+      numDecimals = 7;
+    } else {
+      numDecimals = 2;
     }
   }
 
   async function fetchData() {
     try {
       const response = await fetch(`${API_URL_GRID}/info`, {
-        method: "POST", 
+        method: "POST",
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
@@ -80,7 +73,7 @@
       const fdata = await response.json();
       console.log("Fetched data:", fdata);
       mapdata = fdata.circuits[0];
-      // data = null; 
+      // data = null;
       // data = {
       //   ...fdata,
       //   Consumers: fdata.Consumers.map(item => JSON.parse(item)),
@@ -91,22 +84,22 @@
       // console.log("Data is this: ");
       // console.log(data);
       // chartdata = data[Consumers.Voltage.Phase1];
-      
     } catch (error) {
-      console.log("There was an error fetching the JSON for the overview:", error);
+      console.log(
+        "There was an error fetching the JSON for the overview:",
+        error
+      );
     }
   }
 
-
-  function handleMarkerClick(entity){
+  function handleMarkerClick(entity) {
     // console.log(entity.detail.voltage);
-    // data = entity.detail; 
+    // data = entity.detail;  
     const markerData = entity.detail;
-    console.log('Marker clicked:', markerData);  
+    console.log("Marker clicked:", markerData);
     data = { ...markerData.voltage };
     console.log("Updated data is this: ", data);
   }
-
 </script>
 
 <main class="container sm:mx-auto">

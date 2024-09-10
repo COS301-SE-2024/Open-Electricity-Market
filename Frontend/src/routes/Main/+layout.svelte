@@ -75,7 +75,7 @@
     showIcon = !showIcon; 
   }
   </script>
-<body class = "w-full min-h-screen bg-gradient-to-b from-base-200 to-base-300">
+<body class = "w-full sm:min-h-screen bg-gradient-to-b from-base-200 to-base-300">
 <header>
   <div class="navbar bg-base-100 border-b border-accent">
     <div class="navbar-start">  
@@ -268,7 +268,7 @@
 
 </header>
   
-  <main id="main" class="container mx-auto mt-8">
+  <main id="main" class="container mx-auto mt-8 max-h-full">
     {#if loggedIn}
       <slot />
     {/if}

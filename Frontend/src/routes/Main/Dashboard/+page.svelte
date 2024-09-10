@@ -525,7 +525,7 @@
 
 </script>
 
-<main class="container sm:mx-auto w-full h-full sm:flex justify-center">
+<main class="container sm:mx-auto w-full max-h-full sm:flex justify-center">
   <div class="sm:w-1/3">
     
     <span class="text-3xl text-white font-thin justify-start pl-2">
@@ -610,7 +610,7 @@
       </div>
     </div>
     <div class = "my-10"></div>
-    <div class=" h-scrollerOrders overflow-auto">
+    <div class=" h-60 overflow-auto">
       {#each buyorders as buyorder}
         <div class="card min-w-1/3 bg-base-100 my-2">
           <div class="card-body">
@@ -725,7 +725,7 @@
     </div>
   </div>
 
-  <div class="sm:w-1/3 h-scroller overflow-auto">
+  <div class="sm:w-1/3 min-h-full overflow-y-auto">
     {#if nodeNameDetail != ''}
       <span class="text-3xl text-white font-thin justify-start pl-2">
         Node Details
@@ -805,7 +805,6 @@
     </div>
 
     {/if}
-    <div class = "my-10"></div>
     
   </div>
 

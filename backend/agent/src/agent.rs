@@ -47,7 +47,7 @@ impl Agent {
         }
     }
 
-    fn create_producer_grid(location: Location,token: String) -> GeneratorDetail {
+    fn create_producer_grid(location: Location, token: String) -> GeneratorDetail {
         let url = env::var("GURL").unwrap();
         let client = reqwest::blocking::Client::new();
         let res = client
@@ -61,7 +61,7 @@ impl Agent {
         serde_json::from_str(&text).unwrap()
     }
 
-    fn create_consumer_grid(location: Location,token: String) -> SmartMeterDetail {
+    fn create_consumer_grid(location: Location, token: String) -> SmartMeterDetail {
         let url = env::var("GURL").unwrap();
         let client = reqwest::blocking::Client::new();
         let res = client
@@ -160,17 +160,18 @@ impl Agent {
         let url = env::var("GURL").unwrap();
         let client = reqwest::blocking::Client::new();
         let res = client
-            .post(format!("http://{url}:8000/get_token")) 
+            .post(format!("http://{url}:8000/get_token"))
             .json(&detail)
             .send()
             .unwrap();
         let result: GetTokenResult = res.json().unwrap();
-        return result.token; 
+        return result.token;
     }
 
     pub fn intialise(&mut self) {
-        self.grid_token =  Agent::get_grid_token(self.email.clone());
-        self.market_token = Agent::login_or_register_agent(self.email.clone(), self.password.clone()); 
+        self.grid_token = Agent::get_grid_token(self.email.clone());
+        self.market_token =
+            Agent::login_or_register_agent(self.email.clone(), self.password.clone());
         println!("{}", self.market_token.clone());
         let mut has_nodes = true;
 
@@ -184,7 +185,8 @@ impl Agent {
             match &mut node.generator {
                 Generator::Acctive(core) => {
                     if core.grid_detail.generator == 0 {
-                        core.grid_detail = Agent::create_producer_grid(node.location,self.grid_token.clone() );
+                        core.grid_detail =
+                            Agent::create_producer_grid(node.location, self.grid_token.clone());
                     }
                 }
                 Generator::InAcctive => {}
@@ -193,7 +195,8 @@ impl Agent {
             match &mut node.smart_meter {
                 SmartMeter::Acctive(core) => {
                     if core.grid_detail.consumer == 0 {
-                        core.grid_detail = Agent::create_consumer_grid(node.location,self.grid_token.clone() );
+                        core.grid_detail =
+                            Agent::create_consumer_grid(node.location, self.grid_token.clone());
                     }
                 }
                 SmartMeter::InActtive => {}
@@ -309,7 +312,7 @@ impl Agent {
         println!("{}", result.message);
     }
 
-    fn update_grid_voltage(units: f64, detail: GeneratorDetail,token: String) {
+    fn update_grid_voltage(units: f64, detail: GeneratorDetail, token: String) {
         let voltage_update_detail = VoltageUpdateDetail {
             circuit: detail.circuit,
             generator: detail.generator,
@@ -327,7 +330,7 @@ impl Agent {
         println!("{}", result.message);
     }
 
-    fn update_grid_impedance(units: f64, detail: SmartMeterDetail,token: String) {
+    fn update_grid_impedance(units: f64, detail: SmartMeterDetail, token: String) {
         let impedance_update_detail = ImpedanceUpdateDetail {
             circuit: detail.circuit,
             consumer: detail.consumer,
@@ -463,8 +466,10 @@ impl Agent {
         for node in self.nodes.iter_mut() {
             // Get units_to_consume
             // Get units_to_produce
-            let (units_to_consume, units_to_produce) =
-                Agent::get_units_to_produce_and_consume(node.node_id.clone(), self.market_token.clone());
+            let (units_to_consume, units_to_produce) = Agent::get_units_to_produce_and_consume(
+                node.node_id.clone(),
+                self.market_token.clone(),
+            );
 
             // Update units_to_consume based on consumption curve
             let consumed = match &mut node.smart_meter {
@@ -499,19 +504,31 @@ impl Agent {
 
             // Update units_to_consume on market
             if consumed > 0.0 {
-                Agent::update_units_consumed(consumed, self.market_token.clone(), node.node_id.clone());
+                Agent::update_units_consumed(
+                    consumed,
+                    self.market_token.clone(),
+                    node.node_id.clone(),
+                );
             }
 
             // Update units_to_produce on market
             if produced > 0.0 {
-                Agent::update_units_produced(produced, self.market_token.clone(), node.node_id.clone());
+                Agent::update_units_produced(
+                    produced,
+                    self.market_token.clone(),
+                    node.node_id.clone(),
+                );
             }
 
             // Set grid voltage for producer
             match &node.generator {
                 Generator::Acctive(core) => {
                     if produced > 0.0 {
-                        Agent::update_grid_voltage(produced, core.grid_detail,self.grid_token.clone())
+                        Agent::update_grid_voltage(
+                            produced,
+                            core.grid_detail,
+                            self.grid_token.clone(),
+                        )
                     }
                 }
                 Generator::InAcctive => {}
@@ -521,7 +538,11 @@ impl Agent {
             match &node.smart_meter {
                 SmartMeter::Acctive(core) => {
                     if consumed > 0.0 {
-                        Agent::update_grid_impedance(consumed, core.grid_detail,self.grid_token.clone())
+                        Agent::update_grid_impedance(
+                            consumed,
+                            core.grid_detail,
+                            self.grid_token.clone(),
+                        )
                     }
                 }
                 SmartMeter::InActtive => {}

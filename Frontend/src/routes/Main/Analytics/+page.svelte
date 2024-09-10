@@ -5,6 +5,7 @@
   import { API_URL_GRID, API_URL_MARKET, API_URL_AGENT } from "$lib/config.js";
   import ConsumptionCurve from "$lib/Components/ConsumptionCurve.svelte";
   import ProductionCurve from "$lib/Components/ProductionCurve.svelte";
+  import PriceHistoryChart from "$lib/Components/PriceHistoryChart.svelte";
 
   let selectednode = "";
   let selectedAppliances = ["asdf", "jkl", "oiu"]; //by default should be all of them
@@ -30,6 +31,11 @@
   let unitsproduced;
   let unitsconsumed;
   let productioncurvedata = []; 
+  let buyChartPeriod; 
+  let sellChartPeriod; 
+  let buyhistorydata = []; 
+  let sellhistorydata = [];  
+  
 
   onMount(async () => {
     await getNodes();
@@ -37,10 +43,10 @@
     await getBuyStats();
     await getBoughtSold();
      
-    // await getBuyHistory();
-    // await getSellHistory();
+    await getBuyHistory();
+    await getSellHistory();
     // await getConsumedProduced();
-    // await getCurve();
+    await getCurve(); 
   });
 
   function toggleDropdown() {
@@ -71,7 +77,7 @@
     if (selectedAppliances.includes(appliance)) {
       selectedAppliances = selectedAppliances.filter((n) => n !== appliance);
     } else {
-      selectedAppliances = [...selectedAppliances, node];
+      selectedAppliances = [...selectedAppliances, appliance];
     }
   }
 
@@ -129,7 +135,7 @@
     }
   }
 
-  async function getBuyHistory() {
+  async function getBuyHistory(chartPeriod) {
     try {
       const response = await fetch(`${API_URL_MARKET}/buy_history_stat`, {
         method: "POST",
@@ -140,13 +146,14 @@
         },
         body: JSON.stringify({
           //options include Day1, Week1, Month1, Month3, Month6, Year1
-          time_frame: Day1,
+          time_frame: chartPeriod,
         }),
         credentials: "include",
       });
 
       const fdata = await response.json();
       console.log(fdata);
+      buyhistorydata = fdata.data.map((item) => parseFloat(item.price.toFixed(2))); 
     } catch (error) {
       console.log(
         "An error occurred while fetching buy_history_stat data..\n",
@@ -155,7 +162,7 @@
     }
   }
 
-  async function getSellHistory() {
+  async function getSellHistory(chartPeriod) {
     try {
       const response = await fetch(`${API_URL_MARKET}/sell_history_stat`, {
         method: "POST",
@@ -166,13 +173,14 @@
         },
         body: JSON.stringify({
           //options include Day1, Week1, Month1, Month3, Month6, Year1
-          time_frame: Day1,
+          time_frame: chartPeriod,
         }),
         credentials: "include",
       });
 
       const fdata = await response.json();
       console.log(fdata);
+      sellhistorydata = fdata.data.map((item) => parseFloat(item.price.toFixed(2))); 
     } catch (error) {
       console.log(
         "An error occurred while fetching sell_history_stat data..\n",
@@ -343,6 +351,48 @@
     <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
       <PieChart {marketpiedata} />
     </div>
+
+    <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
+       <div class="form-control">
+        <!-- svelte-ignore a11y-label-has-associated-control -->
+        <select
+          bind:value={buyChartPeriod}
+          class="select select-bordered max-h-40 overflow-y-auto"
+          on:change={() => getBuyHistory(buyChartPeriod)}
+        >
+          <option value="Day1" default>24h</option>
+          <option value="Week1">7d</option>
+          <option value="Month1">1M</option>
+          <option value="Month3">3M</option>
+          <option value="Month6">6M</option>  
+          <option value="Year1">1Y</option>
+        </select>
+      </div>
+      <PriceHistoryChart class="w-1/2" data={buyhistorydata} />
+    </div>
+
+
+
+
+    <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
+      <div class="form-control">
+        <!-- svelte-ignore a11y-label-has-associated-control -->
+        <select
+          bind:value={sellChartPeriod}
+          class="select select-bordered max-h-40 overflow-y-auto"
+          on:change={() => getSellHistory(sellChartPeriod)}
+        >
+          <option value="Day1" default>24h</option>
+          <option value="Week1">7d</option>
+          <option value="Month1">1M</option>
+          <option value="Month3">3M</option>
+          <option value="Month6">6M</option>  
+          <option value="Year1">1Y</option>
+        </select>
+      </div>
+      <PriceHistoryChart class="w-1/2" data={sellhistorydata} />
+    </div>
+
   </div>
 
   <div id="rhs" class="w-1/2">

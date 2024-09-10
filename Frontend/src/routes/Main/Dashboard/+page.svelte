@@ -627,23 +627,6 @@
           </div>
         </div>
       {/each}
-
-      {#each sellorders as sellorder}
-        <div class="card card-side min-w-1/3 bg-base-100 my-2">
-          <div class="card-body">
-            <h2 class="card-title">Sell order</h2>
-            <p>
-              Claimed Units: {sellorder.claimed_units.toFixed(1) + "Wh"}<br>
-              Offered Units: {sellorder.offered_units.toFixed(1) + "Wh"}<br>
-              Max price: {formatCurrency(sellorder.max_price)}<br>
-              Min price: {formatCurrency(sellorder.min_price)}<br>
-            </p>
-            <div class="card-actions">
-              <progress class="progress progress-accent" value="{sellorder.claimed_units}" max="{sellorder.offered_units}"></progress>
-            </div>
-          </div>
-        </div>
-      {/each}
     </div>
   </div>
 
@@ -723,6 +706,24 @@
         <button class="btn btn-outline" on:click={createModal}>Add a New Node</button>
       </div>
     </div>
+    <div class = "h-60 overflow-auto">
+        {#each sellorders as sellorder}
+        <div class="card card-side min-w-1/3 bg-base-100 my-2">
+          <div class="card-body">
+            <h2 class="card-title">Sell order</h2>
+            <p>
+              Claimed Units: {sellorder.claimed_units.toFixed(1) + "Wh"}<br>
+              Offered Units: {sellorder.offered_units.toFixed(1) + "Wh"}<br>
+              Max price: {formatCurrency(sellorder.max_price)}<br>
+              Min price: {formatCurrency(sellorder.min_price)}<br>
+            </p>
+            <div class="card-actions">
+              <progress class="progress progress-accent" value="{sellorder.claimed_units}" max="{sellorder.offered_units}"></progress>
+            </div>
+          </div>
+        </div>
+        {/each}
+      </div>
   </div>
 
   <div class="sm:w-1/3 min-h-full overflow-y-auto">

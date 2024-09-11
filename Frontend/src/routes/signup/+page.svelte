@@ -120,6 +120,7 @@
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${sessionStorage.getItem("Token")}`,
         },
         body: JSON.stringify(details),
         credentials: "include",
@@ -145,7 +146,7 @@
       class="hero-content max-w-screen-md max-h-min flex-col lg:flex-row-reverse rounded-2xl bg-base-100"
     >
       <div class="text-center lg:text-left">
-        <h1 class="text-5xl font-bold">Amplify</h1>
+        <a class="text-5xl font-bold" href="/">Amplify</a>
         <p class="py-6">
           Discover a revolutionary open market platform where you can buy and
           sell electricity in real-time.

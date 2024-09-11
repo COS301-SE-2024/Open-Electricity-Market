@@ -1,5 +1,5 @@
 <script>
-  import { onMount, onDestroy, createEventDispatcher } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   import { browser } from "$app/environment";
   import iconmarkerpng from "$lib/assets/marker-icon.png";
 
@@ -15,7 +15,7 @@
         .map(mapContainer, {
           scrollWheelZoom: false,
         })
-        .setView([-26.1925013, 28.0100383], 13);
+        .setView([-25.7975, 28.2285], 11);
 
       leaflet
         .tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {

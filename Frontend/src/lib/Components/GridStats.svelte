@@ -4,12 +4,11 @@
 
   onMount(async () => {
     fetchData();
-    let interval = setInterval(fetchData, 11000);
+    // let interval = setInterval(fetchData, 11000);
 
-
-    return () => {
-      clearInterval(interval);
-    };
+    // return () => {
+    //   clearInterval(interval);
+    // };
   });
 
   $: consumers = null;
@@ -26,13 +25,13 @@
       const response = await fetch(`${API_URL_GRID}/stats`, {
         method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
       });
 
       const fdata = await response.json();
-      console.log("Fetched statistics:", fdata);
+      // console.log("Fetched statistics:", fdata);
       consumers = fdata.consumer_count;
       producers = fdata.producer_count;
       generation = fdata.total_generation;
@@ -113,7 +112,9 @@
       <span class="loading loading-spinner loading-lg"></span>
     {:else}
       <div class="stat-value font-normal">
-        {Intl.NumberFormat().format(impedance)} Ω
+        {impedance > 8000000
+          ? Intl.NumberFormat().format(impedance / 1000000) + " M"
+          : Intl.NumberFormat().format(impedance / 1000) + " k"}Ω
       </div>
     {/if}
     <div class="stat-desc">Measure of opposition to electrical flow</div>

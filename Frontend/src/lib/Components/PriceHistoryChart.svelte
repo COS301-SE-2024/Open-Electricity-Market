@@ -14,7 +14,6 @@
     }
   }
 
-
   onMount(async () => {
     if (typeof window !== "undefined") {
       // Check if running in the browser
@@ -36,8 +35,6 @@
   $: if (chart && data.length > 0) {
     updateChart();
   }
-
- 
 
   function fillChart() {
     if (chart && data.length > 0) {

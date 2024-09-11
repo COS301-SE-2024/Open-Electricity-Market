@@ -30,23 +30,22 @@
   let consumptioncurvedata = [];
   let unitsproduced;
   let unitsconsumed;
-  let productioncurvedata = []; 
-  let buyChartPeriod; 
-  let sellChartPeriod; 
-  let buyhistorydata = []; 
-  let sellhistorydata = [];  
-  
+  let productioncurvedata = [];
+  let buyChartPeriod;
+  let sellChartPeriod;
+  let buyhistorydata = [];
+  let sellhistorydata = [];
 
   onMount(async () => {
     await getNodes();
     await getSellStats();
     await getBuyStats();
     await getBoughtSold();
-     
+
     await getBuyHistory();
     await getSellHistory();
     // await getConsumedProduced();
-    await getCurve(); 
+    await getCurve();
   });
 
   function toggleDropdown() {
@@ -153,7 +152,9 @@
 
       const fdata = await response.json();
       console.log(fdata);
-      buyhistorydata = fdata.data.map((item) => parseFloat(item.price.toFixed(2))); 
+      buyhistorydata = fdata.data.map((item) =>
+        parseFloat(item.price.toFixed(2))
+      );
     } catch (error) {
       console.log(
         "An error occurred while fetching buy_history_stat data..\n",
@@ -180,7 +181,9 @@
 
       const fdata = await response.json();
       console.log(fdata);
-      sellhistorydata = fdata.data.map((item) => parseFloat(item.price.toFixed(2))); 
+      sellhistorydata = fdata.data.map((item) =>
+        parseFloat(item.price.toFixed(2))
+      );
     } catch (error) {
       console.log(
         "An error occurred while fetching sell_history_stat data..\n",
@@ -249,11 +252,11 @@
         let temp2 = fdata.production;
 
         temp2.forEach((generator) => {
-            //should be the value
-            // productioncurvedata = temp2[1];
-            for(let index = 0; index<24; index++){
-                productioncurvedata[index] = temp2[1]; 
-            } 
+          //should be the value
+          // productioncurvedata = temp2[1];
+          for (let index = 0; index < 24; index++) {
+            productioncurvedata[index] = temp2[1];
+          }
         });
 
         console.log("This is consumption curve data:", consumptioncurvedata);
@@ -270,7 +273,7 @@
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
-          Authorization: `Bearer ${sessionStorage.getItem("Token")}`,   
+          Authorization: `Bearer ${sessionStorage.getItem("Token")}`,
         },
         body: JSON.stringify({
           node_id: nodeid,
@@ -280,11 +283,9 @@
 
       const fdata = await response.json();
       console.log(fdata);
-      if(fdata.message == "Here is the detail"){
-
+      if (fdata.message == "Here is the detail") {
         unitsconsumed = fdata.data.consumed;
         unitsproduced = fdata.data.produced;
-
       }
     } catch (error) {
       console.log(
@@ -317,7 +318,7 @@
         listofnodeids = fdata.data.map((nodes) => nodes.node_id);
         console.log(listofnodes);
         console.log(listofnodeids);
-        nodeid = listofnodeids[0]; 
+        nodeid = listofnodeids[0];
       }
     } catch (error) {
       console.log("An error occurred while fetching getNodes data..\n", error);
@@ -332,19 +333,36 @@
     <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
       <span class="">Market Stats</span>
       <br />
-      <span class="font-light">Minimum price bought at: <span class = "font-normal">R{minbuy}</span></span>
+      <span class="font-light"
+        >Minimum price bought at: <span class="font-normal">R{minbuy}</span
+        ></span
+      >
       <br />
-      <span class="font-light">Maximum price bought at: <span class = "font-normal">R{maxbuy}</span></span>
+      <span class="font-light"
+        >Maximum price bought at: <span class="font-normal">R{maxbuy}</span
+        ></span
+      >
       <br />
-      <span class="font-light">Average price bought at: <span class = "font-normal">R{avgbuy}</span></span>
+      <span class="font-light"
+        >Average price bought at: <span class="font-normal">R{avgbuy}</span
+        ></span
+      >
       <br />
-      <span class="font-light">Minimum price sold at: <span class = "font-normal">R{minsell}</span></span>
+      <span class="font-light"
+        >Minimum price sold at: <span class="font-normal">R{minsell}</span
+        ></span
+      >
       <br />
-      <span class="font-light">Maximum price sold at: <span class = "font-normal">R{maxsell}</span></span>
+      <span class="font-light"
+        >Maximum price sold at: <span class="font-normal">R{maxsell}</span
+        ></span
+      >
       <br />
-      <span class="font-light">Average price sold at: <span class = "font-normal">R{avgsell}</span></span>
+      <span class="font-light"
+        >Average price sold at: <span class="font-normal">R{avgsell}</span
+        ></span
+      >
     </div>
-    
 
     <!-- {/if} -->
 
@@ -353,7 +371,7 @@
     </div>
 
     <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
-       <div class="form-control">
+      <div class="form-control">
         <!-- svelte-ignore a11y-label-has-associated-control -->
         <select
           bind:value={buyChartPeriod}
@@ -364,15 +382,12 @@
           <option value="Week1">7d</option>
           <option value="Month1">1M</option>
           <option value="Month3">3M</option>
-          <option value="Month6">6M</option>  
+          <option value="Month6">6M</option>
           <option value="Year1">1Y</option>
         </select>
       </div>
       <PriceHistoryChart class="w-1/2" data={buyhistorydata} />
     </div>
-
-
-
 
     <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
       <div class="form-control">
@@ -386,13 +401,12 @@
           <option value="Week1">7d</option>
           <option value="Month1">1M</option>
           <option value="Month3">3M</option>
-          <option value="Month6">6M</option>  
+          <option value="Month6">6M</option>
           <option value="Year1">1Y</option>
         </select>
       </div>
       <PriceHistoryChart class="w-1/2" data={sellhistorydata} />
     </div>
-
   </div>
 
   <div id="rhs" class="w-1/2">

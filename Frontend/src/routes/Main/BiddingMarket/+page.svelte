@@ -17,10 +17,10 @@
   let selected_node_name = sessionStorage.getItem("node_name");
 
   let data = [];
-async function reset_price(){
-  // console.log("setting price to " + price);
-  selectedPrice = price;
-}
+  async function reset_price() {
+    // console.log("setting price to " + price);
+    selectedPrice = price;
+  }
 
   async function place_buy_order(at_market_price) {
     // TODO: add a check that fails if units <= 0
@@ -152,7 +152,7 @@ async function reset_price(){
           <option value="Week1">7d</option>
           <option value="Month1">1M</option>
           <option value="Month3">3M</option>
-          <option value="Month6">6M</option>  
+          <option value="Month6">6M</option>
           <option value="Year1">1Y</option>
           <!-- This works so long as the endpoint retrieves different num values for longer hours etc... to be discussed with ruan -->
         </select>
@@ -179,9 +179,9 @@ async function reset_price(){
             bind:value={selectedPrice}
           />
         </div>
-        <br>
-        <hr>
-        <br>
+        <br />
+        <hr />
+        <br />
         <div class="form-control mt-1">
           <label for="amount"> Number of units </label>
           <input

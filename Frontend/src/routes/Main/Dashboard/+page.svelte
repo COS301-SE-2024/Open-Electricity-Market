@@ -748,85 +748,86 @@
   </div>
 
   <!--third-->
-  <div class="sm:w-1/3 h-full overflow-y-auto">
+  <div class="sm:w-1/3">
     {#if nodeNameDetail != ''}
       <span class="text-3xl text-white font-thin justify-start pl-2">
         Node Details
       </span>
-      <div class="stats stats-vertical w-full"> 
-        <div class="stat">
-          <div class="stat-title">Node</div>
-          <div class="stat-value font-light">{nodeNameDetail}</div>
-        </div>
-      <!-- flex min-w-max py-0 justify-center -->
-        <div class="stat flex w-full py-0 justify-center">
-          <button class="btn btn-primary w-6/12" on:click={() => {
+      <div class = "h-5/6 overflow-y-auto">
+        <div class="stats stats-vertical w-full"> 
+          <div class="stat">
+            <div class="stat-title">Node</div>
+            <div class="stat-value font-light">{nodeNameDetail}</div>
+          </div>
+          <!-- flex min-w-max py-0 justify-center -->
+          <div class="stat flex w-full py-0 justify-center">
+            <button class="btn btn-primary w-6/12" on:click={() => {
               sessionStorage.setItem("node_id", selectedNodeID);
               sessionStorage.setItem("node_name", nodeNameDetail);
               //reroute to market 
               goto('../Main/BiddingMarket');
             }}>Transact with this node</button>
-          <button class="btn btn-error w-6/12" on:click={() => {
+            <button class="btn btn-error w-6/12" on:click={() => {
               document.getElementById("removeNodeConfirmation").showModal();
             }}>Remove node</button>
+          </div>
+          
+          <div class="stat">
+            <div class="stat-title">Node Location</div>
+            <div class="stat-value font-light">
+              {nodeLongitudeDetail < 0 ? nodeLongitudeDetail.toFixed(3) * -1 + "S " : nodeLongitudeDetail.toFixed(3) + "N "} 
+              {nodeLatitudeDetail < 0 ? nodeLatitudeDetail.toFixed(3) * -1 + "W": nodeLatitudeDetail.toFixed(3) + "E"}
+            </div>
+          </div>
+          
+          <div class="stat">
+            <div class="stat-title">Available Consumption</div>
+            <div class="stat-value font-light">{Intl.NumberFormat().format(nodeToConsume)} Wh</div>
+          </div>
+
+          <div class="stat">
+            <div class="stat-title">Pending Generation</div>
+            <div class="stat-value font-light">{Intl.NumberFormat().format(nodeToProduce)} Wh</div>
+          </div>
+
         </div>
-        
-        <div class="stat">
-          <div class="stat-title">Node Location</div>
-          <div class="stat-value font-light">
-            {nodeLongitudeDetail < 0 ? nodeLongitudeDetail.toFixed(3) * -1 + "S " : nodeLongitudeDetail.toFixed(3) + "N "} 
-            {nodeLatitudeDetail < 0 ? nodeLatitudeDetail.toFixed(3) * -1 + "W": nodeLatitudeDetail.toFixed(3) + "E"}
+
+        <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 my-2">
+          <span class="text-3xl font-thin justify-start">
+            Add an Appliance
+          </span>
+
+          <div class="form-control">
+            <select bind:value={appliance} class="select select-bordered max-h-40 overflow-y-auto my-2">
+                <option value="" disabled selected>Select an appliance</option>
+                {#each appliances as appliance}
+                    <option value={appliance}>{appliance}</option>
+                {/each}
+            </select>
+            <button on:click={addAppliance} class="btn btn-primary my-2">Add Appliance</button>
+          </div>
+          <!-- selecting category  -->
+          <div class = "form-control">
+            <span class = "label">
+              <span class = "label-text">Select a generator</span>
+            </span>
+            <select bind:value={generator} class="select select-bordered max-h-40 overflow-y-auto">
+              <option value = "" disabled selected>Select a generator</option>
+              {#each uniqueGens as type}
+                    <option value={type}>{type}</option>
+              {/each}
+            </select>
+            
+            <select bind:value={category} class = "select select-bordered max-h-40 overflow-y-auto mt-4" disabled={!generator}>
+              <option value = "" disabled selected>Select a category</option>
+              {#each generators.filter(g=>g.type === generator) as {category}}
+              <option value = {category}>{category}</option>
+              {/each}
+            </select>
+            <button on:click={addGenerator} class="btn btn-primary mt-4">Add Generator</button>
           </div>
         </div>
-        
-        <div class="stat">
-          <div class="stat-title">Available Consumption</div>
-          <div class="stat-value font-light">{Intl.NumberFormat().format(nodeToConsume)} Wh</div>
-        </div>
-
-        <div class="stat">
-          <div class="stat-title">Pending Generation</div>
-          <div class="stat-value font-light">{Intl.NumberFormat().format(nodeToProduce)} Wh</div>
-        </div>
-
       </div>
-
-      <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 my-2">
-        <span class="text-3xl font-thin justify-start">
-          Add an Appliance
-        </span>
-
-        <div class="form-control">
-          <select bind:value={appliance} class="select select-bordered max-h-40 overflow-y-auto my-2">
-              <option value="" disabled selected>Select an appliance</option>
-              {#each appliances as appliance}
-                  <option value={appliance}>{appliance}</option>
-              {/each}
-          </select>
-          <button on:click={addAppliance} class="btn btn-primary my-2">Add Appliance</button>
-        </div>
-        <!-- selecting category  -->
-        <div class = "form-control">
-          <span class = "label">
-            <span class = "label-text">Select a generator</span>
-          </span>
-          <select bind:value={generator} class="select select-bordered max-h-40 overflow-y-auto">
-            <option value = "" disabled selected>Select a generator</option>
-            {#each uniqueGens as type}
-                  <option value={type}>{type}</option>
-            {/each}
-          </select>
-          
-          <select bind:value={category} class = "select select-bordered max-h-40 overflow-y-auto mt-4" disabled={!generator}>
-            <option value = "" disabled selected>Select a category</option>
-            {#each generators.filter(g=>g.type === generator) as {category}}
-            <option value = {category}>{category}</option>
-            {/each}
-          </select>
-          <button on:click={addGenerator} class="btn btn-primary mt-4">Add Generator</button>
-        </div>
-    </div>
-
     {/if}
     
   </div>

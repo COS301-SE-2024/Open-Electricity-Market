@@ -525,7 +525,7 @@
 
 </script>
 
-<main class="container sm:mx-auto w-full max-h-full sm:flex justify-center">
+<main class="container sm:mx-auto w-full h-full sm:flex justify-center">
   <!--first-->
   <div class="sm:w-1/3">
     
@@ -639,55 +639,55 @@
   </div>
 
   <!--second-->
-  <div class="sm:w-1/3 min-h-fit mx-4 flex-row">
+  <div class="sm:w-1/3 mx-4 flex-row">
 
     <!--Nodes-->
-    <div class="flex-col">
-      <span class="text-3xl text-white font-thin justify-start pl-2">
-        Your Nodes
-      </span>
-    </div>
-
-    <div class = "max-h-80 overflow-auto ">
-      {#each nodes as node}
-      {#if node.name == nodeNameDetail}
-        <div class="card card-side border-4 border-primary min-w-1/3 bg-base-100 mb-2">
-          <figure class="w-1/5 p-10">
-            <img
-              src="../src/images/house.png"
-              alt="House node" />
-          </figure>
-          <div class="card-body">
-            <h2 class="card-title font-light text-3xl">{node.name}</h2>
-            <div class="card-actions justify-end">
-              <button class="btn btn-primary" on:click={() => {fetchNodeDetails(node.node_id)}}>Details</button>
+    <span class="basis text-3xl text-white font-thin justify-start pl-2">
+      Your Nodes
+    </span>
+    <div class="flex flex-col">
+      
+      <div class = "card bg-base-100 min-h-80 max-h-80 overflow-y-auto ">
+        {#each nodes as node}
+        {#if node.name == nodeNameDetail}
+          <div class="card card-side border-4 border-primary min-w-1/3 bg-base-100 mb-2">
+            <figure class="w-1/5 p-10">
+              <img
+                src="../src/images/house.png"
+                alt="House node" />
+            </figure>
+            <div class="card-body">
+              <h2 class="card-title font-light text-3xl">{node.name}</h2>
+              <div class="card-actions justify-end">
+                <button class="btn btn-primary" on:click={() => {fetchNodeDetails(node.node_id)}}>Details</button>
+              </div>
+            </div>
+          </div>  
+        {:else}
+          <div class="card card-side border-4 border-white min-w-1/3 bg-base-100 mb-2">
+            <figure class="w-1/5 p-10">
+              <img
+                src="../src/images/house.png"
+                alt="House node" />
+            </figure>
+            <div class="card-body">
+              <h2 class="card-title font-light text-3xl">{node.name}</h2>
+              <div class="card-actions justify-end">
+                <button class="btn btn-primary" on:click={() => {fetchNodeDetails(node.node_id)}}>Details</button>
+              </div>
             </div>
           </div>
-        </div>  
-      {:else}
-        <div class="card card-side border-4 border-base-100 min-w-1/3 bg-base-100 mb-2">
-          <figure class="w-1/5 p-10">
-            <img
-              src="../src/images/house.png"
-              alt="House node" />
-          </figure>
-          <div class="card-body">
-            <h2 class="card-title font-light text-3xl">{node.name}</h2>
-            <div class="card-actions justify-end">
-              <button class="btn btn-primary" on:click={() => {fetchNodeDetails(node.node_id)}}>Details</button>
-            </div>
-          </div>
+        {/if}
+        {/each}
+      </div>
+      <!--Add New node-->
+      <div class="card card-side min-w-1/3 bg-base-100 mt-2">
+        <div class="card-body">
+          <button class="btn btn-outline" on:click={createModal}>Add a New Node</button>
         </div>
-      {/if}
-      {/each}
-    </div>
-    
-    <!--Add New node-->
-    <div class="card card-side min-w-1/3 bg-base-100">
-      <div class="card-body">
-        <button class="btn btn-outline" on:click={createModal}>Add a New Node</button>
       </div>
     </div>
+    
     
     <!--Sell orders-->
     <div class = "card bg-base-100 mt-2">
@@ -695,7 +695,7 @@
           Sell Orders
       </span>
 
-      <div class = "h-60 overflow-auto">
+      <div class = "h-60 overflow-y-auto">
         {#each sellorders as sellorder}
         <div class="card card-side min-w-1/3 bg-base-100 my-2 border">
           <div class="card-body">
@@ -747,7 +747,7 @@
   </div>
 
   <!--third-->
-  <div class="sm:w-1/3 min-h-full overflow-y-auto">
+  <div class="sm:w-1/3 h-full overflow-y-auto">
     {#if nodeNameDetail != ''}
       <span class="text-3xl text-white font-thin justify-start pl-2">
         Node Details

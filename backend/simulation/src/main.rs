@@ -360,10 +360,10 @@ fn start(grid: &State<Arc<Mutex<Grid>>>, man: &State<Arc<Mutex<ChannelManager>>>
                     let serialized_data: serde_json::Value =
                         serde_json::from_str(&serde_json::to_string(grid.deref()).unwrap())
                             .expect("REASON");
-                    println!("Stored to database {}", serialized_data.clone());
                     let _ = insert_into(grid_history)
                         .values(grid_state.eq(serialized_data))
                         .execute(&mut establish_connection());
+                    println!("Stored to database");
                 }
                 //Connect to channels
                 let stats_tx;

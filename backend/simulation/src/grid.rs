@@ -317,9 +317,12 @@ impl Grid {
     }
 
     pub fn set_generator(&mut self, grid_interface: GeneratorInterface) {
+        let r = self.circuits[grid_interface.circuit as usize]
+            .calculate_equivalent_impedance(self.frequency, 0);
+
         self.circuits[grid_interface.circuit as usize].set_generater(
             grid_interface.generator,
-            f32::sqrt(grid_interface.power * 1000.0),
+            f32::sqrt(grid_interface.power * r),
         );
     }
 

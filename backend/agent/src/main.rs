@@ -57,7 +57,7 @@ pub mod smart_meter;
 
 const TOKEN_EXPIRATION: Duration = Duration::minutes(15);
 
-const AGENT_SPEED: u64 = 5 * 3;
+const AGENT_SPEED: u64 = 5;
 
 pub struct CORS;
 

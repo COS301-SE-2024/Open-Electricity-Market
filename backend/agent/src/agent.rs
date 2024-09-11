@@ -221,7 +221,7 @@ impl Agent {
         self.market_token =
             Agent::login_or_register_agent(self.email.clone(), self.password.clone());
 
-         if self.grid_token == "" || self.market_token == "" {
+        if self.grid_token == "" || self.market_token == "" {
             return;
         }
         println!("{}", self.market_token.clone());
@@ -406,7 +406,7 @@ impl Agent {
         {
             Ok(res) => {
                 let result: VoltageUpdateResult = res.json().unwrap();
-                println!("{}", result.message);
+                println!("{} set to {}", result.message,units);
             }
             Err(err) => {
                 println!("Updated grid voltage {}", err)
@@ -560,7 +560,6 @@ impl Agent {
             }
             Err(err) => {
                 println!("Update credit {}", err);
-
             }
         }
     }

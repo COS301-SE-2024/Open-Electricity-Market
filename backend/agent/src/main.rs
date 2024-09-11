@@ -24,6 +24,7 @@ use generator::{
     Generator,
 };
 use node::Node;
+use period::Period;
 use rocket::serde::json::Json;
 use rocket::{
     fairing::{Fairing, Info, Kind},
@@ -608,7 +609,15 @@ fn rocket() -> _ {
                     password,
                     vec![Node::new(
                         SmartMeter::new_acctive(Box::new(SineCurve::new())),
-                        Generator::new_acctive(Box::new(SineCurve::new())),
+                        Generator::new_acctive(Box::new(GeneratorCurve {
+                            generator_type: GeneratorCurveType::SolarPanel(
+                                SolarPanelType::Home,
+                            ),
+                            on_periods: vec![Period {
+                                start: 0.0,
+                                end: 90000.0,
+                            }],
+                        })),
                     )],
                     0.0,
                     false,

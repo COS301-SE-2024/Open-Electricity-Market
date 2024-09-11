@@ -526,47 +526,14 @@
 </script>
 
 <main class="container sm:mx-auto w-full max-h-full sm:flex justify-center">
+  <!--first-->
   <div class="sm:w-1/3">
     
+    <!--Personal Info-->
     <span class="text-3xl text-white font-thin justify-start pl-2">
       Personal Information
     </span>
-    <!-- change funds modals -->
-
-    <dialog id = "add_modal" class="modal">
-      <div class="modal-box">
-        <h3 class="text-lg font-bold">Add funds</h3>
-        <p class="py-4">Please enter an amount you would like to add.</p>
-        <div class="form-control mt-4">
-          <input class="input input-bordered" type="number" placeholder="Amount" required bind:value={amount}>
-        </div>
-      
-        <div class="modal-action">
-          <form method="dialog">
-            <button class="btn bg-green-600" on:click="{addFunds}">Continue</button>
-            <button class="btn bg-red-600">Cancel</button>
-          </form>
-        </div>
-      </div>
-    </dialog>
-
-
-    <dialog id="remove_modal" class="modal">
-      <div class="modal-box">
-        <h3 class="text-lg font-bold">Withdraw funds</h3>
-        <p>Please enter an amount you would like to withdraw.</p>
-        <div class="form-control mt-4">
-          <input class="input input-bordered" type="number" placeholder="Amount" required bind:value={withdrawamount}>
-        </div>
-        <div class="modal-action">
-          <form method="dialog">
-            <button class="btn bg-green-600" on:click={withdrawFunds}>Continue</button>
-            <button class="btn bg-red-500">Cancel</button>
-          </form>
-        </div>
-      </div>
-    </dialog>
-
+    
     <div class="stats stats-vertical w-full"> 
       <div class="stat">
         <div class="stat-title">Available Credit</div>
@@ -609,10 +576,12 @@
           {/if}
       </div>
     </div>
-    <!--<div class = "my-10"></div>-->
-    <span class="text-3xl text-white font-thin justify-start pl-2">
+
+    <!--Buy orders-->
+    <span class="text-3xl text-white font-thin justify-start pl-2 mt-2">
         Buy Orders
     </span>
+
     <div class=" h-60 overflow-auto">
       
       {#each buyorders as buyorder}
@@ -632,45 +601,54 @@
         </div>
       {/each}
     </div>
+
+    <!-- change funds modals -->
+    <dialog id = "add_modal" class="modal">
+      <div class="modal-box">
+        <h3 class="text-lg font-bold">Add funds</h3>
+        <p class="py-4">Please enter an amount you would like to add.</p>
+        <div class="form-control mt-4">
+          <input class="input input-bordered" type="number" placeholder="Amount" required bind:value={amount}>
+        </div>
+      
+        <div class="modal-action">
+          <form method="dialog">
+            <button class="btn bg-green-600" on:click="{addFunds}">Continue</button>
+            <button class="btn bg-red-600">Cancel</button>
+          </form>
+        </div>
+      </div>
+    </dialog>
+
+
+    <dialog id="remove_modal" class="modal">
+      <div class="modal-box">
+        <h3 class="text-lg font-bold">Withdraw funds</h3>
+        <p>Please enter an amount you would like to withdraw.</p>
+        <div class="form-control mt-4">
+          <input class="input input-bordered" type="number" placeholder="Amount" required bind:value={withdrawamount}>
+        </div>
+        <div class="modal-action">
+          <form method="dialog">
+            <button class="btn bg-green-600" on:click={withdrawFunds}>Continue</button>
+            <button class="btn bg-red-500">Cancel</button>
+          </form>
+        </div>
+      </div>
+    </dialog>
   </div>
 
+  <!--second-->
   <div class="sm:w-1/3 min-h-fit mx-4 flex-row">
 
+    <!--Nodes-->
     <div class="flex-col">
       <span class="text-3xl text-white font-thin justify-start pl-2">
         Your Nodes
       </span>
     </div>
 
-    <!-- new node modals -->
-    <dialog id="mapModal" class="modal">  
-      <div class="modal-box">
-        <h3 class="font-bold text-lg ">Add a Node</h3>
-        <form class="">
-          <div class="form-control mt-4">
-            <input class="input input-bordered" type="text" placeholder="Name" bind:value={nodeName}>
-          </div>
-          <!-- <div class="form-control mt-4">
-            <input class="input input-bordered" type="text" placeholder="Latitude" bind:value={nodeLatitude}>
-          </div>
-          <div class="form-control mt-4">
-            <input class="input input-bordered" type="text" placeholder="Longtitude" bind:value={nodeLongitude}>
-          </div> -->
-          <div class="form-control mt-4">
-            <Map onMapClick = {handleMapClick} />
-          </div>
-
-          <div class="form-control mt-4">
-            <button class="btn btn-primary" on:click={createNode}>Confirm</button>
-          </div>
-        </form>
-      </div>
-
-
-      <form method="dialog" class="modal-backdrop">
-        <button>close</button>
-      </form>
-    </dialog>
+    
     
     <div class = "max-h-80 overflow-auto ">
       {#each nodes as node}
@@ -706,17 +684,19 @@
       {/each}
     </div>
     
-
+    <!--Add New node-->
     <div class="card card-side min-w-1/3 bg-base-100">
       <div class="card-body">
         <button class="btn btn-outline" on:click={createModal}>Add a New Node</button>
       </div>
     </div>
     
-    <div class = "card bg-base-100">
+    <!--Sell orders-->
+    <div class = "card bg-base-100 mt-2">
       <span class="text-3xl text-white font-thin justify-start pl-2">
           Sell Orders
       </span>
+      
       <div class = "h-60 overflow-auto">
         {#each sellorders as sellorder}
         <div class="card card-side min-w-1/3 bg-base-100 my-2 border">
@@ -736,8 +716,39 @@
         {/each}
       </div>
     </div>
+
+    <!-- new node modals -->
+    <dialog id="mapModal" class="modal">  
+      <div class="modal-box">
+        <h3 class="font-bold text-lg ">Add a Node</h3>
+        <form class="">
+          <div class="form-control mt-4">
+            <input class="input input-bordered" type="text" placeholder="Name" bind:value={nodeName}>
+          </div>
+          <!-- <div class="form-control mt-4">
+            <input class="input input-bordered" type="text" placeholder="Latitude" bind:value={nodeLatitude}>
+          </div>
+          <div class="form-control mt-4">
+            <input class="input input-bordered" type="text" placeholder="Longtitude" bind:value={nodeLongitude}>
+          </div> -->
+          <div class="form-control mt-4">
+            <Map onMapClick = {handleMapClick} />
+          </div>
+
+          <div class="form-control mt-4">
+            <button class="btn btn-primary" on:click={createNode}>Confirm</button>
+          </div>
+        </form>
+      </div>
+
+
+      <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+      </form>
+    </dialog>
   </div>
 
+  <!--third-->
   <div class="sm:w-1/3 min-h-full overflow-y-auto">
     {#if nodeNameDetail != ''}
       <span class="text-3xl text-white font-thin justify-start pl-2">
@@ -851,38 +862,34 @@
     </form>
   </dialog>
 
-
   <dialog id="removefundsconfirmation" class="modal">  
     <div class="modal-box">
       <h3 class="font-bold text-lg ">Withdrawal of funds successful!</h3>
       <p>You have successfully withdrew {formatCurrency(withdrawamount)} from your account.</p>
-      </div>
-      <form method="dialog" class="modal-backdrop">
-        <button on:click={nullifyValues}>close</button>
-      </form>
-    </dialog>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button on:click={nullifyValues}>close</button>
+    </form>
+  </dialog>
 
-    <dialog id="removefundsrejection" class="modal">  
-      <div class="modal-box">
-        <h3 class="font-bold text-lg ">Withdrawal of funds was unsuccessful.</h3>
+  <dialog id="removefundsrejection" class="modal">  
+    <div class="modal-box">
+      <h3 class="font-bold text-lg ">Withdrawal of funds was unsuccessful.</h3>
       <p>Withdrawal of {formatCurrency(withdrawamount)} was unsuccessful. Please check your balance.</p>
-      </div>
-      <form method="dialog" class="modal-backdrop">
-        <button on:click={nullifyValues}>close</button>
-      </form>
-    </dialog>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button on:click={nullifyValues}>close</button>
+    </form>
+  </dialog>
 
-    <dialog id="addfundsrejection" class="modal">  
-      <div class="modal-box">
-        <h3 class="font-bold text-lg ">Addition of funds unsuccessful.</h3>
+  <dialog id="addfundsrejection" class="modal">  
+    <div class="modal-box">
+      <h3 class="font-bold text-lg ">Addition of funds unsuccessful.</h3>
       <p>Addition of {formatCurrency(amount)} was unsuccessful. Please enter a valid value.</p>
-      </div>
-      <form method="dialog" class="modal-backdrop">
-        <button on:click={nullifyValues}>close</button>
-      </form>
-    </dialog>
-
-   
-    
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button on:click={nullifyValues}>close</button>
+    </form>
+  </dialog>
 
 </main>

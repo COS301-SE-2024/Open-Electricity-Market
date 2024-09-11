@@ -453,6 +453,10 @@ impl Agent {
     }
 
     fn update(&mut self, accumlated_time: f64) -> Result<(), ()> {
+        self.grid_token = Agent::get_grid_token(self.email.clone());
+        self.market_token =
+            Agent::login_or_register_agent(self.email.clone(), self.password.clone());
+
         // update credit based on income_curve
         Agent::update_credit(
             self.market_token.clone(),

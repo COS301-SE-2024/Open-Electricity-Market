@@ -578,30 +578,31 @@
     </div>
 
     <!--Buy orders-->
-    <span class="text-3xl text-white font-thin justify-start pl-2 mt-2">
-        Buy Orders
-    </span>
+    <div class = "card bg-base-100 mt-2">
+      <span class="text-3xl text-white font-thin justify-start pl-2">
+          Buy Orders
+      </span>
 
-    <div class=" h-60 overflow-auto">
-      
-      {#each buyorders as buyorder}
-        <div class="card min-w-1/3 bg-base-100 my-2">
-          <div class="card-body">
-            <h2 class="card-title">Buy order</h2>
-            <p>
-              Filled units: {buyorder.filled_units.toFixed(1) + "Wh"}<br>
-              Max price: {formatCurrency(buyorder.max_price)}<br>
-              Min price: {formatCurrency(buyorder.min_price)}<br>
-              Units bought: {Intl.NumberFormat().format(buyorder.sought_units) + "Wh"}<br>
-            </p>
-            <div class="card-actions ">
-              <progress class="progress progress-primary" value="{buyorder.filled_units}" max="{buyorder.sought_units}"></progress>
+      <div class=" h-60 overflow-auto">
+        
+        {#each buyorders as buyorder}
+          <div class="card min-w-1/3 bg-base-100 my-2">
+            <div class="card-body">
+              <h2 class="card-title">Buy order</h2>
+              <p>
+                Filled units: {buyorder.filled_units.toFixed(1) + "Wh"}<br>
+                Max price: {formatCurrency(buyorder.max_price)}<br>
+                Min price: {formatCurrency(buyorder.min_price)}<br>
+                Units bought: {Intl.NumberFormat().format(buyorder.sought_units) + "Wh"}<br>
+              </p>
+              <div class="card-actions ">
+                <progress class="progress progress-primary" value="{buyorder.filled_units}" max="{buyorder.sought_units}"></progress>
+              </div>
             </div>
           </div>
-        </div>
-      {/each}
+        {/each}
+      </div>
     </div>
-
     <!-- change funds modals -->
     <dialog id = "add_modal" class="modal">
       <div class="modal-box">
@@ -619,7 +620,6 @@
         </div>
       </div>
     </dialog>
-
 
     <dialog id="remove_modal" class="modal">
       <div class="modal-box">
@@ -648,8 +648,6 @@
       </span>
     </div>
 
-    
-    
     <div class = "max-h-80 overflow-auto ">
       {#each nodes as node}
       {#if node.name == nodeNameDetail}
@@ -696,7 +694,7 @@
       <span class="text-3xl text-white font-thin justify-start pl-2">
           Sell Orders
       </span>
-      
+
       <div class = "h-60 overflow-auto">
         {#each sellorders as sellorder}
         <div class="card card-side min-w-1/3 bg-base-100 my-2 border">

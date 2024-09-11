@@ -583,7 +583,7 @@
           Buy Orders
       </span>
 
-      <div class=" h-60 overflow-auto">
+      <div class="overflow-auto">
         
         {#each buyorders as buyorder}
           <div class="card min-w-1/3 bg-base-100 my-2 border">
@@ -695,7 +695,7 @@
           Sell Orders
       </span>
 
-      <div class = "h-60 overflow-y-auto">
+      <div class = "overflow-y-auto">
         {#each sellorders as sellorder}
         <div class="card card-side min-w-1/3 bg-base-100 my-2 border">
           <div class="card-body">

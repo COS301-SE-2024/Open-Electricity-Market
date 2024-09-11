@@ -578,7 +578,7 @@
     </div>
 
     <!--Buy orders-->
-    <div class = "card bg-base-100 mt-2">
+    <div class = "card h-1/3 bg-base-100 mt-2">
       <span class="text-3xl text-white font-thin justify-start pl-2">
           Buy Orders
       </span>
@@ -586,7 +586,7 @@
       <div class=" h-60 overflow-auto">
         
         {#each buyorders as buyorder}
-          <div class="card min-w-1/3 bg-base-100 my-2">
+          <div class="card min-w-1/3 bg-base-100 my-2 border">
             <div class="card-body">
               <h2 class="card-title">Buy order</h2>
               <p>
@@ -689,9 +689,8 @@
       </div>
     </div>
     
-    
     <!--Sell orders-->
-    <div class = "card bg-base-100 mt-2">
+    <div class = "card h-1/3 bg-base-100 mt-2">
       <span class="text-3xl text-white font-thin justify-start pl-2">
           Sell Orders
       </span>

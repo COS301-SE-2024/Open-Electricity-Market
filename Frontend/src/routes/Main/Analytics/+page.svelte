@@ -6,10 +6,11 @@
   import ConsumptionCurve from "$lib/Components/ConsumptionCurve.svelte";
   import ProductionCurve from "$lib/Components/ProductionCurve.svelte";
   import PriceHistoryChart from "$lib/Components/PriceHistoryChart.svelte";
+  import PieChartAgent from "$lib/Components/PieChartAgent.svelte";
 
   let selectednode = "";
   let selectedAppliances = ["asdf", "jkl", "oiu"]; //by default should be all of them
-  let appliances = ["asdf", "jkl", "oiu"];
+  let appliances = new Set(); 
   let dropdownvisible = false;
 
   //required for curve endpoint
@@ -27,6 +28,7 @@
   let unitssold;
   let listofnodeids = [];
   let marketpiedata = {};
+  let agentpiedata = {}; 
   let consumptioncurvedata = [];
   let unitsproduced;
   let unitsconsumed;
@@ -35,6 +37,7 @@
   let sellChartPeriod; 
   let buyhistorydata = []; 
   let sellhistorydata = [];  
+
   
 
   onMount(async () => {
@@ -45,7 +48,7 @@
      
     await getBuyHistory();
     await getSellHistory();
-    // await getConsumedProduced();
+    await getConsumedProduced();
     await getCurve(); 
   });
 
@@ -220,6 +223,8 @@
   }
 
   async function getCurve() {
+    console.log("curve was running");
+    console.log(sessionStorage.getItem("email")); 
     try {
       const response = await fetch(`${API_URL_AGENT}/get_curve`, {
         method: "POST",
@@ -229,7 +234,7 @@
           Authorization: `Bearer ${sessionStorage.getItem("Token")}`,
         },
         body: JSON.stringify({
-          email: email,
+          email: sessionStorage.getItem("email"),
           node_id: nodeid,
         }),
         credentials: "include",
@@ -240,11 +245,14 @@
 
       if (fdata.message == "Here is the detail") {
         let temp = fdata.consumption;
-        consumption.forEach((item, index) => {
-          if (!consumptioncurvedata[index]) {
-            consumptioncurvedata[index] = 0;
+        temp.forEach((item, index) => {
+          if(selectedAppliances.includes(item.appliance)){
+            if (!consumptioncurvedata[index]) {
+              consumptioncurvedata[index] = 0;
+            }
+            consumptioncurvedata[index] += item.data;
           }
-          consumptioncurvedata[index] += item.data;
+  
         });
         let temp2 = fdata.production;
 
@@ -252,9 +260,21 @@
             //should be the value
             // productioncurvedata = temp2[1];
             for(let index = 0; index<24; index++){
-                productioncurvedata[index] = temp2[1]; 
+                productioncurvedata[index] = generator[1]; 
             } 
         });
+
+        if(selectedAppliances[0]=="asdf"){
+          //only runs this first time - selectedAppliances gets updated in toggleAppliance
+            temp.forEach((item) => {
+              appliances.add(item.appliance); 
+          });
+          selectedAppliances = Array.from(appliances);
+        }
+
+        
+
+        
 
         console.log("This is consumption curve data:", consumptioncurvedata);
       }
@@ -284,6 +304,7 @@
 
         unitsconsumed = fdata.data.consumed;
         unitsproduced = fdata.data.produced;
+        agentpiedata = {unitsconsumed, unitsproduced}; 
 
       }
     } catch (error) {
@@ -318,11 +339,29 @@
         console.log(listofnodes);
         console.log(listofnodeids);
         nodeid = listofnodeids[0]; 
+        
       }
     } catch (error) {
       console.log("An error occurred while fetching getNodes data..\n", error);
     }
   }
+
+
+  function updateAllAgent(){
+    getCurve(); 
+    getConsumedProduced(); 
+  }
+
+  function updateNode(){
+    //function that updates nodeid before agent endpoints get called
+    let currindex = listofnodes.indexOf(selectednode);
+    nodeid = listofnodeids[currindex]; 
+  }
+
+
+
+
+  
 </script>
 
 <div class="flex">
@@ -400,6 +439,7 @@
       <select
         bind:value={selectednode}
         class="select select-bordered overflow-y-auto w-1/2 focus:outline-none"
+        on:change={()=>{updateNode(); updateAllAgent();}}
       >
         <option value="" disabled selected>Select Node</option>
         {#each listofnodes as node}
@@ -421,7 +461,7 @@
                   type="checkbox"
                   class="checkbox checkbox-primary mr-2"
                   checked={selectedAppliances.includes(appliance)}
-                  on:change={() => toggleAppliance(appliance)}
+                  on:change={() => {toggleAppliance(appliance); updateAllAgent()}}
                 />
                 {appliance}
               </label>
@@ -432,13 +472,13 @@
     </div>
 
     <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3 h-80">
-      <PieChart />
+      <PieChartAgent {agentpiedata} />
     </div>
     <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
-      <ConsumptionCurve class="w-1/2" />
+      <ConsumptionCurve class="w-1/2" data = {consumptioncurvedata} />
     </div>
     <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
-      <ProductionCurve />
+      <ProductionCurve data = {productioncurvedata} />
     </div>
   </div>
 </div>

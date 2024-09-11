@@ -337,6 +337,7 @@
       email = data.data.email;
       firstname = data.data.first_name;
       lastname = data.data.last_name;
+      sessionStorage.setItem("email", email);
     } else {
       // this is intended to reroute the user to the login page if they send an invalid session id
       sessionStorage.clear();
@@ -474,8 +475,8 @@
     };
 
     let onPeriods = {
-      start: 15.0,
-      end: 800.0,
+      start: 28800.0,
+      end: 64800.0,
     };
 
     if (generator && category) {

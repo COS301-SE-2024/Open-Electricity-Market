@@ -121,12 +121,14 @@ fn set_consumer(
     owns: &State<Arc<Mutex<Vec<ConsumerOwner>>>>,
 ) -> content::RawJson<String> {
     let uuid = Uuid::parse_str(&claim.id).unwrap();
-    let owns = owns.lock().unwrap();
     let mut is_owned_by = false;
-    for gen in owns.iter() {
-        if gen.id == uuid {
-            if data.circuit == gen.circuit && data.consumer == gen.consumer {
-                is_owned_by = true;
+    {
+        let owns = owns.lock().unwrap();
+        for gen in owns.iter() {
+            if gen.id == uuid {
+                if data.circuit == gen.circuit && data.consumer == gen.consumer {
+                    is_owned_by = true;
+                }
             }
         }
     }
@@ -148,13 +150,16 @@ fn set_generator(
     owns: &State<Arc<Mutex<Vec<GeneratorOwner>>>>,
     claim: Claims,
 ) -> content::RawJson<String> {
-    let uuid = Uuid::parse_str(&claim.id).unwrap();
-    let owns = owns.lock().unwrap();
     let mut is_owned_by = false;
-    for gen in owns.iter() {
-        if gen.id == uuid {
-            if data.circuit == gen.circuit && data.generator == gen.genrator {
-                is_owned_by = true;
+    let uuid = Uuid::parse_str(&claim.id).unwrap();
+    {
+        let owns = owns.lock().unwrap();
+
+        for gen in owns.iter() {
+            if gen.id == uuid {
+                if data.circuit == gen.circuit && data.generator == gen.genrator {
+                    is_owned_by = true;
+                }
             }
         }
     }

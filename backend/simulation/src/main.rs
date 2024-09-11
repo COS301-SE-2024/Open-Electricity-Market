@@ -3,7 +3,7 @@ extern crate rocket;
 
 use crate::grid::circuit::Circuit;
 use crate::grid::generator::Generator;
-use crate::grid::load::Connection::{Parallel, Series};
+use crate::grid::load::Connection::Parallel;
 use crate::grid::load::{Consumer, Load, LoadType};
 use crate::grid::location::Location;
 use crate::grid::{
@@ -11,6 +11,8 @@ use crate::grid::{
     VoltageWrapper,
 };
 use ::std::env;
+use chrono::Duration;
+use claims::Claims;
 use core::time;
 use diesel::Connection;
 use diesel::ExpressionMethods;
@@ -25,19 +27,23 @@ use rocket::response::content;
 use rocket::serde::json::json;
 use rocket::serde::json::Json;
 use rocket::serde::{Deserialize, Serialize};
-use rocket::{data, serde, Request, Response, State};
+use rocket::{Request, Response, State};
 use schema::open_em::grid_history::{self, grid_state};
-use std::any::Any;
+use uuid::Uuid;
+
 use std::ops::Deref;
-use std::sync::mpsc::{self, sync_channel, Receiver, SyncSender};
+use std::sync::mpsc::{self, SyncSender};
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Instant;
 
 pub struct CORS;
+pub mod claims;
 pub mod grid;
 pub mod models;
 pub mod schema;
+
+const TOKEN_EXPIRATION: Duration = Duration::minutes(15);
 
 #[rocket::async_trait]
 impl Fairing for CORS {
@@ -63,11 +69,73 @@ impl Fairing for CORS {
     }
 }
 
+fn check_password(password: String) -> bool {
+    dotenv().ok();
+    let correct_password = env::var("GRID_PASS").unwrap();
+    return password == correct_password;
+}
+
+#[derive(Deserialize)]
+#[serde(crate = "rocket::serde")]
+struct GetTokenDetail {
+    email: String,
+    password: String,
+}
+
+#[post("/get_token", format = "application/json", data = "<data>")]
+fn get_token(
+    email_records: &State<Arc<Mutex<Vec<EmailRecord>>>>,
+    data: Json<GetTokenDetail>,
+) -> content::RawJson<String> {
+    if !check_password(data.password.clone()) {
+        let message = "Something went wrong";
+        return content::RawJson(json!({"message":message}).to_string());
+    }
+    let mut email_records = email_records.lock().unwrap();
+    let pos = email_records.iter().position(|r| r.email == data.email);
+    match pos {
+        Some(i) => {
+            let uuid = email_records[i].id;
+            let claims = Claims::from_name(uuid.to_string());
+            let token = claims.into_token().unwrap();
+            return content::RawJson(json!({"token":token}).to_string());
+        }
+        None => {
+            let uuid = Uuid::new_v4();
+            let claims = Claims::from_name(uuid.to_string());
+            let token = claims.into_token().unwrap();
+            email_records.push(EmailRecord {
+                id: uuid,
+                email: data.email.clone(),
+            });
+            return content::RawJson(json!({"token":token}).to_string());
+        }
+    }
+}
+
 #[post("/set_consumer", format = "application/json", data = "<data>")]
 fn set_consumer(
     grid: &State<Arc<Mutex<Grid>>>,
     data: Json<ConsumerInterface>,
+    claim: Claims,
+    owns: &State<Arc<Mutex<Vec<ConsumerOwner>>>>,
 ) -> content::RawJson<String> {
+    let uuid = Uuid::parse_str(&claim.id).unwrap();
+    let owns = owns.lock().unwrap();
+    let mut is_owned_by = false;
+    for gen in owns.iter() {
+        if gen.id == uuid {
+            if data.circuit == gen.circuit && data.consumer == gen.consumer {
+                is_owned_by = true;
+            }
+        }
+    }
+    if !is_owned_by {
+        return content::RawJson(
+            json!({"status" : "err","message" : "Something went wrong"}).to_string(),
+        );
+    }
+
     let mut g = grid.lock().unwrap();
     g.set_consumer(data.into_inner());
     return content::RawJson(json!({"status" : "ok","message" : "succesfully set"}).to_string());
@@ -77,13 +145,31 @@ fn set_consumer(
 fn set_generator(
     grid: &State<Arc<Mutex<Grid>>>,
     data: Json<GeneratorInterface>,
+    owns: &State<Arc<Mutex<Vec<GeneratorOwner>>>>,
+    claim: Claims,
 ) -> content::RawJson<String> {
+    let uuid = Uuid::parse_str(&claim.id).unwrap();
+    let owns = owns.lock().unwrap();
+    let mut is_owned_by = false;
+    for gen in owns.iter() {
+        if gen.id == uuid {
+            if data.circuit == gen.circuit && data.generator == gen.genrator {
+                is_owned_by = true;
+            }
+        }
+    }
+    if !is_owned_by {
+        return content::RawJson(
+            json!({"status" : "err","message" : "Something went wrong"}).to_string(),
+        );
+    }
+
     let mut g = grid.lock().unwrap();
     g.set_generator(data.into_inner());
     return content::RawJson(json!({"status" : "ok","message" : "succesfully set"}).to_string());
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 #[serde(crate = "rocket::serde")]
 struct AddLocation {
     latitude: f32,
@@ -101,7 +187,25 @@ struct NewConsumer {
 fn add_consumer(
     man: &State<Arc<Mutex<ChannelManager>>>,
     data: Json<AddLocation>,
+    owns: &State<Arc<Mutex<Vec<ConsumerOwner>>>>,
+    claim: Claims,
 ) -> content::RawJson<String> {
+    let uuid = Uuid::parse_str(&claim.id).unwrap();
+    {
+        let owns = owns.lock().unwrap();
+        for con in owns.iter() {
+            if con.id == uuid {
+                if data.latitude == con.latitude && data.longitude == con.longitude {
+                    let new_consumer = NewConsumer {
+                        circuit: con.circuit,
+                        consumer: con.consumer,
+                    };
+                    let out = serde_json::to_string(&new_consumer).unwrap();
+                    return content::RawJson(out);
+                }
+            }
+        }
+    }
     let (tx, rx) = mpsc::sync_channel(1);
     {
         let mut manager = man.lock().unwrap();
@@ -109,10 +213,20 @@ fn add_consumer(
             .add_consumer
             .as_mut()
             .unwrap()
-            .push((data.into_inner(), tx));
+            .push((data.clone().into_inner(), tx));
     }
 
     let new_consumer = rx.recv().unwrap().unwrap();
+    {
+        let mut owns = owns.lock().unwrap();
+        owns.push(ConsumerOwner {
+            id: uuid,
+            circuit: new_consumer.circuit,
+            consumer: new_consumer.consumer,
+            latitude: data.latitude,
+            longitude: data.longitude,
+        });
+    }
 
     let out = serde_json::to_string(&new_consumer).unwrap();
 
@@ -130,7 +244,26 @@ struct NewGenerator {
 fn add_generator(
     man: &State<Arc<Mutex<ChannelManager>>>,
     data: Json<AddLocation>,
+    owns: &State<Arc<Mutex<Vec<GeneratorOwner>>>>,
+    claim: Claims,
 ) -> content::RawJson<String> {
+    let uuid = Uuid::parse_str(&claim.id).unwrap();
+    {
+        let owns = owns.lock().unwrap();
+        for gen in owns.iter() {
+            if gen.id == uuid {
+                if data.latitude == gen.latitude && data.longitude == gen.longitude {
+                    let new_generator = NewGenerator {
+                        circuit: gen.circuit,
+                        generator: gen.genrator,
+                    };
+                    let out = serde_json::to_string(&new_generator).unwrap();
+                    return content::RawJson(out);
+                }
+            }
+        }
+    }
+
     let (tx, rx) = mpsc::sync_channel(1);
     {
         let mut manager = man.lock().unwrap();
@@ -138,10 +271,20 @@ fn add_generator(
             .add_generator
             .as_mut()
             .unwrap()
-            .push((data.into_inner(), tx));
+            .push((data.clone().into_inner(), tx));
     }
 
     let new_genenrator = rx.recv().unwrap().unwrap();
+    {
+        let mut owns = owns.lock().unwrap();
+        owns.push(GeneratorOwner {
+            id: uuid,
+            circuit: new_genenrator.circuit,
+            genrator: new_genenrator.generator,
+            latitude: data.latitude,
+            longitude: data.longitude,
+        });
+    }
 
     let out = serde_json::to_string(&new_genenrator).unwrap();
 
@@ -293,6 +436,27 @@ struct ChannelManager {
     add_generator: Option<Vec<(AddLocation, SyncSender<Result<NewGenerator, String>>)>>,
 }
 
+struct EmailRecord {
+    id: Uuid,
+    email: String,
+}
+
+struct GeneratorOwner {
+    id: Uuid,
+    circuit: u32,
+    genrator: u32,
+    latitude: f32,
+    longitude: f32,
+}
+
+struct ConsumerOwner {
+    id: Uuid,
+    circuit: u32,
+    consumer: u32,
+    latitude: f32,
+    longitude: f32,
+}
+
 #[launch]
 fn rocket() -> _ {
     let transformer = Transformer {
@@ -328,9 +492,13 @@ fn rocket() -> _ {
                 add_generator,
                 add_consumer,
                 set_consumer,
-                current_voltage
+                current_voltage,
+                get_token
             ],
         )
+        .manage(Arc::new(Mutex::new(Vec::<ConsumerOwner>::new())))
+        .manage(Arc::new(Mutex::new(Vec::<GeneratorOwner>::new())))
+        .manage(Arc::new(Mutex::new(Vec::<EmailRecord>::new())))
         .manage(Arc::new(Mutex::new(ChannelManager {
             stats: Some(vec![]),
             info: Some(vec![]),

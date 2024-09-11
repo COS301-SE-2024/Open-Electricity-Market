@@ -8,6 +8,7 @@ use std::{
 };
 
 use agent::Agent;
+use claims::Claims;
 use curve::{CummutiveCurve, SineCurve};
 use diesel::pg::sql_types::Array;
 use diesel::sql_types::Text;
@@ -41,7 +42,9 @@ use smart_meter::{consumption_curve::HomeAppliance, SmartMeter};
 use std::ops::Deref;
 use uuid::Uuid;
 
+use chrono::Duration;
 pub mod agent;
+pub mod claims;
 pub mod curve;
 pub mod generator;
 pub mod location;
@@ -51,6 +54,8 @@ pub mod node;
 pub mod period;
 pub mod schema;
 pub mod smart_meter;
+
+const TOKEN_EXPIRATION: Duration = Duration::minutes(15);
 
 const AGENT_SPEED: u64 = 5 * 3;
 
@@ -85,17 +90,88 @@ impl Fairing for CORS {
     }
 }
 
+fn validate_email_and_node_id(
+    uuid: Uuid,
+    request_email: Option<String>,
+    request_node_id: Option<String>,
+) -> bool {
+    let connection = &mut establish_connection();
+
+    if request_email.is_some() {
+        use crate::schema::open_em::users::dsl::*;
+
+        match users
+            .filter(user_id.eq(uuid))
+            .select(email)
+            .first(connection)
+        {
+            Ok(data_email) => {
+                let data_email: String = data_email;
+                if data_email != request_email.unwrap() {
+                    return false;
+                }
+            }
+            Err(_) => return false,
+        }
+    }
+
+    if request_node_id.is_some() {
+        use crate::schema::open_em::nodes::dsl::*;
+        use crate::schema::open_em::nodes::node_owner;
+        match nodes
+            .filter(node_owner.eq(uuid))
+            .select(node_id)
+            .load(connection)
+        {
+            Ok(a_vec) => {
+                let uuid = Uuid::parse_str(&request_node_id.unwrap()).unwrap();
+                let mut flag = false;
+                for a in a_vec {
+                    let database_uuid: Uuid = a;
+                    if uuid == database_uuid {
+                        flag = true;
+                        break;
+                    }
+                }
+
+                if !flag {
+                    return false;
+                }
+            }
+            Err(_) => {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
 #[derive(Deserialize)]
 struct GetConsumedProduced {
     node_id: String,
 }
 
 #[post("/get_consumed_produced", format = "application/json", data = "<data>")]
-fn get_consumed_produced(data: Json<GetConsumedProduced>) -> content::RawJson<String> {
+fn get_consumed_produced(
+    data: Json<GetConsumedProduced>,
+    claim: Claims,
+) -> content::RawJson<String> {
     use crate::schema::open_em::buy_orders::dsl::*;
     // use crate::schema::open_em::nodes::dsl::*;
     use crate::schema::open_em::sell_orders::dsl::*;
     use crate::schema::open_em::transactions::dsl::*;
+
+    if !validate_email_and_node_id(
+        Uuid::parse_str(&*claim.user_id).unwrap(),
+        None,
+        Some(data.node_id.clone()),
+    ) {
+        return content::RawJson(
+            json!({"status": "error", "message": "You don't seem to have permission" , "data": {}})
+                .to_string(),
+        );
+    }
 
     let node_id = Uuid::parse_str(&data.node_id).unwrap();
 
@@ -168,7 +244,18 @@ define_sql_function! {fn appliance_curve(appliances : Array<Text>) -> diesel::sq
 fn get_curve(
     agents: &State<Arc<Mutex<Vec<Agent>>>>,
     data: Json<GetCurveDetail>,
+    claim: Claims,
 ) -> content::RawJson<String> {
+    if !validate_email_and_node_id(
+        Uuid::parse_str(&*claim.user_id).unwrap(),
+        Some(data.email.clone()),
+        Some(data.node_id.clone()),
+    ) {
+        return content::RawJson(
+            json!({"status": "error", "message": "You don't seem to have permission" , "data": {}})
+                .to_string(),
+        );
+    }
     let email = data.email.clone();
     let node_id = data.node_id.clone();
     let production;
@@ -293,7 +380,19 @@ struct AddApplianceDetail {
 fn add_appliances(
     agents: &State<Arc<Mutex<Vec<Agent>>>>,
     data: Json<AddApplianceDetail>,
+    claim: Claims,
 ) -> content::RawJson<String> {
+    if !validate_email_and_node_id(
+        Uuid::parse_str(&*claim.user_id).unwrap(),
+        Some(data.email.clone()),
+        Some(data.node_id.clone()),
+    ) {
+        return content::RawJson(
+            json!({"status": "error", "message": "You don't seem to have permission" , "data": {}})
+                .to_string(),
+        );
+    }
+
     let mut agents = agents.lock().unwrap();
     let agent_index = agents.iter().position(|agent| agent.email == data.email);
     if agent_index.is_none() {
@@ -341,7 +440,18 @@ struct AddGeneratrosDetail {
 fn add_generators(
     agents: &State<Arc<Mutex<Vec<Agent>>>>,
     data: Json<AddGeneratrosDetail>,
+    claim: Claims,
 ) -> content::RawJson<String> {
+    if !validate_email_and_node_id(
+        Uuid::parse_str(&*claim.user_id).unwrap(),
+        Some(data.email.clone()),
+        Some(data.node_id.clone()),
+    ) {
+        return content::RawJson(
+            json!({"status": "error", "message": "You don't seem to have permission" , "data": {}})
+                .to_string(),
+        );
+    }
     let mut agents = agents.lock().unwrap();
     let agent_index = agents.iter().position(|agent| agent.email == data.email);
     if agent_index.is_none() {
@@ -388,7 +498,18 @@ struct SetSessionDetail {
 fn set_session(
     agents: &State<Arc<Mutex<Vec<Agent>>>>,
     data: Json<SetSessionDetail>,
+    claim: Claims,
 ) -> content::RawJson<String> {
+    if !validate_email_and_node_id(
+        Uuid::parse_str(&*claim.user_id).unwrap(),
+        Some(data.email.clone()),
+        None,
+    ) {
+        return content::RawJson(
+            json!({"status": "error", "message": "You don't seem to have permission" , "data": {}})
+                .to_string(),
+        );
+    }
     let mut agents = agents.lock().unwrap();
     let agent_index = agents.iter().position(|agent| agent.email == data.email);
     if agent_index.is_none() {
@@ -398,7 +519,7 @@ fn set_session(
         );
     }
     let agent_index = agent_index.unwrap();
-    agents[agent_index].token.clone_from(&data.token);
+    agents[agent_index].market_token.clone_from(&data.token);
 
     let message = "Succesfully set session id".to_string();
     content::RawJson(json!({"status": "ok", "message": message, "data": {}}).to_string())
@@ -415,7 +536,18 @@ struct AddAgentDetail {
 fn add_agent(
     agents: &State<Arc<Mutex<Vec<Agent>>>>,
     data: Json<AddAgentDetail>,
+    claim: Claims,
 ) -> content::RawJson<String> {
+    if !validate_email_and_node_id(
+        Uuid::parse_str(&*claim.user_id).unwrap(),
+        Some(data.email.clone()),
+        None,
+    ) {
+        return content::RawJson(
+            json!({"status": "error", "message": "You don't seem to have permission" , "data": {}})
+                .to_string(),
+        );
+    }
     let lock = agents.inner().clone();
     let mut agents = agents.lock().unwrap();
     let agent_index = agents.iter().position(|agent| agent.email == data.email);
@@ -436,7 +568,7 @@ fn add_agent(
     ));
 
     let id = agents.len() - 1;
-    agents[id].token = data.token;
+    agents[id].market_token = data.token;
     agents[id].intialise();
     tokio::spawn(async move {
         let mut accumilated_time = 0.0;

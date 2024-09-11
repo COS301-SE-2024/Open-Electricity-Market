@@ -1,11 +1,10 @@
 <script>
   import { onMount, onDestroy } from "svelte";
-  import { createChart, sampleChartConfig } from "./Chart.js";
+  import { createChart, sampleChartConfig } from "./PriceHistoryChart.js";
 
   let chart;
   let chartCanvas;
   export let data = [];
-  let interval;
 
   function resizeChart() {
     if (window.innerWidth <= 760) {
@@ -15,11 +14,6 @@
     }
   }
 
-  // onMount(() => {
-  //   resizeChart();
-  //   window.addEventListener('resize', resizeChart);
-  //   return () => window.removeEventListener('resize', resizeChart);
-  // });
 
   onMount(async () => {
     if (typeof window !== "undefined") {
@@ -40,15 +34,10 @@
   });
 
   $: if (chart && data.length > 0) {
-    console.log("data was updated..." + data);
-    // updateChart();
     updateChart();
-    //  console.log("this was a succcess");
   }
 
-  //  $: if (chart ) {
-  //   updateChart();
-  // }
+ 
 
   function fillChart() {
     if (chart && data.length > 0) {
@@ -63,11 +52,6 @@
       chart.data.datasets[0].data = data;
       chart.data.labels = data.map((_, index) => index + 1);
       chart.update();
-
-      // chart.data.datasets[1].data.push(data.Phase2);
-      // chart.data.datasets[2].data.push(data.Phase3);
-      // chart.data.labels.push(chart.data.labels.length + 1);
-      //chart.update();
     }
     return;
   }

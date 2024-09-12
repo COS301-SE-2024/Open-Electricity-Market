@@ -15,7 +15,7 @@ $$ LANGUAGE sql;
 
 CREATE FUNCTION appliance_curve(text[]) RETURNS JSON AS $$
 	
-select json_agg(a) from (select appliance,data from (SELECT appliance,time_bucket('1 hour', time) AS bucket,
+select json_agg(a) from (select appliance , data from (SELECT appliance,time_bucket('1 hour', time) AS bucket,
 avg(data) AS data
 FROM appliance_data
 WHERE appliance = ANY ($1)

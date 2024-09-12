@@ -248,7 +248,7 @@
         temp.forEach((item, index) => {
           if(selectedAppliances.includes(item.appliance)){
             if (!consumptioncurvedata[index]) {
-              consumptioncurvedata[index] = 0;
+              consumptioncurvedata[index] = item.data;
             }
             consumptioncurvedata[index] += item.data;
           }

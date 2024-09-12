@@ -581,13 +581,12 @@
     <span class="text-3xl text-white font-light justify-start pl-2">
           Buy Orders
       </span>
-    <div class = "card h-1/3 bg-base-100 mt-2 p-5">
+    <div class = "rounded-2xl h-1/3 bg-base-100 mt-2 p-5">
       
-      <hr>
       <div class="overflow-y-auto">
         
         {#each buyorders as buyorder}
-          <div class="rounded-2xl min-w-1/3 bg-base-100 my-2 border">
+          <div class="rounded-2xl min-w-1/3 bg-base-100 mb-2 border">
             <div class="p-5">
               <h2 class="card-title">Buy order</h2>
               <p>

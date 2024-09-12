@@ -578,16 +578,17 @@
     </div>
 
     <!--Buy orders-->
-    <div class = "card h-1/3 bg-base-100 mt-2">
-      <span class="text-3xl text-white font-thin justify-start pl-2">
+    <span class="text-3xl text-white font-light justify-start pl-2">
           Buy Orders
       </span>
-
-      <div class="overflow-auto">
+    <div class = "card h-1/3 bg-base-100 mt-2 p-5">
+      
+      <hr>
+      <div class="overflow-y-auto">
         
         {#each buyorders as buyorder}
-          <div class="card min-w-1/3 bg-base-100 my-2 border">
-            <div class="card-body">
+          <div class="rounded-2xl min-w-1/3 bg-base-100 my-2 border">
+            <div class="p-5">
               <h2 class="card-title">Buy order</h2>
               <p>
                 Filled units: {buyorder.filled_units.toFixed(1) + "Wh"}<br>
@@ -647,7 +648,7 @@
     </span>
     <div class="h-1/2 flex flex-col">
       
-      <div class = "card bg-base-100 overflow-y-auto">
+      <div class = "rounded-2xl p-2 glass overflow-y-auto">
         {#each nodes as node}
         {#if node.name == nodeNameDetail}
           <div class="card card-side border-4 border-primary min-w-1/3 bg-base-100 mb-2">
@@ -664,7 +665,7 @@
             </div>
           </div>  
         {:else}
-          <div class="card card-side border-4 border-white min-w-1/3 bg-base-100 mb-2">
+          <div class="card card-side border-4 border-base-100 min-w-1/3 bg-base-100 mb-2">
             <figure class="w-1/5 p-10">
               <img
                 src="../src/images/house.png"
@@ -682,23 +683,22 @@
       </div>
 
       <!--Add New node-->
-      <div class="card card-side min-w-1/3 bg-base-100 mt-2">
-        <div class="card-body">
-          <button class="btn btn-outline" on:click={createModal}>Add a New Node</button>
+      <div class="rounded-2xl min-w-1/3 bg-base-100 mt-2 p-3">
+        <div class="w-full">
+          <button class="btn btn-outline w-full" on:click={createModal}>Add a New Node</button>
         </div>
       </div>
     </div>
     
     <!--Sell orders-->
-    <div class = "card h-1/3 bg-base-100 mt-2">
-      <span class="text-3xl text-white font-thin justify-start pl-2">
+    <span class="text-3xl text-white font-light justify-start pl-2">
           Sell Orders
       </span>
-
+    <div class = "card h-1/3 bg-base-100 mt-2 p-5">
       <div class = "overflow-y-auto">
         {#each sellorders as sellorder}
-        <div class="card card-side min-w-1/3 bg-base-100 my-2 border">
-          <div class="card-body">
+        <div class="rounded-2xl min-w-1/3 bg-base-100 my-2 border">
+          <div class="p-5">
             <h2 class="card-title">Sell order</h2>
             <p>
               Claimed Units: {sellorder.claimed_units.toFixed(1) + "Wh"}<br>

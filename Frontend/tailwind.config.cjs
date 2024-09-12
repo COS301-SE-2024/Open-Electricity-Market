@@ -22,9 +22,6 @@ module.exports = {
         fillin: "43px",
         btn: "66px",
         page: "60px",
-        scrollerNodeDetails: "790px", 
-        scrollerOrders: "220px",
-        
       },
       colors: {
         fillin: "white",

@@ -277,6 +277,8 @@
     </div>
   </header>
   <main class="container mx-auto mt-8">
+    {#if loggedIn}
     <slot />
+    {/if}
   </main>
 </body>

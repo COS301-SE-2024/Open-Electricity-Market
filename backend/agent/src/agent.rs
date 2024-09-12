@@ -449,7 +449,7 @@ impl Agent {
                     println!("Succesfully recieved price {}", result.data.price);
                     result.data.price
                 } else {
-                    10.0
+                    0.003
                 }
             }
             Err(err) => {
@@ -461,7 +461,7 @@ impl Agent {
 
     fn place_buy_order(token: String, node_id: String, mut units: f64, funds: f64) -> f64 {
         let mut rng = rand::thread_rng();
-        let offset: f64 = rng.gen_range(-15.0..15.0);
+        let offset: f64 = rng.gen_range(-0.0015..0.0015);
 
         let market_price = Agent::get_current_price() + offset;
 
@@ -508,7 +508,7 @@ impl Agent {
 
     fn place_sell_order(token: String, node_id: String, units: f64) {
         let mut rng = rand::thread_rng();
-        let offset: f64 = rng.gen_range(-15.0..15.0);
+        let offset: f64 = rng.gen_range(-0.0015..0.0015);
 
         let market_price = Agent::get_current_price() + offset;
 

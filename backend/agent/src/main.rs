@@ -608,7 +608,16 @@ fn rocket() -> _ {
                     format!("{i}@example.com"),
                     password,
                     vec![Node::new(
-                        SmartMeter::new_acctive(Box::new(SineCurve::new())),
+                        SmartMeter::new_acctive(Box::new(CummutiveCurve {
+                            curves: vec![
+                                Box::new(HomeAppliance {
+                                    appliance_type: HomeApplianceType::MicroWaveOven,
+                                }),
+                                Box::new(HomeAppliance {
+                                    appliance_type: HomeApplianceType::Tv,
+                                }),
+                            ],
+                        })),
                         Generator::new_acctive(Box::new(GeneratorCurve {
                             generator_type: GeneratorCurveType::PetrolGenerator(
                                 PetrolGeneratorType::Home,

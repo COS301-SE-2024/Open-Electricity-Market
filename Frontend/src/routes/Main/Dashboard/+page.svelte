@@ -578,30 +578,27 @@
     </div>
 
     <!--Buy orders-->
-    <span class="text-3xl text-white font-light justify-start pl-2">
+    <span class="text-3xl text-white font-light justify-start pl-2 mt-2">
           Buy Orders
       </span>
-    <div class = "rounded-2xl h-1/3 bg-base-100 mt-2 p-5">
+    <div class = "rounded-2xl h-1/3 backdrop-blur-sm bg-white/30 p-2 overflow-y-auto">
       
-      <div class="overflow-y-auto">
-        
-        {#each buyorders as buyorder}
-          <div class="rounded-2xl min-w-1/3 bg-base-100 mb-2 border">
-            <div class="p-5">
-              <h2 class="card-title">Buy order</h2>
-              <p>
-                Filled units: {buyorder.filled_units.toFixed(1) + "Wh"}<br>
-                Max price: {formatCurrency(buyorder.max_price)}<br>
-                Min price: {formatCurrency(buyorder.min_price)}<br>
-                Units bought: {Intl.NumberFormat().format(buyorder.sought_units) + "Wh"}<br>
-              </p>
-              <div class="card-actions ">
-                <progress class="progress progress-primary" value="{buyorder.filled_units}" max="{buyorder.sought_units}"></progress>
-              </div>
+      {#each buyorders as buyorder}
+        <div class="rounded-2xl min-w-1/3 bg-base-100 mb-2">
+          <div class="p-5">
+            <h2 class="card-title">Buy order</h2>
+            <p>
+              Filled units: {buyorder.filled_units.toFixed(1) + "Wh"}<br>
+              Max price: {formatCurrency(buyorder.max_price)}<br>
+              Min price: {formatCurrency(buyorder.min_price)}<br>
+              Units bought: {Intl.NumberFormat().format(buyorder.sought_units) + "Wh"}<br>
+            </p>
+            <div class="card-actions ">
+              <progress class="progress progress-primary" value="{buyorder.filled_units}" max="{buyorder.sought_units}"></progress>
             </div>
           </div>
-        {/each}
-      </div>
+        </div>
+      {/each}
     </div>
     <!-- change funds modals -->
     <dialog id = "add_modal" class="modal">
@@ -647,7 +644,7 @@
     </span>
     <div class="h-1/2 flex flex-col">
       
-      <div class = "rounded-2xl p-2 glass overflow-y-auto">
+      <div class = "rounded-2xl p-2 backdrop-blur-sm bg-white/30 overflow-y-auto">
         {#each nodes as node}
         {#if node.name == nodeNameDetail}
           <div class="card card-side border-4 border-primary min-w-1/3 bg-base-100 mb-2">
@@ -690,28 +687,26 @@
     </div>
     
     <!--Sell orders-->
-    <span class="text-3xl text-white font-light justify-start pl-2">
+    <span class="text-3xl text-white font-light justify-start pl-2 mt-2">
           Sell Orders
       </span>
-    <div class = "card h-1/3 bg-base-100 mt-2 p-5">
-      <div class = "overflow-y-auto">
-        {#each sellorders as sellorder}
-        <div class="rounded-2xl min-w-1/3 bg-base-100 my-2 border">
-          <div class="p-5">
-            <h2 class="card-title">Sell order</h2>
-            <p>
-              Claimed Units: {sellorder.claimed_units.toFixed(1) + "Wh"}<br>
-              Offered Units: {sellorder.offered_units.toFixed(1) + "Wh"}<br>
-              Max price: {formatCurrency(sellorder.max_price)}<br>
-              Min price: {formatCurrency(sellorder.min_price)}<br>
-            </p>
-            <div class="card-actions">
-              <progress class="progress progress-accent" value="{sellorder.claimed_units}" max="{sellorder.offered_units}"></progress>
-            </div>
+    <div class = "rounded-2xl h-1/3 backdrop-blur-sm bg-white/30 p-2 overflow-y-auto">
+      {#each sellorders as sellorder}
+      <div class="rounded-2xl min-w-1/3 bg-base-100 mb-2">
+        <div class="p-5">
+          <h2 class="card-title">Sell order</h2>
+          <p>
+            Claimed Units: {sellorder.claimed_units.toFixed(1) + "Wh"}<br>
+            Offered Units: {sellorder.offered_units.toFixed(1) + "Wh"}<br>
+            Max price: {formatCurrency(sellorder.max_price)}<br>
+            Min price: {formatCurrency(sellorder.min_price)}<br>
+          </p>
+          <div class="card-actions">
+            <progress class="progress progress-accent" value="{sellorder.claimed_units}" max="{sellorder.offered_units}"></progress>
           </div>
         </div>
-        {/each}
       </div>
+      {/each}
     </div>
 
     <!-- new node modals -->
@@ -751,7 +746,7 @@
       <span class="text-3xl text-white font-thin justify-start pl-2">
         Node Details
       </span>
-      <div class = "h-5/6 overflow-y-auto">
+      <div class = "h-5/6">
         <div class="stats stats-vertical w-full"> 
           <div class="stat">
             <div class="stat-title">Node</div>

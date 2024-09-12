@@ -211,10 +211,9 @@ fn add_consumer(
             }
         }
     }
-   let mut grid = grid.lock().unwrap();
+    let mut grid = grid.lock().unwrap();
 
-let (consumer, circuit) =
-                        grid.create_consumer(data.latitude, data.longitude);
+    let (consumer, circuit) = grid.create_consumer(data.latitude, data.longitude);
 
     let new_consumer = NewConsumer { circuit, consumer };
     {
@@ -319,7 +318,7 @@ fn start(grid: &State<Arc<Mutex<Grid>>>) -> String {
     let mut g = grid.lock().unwrap();
     if !g.started {
         g.started = true;
-        let grid_clone = grid.inner().clone(); 
+        let grid_clone = grid.inner().clone();
         tokio::spawn(async move {
             let mut start = Instant::now();
             let mut elapsed_time = 0.0;
@@ -330,22 +329,21 @@ fn start(grid: &State<Arc<Mutex<Grid>>>) -> String {
                 elapsed_time += duration.as_secs_f32();
                 start = Instant::now();
                 {
-                let mut grid = grid_clone.lock().unwrap();
-                //Update grid
-                grid.update(elapsed_time);
-                //Save to database
-                if elapsed_time > count as f32 * 50.0 {
-                    use crate::grid_history::dsl::grid_history;
-                    count += 1;
-                    let serialized_data: serde_json::Value =
-                        serde_json::from_str(&serde_json::to_string(grid.deref()).unwrap())
-                            .expect("REASON");
-                    let _ = insert_into(grid_history)
-                        .values(grid_state.eq(serialized_data))
-                        .execute(&mut establish_connection());
-                    println!("Stored to database");
-                }
-               
+                    let mut grid = grid_clone.lock().unwrap();
+                    //Update grid
+                    grid.update(elapsed_time);
+                    //Save to database
+                    if elapsed_time > count as f32 * 50.0 {
+                        use crate::grid_history::dsl::grid_history;
+                        count += 1;
+                        let serialized_data: serde_json::Value =
+                            serde_json::from_str(&serde_json::to_string(grid.deref()).unwrap())
+                                .expect("REASON");
+                        let _ = insert_into(grid_history)
+                            .values(grid_state.eq(serialized_data))
+                            .execute(&mut establish_connection());
+                        println!("Stored to database");
+                    }
                 }
                 thread::sleep(time::Duration::from_millis(16));
             }
@@ -370,7 +368,6 @@ pub fn establish_connection() -> PgConnection {
     PgConnection::establish(&database_url)
         .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
 }
-
 
 struct EmailRecord {
     id: Uuid,
@@ -434,7 +431,7 @@ fn rocket() -> _ {
         )
         .manage(Arc::new(Mutex::new(Vec::<ConsumerOwner>::new())))
         .manage(Arc::new(Mutex::new(Vec::<GeneratorOwner>::new())))
-        .manage(Arc::new(Mutex::new(Vec::<EmailRecord>::new()))) 
+        .manage(Arc::new(Mutex::new(Vec::<EmailRecord>::new())))
         .manage(Arc::new(Mutex::new(Grid {
             circuits: vec![Circuit {
                 id: 0,

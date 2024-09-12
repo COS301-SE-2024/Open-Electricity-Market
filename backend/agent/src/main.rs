@@ -610,8 +610,8 @@ fn rocket() -> _ {
                     vec![Node::new(
                         SmartMeter::new_acctive(Box::new(SineCurve::new())),
                         Generator::new_acctive(Box::new(GeneratorCurve {
-                            generator_type: GeneratorCurveType::SolarPanel(
-                                SolarPanelType::Home,
+                            generator_type: GeneratorCurveType::PetrolGenerator(
+                                PetrolGeneratorType::Home,
                             ),
                             on_periods: vec![Period {
                                 start: 0.0,

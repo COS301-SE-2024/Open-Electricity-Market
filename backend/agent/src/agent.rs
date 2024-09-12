@@ -406,7 +406,7 @@ impl Agent {
         {
             Ok(res) => {
                 let result: VoltageUpdateResult = res.json().unwrap();
-                println!("{} set to {}", result.message,units);
+                println!("{} set to {}", result.message, units);
             }
             Err(err) => {
                 println!("Updated grid voltage {}", err)

@@ -59,7 +59,7 @@
 
   function logout() {
     sessionStorage.removeItem("Token");
-    window.location.href = '/login';
+    window.location.href = "/login";
   }
 
   let showMenu = false;

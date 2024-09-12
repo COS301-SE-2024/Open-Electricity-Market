@@ -141,7 +141,7 @@
   <div class="md:flex md:flex-row">
     <div class="md:basis-2/3 bg-base-100 md:card md:mr-5 md:p-4">
       <h1 class="md:text-5xl md:font-light md:pt-8">Marketplace</h1>
-      <div class="form-control">
+      <div class="form-control mt-3">
         <!-- svelte-ignore a11y-label-has-associated-control -->
         <select
           bind:value={chartPeriod}

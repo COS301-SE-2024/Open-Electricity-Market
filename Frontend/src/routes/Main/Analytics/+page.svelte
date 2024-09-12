@@ -233,6 +233,7 @@
   }
 
   async function getCurve() {
+    
     console.log("curve was running");
     console.log(sessionStorage.getItem("email")); 
     try {
@@ -254,16 +255,34 @@
       
       const fdata = await response.json();
       console.log(fdata);
+      let temp = fdata.consumption;
 
+      if(selectedAppliances[0]=="asdf"){
+          //only runs this first time - selectedAppliances gets updated in toggleAppliance
+            temp.forEach((item) => {
+              appliances.add(item.appliance); 
+          });
+          selectedAppliances = Array.from(appliances);
+          
+        }
+        console.log("Selected appliances are ", selectedAppliances);
+        console.log("Appliances are: ", appliances); 
+
+      let index = 0; 
       if (fdata.message == "Here is the detail") {
-        let temp = fdata.consumption;
         console.log("gets to the first foreach"); 
-        temp.forEach((item, index) => {
+        temp.forEach((item) => {
+         
           if(selectedAppliances.includes(item.appliance)){
             if (!consumptioncurvedata[index]) {
-              consumptioncurvedata[index] = item.data;
+              consumptioncurvedata[index] = 0;
             }
             consumptioncurvedata[index] += item.data;
+            index++; 
+            if(index >= 24){
+              index = 0; 
+            }
+
           }
   
         });
@@ -277,13 +296,7 @@
             } 
         });
 
-        if(selectedAppliances[0]=="asdf"){
-          //only runs this first time - selectedAppliances gets updated in toggleAppliance
-            temp.forEach((item) => {
-              appliances.add(item.appliance); 
-          });
-          selectedAppliances = Array.from(appliances);
-        }
+       
 
         
 
@@ -381,9 +394,12 @@
   <div id="lhs" class="w-1/2 pr-4">
     <!-- market stats to go here -->
     <!-- {#if minbuy} -->
+    <span class="text-3xl text-white font-thin justify-start pl-2">
+      Market Stats
+    </span>
     <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
-      <span class="">Market Stats</span>
-      <br />
+      <!-- <span class="">Market Stats</span>
+      <br /> -->
       <span class="font-light"
         >Minimum price bought at: <span class="font-normal">R{minbuy}</span
         ></span
@@ -460,7 +476,12 @@
     </div>
   </div>
 
+
+  
   <div id="rhs" class="w-1/2">
+    <span class="text-3xl text-white font-thin justify-start pl-2">
+      Node Stats
+    </span>
     <div class="flex bg-base-100 rounded-2xl p-5 mt-3 h-20">
       <select
         bind:value={selectednode}

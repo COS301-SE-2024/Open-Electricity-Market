@@ -97,13 +97,13 @@
     await listOpenBuys();
     await listOpenSells();
 
-    // const buyOrderInterval = setInterval(listOpenBuys, 10000);
-    // const sellOrderInterval = setInterval(listOpenSells, 10000);
+    const buyOrderInterval = setInterval(listOpenBuys, 10000);
+    const sellOrderInterval = setInterval(listOpenSells, 10000);
 
-    // return () => {
-    //   clearInterval(buyOrderInterval);
-    //   clearInterval(sellOrderInterval);
-    // }
+    return () => {
+      clearInterval(buyOrderInterval);
+      clearInterval(sellOrderInterval);
+    }
   });
 
   async function fetchNodes() {
@@ -455,6 +455,10 @@
         });
         const fdata = await response.json();
         data = fdata;
+        console.log(fdata); 
+        if(fdata.message == "Succesfully added appliances"){
+          document.getElementById("addappliancemodal").showModal();
+        }
         // console.log("Data received from user details is: ", data);
       } catch (error) {
         console.log(
@@ -935,6 +939,20 @@
       <p>
         Addition of {formatCurrency(amount)} was unsuccessful. Please enter a valid
         value.
+      </p>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button on:click={nullifyValues}>close</button>
+    </form>
+  </dialog>
+
+  
+<!-- add appliance modal  -->
+  <dialog id="addappliancemodal" class="modal">
+    <div class="modal-box">
+      <h3 class="font-bold text-lg">Addition successful.</h3>
+      <p>
+        Addition of {appliance} was successful. 
       </p>
     </div>
     <form method="dialog" class="modal-backdrop">

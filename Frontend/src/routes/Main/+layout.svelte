@@ -85,6 +85,8 @@
               ? "Marketplace"
               : activebutton == "/Main/Dashboard"
                 ? "Dashboard"
+                : activebutton == "/Main/Analytics"
+                ? "Analytics"
                 : ""}
         </span>
       </div>

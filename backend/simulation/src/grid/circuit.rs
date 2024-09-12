@@ -29,6 +29,9 @@ impl Circuit {
         match &mut self.loads[position].load_type {
             super::load::LoadType::Consumer(c) => {
                 let resitance = (240.0 * 240.0) / power;
+                println!("****************************************************************************************************");
+                println!("Since I havae an input of {} watt and my sockets are assumed to be at 240 V I set my impedance to {}",power,resitance);
+                println!("****************************************************************************************************");
 
                 if resitance > 0.0 {
                     c.resistance = Resistance(resitance);

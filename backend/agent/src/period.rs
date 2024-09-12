@@ -2,8 +2,8 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Clone)]
 pub struct Period {
-    start: f64,
-    end: f64,
+    pub start: f64,
+    pub end: f64,
 }
 
 impl Period {

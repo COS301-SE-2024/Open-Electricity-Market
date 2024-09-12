@@ -2,11 +2,11 @@ use std::usize;
 
 use crate::grid::circuit::Circuit;
 use crate::grid::load::Connection::{Parallel, Series};
-use rocket::form::validate::Len;
-use rocket::serde::{self, Deserialize, Serialize};
+
+use rocket::serde::{Deserialize, Serialize};
 
 use self::generator::Generator;
-use self::load::{Load, LoadType, TransmissionLine};
+use self::load::{Load, LoadType};
 
 pub mod circuit;
 pub mod generator;
@@ -134,16 +134,16 @@ pub struct Grid {
 #[derive(Deserialize)]
 #[serde(crate = "rocket::serde")]
 pub struct GeneratorInterface {
-    circuit: u32,
-    generator: u32,
+    pub circuit: u32,
+    pub generator: u32,
     power: f32,
 }
 
 #[derive(Deserialize)]
 #[serde(crate = "rocket::serde")]
 pub struct ConsumerInterface {
-    circuit: u32,
-    consumer: u32,
+    pub circuit: u32,
+    pub consumer: u32,
     power: f32,
 }
 
@@ -317,9 +317,12 @@ impl Grid {
     }
 
     pub fn set_generator(&mut self, grid_interface: GeneratorInterface) {
+        let r = self.circuits[grid_interface.circuit as usize]
+            .calculate_equivalent_impedance(self.frequency, 0);
+
         self.circuits[grid_interface.circuit as usize].set_generater(
             grid_interface.generator,
-            f32::sqrt(grid_interface.power * 1000.0),
+            f32::sqrt(grid_interface.power * r),
         );
     }
 

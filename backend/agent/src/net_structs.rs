@@ -1,6 +1,17 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize)]
+pub struct GetTokenDetail {
+    pub email: String,
+    pub password: String,
+}
+
+#[derive(Deserialize)]
+pub struct GetTokenResult {
+    pub token: String,
+}
+
+#[derive(Serialize)]
 pub struct AddFundDetails {
     pub funds: f64,
 }

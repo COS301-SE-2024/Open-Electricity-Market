@@ -18,7 +18,8 @@ use crate::{
 pub struct Agent {
     pub email: String,
     pub password: String,
-    pub token: String,
+    pub market_token: String,
+    pub grid_token: String,
     pub nodes: Vec<Node>,
     pub funds: f64,
     pub linked_to_user: bool,
@@ -37,38 +38,55 @@ impl Agent {
         Agent {
             email,
             password,
-            token: String::from(""),
+            market_token: String::from(""),
             nodes,
             funds,
             linked_to_user,
             extarnal_wealth_curve,
+            grid_token: String::from(""),
         }
     }
 
-    fn create_producer_grid(location: Location) -> GeneratorDetail {
+    fn create_producer_grid(location: Location, token: String) -> GeneratorDetail {
         let url = env::var("GURL").unwrap();
         let client = reqwest::blocking::Client::new();
-        let res = client
+        match client
             .post(format!("http://{url}:8000/add_generator"))
+            .header(header::AUTHORIZATION, format!("Bearer {token}"))
             .json(&location)
             .send()
-            .unwrap();
-        let text = res.text().unwrap();
-        println!("{}", &text);
-        serde_json::from_str(&text).unwrap()
+        {
+            Ok(res) => {
+                let text = res.text().unwrap();
+                println!("{}", &text);
+                serde_json::from_str(&text).unwrap()
+            }
+            Err(err) => {
+                println!("Create Producer Grid {}", err);
+                GeneratorDetail::new()
+            }
+        }
     }
 
-    fn create_consumer_grid(location: Location) -> SmartMeterDetail {
+    fn create_consumer_grid(location: Location, token: String) -> SmartMeterDetail {
         let url = env::var("GURL").unwrap();
         let client = reqwest::blocking::Client::new();
-        let res = client
+        match client
             .post(format!("http://{url}:8000/add_consumer"))
+            .header(header::AUTHORIZATION, format!("Bearer {token}"))
             .json(&location)
             .send()
-            .unwrap();
-        let text = res.text().unwrap();
-        println!("{}", &text);
-        serde_json::from_str(&text).unwrap()
+        {
+            Ok(res) => {
+                let text = res.text().unwrap();
+                println!("{}", &text);
+                serde_json::from_str(&text).unwrap()
+            }
+            Err(err) => {
+                println!("Create Consumer Grid {}", err);
+                return SmartMeterDetail::new();
+            }
+        }
     }
 
     fn login_or_register_agent(email: String, password: String) -> String {
@@ -78,31 +96,45 @@ impl Agent {
         };
         let url = env::var("MURL").unwrap();
         let client = reqwest::blocking::Client::new();
-        let res = client
+        match client
             .post(format!("http://{url}:8001/login"))
             .json(&login_detail)
             .send()
-            .unwrap();
-        let result: LoginResult = res.json().unwrap();
-        if result.message == "User logged in" {
-            return result.data.token;
+        {
+            Ok(res) => {
+                let result: LoginResult = res.json().unwrap();
+                if result.message == "User logged in" {
+                    return result.data.token;
+                }
+                let register_detail = RegisterDetail {
+                    email,
+                    first_name: String::from("Hal"),
+                    last_name: String::from("9000"),
+                    password,
+                };
+                match client
+                    .post(format!("http://{url}:8001/register"))
+                    .json(&register_detail)
+                    .send()
+                {
+                    Ok(res) => {
+                        let result: RegisterResult = res.json().unwrap();
+                        if result.message != "New user added" {
+                            panic!("Agent could not get session Id");
+                        }
+                        result.data.token
+                    }
+                    Err(err) => {
+                        println!("Login {}", err);
+                        String::new()
+                    }
+                }
+            }
+            Err(err) => {
+                println!("Register {}", err);
+                String::new()
+            }
         }
-        let register_detail = RegisterDetail {
-            email,
-            first_name: String::from("Hal"),
-            last_name: String::from("9000"),
-            password,
-        };
-        let res = client
-            .post(format!("http://{url}:8001/register"))
-            .json(&register_detail)
-            .send()
-            .unwrap();
-        let result: RegisterResult = res.json().unwrap();
-        if result.message != "New user added" {
-            panic!("Agent could not get session Id");
-        }
-        result.data.token
     }
 
     fn add_node(location: Location, name: String, token: String) {
@@ -113,17 +145,23 @@ impl Agent {
         };
         let url = env::var("MURL").unwrap();
         let client = reqwest::blocking::Client::new();
-        let res = client
+        match client
             .post(format!("http://{url}:8001/add_node"))
             .header(header::AUTHORIZATION, format!("Bearer {token}"))
             .json(&node_detail)
             .send()
-            .unwrap();
-        let result: NodeResult = res.json().unwrap();
-        if result.message != "New Node Added" {
-            println!("Could not add node")
-        } else {
-            println!("New node added");
+        {
+            Ok(res) => {
+                let result: NodeResult = res.json().unwrap();
+                if result.message != "New Node Added" {
+                    println!("Could not add node")
+                } else {
+                    println!("New node added");
+                }
+            }
+            Err(err) => {
+                println!("Add Node {}", err)
+            }
         }
     }
 
@@ -131,33 +169,65 @@ impl Agent {
         let get_node_detail = GetNodeDetail { limit };
         let url = env::var("MURL").unwrap();
         let client = reqwest::blocking::Client::new();
-        let res = client
+        match client
             .post(format!("http://{url}:8001/get_nodes"))
             .header(header::AUTHORIZATION, format!("Bearer {token}"))
             .json(&get_node_detail)
             .send()
-            .unwrap();
-        let result: GetNodeResult = res.json().unwrap();
-        if result.message == "List of nodes successfully retrieved" {
-            let mut out = vec![];
+        {
+            Ok(res) => {
+                let result: GetNodeResult = res.json().unwrap();
+                if result.message == "List of nodes successfully retrieved" {
+                    let mut out = vec![];
 
-            for node in result.data {
-                out.push(node.node_id);
+                    for node in result.data {
+                        out.push(node.node_id);
+                    }
+                    out
+                } else {
+                    vec![]
+                }
             }
-            out
-        } else {
-            vec![]
+            Err(err) => {
+                println!("Get Nodes {}", err);
+                vec![]
+            }
+        }
+    }
+
+    pub fn get_grid_token(email: String) -> String {
+        let password = env::var("GRID_PASS").unwrap();
+        let detail = GetTokenDetail { email, password };
+        let url = env::var("GURL").unwrap();
+        let client = reqwest::blocking::Client::new();
+        match client
+            .post(format!("http://{url}:8000/get_token"))
+            .json(&detail)
+            .send()
+        {
+            Ok(res) => {
+                let result: GetTokenResult = res.json().unwrap();
+                return result.token;
+            }
+            Err(err) => {
+                println!("Get Token: {}", err);
+                return String::new();
+            }
         }
     }
 
     pub fn intialise(&mut self) {
-        if self.token.is_empty() {
-            self.token = Agent::login_or_register_agent(self.email.clone(), self.password.clone());
+        self.grid_token = Agent::get_grid_token(self.email.clone());
+        self.market_token =
+            Agent::login_or_register_agent(self.email.clone(), self.password.clone());
+
+        if self.grid_token == "" || self.market_token == "" {
+            return;
         }
-        println!("{}", self.token.clone());
+        println!("{}", self.market_token.clone());
         let mut has_nodes = true;
 
-        let mut node_ids = Agent::get_nodes(1024, self.token.clone());
+        let mut node_ids = Agent::get_nodes(1024, self.market_token.clone());
         if node_ids.is_empty() {
             has_nodes = false;
         }
@@ -167,7 +237,8 @@ impl Agent {
             match &mut node.generator {
                 Generator::Acctive(core) => {
                     if core.grid_detail.generator == 0 {
-                        core.grid_detail = Agent::create_producer_grid(node.location);
+                        core.grid_detail =
+                            Agent::create_producer_grid(node.location, self.grid_token.clone());
                     }
                 }
                 Generator::InAcctive => {}
@@ -176,7 +247,8 @@ impl Agent {
             match &mut node.smart_meter {
                 SmartMeter::Acctive(core) => {
                     if core.grid_detail.consumer == 0 {
-                        core.grid_detail = Agent::create_consumer_grid(node.location);
+                        core.grid_detail =
+                            Agent::create_consumer_grid(node.location, self.grid_token.clone());
                     }
                 }
                 SmartMeter::InActtive => {}
@@ -187,13 +259,13 @@ impl Agent {
                 Agent::add_node(
                     node.location,
                     String::from("Simulated Node"),
-                    self.token.clone(),
+                    self.market_token.clone(),
                 )
             }
         }
 
         if !has_nodes {
-            node_ids = Agent::get_nodes(1024, self.token.clone());
+            node_ids = Agent::get_nodes(1024, self.market_token.clone());
         }
 
         println!("Is empty {}", self.nodes.is_empty());
@@ -221,17 +293,24 @@ impl Agent {
     fn get_credit(token: String) -> f64 {
         let url = env::var("MURL").unwrap();
         let client = reqwest::blocking::Client::new();
-        let res = client
+        match client
             .post(format!("http://{url}:8001/user_details"))
             .header(header::AUTHORIZATION, format!("Bearer {token}"))
             .send()
-            .unwrap();
-        let result: UserDetailResult = res.json().unwrap();
-        if result.message == "User details successfully retrieved" {
-            println!("Succesfully recieved credit {}", result.data.credit);
-            result.data.credit
-        } else {
-            0.0
+        {
+            Ok(res) => {
+                let result: UserDetailResult = res.json().unwrap();
+                if result.message == "User details successfully retrieved" {
+                    println!("Succesfully recieved credit {}", result.data.credit);
+                    result.data.credit
+                } else {
+                    0.0
+                }
+            }
+            Err(err) => {
+                println!("Get credit {}", err);
+                0.0
+            }
         }
     }
 
@@ -242,25 +321,32 @@ impl Agent {
         let node_details_details = NodeDetailsDetails { node_id };
         let url = env::var("MURL").unwrap();
         let client = reqwest::blocking::Client::new();
-        let res = client
+        match client
             .post(format!("http://{url}:8001/node_details"))
             .header(header::AUTHORIZATION, format!("Bearer {token}"))
             .json(&node_details_details)
             .send()
-            .unwrap();
-        let result: NodeDetailsResult = res.json().unwrap();
-        if result.message == "Node details retrieved succesfully" {
-            let mut units_to_consume = None;
-            if result.data.units_to_consume > 0.1 {
-                units_to_consume = Some(result.data.units_to_consume);
+        {
+            Ok(res) => {
+                let result: NodeDetailsResult = res.json().unwrap();
+                if result.message == "Node details retrieved succesfully" {
+                    let mut units_to_consume = None;
+                    if result.data.units_to_consume > 0.1 {
+                        units_to_consume = Some(result.data.units_to_consume);
+                    }
+                    let mut units_to_produce = None;
+                    if result.data.units_to_produce > 0.1 {
+                        units_to_produce = Some(result.data.units_to_produce);
+                    }
+                    (units_to_consume, units_to_produce)
+                } else {
+                    (None, None)
+                }
             }
-            let mut units_to_produce = None;
-            if result.data.units_to_produce > 0.1 {
-                units_to_produce = Some(result.data.units_to_produce);
+            Err(err) => {
+                println!("Get units to produce and consume {}", err);
+                (None, None)
             }
-            (units_to_consume, units_to_produce)
-        } else {
-            (None, None)
         }
     }
 
@@ -268,31 +354,43 @@ impl Agent {
         let update_units_consumed_details = UpdateUnitsConsumedDetails { units, node_id };
         let url = env::var("MURL").unwrap();
         let client = reqwest::blocking::Client::new();
-        let res = client
+        match client
             .post(format!("http://{url}:8001/update_consumed_units"))
             .header(header::AUTHORIZATION, format!("Bearer {token}"))
             .json(&update_units_consumed_details)
             .send()
-            .unwrap();
-        let result: UpdateUnitsConsumeResult = res.json().unwrap();
-        println!("{}", result.message);
+        {
+            Ok(res) => {
+                let result: UpdateUnitsConsumeResult = res.json().unwrap();
+                println!("{}", result.message);
+            }
+            Err(err) => {
+                println!("Updated units counsumed {}", err)
+            }
+        }
     }
 
     fn update_units_produced(units: f64, token: String, node_id: String) {
         let update_units_consumed_details = UpdateUnitsProducedDetails { units, node_id };
         let url = env::var("MURL").unwrap();
         let client = reqwest::blocking::Client::new();
-        let res = client
+        match client
             .post(format!("http://{url}:8001/update_produced_units"))
             .header(header::AUTHORIZATION, format!("Bearer {token}"))
             .json(&update_units_consumed_details)
             .send()
-            .unwrap();
-        let result: UpdateUnitsProducedResult = res.json().unwrap();
-        println!("{}", result.message);
+        {
+            Ok(res) => {
+                let result: UpdateUnitsProducedResult = res.json().unwrap();
+                println!("{}", result.message);
+            }
+            Err(err) => {
+                println!("Updated units produced {}", err)
+            }
+        }
     }
 
-    fn update_grid_voltage(units: f64, detail: GeneratorDetail) {
+    fn update_grid_voltage(units: f64, detail: GeneratorDetail, token: String) {
         let voltage_update_detail = VoltageUpdateDetail {
             circuit: detail.circuit,
             generator: detail.generator,
@@ -300,16 +398,23 @@ impl Agent {
         };
         let url = env::var("GURL").unwrap();
         let client = reqwest::blocking::Client::new();
-        let res = client
+        match client
             .post(format!("http://{url}:8000/set_generator"))
+            .header(header::AUTHORIZATION, format!("Bearer {token}"))
             .json(&voltage_update_detail)
             .send()
-            .unwrap();
-        let result: VoltageUpdateResult = res.json().unwrap();
-        println!("{}", result.message);
+        {
+            Ok(res) => {
+                let result: VoltageUpdateResult = res.json().unwrap();
+                println!("{} set to {}", result.message, units);
+            }
+            Err(err) => {
+                println!("Updated grid voltage {}", err)
+            }
+        }
     }
 
-    fn update_grid_impedance(units: f64, detail: SmartMeterDetail) {
+    fn update_grid_impedance(units: f64, detail: SmartMeterDetail, token: String) {
         let impedance_update_detail = ImpedanceUpdateDetail {
             circuit: detail.circuit,
             consumer: detail.consumer,
@@ -317,29 +422,40 @@ impl Agent {
         };
         let url = env::var("GURL").unwrap();
         let client = reqwest::blocking::Client::new();
-        let res = client
+        match client
             .post(format!("http://{url}:8000/set_consumer"))
+            .header(header::AUTHORIZATION, format!("Bearer {token}"))
             .json(&impedance_update_detail)
             .send()
-            .unwrap();
-        let result: ImpedanceUpdateResult = res.json().unwrap();
-        println!("{}", result.message);
+        {
+            Ok(res) => {
+                let result: ImpedanceUpdateResult = res.json().unwrap();
+                println!("{}", result.message);
+            }
+            Err(err) => {
+                println!("Updated grid impedance {}", err)
+            }
+        }
     }
 
     fn get_current_price() -> f64 {
         // let url = env::var("GURL").unwrap();
         let url = env::var("MURL").unwrap();
         let client = reqwest::blocking::Client::new();
-        let res = client
-            .post(format!("http://{url}:8001/price_view"))
-            .send()
-            .unwrap();
-        let result: GetPriceResult = res.json().unwrap();
-        if result.message == "Successfully retrieved price" {
-            println!("Succesfully recieved price {}", result.data.price);
-            result.data.price
-        } else {
-            100.0
+        match client.post(format!("http://{url}:8001/price_view")).send() {
+            Ok(res) => {
+                let result: GetPriceResult = res.json().unwrap();
+                if result.message == "Successfully retrieved price" {
+                    println!("Succesfully recieved price {}", result.data.price);
+                    result.data.price
+                } else {
+                    10.0
+                }
+            }
+            Err(err) => {
+                println!("Get current price {}", err);
+                0.0
+            }
         }
     }
 
@@ -365,21 +481,28 @@ impl Agent {
 
         let url = env::var("MURL").unwrap();
         let client = reqwest::blocking::Client::new();
-        let res = client
+        match client
             .post(format!("http://{url}:8001/buy_order"))
             .header(header::AUTHORIZATION, format!("Bearer {token}"))
             .json(&detail)
             .send()
-            .unwrap();
-        let result: BuyOrderResult = res.json().unwrap();
-
-        if result.message == "Buy order created successfully. Pending match"
-            || result.message == "Buy order created successfully. Order match"
         {
-            println!("Buy order place for {}", units);
-            market_price * units
-        } else {
-            0.0
+            Ok(res) => {
+                let result: BuyOrderResult = res.json().unwrap();
+
+                if result.message == "Buy order created successfully. Pending match"
+                    || result.message == "Buy order created successfully. Order match"
+                {
+                    println!("Buy order place for {}", units);
+                    market_price * units
+                } else {
+                    0.0
+                }
+            }
+            Err(err) => {
+                println!("Place buy order {}", err);
+                return 0.0;
+            }
         }
     }
 
@@ -397,17 +520,23 @@ impl Agent {
         };
         let url = env::var("MURL").unwrap();
         let client = reqwest::blocking::Client::new();
-        let res = client
+        match client
             .post(format!("http://{url}:8001/sell_order"))
             .header(header::AUTHORIZATION, format!("Bearer {token}"))
             .json(&detail)
             .send()
-            .unwrap();
-        let result: SellOrderResult = res.json().unwrap();
-        if result.message == "Sell order created successfully. Pending match"
-            || result.message == "Sell order created successfully. Order match"
         {
-            println!("Placed Sell Order for {}", units)
+            Ok(res) => {
+                let result: SellOrderResult = res.json().unwrap();
+                if result.message == "Sell order created successfully. Pending match"
+                    || result.message == "Sell order created successfully. Order match"
+                {
+                    println!("Placed Sell Order for {}", units)
+                }
+            }
+            Err(err) => {
+                println!("Place sell order {}", err);
+            }
         }
     }
 
@@ -416,36 +545,51 @@ impl Agent {
         let detail = AddFundDetails { funds: amount };
         let url = env::var("MURL").unwrap();
         let client = reqwest::blocking::Client::new();
-        let res = client
+        match client
             .post(format!("http://{url}:8001/add_funds"))
             .header(header::AUTHORIZATION, format!("Bearer {token}"))
             .json(&detail)
             .send()
-            .unwrap();
-
-        let result: AddFundResult = res.json().unwrap();
-        println!("{}", result.message.clone());
-        if result.message == "Funds added" {
-            println!("Added {amount} credit")
+        {
+            Ok(res) => {
+                let result: AddFundResult = res.json().unwrap();
+                println!("{}", result.message.clone());
+                if result.message == "Funds added" {
+                    println!("Added {amount} credit")
+                }
+            }
+            Err(err) => {
+                println!("Update credit {}", err);
+            }
         }
     }
 
     fn update(&mut self, accumlated_time: f64) -> Result<(), ()> {
+        self.grid_token = Agent::get_grid_token(self.email.clone());
+        self.market_token =
+            Agent::login_or_register_agent(self.email.clone(), self.password.clone());
+
+        if self.grid_token == "" || self.market_token == "" {
+            return Ok(());
+        }
+
         // update credit based on income_curve
         Agent::update_credit(
-            self.token.clone(),
+            self.market_token.clone(),
             self.extarnal_wealth_curve.sample(accumlated_time),
         );
 
         // get credit
-        let credit = Agent::get_credit(self.token.clone());
+        let credit = Agent::get_credit(self.market_token.clone());
 
         //foreach node
         for node in self.nodes.iter_mut() {
             // Get units_to_consume
             // Get units_to_produce
-            let (units_to_consume, units_to_produce) =
-                Agent::get_units_to_produce_and_consume(node.node_id.clone(), self.token.clone());
+            let (units_to_consume, units_to_produce) = Agent::get_units_to_produce_and_consume(
+                node.node_id.clone(),
+                self.market_token.clone(),
+            );
 
             // Update units_to_consume based on consumption curve
             let consumed = match &mut node.smart_meter {
@@ -480,19 +624,31 @@ impl Agent {
 
             // Update units_to_consume on market
             if consumed > 0.0 {
-                Agent::update_units_consumed(consumed, self.token.clone(), node.node_id.clone());
+                Agent::update_units_consumed(
+                    consumed,
+                    self.market_token.clone(),
+                    node.node_id.clone(),
+                );
             }
 
             // Update units_to_produce on market
             if produced > 0.0 {
-                Agent::update_units_produced(produced, self.token.clone(), node.node_id.clone());
+                Agent::update_units_produced(
+                    produced,
+                    self.market_token.clone(),
+                    node.node_id.clone(),
+                );
             }
 
             // Set grid voltage for producer
             match &node.generator {
                 Generator::Acctive(core) => {
                     if produced > 0.0 {
-                        Agent::update_grid_voltage(produced, core.grid_detail)
+                        Agent::update_grid_voltage(
+                            produced,
+                            core.grid_detail,
+                            self.grid_token.clone(),
+                        )
                     }
                 }
                 Generator::InAcctive => {}
@@ -502,7 +658,11 @@ impl Agent {
             match &node.smart_meter {
                 SmartMeter::Acctive(core) => {
                     if consumed > 0.0 {
-                        Agent::update_grid_impedance(consumed, core.grid_detail)
+                        Agent::update_grid_impedance(
+                            consumed,
+                            core.grid_detail,
+                            self.grid_token.clone(),
+                        )
                     }
                 }
                 SmartMeter::InActtive => {}
@@ -519,7 +679,7 @@ impl Agent {
                         if gap > 0.0 && credit > 0.0 {
                             // buy electricity at market price
                             let spent = Agent::place_buy_order(
-                                self.token.clone(),
+                                self.market_token.clone(),
                                 node.node_id.clone(),
                                 gap,
                                 credit,
@@ -540,7 +700,7 @@ impl Agent {
                         let produced = core.production_curve.sample(accumlated_time) - produced;
                         if produced > to_produce {
                             Agent::place_sell_order(
-                                self.token.clone(),
+                                self.market_token.clone(),
                                 node.node_id.clone(),
                                 produced - to_produce,
                             );

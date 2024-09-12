@@ -76,10 +76,9 @@
     voltageData = { ...markerDetails.voltage };
 
     power =
-      (Math.pow(markerDetails.voltage.oscilloscope_detail.amplitude) /
-        markerDetails.resistance,
-      2);
-    // console.log(power);
+      (Math.pow(markerDetails.voltage.oscilloscope_detail.amplitude) ,
+      2)/markerDetails.resistance;
+    console.log(markerDetails.voltage.oscilloscope_detail.amplitude+" "+markerDetails.resistance+" "+power);
   }
 </script>
 
@@ -105,7 +104,7 @@
         <span class="pt-5">
           <span class="font-light text-lg mt-10">Consumption: </span><br />
           <span class="text-4xl"
-            >{Intl.NumberFormat().format(power / 1000)} kW</span
+            >{Intl.NumberFormat().format(power)} W</span
           > <br />
           <span class="font-light text-lg mt-10">Impedance: </span><br />
           <span class="text-4xl"

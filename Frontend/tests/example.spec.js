@@ -1,61 +1,61 @@
 // @ts-check
-import {test, expect} from '@playwright/test';
+import { test, expect } from "@playwright/test";
 //require(‘dotenv-playwright’).config();
 //import dotenv from 'dotenv';
 
-test.describe("Landing page",() => {
-  test.beforeEach(async ({page})=>{
-    await page.goto('http://localhost:5173');
+test.describe("Landing page", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto("http://localhost:5173");
   });
-  test('To login page', async ({ page }) => {
+  test("To login page", async ({ page }) => {
     // Click the sign in button.
-    await page.getByRole('link', { name: 'Sign in' }).click();
+    await page.getByRole("link", { name: "Sign in" }).click();
 
     // Expects to be redirected to login page.
-    await page.waitForURL('**/login');
+    await page.waitForURL("**/login");
   });
-  test('To simulation', async ({ page }) => {
+  test("To simulation", async ({ page }) => {
     // Click the sign in button.
-    await page.getByRole('link', { name: 'Simulation' }).click();
+    await page.getByRole("link", { name: "Simulation" }).click();
 
     // Expects to be redirected to login page.
-    await page.waitForURL('**/public/GridSimulation');
+    await page.waitForURL("**/public/GridSimulation");
   });
 });
 
-test.describe("public simulation page",() => {
-  test.beforeEach(async ({page})=>{
-    await page.goto('http://localhost:5173/public/GridSimulation');
+test.describe("public simulation page", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto("http://localhost:5173/public/GridSimulation");
   });
-  test('Back to Landing page', async ({ page }) => {
+  test("Back to Landing page", async ({ page }) => {
     //Wait for page to finish loading
     //await page.waitForLoadState('networkidle');
 
     // Click the "Amplify" button.
-    await page.getByRole('link', { name: 'Amplify' }).click();
+    await page.getByRole("link", { name: "Amplify" }).click();
 
     // Expects to be redirected back to landing page.
-    await page.waitForURL('http://localhost:5173');
+    await page.waitForURL("http://localhost:5173");
   });
-  test('To Dashboard', async ({ page }) => {
+  test("To Dashboard", async ({ page }) => {
     //Wait for page to finish loading
     //await page.waitForLoadState('networkidle');
 
     // Click the "Dashboard" button.
-    await page.getByRole('link', { name: 'Dashboard' }).click();
+    await page.getByRole("link", { name: "Dashboard" }).click();
 
     // Expects to be redirected to Dashboard page.
-    await page.waitForURL('**/Main/Dashboard');
+    await page.waitForURL("**/Main/Dashboard");
   });
-  test('To public Grid Simulation page', async ({ page }) => {
+  test("To public Grid Simulation page", async ({ page }) => {
     //Wait for page to finish loading
     //await page.waitForLoadState('networkidle');
 
     // Click the "Grid" button.
-    await page.getByRole('link', { name: 'Grid' }).click();
+    await page.getByRole("link", { name: "Grid" }).click();
 
     // Expects to be redirected to simulation grid page.
-    await page.waitForURL('**/public/GridSimulation');
+    await page.waitForURL("**/public/GridSimulation");
   });
   /*test('To Market page', async ({ page }) => {
     //Wait for page to finish loading
@@ -65,179 +65,189 @@ test.describe("public simulation page",() => {
     await page.getByRole('link', { name: 'Market' }).click();
 
     // Expects to be redirected to market page.*/
-    //await page.waitForURL('**/Main/BiddingMarket');
+  //await page.waitForURL('**/Main/BiddingMarket');
   //});
 });
 
-test.describe("login page",() => {
-  test.beforeEach(async ({page})=>{
-    await page.goto('http://localhost:5173/login');
+test.describe("login page", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto("http://localhost:5173/login");
   });
-  test('To signup page', async ({ page }) => {
+  test("To signup page", async ({ page }) => {
     //Wait for page to finish loading
     //await page.waitForLoadState('networkidle');
 
     // Click the signup button.
-    await page.getByRole('link', { name: 'Create an account' }).click();
-    
+    await page.getByRole("link", { name: "Create an account" }).click();
+
     // Expects to be redirected to signup page.
-    await page.waitForURL('**/signup');
+    await page.waitForURL("**/signup");
   });
 });
 
-test.describe("signup page",() => {
-  test.beforeEach(async ({page})=>{
-    await page.goto('http://localhost:5173/signup');
+test.describe("signup page", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto("http://localhost:5173/signup");
   });
-  test('Back to login page', async ({ page }) => {
+  test("Back to login page", async ({ page }) => {
     //Wait for page to finish loading
     //await page.waitForLoadState('networkidle');
 
     // Click the "I already have an account" button.
-    await page.getByRole('link', { name: 'I already have an account' }).click();
+    await page.getByRole("link", { name: "I already have an account" }).click();
 
     // Expects to be redirected back to login page.
-    await page.waitForURL('**/login');
+    await page.waitForURL("**/login");
   });
 });
-test.describe("signup page error testing",() => {
-  test.beforeEach(async ({page})=>{
-    await page.goto('http://localhost:5173/signup');
+test.describe("signup page error testing", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto("http://localhost:5173/signup");
   });
-  test('Empty email', async ({page}) => {
+  test("Empty email", async ({ page }) => {
     //Wait for page to finish loading
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState("networkidle");
 
     // Click the "Create account" button.
-    await page.getByRole('button', { name: 'Create account' }).click();
+    await page.getByRole("button", { name: "Create account" }).click();
 
     //Expects an error message to appear.
     await expect(page.getByText("Invalid email or password")).toBeVisible();
   });
-  test('Email no @', async ({page}) => {
+  test("Email no @", async ({ page }) => {
     //Wait for page to finish loading
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState("networkidle");
 
-    //type in an email without an @ 
-    await page.getByPlaceholder('Email').fill(''+process.env.EMAILNOAT);
+    //type in an email without an @
+    await page.getByPlaceholder("Email").fill("" + process.env.EMAILNOAT);
 
     //Click on name field so to get page to check email Input
-    await page.getByPlaceholder('First name').click();
+    await page.getByPlaceholder("First name").click();
 
     //Expects an error message to appear saying the email address is not valid.
-    await expect(page.getByText("Please enter a valid email address.")).toBeVisible();
+    await expect(
+      page.getByText("Please enter a valid email address.")
+    ).toBeVisible();
 
     // Click the "Create account" button.
-    await page.getByRole('button', { name: 'Create account' }).click();
+    await page.getByRole("button", { name: "Create account" }).click();
 
     //Expects an error message to appear.
     await expect(page.getByText("Invalid email or password")).toBeVisible();
   });
-  test('Email no suffix', async ({page}) => {
+  test("Email no suffix", async ({ page }) => {
     //Wait for page to finish loading
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState("networkidle");
 
-    //type in an email without a suffix after @ 
-    await page.getByPlaceholder('Email').fill(''+process.env.EMAILNOSUF);
+    //type in an email without a suffix after @
+    await page.getByPlaceholder("Email").fill("" + process.env.EMAILNOSUF);
 
     //Click on name field so to get page to check email Input
-    await page.getByPlaceholder('First name').click();
+    await page.getByPlaceholder("First name").click();
 
     //Expects an error message to appear saying the email address is not valid.
-    await expect(page.getByText("Please enter a valid email address.")).toBeVisible();
+    await expect(
+      page.getByText("Please enter a valid email address.")
+    ).toBeVisible();
 
     // Click the "Create account" button.
-    await page.getByRole('button', { name: 'Create account' }).click();
+    await page.getByRole("button", { name: "Create account" }).click();
 
     //Expects an error message to appear.
     await expect(page.getByText("Invalid email or password")).toBeVisible();
   });
-  test('Email no dot', async ({page}) => {
+  test("Email no dot", async ({ page }) => {
     //Wait for page to finish loading
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState("networkidle");
 
     //type in an email with a suffix but no dot
-    await page.getByPlaceholder('Email').fill(''+process.env.EMAILNODOT);
+    await page.getByPlaceholder("Email").fill("" + process.env.EMAILNODOT);
 
     //Click on name field so to get page to check email Input
-    await page.getByPlaceholder('First name').click();
+    await page.getByPlaceholder("First name").click();
 
     //Expects an error message to appear saying the email address is not valid.
-    await expect(page.getByText("Please enter a valid email address.")).toBeVisible();
+    await expect(
+      page.getByText("Please enter a valid email address.")
+    ).toBeVisible();
 
     // Click the "Create account" button.
-    await page.getByRole('button', { name: 'Create account' }).click();
+    await page.getByRole("button", { name: "Create account" }).click();
 
     //Expects an error message to appear.
     await expect(page.getByText("Invalid email or password")).toBeVisible();
   });
-  test('Email dot before @', async ({page}) => {
+  test("Email dot before @", async ({ page }) => {
     //Wait for page to finish loading
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState("networkidle");
 
     //type in an email that has a dot before @
-    await page.getByPlaceholder('Email').fill(''+process.env.EMAILDOT);
+    await page.getByPlaceholder("Email").fill("" + process.env.EMAILDOT);
 
     //Click on name field so to get page to check email Input
-    await page.getByPlaceholder('First name').click();
+    await page.getByPlaceholder("First name").click();
 
     //Expects an error message to appear saying the email address is not valid.
-    await expect(page.getByText("Please enter a valid email address.")).toBeVisible();
+    await expect(
+      page.getByText("Please enter a valid email address.")
+    ).toBeVisible();
 
     // Click the "Create account" button.
-    await page.getByRole('button', { name: 'Create account' }).click();
+    await page.getByRole("button", { name: "Create account" }).click();
 
     //Expects an error message to appear.
     await expect(page.getByText("Invalid email or password")).toBeVisible();
   });
-  test('Email with no TLD', async ({page}) => {
+  test("Email with no TLD", async ({ page }) => {
     //Wait for page to finish loading
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState("networkidle");
 
     //type in an email that has no TLD
-    await page.getByPlaceholder('Email').fill(''+process.env.EMAILNOTLD);
+    await page.getByPlaceholder("Email").fill("" + process.env.EMAILNOTLD);
 
     //Click on name field so to get page to check email Input
-    await page.getByPlaceholder('First name').click();
+    await page.getByPlaceholder("First name").click();
 
     //Expects an error message to appear saying the email address is not valid.
-    await expect(page.getByText("Please enter a valid email address.")).toBeVisible();
+    await expect(
+      page.getByText("Please enter a valid email address.")
+    ).toBeVisible();
 
     // Click the "Create account" button.
-    await page.getByRole('button', { name: 'Create account' }).click();
+    await page.getByRole("button", { name: "Create account" }).click();
 
     //Expects an error message to appear.
     await expect(page.getByText("Invalid email or password")).toBeVisible();
   });
-  test('Empty password', async ({page}) => {
+  test("Empty password", async ({ page }) => {
     //Wait for page to finish loading
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState("networkidle");
 
     //type in a valid email
-    await page.getByPlaceholder('Email').fill(''+process.env.EMAIL);
+    await page.getByPlaceholder("Email").fill("" + process.env.EMAIL);
 
     //Click on name field so to get page to check email Input
-    await page.getByPlaceholder('First name').click();
+    await page.getByPlaceholder("First name").click();
 
     // Click the "Create account" button.
-    await page.getByRole('button', { name: 'Create account' }).click();
+    await page.getByRole("button", { name: "Create account" }).click();
 
     //Expects an error message to appear.
     await expect(page.getByText("Invalid email or password")).toBeVisible();
   });
-  test('InvalidPasswords', async ({page}) => {
+  test("InvalidPasswords", async ({ page }) => {
     //Wait for page to finish loading
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState("networkidle");
 
     //type in a valid email
-    await page.getByPlaceholder('Email').fill(''+process.env.EMAIL);
-    //Type in 
-    await page.getByPlaceholder('Password').fill(''+process.env.NONUM);
+    await page.getByPlaceholder("Email").fill("" + process.env.EMAIL);
+    //Type in
+    await page.getByPlaceholder("Password").fill("" + process.env.NONUM);
 
     //Expects an error message to appear.
     await expect(page.getByText("Invalid email or password")).toBeVisible();
     // Click the "Create account" button.
-    await page.getByRole('button', { name: 'Create account' }).click();
+    await page.getByRole("button", { name: "Create account" }).click();
 
     //Expects an error message to appear.
     await expect(page.getByText("Invalid email or password")).toBeVisible();

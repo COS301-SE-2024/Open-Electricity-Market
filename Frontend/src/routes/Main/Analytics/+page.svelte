@@ -50,6 +50,12 @@
     await getSellHistory();
     await getConsumedProduced();
     await getCurve(); 
+
+    console.log("Appliances are: ", appliances); 
+    console.log("Selected Appliances are: ", selectedAppliances);
+    console.log("Units produced are: ", unitsproduced);
+    console.log("Units consumed are: ", unitsconsumed);   
+    
   });
 
   function toggleDropdown() {
@@ -230,6 +236,7 @@
     console.log("curve was running");
     console.log(sessionStorage.getItem("email")); 
     try {
+      
       const response = await fetch(`${API_URL_AGENT}/get_curve`, {
         method: "POST",
         headers: {
@@ -243,12 +250,14 @@
         }),
         credentials: "include",
       });
-
+      
+      
       const fdata = await response.json();
       console.log(fdata);
 
       if (fdata.message == "Here is the detail") {
         let temp = fdata.consumption;
+        console.log("gets to the first foreach"); 
         temp.forEach((item, index) => {
           if(selectedAppliances.includes(item.appliance)){
             if (!consumptioncurvedata[index]) {
@@ -281,6 +290,7 @@
         
 
         console.log("This is consumption curve data:", consumptioncurvedata);
+        console.log("This is the production curve data: ", productioncurvedata); 
       }
     } catch (error) {
       console.log("An error occurred while fetching getCurve data..\n", error);

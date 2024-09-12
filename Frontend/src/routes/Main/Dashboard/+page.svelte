@@ -2,10 +2,13 @@
   import { onMount } from "svelte";
   import { goto } from "$app/navigation";
   import Map from "$lib/Components/MapDashboard.svelte";
-  import { API_URL_MARKET, API_URL_AGENT } from "$lib/config.js";
+  import { API_URL_GRID, API_URL_MARKET, API_URL_AGENT } from "$lib/config.js";
+  import Scroller from "@sveltejs/svelte-scroller";
 
   let data = {};
   let nodeName = "";
+  let nodeLongitude = "";
+  let nodeLatitude = "";
 
   $: nodeNameDetail = "";
   $: nodeLongitudeDetail = "";
@@ -92,6 +95,7 @@
   let uniqueGens = [...new Set(generators.map((generator) => generator.type))];
 
   onMount(async () => {
+    await fetchStart();
     await fetchNodes();
     await getUserDetails();
     await listOpenBuys();
@@ -105,6 +109,20 @@
     //   clearInterval(sellOrderInterval);
     // }
   });
+
+  async function fetchStart() {
+    try {
+      const response = await fetch(`${API_URL_GRID}/start`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      });
+    } catch (error) {
+      console.log("An error occurred sending a post to /start endpoint.");
+    }
+  }
 
   async function fetchNodes() {
     try {
@@ -149,7 +167,7 @@
 
     if (fdata.error) {
       // console.log(fdata.error.code);
-      if (fdata.error.code == "403") {
+      if ((fdata.error.code = "403")) {
         goto("/login");
       }
     } else {
@@ -166,6 +184,7 @@
   }
 
   function createModal() {
+    nodeName = nodeLatitude = nodeLongitude = "";
     document.getElementById("mapModal").showModal();
   }
 
@@ -237,11 +256,11 @@
 
   async function addFunds() {
     if (!amount) {
-      // console.log("No amount was given.");
+      console.log("No amount was given.");
       return;
     }
 
-    // console.log("Add funds function was called " + amount);
+    console.log("Add funds function was called " + amount);
     try {
       const response = await fetch(`${API_URL_MARKET}/add_funds`, {
         method: "POST",
@@ -257,7 +276,7 @@
       });
       const fdata = await response.json();
       data = fdata;
-      // console.log("Data received from add funds endpoint is this: ", data);
+      console.log("Data received from add funds endpoint is this: ", data);
     } catch (error) {
       console.log(
         "There was an error fetching the JSON for the add funds endpoint:",
@@ -277,7 +296,7 @@
 
   async function withdrawFunds() {
     if (!withdrawamount) {
-      // console.log("No amount was given.");
+      console.log("No amount was given.");
       return;
     }
 
@@ -296,7 +315,7 @@
       });
       const fdata = await response.json();
       data = fdata;
-      // console.log("Data received from withdraw funds endpoint is this: ", data);
+      console.log("Data received from withdraw funds endpoint is this: ", data);
     } catch (error) {
       console.log(
         "There was an error fetching the JSON for the withdrawfunds:",
@@ -327,7 +346,7 @@
       });
       const fdata = await response.json();
       data = fdata;
-      // console.log("Data received from user details is: ", data);
+      console.log("Data received from user details is: ", data);
     } catch (error) {
       console.log("There was an error fetching user details:", error);
     }
@@ -362,7 +381,7 @@
       });
       const fdata = await response.json();
       data = fdata;
-      // console.log("Data received from user details is: ", data);
+      console.log("Data received from user details is: ", data);
     } catch (error) {
       console.log("There was an error fetching user details:", error);
     }
@@ -389,7 +408,7 @@
       });
       const fdata = await response.json();
       data = fdata;
-      // console.log("Data received from user details is: ", data);
+      console.log("Data received from user details is: ", data);
     } catch (error) {
       console.log("There was an error fetching user details:", error);
     }
@@ -406,7 +425,7 @@
   function handleMapClick(lat, lng) {
     latitude = lat;
     longtitude = lng;
-    // console.log("Marker position updated: " + lat + " " + lng);
+    console.log("Marker position updated: " + lat + " " + lng);
   }
 
   function formatCurrency(value) {
@@ -448,13 +467,12 @@
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
-            Authorization: `Bearer ${sessionStorage.getItem("Token")}`,
           },
           credentials: "include",
         });
         const fdata = await response.json();
         data = fdata;
-        // console.log("Data received from user details is: ", data);
+        console.log("Data received from user details is: ", data);
       } catch (error) {
         console.log(
           "There was an error with the add appliance endpoint: ",
@@ -479,14 +497,14 @@
     };
 
     if (generator && category) {
-      // console.log(generator + " " + category);
+      console.log(generator + " " + category);
       let generatorDetails = {
         generator_type: { [generator]: category },
         on_periods: [onPeriods],
       };
       details2.generators.push(generatorDetails);
       //details2.generators.generator_type.push(onPeriods);
-      // console.log(details2);
+      console.log(details2);
       try {
         const response = await fetch(`${API_URL_AGENT}/add_generators`, {
           method: "POST",
@@ -494,13 +512,12 @@
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
-            Authorization: `Bearer ${sessionStorage.getItem("Token")}`,
           },
           credentials: "include",
         });
         const fdata = await response.json();
         data = fdata;
-        // console.log("Data received from add gen endpoint: ", data);
+        console.log("Data received from add gen endpoint: ", data);
       } catch (error) {
         console.log(
           "There was an error with the add generator endpoint: ",
@@ -511,63 +528,15 @@
   }
 </script>
 
-<main class="container sm:mx-auto w-full h-full sm:flex justify-center">
-  <div class="sm:w-1/3">
+<main class="container sm:mx-auto w-full h-screen sm:flex justify-center">
+  <!--first-->
+  <div class="sm:w-1/3 h-screen flex flex-col">
+    <!--Personal Info-->
     <span class="text-3xl text-white font-thin justify-start pl-2">
       Personal Information
     </span>
-    <!-- change funds modals -->
 
-    <dialog id="add_modal" class="modal">
-      <div class="modal-box">
-        <h3 class="text-lg font-bold">Add funds</h3>
-        <p class="py-4">Please enter an amount you would like to add.</p>
-        <div class="form-control mt-4">
-          <input
-            class="input input-bordered"
-            type="number"
-            placeholder="Amount"
-            required
-            bind:value={amount}
-          />
-        </div>
-
-        <div class="modal-action">
-          <form method="dialog">
-            <button class="btn bg-green-600" on:click={addFunds}
-              >Continue</button
-            >
-            <button class="btn bg-red-600">Cancel</button>
-          </form>
-        </div>
-      </div>
-    </dialog>
-
-    <dialog id="remove_modal" class="modal">
-      <div class="modal-box">
-        <h3 class="text-lg font-bold">Withdraw funds</h3>
-        <p>Please ente ran amount you would like to withdraw.</p>
-        <div class="form-control mt-4">
-          <input
-            class="input input-bordered"
-            type="number"
-            placeholder="Amount"
-            required
-            bind:value={withdrawamount}
-          />
-        </div>
-        <div class="modal-action">
-          <form method="dialog">
-            <button class="btn bg-green-600" on:click={withdrawFunds}
-              >Continue</button
-            >
-            <button class="btn bg-red-500">Cancel</button>
-          </form>
-        </div>
-      </div>
-    </dialog>
-
-    <div class="stats stats-vertical w-full">
+    <div class="h-1/2 stats stats-vertical w-full">
       <div class="stat">
         <div class="stat-title">Available Credit</div>
         {#if totalamount == null}
@@ -615,13 +584,175 @@
         {/if}
       </div>
     </div>
+
+    <!--Buy orders-->
+    <span class="text-3xl text-white font-light justify-start pl-2 mt-2">
+      Buy Orders
+    </span>
+    <div
+      class="rounded-2xl h-1/3 backdrop-blur-sm bg-white/30 p-2 overflow-y-auto"
+    >
+      {#each buyorders as buyorder}
+        <div class="rounded-2xl min-w-1/3 bg-base-100 mb-2">
+          <div class="p-5">
+            <h2 class="card-title">Buy order</h2>
+            <p>
+              Filled units: {buyorder.filled_units.toFixed(1) + "Wh"}<br />
+              Max price: {formatCurrency(buyorder.max_price)}<br />
+              Min price: {formatCurrency(buyorder.min_price)}<br />
+              Units bought: {Intl.NumberFormat().format(buyorder.sought_units) +
+                "Wh"}<br />
+            </p>
+            <div class="card-actions">
+              <progress
+                class="progress progress-primary"
+                value={buyorder.filled_units}
+                max={buyorder.sought_units}
+              ></progress>
+            </div>
+          </div>
+        </div>
+      {/each}
+    </div>
+    <!-- change funds modals -->
+    <dialog id="add_modal" class="modal">
+      <div class="modal-box">
+        <h3 class="text-lg font-bold">Add funds</h3>
+        <p class="py-4">Please enter an amount you would like to add.</p>
+        <div class="form-control mt-4">
+          <input
+            class="input input-bordered"
+            type="number"
+            placeholder="Amount"
+            required
+            bind:value={amount}
+          />
+        </div>
+
+        <div class="modal-action">
+          <form method="dialog">
+            <button class="btn bg-green-600" on:click={addFunds}
+              >Continue</button
+            >
+            <button class="btn bg-red-600">Cancel</button>
+          </form>
+        </div>
+      </div>
+    </dialog>
+
+    <dialog id="remove_modal" class="modal">
+      <div class="modal-box">
+        <h3 class="text-lg font-bold">Withdraw funds</h3>
+        <p>Please enter an amount you would like to withdraw.</p>
+        <div class="form-control mt-4">
+          <input
+            class="input input-bordered"
+            type="number"
+            placeholder="Amount"
+            required
+            bind:value={withdrawamount}
+          />
+        </div>
+        <div class="modal-action">
+          <form method="dialog">
+            <button class="btn bg-green-600" on:click={withdrawFunds}
+              >Continue</button
+            >
+            <button class="btn bg-red-500">Cancel</button>
+          </form>
+        </div>
+      </div>
+    </dialog>
   </div>
 
-  <div class="sm:w-1/3 min-h-fit mx-4 flex-row">
-    <div class="flex-col">
-      <span class="text-3xl text-white font-thin justify-start pl-2">
-        Your Nodes
-      </span>
+  <!--second-->
+  <div class="sm:w-1/3 h-screen mx-4 flex flex-col">
+    <!--Nodes-->
+    <span class="basis text-3xl text-white font-thin justify-start pl-2">
+      Your Nodes
+    </span>
+    <div class="h-1/2 flex flex-col">
+      <div class="rounded-2xl p-2 backdrop-blur-sm bg-white/30 overflow-y-auto">
+        {#each nodes as node}
+          {#if node.name == nodeNameDetail}
+            <div
+              class="card card-side border-4 border-primary min-w-1/3 bg-base-100 mb-2"
+            >
+              <figure class="w-1/4 p-3 pr-0">
+                <img src="../src/images/house.png" alt="House node" />
+              </figure>
+              <div class="card-body pb-4 px-4">
+                <h2 class="card-title font-light text-2xl">{node.name}</h2>
+                <div class="card-actions justify-end">
+                  <button
+                    class="btn btn-primary"
+                    on:click={() => {
+                      fetchNodeDetails(node.node_id);
+                    }}>Details</button
+                  >
+                </div>
+              </div>
+            </div>
+          {:else}
+            <div
+              class="card card-side border-4 border-base-100 min-w-1/3 bg-base-100 mb-2"
+            >
+              <figure class="w-1/4 p-3 pr-0">
+                <img src="../src/images/house.png" alt="House node" />
+              </figure>
+              <div class="card-body pb-4 px-4">
+                <h2 class="card-title font-light text-2xl">{node.name}</h2>
+                <div class="card-actions justify-end">
+                  <button
+                    class="btn btn-primary"
+                    on:click={() => {
+                      fetchNodeDetails(node.node_id);
+                    }}>Details</button
+                  >
+                </div>
+              </div>
+            </div>
+          {/if}
+        {/each}
+      </div>
+
+      <!--Add New node-->
+      <div class="rounded-2xl min-w-1/3 bg-base-100 mt-2 p-3">
+        <div class="w-full">
+          <button class="btn btn-outline w-full" on:click={createModal}
+            >Add a New Node</button
+          >
+        </div>
+      </div>
+    </div>
+
+    <!--Sell orders-->
+    <span class="text-3xl text-white font-light justify-start pl-2 mt-2">
+      Sell Orders
+    </span>
+    <div
+      class="rounded-2xl h-1/3 backdrop-blur-sm bg-white/30 p-2 overflow-y-auto"
+    >
+      {#each sellorders as sellorder}
+        <div class="rounded-2xl min-w-1/3 bg-base-100 mb-2">
+          <div class="p-5">
+            <h2 class="card-title">Sell order</h2>
+            <p>
+              Claimed Units: {sellorder.claimed_units.toFixed(1) + "Wh"}<br />
+              Offered Units: {sellorder.offered_units.toFixed(1) + "Wh"}<br />
+              Max price: {formatCurrency(sellorder.max_price)}<br />
+              Min price: {formatCurrency(sellorder.min_price)}<br />
+            </p>
+            <div class="card-actions">
+              <progress
+                class="progress progress-accent"
+                value={sellorder.claimed_units}
+                max={sellorder.offered_units}
+              ></progress>
+            </div>
+          </div>
+        </div>
+      {/each}
     </div>
 
     <!-- new node modals -->
@@ -659,208 +790,117 @@
         <button>close</button>
       </form>
     </dialog>
-
-    {#each nodes as node}
-      {#if node.name == nodeNameDetail}
-        <div
-          class="card card-side border-4 border-primary min-w-1/3 bg-base-100 mb-2"
-        >
-          <figure class="w-1/5 p-10">
-            <img src="../src/images/house.png" alt="House node" />
-          </figure>
-          <div class="card-body">
-            <h2 class="card-title font-light text-3xl">{node.name}</h2>
-            <div class="card-actions justify-end">
-              <button
-                class="btn btn-primary"
-                on:click={() => {
-                  fetchNodeDetails(node.node_id);
-                }}>Details</button
-              >
-            </div>
-          </div>
-        </div>
-      {:else}
-        <div
-          class="card card-side border-4 border-base-100 min-w-1/3 bg-base-100 mb-2"
-        >
-          <figure class="w-1/5 p-10">
-            <img src="../src/images/house.png" alt="House node" />
-          </figure>
-          <div class="card-body">
-            <h2 class="card-title font-light text-3xl">{node.name}</h2>
-            <div class="card-actions justify-end">
-              <button
-                class="btn btn-primary"
-                on:click={async () => {
-                  await fetchNodeDetails(node.node_id);
-                  sessionStorage.setItem("node_id", selectedNodeID);
-                  sessionStorage.setItem("node_name", nodeNameDetail);
-                }}>Details</button
-              >
-            </div>
-          </div>
-        </div>
-      {/if}
-    {/each}
-
-    <div class="card card-side min-w-1/3 bg-base-100">
-      <div class="card-body">
-        <button class="btn btn-outline" on:click={createModal}
-          >Add a New Node</button
-        >
-      </div>
-    </div>
   </div>
 
+  <!--third-->
   <div class="sm:w-1/3">
     {#if nodeNameDetail != ""}
       <span class="text-3xl text-white font-thin justify-start pl-2">
         Node Details
       </span>
-      <div class="stats stats-vertical w-full">
-        <div class="stat">
-          <div class="stat-title">Node</div>
-          <div class="stat-value font-light">{nodeNameDetail}</div>
-        </div>
-        <!-- flex min-w-max py-0 justify-center -->
-        <div class="stat flex w-full py-0 justify-center">
-          <button
-            class="btn btn-primary w-6/12"
-            on:click={() => {
-              // moved this to the 'Details' button
-              // sessionStorage.setItem("node_id", selectedNodeID);
-              // sessionStorage.setItem("node_name", nodeNameDetail);
-              //reroute to market
-              goto("../Main/BiddingMarket");
-            }}>Transact with this node</button
-          >
-          <button
-            class="btn btn-error w-6/12"
-            on:click={() => {
-              document.getElementById("removeNodeConfirmation").showModal();
-            }}>Remove node</button
-          >
-        </div>
+      <div class="h-5/6">
+        <div class="stats stats-vertical w-full">
+          <div class="stat">
+            <div class="stat-title">Node</div>
+            <div class="stat-value font-light">{nodeNameDetail}</div>
+          </div>
+          <!-- flex min-w-max py-0 justify-center -->
+          <div class="stat flex w-full py-0 justify-center">
+            <button
+              class="btn btn-primary w-6/12"
+              on:click={() => {
+                sessionStorage.setItem("node_id", selectedNodeID);
+                sessionStorage.setItem("node_name", nodeNameDetail);
+                //reroute to market
+                goto("../Main/BiddingMarket");
+              }}>Transact with this node</button
+            >
+            <button
+              class="btn btn-error w-6/12"
+              on:click={() => {
+                document.getElementById("removeNodeConfirmation").showModal();
+              }}>Remove node</button
+            >
+          </div>
 
-        <div class="stat">
-          <div class="stat-title">Node Location</div>
-          <div class="stat-value font-light">
-            {nodeLongitudeDetail < 0
-              ? nodeLongitudeDetail.toFixed(3) * -1 + "S "
-              : nodeLongitudeDetail.toFixed(3) + "N "}
-            {nodeLatitudeDetail < 0
-              ? nodeLatitudeDetail.toFixed(3) * -1 + "W"
-              : nodeLatitudeDetail.toFixed(3) + "E"}
+          <div class="stat">
+            <div class="stat-title">Node Location</div>
+            <div class="stat-value font-light">
+              {nodeLongitudeDetail < 0
+                ? nodeLongitudeDetail.toFixed(3) * -1 + "S "
+                : nodeLongitudeDetail.toFixed(3) + "N "}
+              {nodeLatitudeDetail < 0
+                ? nodeLatitudeDetail.toFixed(3) * -1 + "W"
+                : nodeLatitudeDetail.toFixed(3) + "E"}
+            </div>
+          </div>
+
+          <div class="stat">
+            <div class="stat-title">Available Consumption</div>
+            <div class="stat-value font-light">
+              {Intl.NumberFormat().format(nodeToConsume)} Wh
+            </div>
+          </div>
+
+          <div class="stat">
+            <div class="stat-title">Pending Generation</div>
+            <div class="stat-value font-light">
+              {Intl.NumberFormat().format(nodeToProduce)} Wh
+            </div>
           </div>
         </div>
 
-        <div class="stat">
-          <div class="stat-title">Available Consumption</div>
-          <div class="stat-value font-light">
-            {Intl.NumberFormat().format(nodeToConsume)} Wh
-          </div>
-        </div>
-
-        <div class="stat">
-          <div class="stat-title">Pending Generation</div>
-          <div class="stat-value font-light">
-            {Intl.NumberFormat().format(nodeToProduce)} Wh
-          </div>
-        </div>
-      </div>
-
-      <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 my-2">
-        <span class="text-3xl font-thin justify-start"> Add an Appliance </span>
-
-        <div class="form-control">
-          <select
-            bind:value={appliance}
-            class="select select-bordered max-h-40 overflow-y-auto my-2"
-          >
-            <option value="" disabled selected>Select an appliance</option>
-            {#each appliances as appliance}
-              <option value={appliance}>{appliance}</option>
-            {/each}
-          </select>
-          <button on:click={addAppliance} class="btn btn-primary my-2"
-            >Add Appliance</button
-          >
-        </div>
-        <!-- selecting category  -->
-        <div class="form-control">
-          <span class="label">
-            <span class="label-text">Select a generator</span>
+        <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 my-2">
+          <span class="text-3xl font-thin justify-start">
+            Add an Appliance
           </span>
-          <select
-            bind:value={generator}
-            class="select select-bordered max-h-40 overflow-y-auto"
-          >
-            <option value="" disabled selected>Select a generator</option>
-            {#each uniqueGens as type}
-              <option value={type}>{type}</option>
-            {/each}
-          </select>
 
-          <select
-            bind:value={category}
-            class="select select-bordered max-h-40 overflow-y-auto mt-4"
-            disabled={!generator}
-          >
-            <option value="" disabled selected>Select a category</option>
-            {#each generators.filter((g) => g.type === generator) as { category }}
-              <option value={category}>{category}</option>
-            {/each}
-          </select>
-          <button on:click={addGenerator} class="btn btn-primary mt-4"
-            >Add Generator</button
-          >
+          <div class="form-control">
+            <select
+              bind:value={appliance}
+              class="select select-bordered max-h-40 overflow-y-auto my-2"
+            >
+              <option value="" disabled selected>Select an appliance</option>
+              {#each appliances as appliance}
+                <option value={appliance}>{appliance}</option>
+              {/each}
+            </select>
+            <button on:click={addAppliance} class="btn btn-primary my-2"
+              >Add Appliance</button
+            >
+          </div>
+          <!-- selecting category  -->
+          <div class="form-control">
+            <span class="label">
+              <span class="label-text">Select a generator</span>
+            </span>
+            <select
+              bind:value={generator}
+              class="select select-bordered max-h-40 overflow-y-auto"
+            >
+              <option value="" disabled selected>Select a generator</option>
+              {#each uniqueGens as type}
+                <option value={type}>{type}</option>
+              {/each}
+            </select>
+
+            <select
+              bind:value={category}
+              class="select select-bordered max-h-40 overflow-y-auto mt-4"
+              disabled={!generator}
+            >
+              <option value="" disabled selected>Select a category</option>
+              {#each generators.filter((g) => g.type === generator) as { category }}
+                <option value={category}>{category}</option>
+              {/each}
+            </select>
+            <button on:click={addGenerator} class="btn btn-primary mt-4"
+              >Add Generator</button
+            >
+          </div>
         </div>
       </div>
     {/if}
-    <div class="my-10"></div>
-    {#each buyorders as buyorder}
-      <div class="card min-w-1/3 bg-base-100 my-2">
-        <div class="card-body">
-          <h2 class="card-title">Buy order</h2>
-          <p>
-            Filled units: {buyorder.filled_units.toFixed(1) + "Wh"}<br />
-            Max price: {formatCurrency(buyorder.max_price)}<br />
-            Min price: {formatCurrency(buyorder.min_price)}<br />
-            Units bought: {Intl.NumberFormat().format(buyorder.sought_units) +
-              "Wh"}<br />
-          </p>
-          <div class="card-actions">
-            <progress
-              class="progress progress-primary"
-              value={buyorder.filled_units}
-              max={buyorder.sought_units}
-            ></progress>
-          </div>
-        </div>
-      </div>
-    {/each}
-
-    {#each sellorders as sellorder}
-      <div class="card card-side min-w-1/3 bg-base-100 my-2">
-        <div class="card-body">
-          <h2 class="card-title">Sell order</h2>
-          <p>
-            Claimed Units: {sellorder.claimed_units.toFixed(1) + "Wh"}<br />
-            Offered Units: {sellorder.offered_units.toFixed(1) + "Wh"}<br />
-            Max price: {formatCurrency(sellorder.max_price)}<br />
-            Min price: {formatCurrency(sellorder.min_price)}<br />
-          </p>
-          <div class="card-actions">
-            <progress
-              class="progress progress-accent"
-              value={sellorder.claimed_units}
-              max={sellorder.offered_units}
-            ></progress>
-          </div>
-        </div>
-      </div>
-    {/each}
   </div>
 
   <!-- confirm remove node modal -->

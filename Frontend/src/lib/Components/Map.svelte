@@ -6,6 +6,7 @@
   let mapContainer;
   let map;
   let markerIcon;
+  let transformerIcon;
 
   let markers = [];
   export let mapdata;
@@ -24,6 +25,15 @@
         .addTo(map);
 
       markerIcon = leaflet.icon({
+        iconUrl: iconmarkerpng,
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41],
+        shadowAnchor: [12, 41],
+      });
+
+      transformerIcon = leaflet.icon({
         iconUrl: iconmarkerpng,
         iconSize: [25, 41],
         iconAnchor: [12, 41],
@@ -87,35 +97,40 @@
         // marker.on('click', ()=> updateChart(consumer));
         marker.on("click", () => {
           consumer["generators"] = generators;
+          consumer["type"] = "consumer";
           dispatch("markerClick", consumer);
         });
         markers.push(marker);
       }
     });
 
-    // These markers are usually in the same positions as the load markers, and cover them completely
-    // Might need to add any generators that do not have corresponding loads
-    // mapdata.generators.forEach((generator) => {
-    //   const marker = L.marker([
-    //     generator.location.longitude,
-    //     generator.location.latitude,
-    //   ]).addTo(map);
-    //   marker.bindPopup(
-    //     "Generator " +
-    //       (generator.id +
-    //         1 +
-    //         "<br>" +
-    //         generator.location.longitude +
-    //         " " +
-    //         generator.location.latitude)
-    //   );
-    //   // marker.on("click", () => showMarkerPopup(marker, generator));
-    //   marker.on("click", () => {
-    //     generator["type"] = "generator";
-    //     dispatch("markerClick", generator);
-    //   });
-    //   markers.push(marker);
-    // });
+    mapdata.transformers.forEach((transformer) => {
+      // TODO: remember to uncomment this when you are done.
+      // if (transformer.id == 0) return;
+
+      const marker = L.marker(
+        [
+          transformer.location.longtitude ? transformer.location.longtitude : 0,
+          transformer.location.latitude ? transformer.location.latitude : 0,
+        ],
+        { icon: markerIcon }
+      ).addTo(map);
+
+      marker.bindPopup(
+        "Transformer " +
+          transformer.id +
+          "<br>" +
+          transformer.location.longitude +
+          " " +
+          transformer.location.latitude
+      );
+
+      marker.on("click", () => {
+        transformer["type"] = "transformer";
+        dispatch("markerClick", transformer);
+      });
+      markers.push(marker);
+    });
   }
 </script>
 

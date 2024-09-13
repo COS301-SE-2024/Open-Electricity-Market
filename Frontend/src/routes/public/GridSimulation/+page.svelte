@@ -69,16 +69,30 @@
     }
   }
 
-  let markerDetails = null;
+  $: consumerMarkerDetails = null;
+  $: transformerMarkerDetails = null;
   function handleMarkerClick(entity) {
-    // console.log(entity);
-    markerDetails = entity.detail;
-    voltageData = { ...markerDetails.voltage };
+    // reset everything to null beforehand:
+    consumerMarkerDetails = null;
+    transformerMarkerDetails = null;
 
-    power =
-      (Math.pow(markerDetails.voltage.oscilloscope_detail.amplitude) ,
-      2)/markerDetails.resistance;
-    console.log(markerDetails.voltage.oscilloscope_detail.amplitude+" "+markerDetails.resistance+" "+power);
+    if (entity.detail.type === "consumer") {
+      consumerMarkerDetails = entity.detail;
+      voltageData = { ...consumerMarkerDetails.voltage };
+
+      power =
+        (Math.pow(consumerMarkerDetails.voltage.oscilloscope_detail.amplitude),
+        2) / consumerMarkerDetails.resistance;
+      console.log(
+        consumerMarkerDetails.voltage.oscilloscope_detail.amplitude +
+          " " +
+          consumerMarkerDetails.resistance +
+          " " +
+          power
+      );
+    } else if (entity.detail.type === "transformer") {
+      transformerMarkerDetails = entity.detail;
+    }
   }
 </script>
 
@@ -95,7 +109,7 @@
         <GridStats />
       </div>
     </div>
-    {#if voltageData != null}
+    {#if consumerMarkerDetails != null}
       <div
         class="chartsection md:w-1/4 mx-2 p-5 xs:w-full bg-base-100 rounded-2xl flex flex-col max-w-full"
       >
@@ -103,25 +117,25 @@
         <hr />
         <span class="pt-5">
           <span class="font-light text-lg mt-10">Consumption: </span><br />
-          <span class="text-4xl"
-            >{Intl.NumberFormat().format(power)} W</span
-          > <br />
+          <!-- TODO: format according to the average consumption rate of a typical consumer -->
+          <span class="text-4xl">{Intl.NumberFormat().format(power)} W</span>
+          <br />
           <span class="font-light text-lg mt-10">Impedance: </span><br />
           <span class="text-4xl"
             >{Intl.NumberFormat().format(
-              (markerDetails.resistance / 1000).toFixed(3)
+              (consumerMarkerDetails.resistance / 1000).toFixed(3)
             )} kΩ</span
           >
         </span>
-        {#if markerDetails.generators != null}
+        {#if consumerMarkerDetails.generators != null}
           <span class="pt-5">
             <span class="font-light text-lg">Generators: </span> <br />
-            {#each markerDetails.generators as generator}
+            {#each consumerMarkerDetails.generators as generator}
               <span class="text-2xl">Generator ID: {generator.id}</span><br />
               <span class="text-2xl"
                 >Current Generation: {(
                   Math.pow(generator.max_voltage, 2) /
-                  markerDetails.resistance /
+                  consumerMarkerDetails.resistance /
                   1000
                 ).toFixed(3)} kW</span
               >

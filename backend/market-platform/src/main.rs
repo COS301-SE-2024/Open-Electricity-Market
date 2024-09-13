@@ -7,7 +7,6 @@ mod analytics;
 mod market_interaction;
 mod models;
 mod node_management;
-mod pg_functions;
 mod schema;
 mod user_management;
 

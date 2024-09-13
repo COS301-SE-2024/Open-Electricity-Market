@@ -963,7 +963,7 @@
       <button >close</button>
     </form>
   </dialog>
-</main>
+
 
 
 <!-- add generator modal  -->

@@ -505,7 +505,11 @@
         });
         const fdata = await response.json();
         data = fdata;
+        if(fdata.message == "Succesfully added generators"){
+          document.getElementById("addgeneratormodal").showModal();
+        }
         // console.log("Data received from add gen endpoint: ", data);
+        
       } catch (error) {
         console.log(
           "There was an error with the add generator endpoint: ",
@@ -956,7 +960,22 @@
       </p>
     </div>
     <form method="dialog" class="modal-backdrop">
-      <button on:click={nullifyValues}>close</button>
+      <button >close</button>
+    </form>
+  </dialog>
+</main>
+
+
+<!-- add generator modal  -->
+  <dialog id="addgeneratormodal" class="modal">
+    <div class="modal-box">
+      <h3 class="font-bold text-lg">Addition successful.</h3>
+      <p>
+        Addition of {generator} was successful. 
+      </p>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button >close</button>
     </form>
   </dialog>
 </main>

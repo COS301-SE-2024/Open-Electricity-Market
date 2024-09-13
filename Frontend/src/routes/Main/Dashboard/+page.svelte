@@ -528,7 +528,7 @@
   }
 </script>
 
-<main class="container sm:mx-auto w-full h-screen sm:flex justify-center">
+<main class="container sm:mx-auto w-full sm:h-screen sm:flex justify-center">
   <!--first-->
   <div class="sm:w-1/3 h-screen flex flex-col">
     <!--Personal Info-->

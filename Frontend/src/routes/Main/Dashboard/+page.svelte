@@ -672,7 +672,7 @@
       Your Nodes
     </span>
     <div class="h-1/2 flex flex-col">
-      <div class="rounded-2xl p-2 backdrop-blur-sm bg-white/30 overflow-y-auto">
+      <div class="rounded-2xl h-full p-2 backdrop-blur-sm bg-white/30 overflow-y-auto">
         {#each nodes as node}
           {#if node.name == nodeNameDetail}
             <div

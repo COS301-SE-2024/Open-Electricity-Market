@@ -591,28 +591,34 @@
     </span>
     <div
       class="rounded-2xl h-1/3 backdrop-blur-sm bg-white/30 p-2 overflow-y-auto"
-    >
-      {#each buyorders as buyorder}
-        <div class="rounded-2xl min-w-1/3 bg-base-100 mb-2">
-          <div class="p-5">
-            <h2 class="card-title">Buy order</h2>
-            <p>
-              Filled units: {buyorder.filled_units.toFixed(1) + "Wh"}<br />
-              Max price: {formatCurrency(buyorder.max_price)}<br />
-              Min price: {formatCurrency(buyorder.min_price)}<br />
-              Units bought: {Intl.NumberFormat().format(buyorder.sought_units) +
-                "Wh"}<br />
-            </p>
-            <div class="card-actions">
-              <progress
-                class="progress progress-primary"
-                value={buyorder.filled_units}
-                max={buyorder.sought_units}
-              ></progress>
+    > {#if buyorders.length == 0}
+        <div class = "rounded-xl h-full bg-base-100 flex justify-center">
+          <p class = "self-center text-2xl font-light">--No Buy Orders--</p>
+        </div>
+      {:else}
+        {#each buyorders as buyorder}
+          <div class="rounded-2xl min-w-1/3 bg-base-100 mb-2">
+            <div class="p-5">
+              <h2 class="card-title">Buy order</h2>
+              <p>
+                Filled units: {buyorder.filled_units.toFixed(1) + "Wh"}<br />
+                Max price: {formatCurrency(buyorder.max_price)}<br />
+                Min price: {formatCurrency(buyorder.min_price)}<br />
+                Units bought: {Intl.NumberFormat().format(buyorder.sought_units) +
+                  "Wh"}<br />
+              </p>
+              <div class="card-actions">
+                <progress
+                  class="progress progress-primary"
+                  value={buyorder.filled_units}
+                  max={buyorder.sought_units}
+                ></progress>
+              </div>
             </div>
           </div>
-        </div>
-      {/each}
+        {/each}
+      {/if}
+      
     </div>
     <!-- change funds modals -->
     <dialog id="add_modal" class="modal">

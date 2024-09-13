@@ -682,47 +682,53 @@
       <div
         class="rounded-2xl h-full p-2 backdrop-blur-sm bg-white/30 overflow-y-auto"
       >
-        {#each nodes as node}
-          {#if node.name == nodeNameDetail}
-            <div
-              class="card card-side border-4 border-primary min-w-1/3 bg-base-100 mb-2"
-            >
-              <figure class="w-1/4 p-3 pr-0">
-                <img src="../src/images/house.png" alt="House node" />
-              </figure>
-              <div class="card-body pb-4 px-4">
-                <h2 class="card-title font-light text-2xl">{node.name}</h2>
-                <div class="card-actions justify-end">
-                  <button
-                    class="btn btn-primary"
-                    on:click={() => {
-                      fetchNodeDetails(node.node_id);
-                    }}>Details</button
-                  >
+        {#if nodes.length == 0}
+          <div class="rounded-xl h-full bg-base-100 flex justify-center">
+            <p class="self-center text-2xl font-light">--No Nodes--</p>
+          </div>
+        {:else}
+          {#each nodes as node}
+            {#if node.name == nodeNameDetail}
+              <div
+                class="card card-side border-4 border-primary min-w-1/3 bg-base-100 mb-2"
+              >
+                <figure class="w-1/4 p-3 pr-0">
+                  <img src="../src/images/house.png" alt="House node" />
+                </figure>
+                <div class="card-body pb-4 px-4">
+                  <h2 class="card-title font-light text-2xl">{node.name}</h2>
+                  <div class="card-actions justify-end">
+                    <button
+                      class="btn btn-primary"
+                      on:click={() => {
+                        fetchNodeDetails(node.node_id);
+                      }}>Details</button
+                    >
+                  </div>
                 </div>
               </div>
-            </div>
-          {:else}
-            <div
-              class="card card-side border-4 border-base-100 min-w-1/3 bg-base-100 mb-2"
-            >
-              <figure class="w-1/4 p-3 pr-0">
-                <img src="../src/images/house.png" alt="House node" />
-              </figure>
-              <div class="card-body pb-4 px-4">
-                <h2 class="card-title font-light text-2xl">{node.name}</h2>
-                <div class="card-actions justify-end">
-                  <button
-                    class="btn btn-primary"
-                    on:click={() => {
-                      fetchNodeDetails(node.node_id);
-                    }}>Details</button
-                  >
+            {:else}
+              <div
+                class="card card-side border-4 border-base-100 min-w-1/3 bg-base-100 mb-2"
+              >
+                <figure class="w-1/4 p-3 pr-0">
+                  <img src="../src/images/house.png" alt="House node" />
+                </figure>
+                <div class="card-body pb-4 px-4">
+                  <h2 class="card-title font-light text-2xl">{node.name}</h2>
+                  <div class="card-actions justify-end">
+                    <button
+                      class="btn btn-primary"
+                      on:click={() => {
+                        fetchNodeDetails(node.node_id);
+                      }}>Details</button
+                    >
+                  </div>
                 </div>
               </div>
-            </div>
-          {/if}
-        {/each}
+            {/if}
+          {/each}
+        {/if}
       </div>
 
       <!--Add New node-->

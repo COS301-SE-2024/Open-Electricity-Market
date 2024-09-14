@@ -7,6 +7,7 @@ use std::{
     thread, time,
 };
 
+use crate::time::Instant;
 use agent::Agent;
 use claims::Claims;
 use curve::{CummutiveCurve, SineCurve};
@@ -42,7 +43,6 @@ use smart_meter::consumption_curve::HomeApplianceType;
 use smart_meter::{consumption_curve::HomeAppliance, SmartMeter};
 use std::ops::Deref;
 use uuid::Uuid;
-use crate::time::Instant;  
 
 use chrono::Duration;
 pub mod agent;

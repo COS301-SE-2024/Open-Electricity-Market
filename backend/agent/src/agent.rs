@@ -516,7 +516,7 @@ impl Agent {
         let mut rng = rand::thread_rng();
         let offset: f64 = rng.gen_range(-0.0010..0.0010);
 
-        let market_price = Agent::get_current_price(client) + offset; 
+        let market_price = Agent::get_current_price(client) + offset;
 
         let max_price = market_price + 0.0015;
 
@@ -635,11 +635,11 @@ impl Agent {
 
         // update credit based on income_curve
         if !self.linked_to_user {
-        Agent::update_credit(
-            self.market_token.clone(),
-            self.extarnal_wealth_curve.sample(accumlated_time),
-            &client,
-        );
+            Agent::update_credit(
+                self.market_token.clone(),
+                self.extarnal_wealth_curve.sample(accumlated_time),
+                &client,
+            );
         }
 
         // get credit

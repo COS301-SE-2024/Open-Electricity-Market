@@ -634,11 +634,13 @@ impl Agent {
         }
 
         // update credit based on income_curve
+        if !self.linked_to_user {
         Agent::update_credit(
             self.market_token.clone(),
             self.extarnal_wealth_curve.sample(accumlated_time),
             &client,
         );
+        }
 
         // get credit
         let credit = Agent::get_credit(self.market_token.clone(), &client);

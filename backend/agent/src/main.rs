@@ -7,6 +7,7 @@ use std::{
     thread, time,
 };
 
+use crate::time::Instant;
 use agent::Agent;
 use claims::Claims;
 use curve::{CummutiveCurve, SineCurve};
@@ -24,6 +25,7 @@ use generator::{
     Generator,
 };
 use node::Node;
+use period::Period;
 use rocket::serde::json::Json;
 use rocket::{
     fairing::{Fairing, Info, Kind},
@@ -57,7 +59,7 @@ pub mod smart_meter;
 
 const TOKEN_EXPIRATION: Duration = Duration::minutes(15);
 
-const AGENT_SPEED: u64 = 5 * 3;
+const AGENT_SPEED: u64 = 5;
 
 pub struct CORS;
 
@@ -570,16 +572,6 @@ fn add_agent(
     let id = agents.len() - 1;
     agents[id].market_token = data.token;
     agents[id].intialise();
-    tokio::spawn(async move {
-        let mut accumilated_time = 0.0;
-        loop {
-            {
-                let mut agent = lock.lock().unwrap();
-                accumilated_time = agent[id].async_run(accumilated_time);
-            }
-            thread::sleep(time::Duration::from_secs(AGENT_SPEED));
-        }
-    });
 
     let message = "Succesfully added agent".to_string();
     content::RawJson(json!({"status": "ok", "message": message, "data": {}}).to_string())
@@ -607,8 +599,25 @@ fn rocket() -> _ {
                     format!("{i}@example.com"),
                     password,
                     vec![Node::new(
-                        SmartMeter::new_acctive(Box::new(SineCurve::new())),
-                        Generator::new_acctive(Box::new(SineCurve::new())),
+                        SmartMeter::new_acctive(Box::new(CummutiveCurve {
+                            curves: vec![
+                                Box::new(HomeAppliance {
+                                    appliance_type: HomeApplianceType::MicroWaveOven,
+                                }),
+                                Box::new(HomeAppliance {
+                                    appliance_type: HomeApplianceType::Tv,
+                                }),
+                            ],
+                        })),
+                        Generator::new_acctive(Box::new(GeneratorCurve {
+                            generator_type: GeneratorCurveType::PetrolGenerator(
+                                PetrolGeneratorType::Home,
+                            ),
+                            on_periods: vec![Period {
+                                start: 0.0,
+                                end: 90000.0,
+                            }],
+                        })),
                     )],
                     0.0,
                     false,
@@ -624,18 +633,35 @@ fn rocket() -> _ {
     let agents = Arc::new(Mutex::new(Vec::<Agent>::new()));
     let agents_clone = agents.clone();
 
-    thread::spawn(move || loop {
-        {
-            use crate::agent_history::dsl::agent_history;
-            let agents = agents_clone.lock().unwrap();
-            let santas_address: serde_json::Value =
-                serde_json::from_str(&serde_json::to_string(agents.deref()).unwrap())
-                    .expect("REASON");
-            let _ = insert_into(agent_history)
-                .values(agent_state.eq(santas_address))
-                .execute(&mut establish_connection());
+    thread::spawn(move || {
+        let mut count = 0;
+        let mut accumilated_time = 0.0;
+        loop {
+            let now = Instant::now();
+            {
+                let mut agents = agents_clone.lock().unwrap();
+                for agent in agents.iter_mut() {
+                    accumilated_time = agent.async_run(accumilated_time);
+                }
+
+                if count > 5 {
+                    use crate::agent_history::dsl::agent_history;
+
+                    count = 0;
+                    let santas_address: serde_json::Value =
+                        serde_json::from_str(&serde_json::to_string(agents.deref()).unwrap())
+                            .expect("REASON");
+                    let _ = insert_into(agent_history)
+                        .values(agent_state.eq(santas_address))
+                        .execute(&mut establish_connection());
+                } else {
+                    count += 1;
+                }
+            }
+            thread::sleep(time::Duration::from_secs(AGENT_SPEED));
+            let elasped = now.elapsed().as_secs_f64();
+            accumilated_time += elasped;
         }
-        thread::sleep(time::Duration::from_secs(50))
     });
 
     rocket::build()

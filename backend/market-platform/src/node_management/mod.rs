@@ -143,7 +143,7 @@ pub fn node_details(node_details_request: Json<NodeDetailsReq>, claims: Claims) 
 
     let node_id_parse = Uuid::parse_str(&*node_details_request.node_id);
     if node_id_parse.is_err() {
-        return json!({"status": "error", "message": "Invalid Node ID".to_string()});
+        return json!({"status": "error", "message": "Invalid Node ID".to_string(), "data": data});
     }
     let request_node_id = node_id_parse.unwrap();
 

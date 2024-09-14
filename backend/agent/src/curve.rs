@@ -36,7 +36,7 @@ impl SineCurve {
 
 impl Curve for SineCurve {
     fn sample(&mut self, time: f64) -> f64 {
-        f64::abs(f64::sin(time)) * 300.0
+        f64::abs(f64::sin(time)) * 300.0 + 300.0
     }
 
     fn total_in_24_hour(&mut self) -> f64 {
@@ -46,7 +46,7 @@ impl Curve for SineCurve {
 
 #[derive(Serialize)]
 pub struct CummutiveCurve {
-    curves: Vec<Box<dyn Curve + Send + Sync>>,
+    pub curves: Vec<Box<dyn Curve + Send + Sync>>,
 }
 
 impl Default for CummutiveCurve {

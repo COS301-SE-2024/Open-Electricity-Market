@@ -514,11 +514,11 @@ impl Agent {
         client: &reqwest::blocking::Client,
     ) -> f64 {
         let mut rng = rand::thread_rng();
-        let offset: f64 = rng.gen_range(-0.0015..0.0015);
+        let offset: f64 = rng.gen_range(-0.0010..0.0010);
 
-        let market_price = Agent::get_current_price(client) + offset;
+        let market_price = Agent::get_current_price(client) + offset; 
 
-        let max_price = market_price + 10.0;
+        let max_price = market_price + 0.0015;
 
         let ratio = funds / (max_price * units);
         if ratio < 1.0 {
@@ -527,8 +527,8 @@ impl Agent {
 
         let detail = PlaceBuyOrderDetail {
             node_id,
-            min_price: market_price - 10.0,
-            max_price: market_price + 10.0,
+            min_price: market_price - 0.0015,
+            max_price: market_price + 0.0015,
             units,
         };
 
@@ -566,14 +566,14 @@ impl Agent {
         client: &reqwest::blocking::Client,
     ) {
         let mut rng = rand::thread_rng();
-        let offset: f64 = rng.gen_range(-0.0015..0.0015);
+        let offset: f64 = rng.gen_range(-0.0010..0.0010);
 
         let market_price = Agent::get_current_price(client) + offset;
 
         let detail = PlaceSellOrderDetail {
             node_id,
-            min_price: market_price - 10.0,
-            max_price: market_price + 10.0,
+            min_price: market_price - 0.0015,
+            max_price: market_price + 0.0015,
             units,
         };
         let url = env::var("MURL").unwrap();

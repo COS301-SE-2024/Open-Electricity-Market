@@ -42,6 +42,7 @@ use smart_meter::consumption_curve::HomeApplianceType;
 use smart_meter::{consumption_curve::HomeAppliance, SmartMeter};
 use std::ops::Deref;
 use uuid::Uuid;
+use crate::time::Instant;  
 
 use chrono::Duration;
 pub mod agent;
@@ -634,11 +635,13 @@ fn rocket() -> _ {
 
     thread::spawn(move || {
         let mut count = 0;
+        let mut accumilated_time = 0.0;
         loop {
+            let now = Instant::now();
             {
                 let mut agents = agents_clone.lock().unwrap();
                 for agent in agents.iter_mut() {
-                    agent.async_run(0.0);
+                    accumilated_time = agent.async_run(accumilated_time);
                 }
 
                 if count > 5 {
@@ -655,7 +658,9 @@ fn rocket() -> _ {
                     count += 1;
                 }
             }
-            thread::sleep(time::Duration::from_secs(AGENT_SPEED))
+            thread::sleep(time::Duration::from_secs(AGENT_SPEED));
+            let elasped = now.elapsed().as_secs_f64();
+            accumilated_time += elasped;
         }
     });
 

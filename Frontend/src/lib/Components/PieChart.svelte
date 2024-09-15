@@ -57,5 +57,5 @@
 </script>
 
 <div style="display: flex; max-height: 100%">
-  <canvas bind:this={chartCanvas} height="340px"></canvas>
+  <canvas bind:this={chartCanvas} height="270px"></canvas>
 </div>

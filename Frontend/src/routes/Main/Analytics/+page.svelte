@@ -397,9 +397,11 @@
     <span class="text-3xl text-white font-thin justify-start pl-2">
       Market Stats
     </span>
-    <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
-      <!-- <span class="">Market Stats</span>
-      <br /> -->
+    <div class="flex min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
+      <div class="flex-col w-2/3">
+
+    
+     
       <span class="font-light"
         >Minimum price bought at: <span class="font-normal">R{minbuy}</span
         ></span
@@ -429,13 +431,17 @@
         >Average price sold at: <span class="font-normal">R{avgsell}</span
         ></span
       >
+        </div>
+        <div class="w-1/2 mr-16">
+          <PieChart {marketpiedata} />
+        </div>
     </div>
 
     <!-- {/if} -->
 
-    <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
+    <!-- <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
       <PieChart {marketpiedata} />
-    </div>
+    </div> -->
 
     <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
       <div class="form-control">
@@ -521,11 +527,12 @@
     <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3 h-80">
       <PieChartAgent {agentpiedata} />
     </div>
-    <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
+    <div class="flex min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3 space-x-2">
       <ConsumptionCurve class="w-1/2" data = {consumptioncurvedata} />
+      <ProductionCurve class = "fixed justify right-1" data = {productioncurvedata} />
     </div>
-    <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
-      <ProductionCurve data = {productioncurvedata} />
-    </div>
+    <!-- <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
+    
+    </div> -->
   </div>
 </div>

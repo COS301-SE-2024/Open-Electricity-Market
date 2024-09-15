@@ -22,7 +22,7 @@ services:
     image: timescale/timescaledb-ha:pg16
     volumes:
       - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
-      - pgdata:/var/lib/postgresql/data
+      - pgdata:/home/postgres/pgdata/data
     ports:
       - "5432:5432"
     env_file: "backend/db.env"

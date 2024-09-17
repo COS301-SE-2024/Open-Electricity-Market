@@ -1,4 +1,4 @@
-use crate::models::{NewProfileModel, NewUserModel, Profile, User};
+use crate::models::{NewFundModel, NewProfileModel, NewUserModel, Profile, User};
 use crate::{establish_connection, TOKEN_EXPIRATION};
 use chrono::Utc;
 use diesel::prelude::*;
@@ -275,20 +275,28 @@ pub struct RemoveFundsReq {
 )]
 pub fn remove_funds(remove_funds_req: Json<RemoveFundsReq>, claims: Claims) -> Value {
     use crate::schema::open_em::users::dsl::*;
+    use crate::schema::open_em::funds::dsl::*;
+
+    let user_id_parse = Uuid::parse_str(&*claims.user_id);
+    if user_id_parse.is_err() {
+        return json!({"status": "error", "message": "Invalid User ID".to_string()});
+    }
+    let claim_user_id = user_id_parse.unwrap();
 
     let connection = &mut establish_connection();
     match users
-        .filter(user_id.eq(Uuid::parse_str(&*claims.user_id).unwrap()))
+        .filter(user_id.eq(claim_user_id))
         .filter(active.eq(true))
         .select(User::as_select())
         .first(connection)
     {
         Ok(user) => {
             if remove_funds_req.funds > 0f64 && user.credit >= remove_funds_req.funds {
-                match diesel::update(users)
-                    .filter(user_id.eq(user.user_id))
-                    .filter(active.eq(true))
-                    .set(credit.eq(credit - remove_funds_req.funds))
+                match diesel::insert_into(funds)
+                    .values(NewFundModel {
+                        fund_holder: user.user_id,
+                        amount: -remove_funds_req.funds,
+                    })
                     .execute(connection)
                 {
                     Ok(_) => return json!({"status": "ok", "message": "Funds removed".to_string()}),
@@ -313,15 +321,22 @@ pub struct AddFundsReq {
 
 #[post("/add_funds", format = "application/json", data = "<add_funds_req>")]
 pub fn add_funds(add_funds_req: Json<AddFundsReq>, claims: Claims) -> Value {
-    use crate::schema::open_em::users::dsl::*;
+    use crate::schema::open_em::funds::dsl::*;
 
     let connection = &mut establish_connection();
 
+    let user_id_parse = Uuid::parse_str(&*claims.user_id);
+    if user_id_parse.is_err() {
+        return json!({"status": "error", "message": "Invalid User ID".to_string()});
+    }
+    let claim_user_id = user_id_parse.unwrap();
+
     if add_funds_req.funds > 0f64 {
-        match diesel::update(users)
-            .filter(user_id.eq(Uuid::parse_str(&*claims.user_id).unwrap()))
-            .filter(active.eq(true))
-            .set(credit.eq(credit + add_funds_req.funds))
+        match diesel::insert_into(funds)
+            .values(NewFundModel {
+                fund_holder: claim_user_id,
+                amount: add_funds_req.funds,
+            })
             .execute(connection)
         {
             Ok(_) => return json!({"status": "ok", "message": "Funds added".to_string()}),

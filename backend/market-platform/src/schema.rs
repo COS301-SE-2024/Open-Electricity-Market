@@ -34,6 +34,7 @@ pub mod open_em {
             payment_id -> Int8,
             fund_holder -> Uuid,
             amount -> Float8,
+            created_at -> Timestamptz,
         }
     }
 

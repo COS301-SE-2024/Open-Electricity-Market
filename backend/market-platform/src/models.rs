@@ -123,3 +123,10 @@ pub struct Transaction {
     pub units_produced: f64,
     pub created_at: DateTime<Utc>,
 }
+
+#[derive(Insertable)]
+#[diesel(table_name = crate::schema::open_em::funds)]
+pub struct NewFundModel {
+    pub fund_holder: Uuid,
+    pub amount: f64,
+}

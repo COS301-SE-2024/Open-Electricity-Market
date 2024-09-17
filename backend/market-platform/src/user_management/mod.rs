@@ -274,8 +274,8 @@ pub struct RemoveFundsReq {
     data = "<remove_funds_req>"
 )]
 pub fn remove_funds(remove_funds_req: Json<RemoveFundsReq>, claims: Claims) -> Value {
-    use crate::schema::open_em::users::dsl::*;
     use crate::schema::open_em::funds::dsl::*;
+    use crate::schema::open_em::users::dsl::*;
 
     let user_id_parse = Uuid::parse_str(&*claims.user_id);
     if user_id_parse.is_err() {

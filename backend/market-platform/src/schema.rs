@@ -30,6 +30,14 @@ pub mod open_em {
     }
 
     diesel::table! {
+        open_em.funds (payment_id) {
+            payment_id -> Int8,
+            fund_holder -> Uuid,
+            amount -> Float8,
+        }
+    }
+
+    diesel::table! {
         open_em.grid_history (created_at) {
             created_at -> Timestamptz,
             grid_state -> Nullable<Jsonb>,
@@ -89,12 +97,14 @@ pub mod open_em {
             pass_hash -> Text,
             credit -> Float8,
             active -> Bool,
+            deleted_at -> Nullable<Timestamptz>,
             created_at -> Timestamptz,
         }
     }
 
     diesel::joinable!(buy_orders -> nodes (consumer_id));
     diesel::joinable!(buy_orders -> users (buyer_id));
+    diesel::joinable!(funds -> users (fund_holder));
     diesel::joinable!(nodes -> users (node_owner));
     diesel::joinable!(profiles -> users (profile_user_id));
     diesel::joinable!(sell_orders -> nodes (producer_id));
@@ -104,6 +114,7 @@ pub mod open_em {
         agent_history,
         appliance_data,
         buy_orders,
+        funds,
         grid_history,
         nodes,
         profiles,

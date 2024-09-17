@@ -403,7 +403,7 @@ pub fn remove_account(claims: Claims) -> Value {
 
     match diesel::update(users)
         .filter(user_id.eq(Uuid::parse_str(&*claims.user_id).unwrap()))
-        .set(active.eq(false))
+        .set((active.eq(false), deleted_at.eq(Utc::now())))
         .execute(connection)
     {
         Ok(_) => {

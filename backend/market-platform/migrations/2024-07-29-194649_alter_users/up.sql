@@ -24,7 +24,7 @@ CREATE OR REPLACE FUNCTION set_nodes_active()
     RETURNS TRIGGER
 AS $$
     BEGIN
-        IF (OLD.active = FALSE) THEN
+        IF (OLD.active = FALSE AND NEW.active = TRUE) THEN
             UPDATE nodes
             SET node_active = TRUE
             WHERE node_owner = OLD.user_id;
@@ -38,3 +38,22 @@ CREATE TRIGGER reactivate_node
     ON users
     FOR EACH ROW
 EXECUTE FUNCTION set_nodes_active();
+
+CREATE OR REPLACE FUNCTION set_deleted_at_null()
+    RETURNS TRIGGER
+AS $$
+BEGIN
+    IF (OLD.active = FALSE AND NEW.active = TRUE) THEN
+        UPDATE users
+        SET deleted_at = NULL
+        WHERE user_id = NEW.user_id;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER reactivate_user
+    AFTER UPDATE
+    ON users
+    FOR EACH ROW
+EXECUTE FUNCTION set_deleted_at_null();

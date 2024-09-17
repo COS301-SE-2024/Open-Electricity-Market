@@ -209,7 +209,7 @@
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
-          Authorization: `Bearer ${sessionStorage.getItem("Token")}`,
+          
         },
         credentials: "include",
       });
@@ -255,7 +255,7 @@
       
       const fdata = await response.json();
       console.log(fdata);
-      let temp = fdata.consumption;
+      let temp = fdata.data.consumption;
 
       if(selectedAppliances[0]=="asdf"){
           //only runs this first time - selectedAppliances gets updated in toggleAppliance
@@ -286,7 +286,7 @@
           }
   
         });
-        let temp2 = fdata.production;
+        let temp2 = fdata.data.production;
 
         temp2.forEach((generator) => {
             //should be the value

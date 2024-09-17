@@ -4,7 +4,6 @@ CREATE TABLE buy_orders(
     sought_units float8 NOT NULL DEFAULT 0,
     filled_units float8 NOT NULL DEFAULT 0,
     max_price float8 NOT NULL,
-    min_price float8 NOT NULL,
     created_at timestamptz NOT NULL DEFAULT now(),
     active boolean NOT NULL DEFAULT true,
     PRIMARY KEY (buy_order_id, created_at),

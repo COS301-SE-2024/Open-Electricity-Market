@@ -70,12 +70,16 @@ fn establish_connection() -> PgConnection {
         .unwrap_or_else(|_| panic!("Error connecting to {}", database_url))
 }
 
+#[get("/")]
+fn index() {}
+
 #[launch]
 fn rocket() -> _ {
     rocket::build()
         .mount(
             "/",
             routes![
+                index,
                 user_management::register,
                 user_management::login,
                 user_management::add_funds,

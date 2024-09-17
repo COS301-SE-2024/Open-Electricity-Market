@@ -559,7 +559,7 @@ pub fn sell_order(sell_order_request: Json<OrderRequest>, claims: Claims) -> Val
                         });
 
                         return json!({"status": "ok",
-                            "message": "Sell order created successfully.".to_string()
+                            "message": "Sell order created successfully".to_string()
                         });
                     }
                     Err(_) => {

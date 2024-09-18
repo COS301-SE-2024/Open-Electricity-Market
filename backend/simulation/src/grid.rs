@@ -3,6 +3,7 @@ use std::usize;
 use crate::grid::circuit::Circuit;
 use crate::grid::load::Connection::{Parallel, Series};
 
+use rocket::form::validate::Contains;
 use rocket::serde::{Deserialize, Serialize};
 
 use self::generator::Generator;
@@ -291,7 +292,7 @@ impl Grid {
             .push(Parallel(new_primary, new))
     }
 
-    fn internal_update(&mut self, elapsed_time: f32, circuit: usize) {
+    fn internal_update(&mut self, elapsed_time: f32, circuit: usize,visited : &mut Vec<usize>) {
         // Step 1 Update voltages
         let voltage = self.circuits[circuit].calculate_ideal_generator_voltages(elapsed_time);
         // Step 2 Calculate Impedance
@@ -305,10 +306,25 @@ impl Grid {
 
         //Step 6 Switch to Connected Circuits
         self.circuits[circuit].set_transformers_secondary_voltages(self.frequency);
+
+        let mut next = vec![];
+
+        for trans in self.circuits[circuit].transformers.iter() {
+            let transformer = trans.lock().unwrap();
+            next.push(transformer.secondary_circuit as usize);
+        }
+
+        for n in next {
+            if !visited.contains(n) {
+                visited.push(n);
+                self.internal_update(elapsed_time,n, visited);
+            }
+        }
     }
 
     pub fn update(&mut self, elapsed_time: f32) {
-        self.internal_update(elapsed_time, 0);
+        let mut visited = vec![];
+        self.internal_update(elapsed_time, 0, &mut visited);
     }
 
     pub fn set_consumer(&mut self, grid_interface: ConsumerInterface) {

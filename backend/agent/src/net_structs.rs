@@ -187,8 +187,7 @@ pub struct GetPriceResult {
 #[derive(Serialize)]
 pub struct PlaceBuyOrderDetail {
     pub node_id: String,
-    pub min_price: f64,
-    pub max_price: f64,
+    pub price: f64,
     pub units: f64,
 }
 
@@ -201,8 +200,7 @@ pub struct BuyOrderResult {
 #[derive(Serialize)]
 pub struct PlaceSellOrderDetail {
     pub node_id: String,
-    pub min_price: f64,
-    pub max_price: f64,
+    pub price: f64,
     pub units: f64,
 }
 

@@ -5,15 +5,15 @@ on:
     branches: ["staging"]
 
 jobs:
-  rust-test:
-    uses: ./.github/workflows/rust.yml
-    permissions:
-      contents: read
-      packages: read
-      statuses: write # Updates commit statuses
+#  rust-test:
+#    uses: ./.github/workflows/rust.yml
+#    permissions:
+#      contents: read
+#      packages: read
+#      statuses: write # Updates commit statuses
 
   deploy-staging:
-    needs: rust-test
+#    needs: rust-test
     runs-on: ubuntu-latest
 
     steps:

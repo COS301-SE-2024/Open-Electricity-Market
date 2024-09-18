@@ -76,6 +76,7 @@ jobs:
           username: root
           password: ${{ secrets.STAGING_DROPLET_PASSWORD }}
           script: |
+            cd Open-Electricity-Market
             docker compose down 
             docker image rm amplify-simulation
             docker image rm amplify-market-platform

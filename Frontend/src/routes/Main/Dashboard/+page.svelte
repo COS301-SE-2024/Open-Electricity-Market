@@ -528,9 +528,9 @@
   }
 </script>
 
-<main class="container sm:mx-auto w-full sm:h-screen sm:flex justify-center">
+<main class="container sm:mx-auto w-full sm:h-screen sm:max-h-screen sm:flex justify-center">
   <!--first-->
-  <div class="sm:w-1/3 h-screen flex flex-col">
+  <div class="sm:w-1/3 h-[calc(100vh-70px)] flex flex-col">
     <!--Personal Info-->
     <span class="text-3xl text-white font-thin justify-start pl-2">
       Personal Information
@@ -673,7 +673,7 @@
   </div>
 
   <!--second-->
-  <div class="sm:w-1/3 h-screen mx-4 flex flex-col">
+  <div class="sm:w-1/3 h-[calc(100vh-70px)] mx-4 flex flex-col">
     <!--Nodes-->
     <span class="basis text-3xl text-white font-thin justify-start pl-2">
       Your Nodes
@@ -814,7 +814,7 @@
   </div>
 
   <!--third-->
-  <div class="sm:w-1/3">
+  <div class="sm:w-1/3 sm:h-full">
     {#if nodeNameDetail != ""}
       <span class="text-3xl text-white font-thin justify-start pl-2">
         Node Details

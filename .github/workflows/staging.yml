@@ -67,7 +67,7 @@ jobs:
         run: sudo apt install sshpass
 
       - name: Copy backend to droplet
-        run: sshpass -v -p ${{ secrets.STAGING_DROPLET_PASSWORD }} scp -o StrictHostKeyChecking=no -r $(pwd) root@${{ vars.STAGING_DROPLET_IP }}:~
+        run: sshpass -v -p ${{ secrets.STAGING_DROPLET_PASSWORD }} scp -o StrictHostKeyChecking=no -r "$(pwd)" root@${{ vars.STAGING_DROPLET_IP }}:~
 
       - name: Deploy to droplet
         uses: appleboy/ssh-action@master

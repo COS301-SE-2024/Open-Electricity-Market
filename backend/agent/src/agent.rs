@@ -518,7 +518,6 @@ impl Agent {
 
         let mut market_price = Agent::get_current_price(client) + offset;
 
-
         if market_price <= 0.0 {
             market_price = 0.003;
         }
@@ -527,7 +526,6 @@ impl Agent {
         if ratio < 1.0 {
             units *= ratio;
         }
-
 
         let detail = PlaceBuyOrderDetail {
             node_id,
@@ -575,7 +573,7 @@ impl Agent {
 
         let detail = PlaceSellOrderDetail {
             node_id,
-            price: market_price ,
+            price: market_price,
             units,
         };
         let url = env::var("MURL").unwrap();

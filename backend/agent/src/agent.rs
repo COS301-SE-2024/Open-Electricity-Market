@@ -516,19 +516,22 @@ impl Agent {
         let mut rng = rand::thread_rng();
         let offset: f64 = rng.gen_range(-0.0010..0.0010);
 
-        let market_price = Agent::get_current_price(client) + offset;
+        let mut market_price = Agent::get_current_price(client) + offset;
 
-        let max_price = market_price + 0.0015;
 
-        let ratio = funds / (max_price * units);
+        if market_price <= 0.0 {
+            market_price = 0.003;
+        }
+
+        let ratio = funds / (market_price * units);
         if ratio < 1.0 {
             units *= ratio;
         }
 
+
         let detail = PlaceBuyOrderDetail {
             node_id,
-            min_price: market_price - 0.0015,
-            max_price: market_price + 0.0015,
+            price: market_price,
             units,
         };
 
@@ -572,8 +575,7 @@ impl Agent {
 
         let detail = PlaceSellOrderDetail {
             node_id,
-            min_price: market_price - 0.0015,
-            max_price: market_price + 0.0015,
+            price: market_price ,
             units,
         };
         let url = env::var("MURL").unwrap();

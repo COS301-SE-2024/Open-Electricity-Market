@@ -23,10 +23,18 @@ pub mod open_em {
             sought_units -> Float8,
             filled_units -> Float8,
             max_price -> Float8,
-            min_price -> Float8,
             created_at -> Timestamptz,
             active -> Bool,
             consumer_id -> Uuid,
+        }
+    }
+
+    diesel::table! {
+        open_em.funds (payment_id) {
+            payment_id -> Int8,
+            fund_holder -> Uuid,
+            amount -> Float8,
+            created_at -> Timestamptz,
         }
     }
 
@@ -63,7 +71,6 @@ pub mod open_em {
             created_at -> Timestamptz,
             offered_units -> Float8,
             claimed_units -> Float8,
-            max_price -> Float8,
             min_price -> Float8,
             active -> Bool,
             producer_id -> Uuid,
@@ -91,12 +98,14 @@ pub mod open_em {
             pass_hash -> Text,
             credit -> Float8,
             active -> Bool,
+            deleted_at -> Nullable<Timestamptz>,
             created_at -> Timestamptz,
         }
     }
 
     diesel::joinable!(buy_orders -> nodes (consumer_id));
     diesel::joinable!(buy_orders -> users (buyer_id));
+    diesel::joinable!(funds -> users (fund_holder));
     diesel::joinable!(nodes -> users (node_owner));
     diesel::joinable!(profiles -> users (profile_user_id));
     diesel::joinable!(sell_orders -> nodes (producer_id));
@@ -106,6 +115,7 @@ pub mod open_em {
         agent_history,
         appliance_data,
         buy_orders,
+        funds,
         grid_history,
         nodes,
         profiles,

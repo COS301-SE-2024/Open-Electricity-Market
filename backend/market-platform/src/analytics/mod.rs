@@ -1,7 +1,7 @@
 use crate::market_interaction::{Price, TimeFrame};
 use crate::user_management::Claims;
 use crate::{establish_connection, schema};
-use chrono::{DateTime, Duration, Utc};
+use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use rocket::serde::{
     json::{serde_json::json, Json, Value},

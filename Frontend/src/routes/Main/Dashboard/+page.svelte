@@ -495,9 +495,9 @@
 
     let onPeriods = {
       //start: 15.0,
-      start: intervalStart, 
+      start: intervalStart,
       //end: 800.0,
-      end: intervalEnd
+      end: intervalEnd,
     };
 
     if (generator && category) {
@@ -532,7 +532,9 @@
   }
 </script>
 
-<main class="container sm:mx-auto w-full sm:h-screen sm:max-h-screen sm:flex justify-center">
+<main
+  class="container sm:mx-auto w-full sm:h-screen sm:max-h-screen sm:flex justify-center"
+>
   <!--first-->
   <div class="sm:w-1/3 h-[calc(100vh-70px)] flex flex-col">
     <!--Personal Info-->
@@ -874,12 +876,12 @@
             </div>
           </div>
         </div>
-
+        <!--Add an appliance-->
         <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 my-2">
           <span class="text-3xl font-thin justify-start">
             Add an Appliance
           </span>
-
+          <!-- selecting appliance-->
           <div class="form-control">
             <select
               bind:value={appliance}
@@ -894,7 +896,7 @@
               >Add Appliance</button
             >
           </div>
-          <!-- selecting category  -->
+          <!-- selecting generator and category  -->
           <div class="form-control">
             <span class="label">
               <span class="label-text">Select a generator</span>
@@ -920,10 +922,13 @@
               {/each}
             </select>
             <!--<button on:click={addGenerator} class="btn btn-primary mt-4">Add Generator</button>-->
-            <button class="btn btn-primary mt-4"
-            on:click={() => {
-              document.getElementById("generatortimes").showModal();
-            }}>
+            <button
+              class="btn btn-primary mt-4"
+              disabled={!generator}
+              on:click={() => {
+                document.getElementById("generatortimes").showModal();
+              }}
+            >
               Add Generator
             </button>
           </div>
@@ -1011,14 +1016,15 @@
   </dialog>
 
   <dialog id="generatortimes" class="modal">
-    <div class = "modal-box">
+    <div class="modal-box">
       <form method="dialog" class="modal-backdrop">
-        <div class = "modal-action">
-          <button class="btn bg-green-600" on:click={addGenerator}>Confirm</button>
+        <div class="modal-action">
+          <button class="btn bg-green-600" on:click={addGenerator}
+            >Confirm</button
+          >
           <button class="btn bg-red-600">Close</button>
         </div>
       </form>
     </div>
-    
   </dialog>
 </main>

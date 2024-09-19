@@ -893,6 +893,7 @@
               {/each}
             </select>
             <button on:click={addAppliance} class="btn btn-primary my-2"
+            disabled={!appliance}
               >Add Appliance</button
             >
           </div>
@@ -924,7 +925,7 @@
             <!--<button on:click={addGenerator} class="btn btn-primary mt-4">Add Generator</button>-->
             <button
               class="btn btn-primary mt-4"
-              disabled={!generator}
+              disabled={!category}
               on:click={() => {
                 document.getElementById("generatortimes").showModal();
               }}

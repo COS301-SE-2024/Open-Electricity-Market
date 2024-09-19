@@ -1031,14 +1031,26 @@
 
   <dialog id="generatortimes" class="modal">
     <div class="modal-box">
-      <form method="dialog" class="modal-backdrop">
-        <div class="modal-action">
-          <button class="btn bg-green-600" on:click={addGenerator}
-            >Confirm</button
-          >
-          <button class="btn bg-red-600">Close</button>
+      
+        <h3 class="text-lg font-bold">Time Interval</h3>
+        <p class="py-4">Please enter the duration the generator will be on for</p>
+        <div class="form-control mt-4">
+          <input
+            class="input input-bordered"
+            type="time"
+            required
+            bind:value={intervalStart}
+          />
         </div>
-      </form>
+        <div class="modal-action">
+          <form method="dialog">
+            <button class="btn bg-green-600" on:click={addFunds}
+              >Continue</button
+            >
+            <button class="btn bg-red-600">Cancel</button>
+          </form>
+        </div>
+      
     </div>
   </dialog>
 </main>

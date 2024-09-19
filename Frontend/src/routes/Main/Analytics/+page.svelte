@@ -261,8 +261,8 @@
           //only runs this first time - selectedAppliances gets updated in toggleAppliance
             temp.forEach((item) => {
               appliances.add(item.appliance); 
-          });
-          selectedAppliances = Array.from(appliances);
+            });
+            selectedAppliances = Array.from(appliances);
           
         }
         console.log("Selected appliances are ", selectedAppliances);
@@ -270,7 +270,7 @@
 
       let index = 0; 
       if (fdata.message == "Here is the detail") {
-        console.log("gets to the first foreach"); 
+        //console.log("gets to the first foreach"); 
         temp.forEach((item) => {
          
           if(selectedAppliances.includes(item.appliance)){

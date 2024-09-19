@@ -31,8 +31,7 @@
 
     let data = {
       node_id: selected_node_id,
-      min_price: selectedPrice > 1 ? selectedPrice - 1 : 0.01,
-      max_price: selectedPrice + 1,
+      price: selectedPrice,
       units: units,
     };
 
@@ -58,8 +57,7 @@
 
     let data = {
       node_id: selected_node_id,
-      min_price: selectedPrice > 1 ? selectedPrice - 1 : 0.01,
-      max_price: selectedPrice + 1,
+      price: selectedPrice,
       units: units,
     };
 

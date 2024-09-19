@@ -3,7 +3,6 @@
   import { goto } from "$app/navigation";
   import Map from "$lib/Components/MapDashboard.svelte";
   import { API_URL_GRID, API_URL_MARKET, API_URL_AGENT } from "$lib/config.js";
-  import Scroller from "@sveltejs/svelte-scroller";
 
   let data = {};
   let nodeName = "";
@@ -93,6 +92,9 @@
   ];
 
   let uniqueGens = [...new Set(generators.map((generator) => generator.type))];
+
+  $: intervalStart = "";
+  $: intervalEnd = "";
 
   onMount(async () => {
     await fetchStart();
@@ -492,8 +494,10 @@
     };
 
     let onPeriods = {
-      start: 15.0,
-      end: 800.0,
+      //start: 15.0,
+      start: intervalStart, 
+      //end: 800.0,
+      end: intervalEnd
     };
 
     if (generator && category) {
@@ -915,9 +919,13 @@
                 <option value={category}>{category}</option>
               {/each}
             </select>
-            <button on:click={addGenerator} class="btn btn-primary mt-4"
-              >Add Generator</button
-            >
+            <!--<button on:click={addGenerator} class="btn btn-primary mt-4">Add Generator</button>-->
+            <button class="btn btn-primary mt-4"
+            on:click={() => {
+              document.getElementById("generatortimes").showModal();
+            }}>
+              Add Generator
+            </button>
           </div>
         </div>
       </div>
@@ -1000,5 +1008,17 @@
     <form method="dialog" class="modal-backdrop">
       <button on:click={nullifyValues}>close</button>
     </form>
+  </dialog>
+
+  <dialog id="generatortimes" class="modal">
+    <div class = "modal-box">
+      <form method="dialog" class="modal-backdrop">
+        <div class = "modal-action">
+          <button class="btn bg-green-600" on:click={addGenerator}>Confirm</button>
+          <button class="btn bg-red-600">Close</button>
+        </div>
+      </form>
+    </div>
+    
   </dialog>
 </main>

@@ -1031,26 +1031,36 @@
 
   <dialog id="generatortimes" class="modal">
     <div class="modal-box">
-      
-        <h3 class="text-lg font-bold">Time Interval</h3>
-        <p class="py-4">Please enter the duration the generator will be on for</p>
-        <div class="form-control mt-4">
+      <h3 class="text-lg font-bold">Time Interval</h3>
+      <p class="py-4">Please enter the duration the generator will be on for</p>
+      <div class="form-control mt-4 grid grid-cols-2 gap-4">
+        <div class="grid grid-rows-2">
+          <label for="start">Start-time:</label>
           <input
+            id="start"
             class="input input-bordered"
             type="time"
             required
             bind:value={intervalStart}
           />
         </div>
-        <div class="modal-action">
-          <form method="dialog">
-            <button class="btn bg-green-600" on:click={addFunds}
-              >Continue</button
-            >
-            <button class="btn bg-red-600">Cancel</button>
-          </form>
+        <div class="grid grid-rows-2">
+          <label for="end">End-time:</label>
+          <input
+            id="end"
+            class="input input-bordered"
+            type="time"
+            required
+            bind:value={intervalEnd}
+          />
         </div>
-      
+      </div>
+      <div class="modal-action">
+        <form method="dialog">
+          <button class="btn bg-green-600" on:click={addFunds}>Continue</button>
+          <button class="btn bg-red-600">Cancel</button>
+        </form>
+      </div>
     </div>
   </dialog>
 </main>

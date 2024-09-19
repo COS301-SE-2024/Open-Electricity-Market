@@ -54,7 +54,6 @@ pub struct NewBuyOrder {
     pub buyer_id: Uuid,
     pub sought_units: f64,
     pub max_price: f64,
-    pub min_price: f64,
     pub consumer_id: Uuid,
 }
 
@@ -66,7 +65,6 @@ pub struct BuyOrder {
     pub sought_units: f64,
     pub filled_units: f64,
     pub max_price: f64,
-    pub min_price: f64,
     // pub created_at: DateTime<Utc>,
     pub consumer_id: Uuid,
 }
@@ -76,7 +74,6 @@ pub struct BuyOrder {
 pub struct NewSellOrder {
     pub seller_id: Uuid,
     pub offered_units: f64,
-    pub max_price: f64,
     pub min_price: f64,
     pub producer_id: Uuid,
 }
@@ -90,7 +87,6 @@ pub struct SellOrder {
     // pub created_at: DateTime<Utc>,
     pub offered_units: f64,
     pub claimed_units: f64,
-    pub max_price: f64,
     pub min_price: f64,
     pub producer_id: Uuid,
 }
@@ -126,4 +122,11 @@ pub struct Transaction {
     pub units_consumed: f64,
     pub units_produced: f64,
     pub created_at: DateTime<Utc>,
+}
+
+#[derive(Insertable)]
+#[diesel(table_name = crate::schema::open_em::funds)]
+pub struct NewFundModel {
+    pub fund_holder: Uuid,
+    pub amount: f64,
 }

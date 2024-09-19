@@ -5,7 +5,9 @@ services:
     build: ./simulation/
     depends_on:
       db:
-       condition: service_healthy
+        condition: service_healthy
+      market-platform:
+        condition: service_healthy
     environment:
        DATABASEHOST: db
     networks:
@@ -14,7 +16,7 @@ services:
     image: timescale/timescaledb-ha:pg16
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-      - pgdata:/var/lib/postgresql/data
+      - pgdata:/home/postgres/pgdata/data
     ports:
       - "5432:5432"
     env_file: "db.env"
@@ -33,14 +35,23 @@ services:
     environment:
        DATABASEHOST: db
        GRIDDOMAIN: simulation
+    healthcheck:
+      test: curl --fail http://localhost:8001/ || exit
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     networks:
       - backend
   agent:
     build: ./agent/
     depends_on:
-      - db
-      - simulation
-      - market-platform
+      db:
+        condition: service_healthy
+      market-platform:
+        condition: service_healthy
+      simulation:
+        condition: service_started
     environment:
       DATABASEHOST: db
       GURL: simulation

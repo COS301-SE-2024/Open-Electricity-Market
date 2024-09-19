@@ -525,7 +525,9 @@
     </div>
 
     <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3 h-80">
+      {#if agentpiedata}
       <PieChartAgent {agentpiedata} />
+      {/if}
     </div>
     <div class="flex min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3 space-x-2">
       <ConsumptionCurve class="w-1/2" data = {consumptioncurvedata} />

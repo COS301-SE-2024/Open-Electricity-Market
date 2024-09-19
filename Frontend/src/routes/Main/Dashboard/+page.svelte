@@ -192,6 +192,11 @@
     // only proceed if all fields filled in
     if (nodeName == "" || latitude == "" || longtitude == "") {
       // maybe show an error
+      let errorToast = document.getElementById("errorToast"); 
+      errorToast.style.display =  "block"; 
+      setTimeout(()=>{
+        errorToast.style.display = "none"; 
+      }, 3000); 
       return;
     }
 
@@ -1020,4 +1025,16 @@
       <button >close</button>
     </form>
   </dialog>
+
+
+
+  <div class="toast toast-top toast-center" id="errorToast">
+    <div class="alert alert-error">
+      <div>
+        <span>Error: Please make sure to select a location on the map.</span>
+      </div>
+    </div>
+  </div>
+
+
 </main>

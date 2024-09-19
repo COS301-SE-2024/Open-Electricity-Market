@@ -502,7 +502,7 @@
 
       <div class=" w-1/2">
         <button
-          class="select select-bordered w-full text-left flex items-center h-full focus:outline-none"
+          class="select select-bordered w-full text-left flex items-center h-full focus:outline-none z-10"
           on:click={toggleDropdown}>Select Appliances</button
         >
 

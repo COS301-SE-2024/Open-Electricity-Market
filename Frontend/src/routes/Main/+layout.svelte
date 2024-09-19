@@ -177,6 +177,8 @@
                 </li>
                 <!-- svelte-ignore a11y-missing-attribute -->
                 <li><a href="/Main/Dashboard" class="text-lg">Dashboard</a></li>
+                <!-- svelte-ignore a11y-missing-attribute -->
+                <li><a href="/Main/Analytics" class="text-lg">Analytics</a></li>
                 {#if loggedIn}
                   <li>
                     <button class="text-lg" on:click={logout}>Log out</button>

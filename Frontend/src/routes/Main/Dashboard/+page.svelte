@@ -532,7 +532,7 @@
   <!--first-->
   <div class="sm:w-1/3 h-[calc(100vh-70px)] flex flex-col">
     <!--Personal Info-->
-    <span class="text-3xl text-white font-thin justify-start pl-2">
+    <span class="text-3xl font-thin justify-start pl-2">
       Personal Information
     </span>
 
@@ -586,7 +586,7 @@
     </div>
 
     <!--Buy orders-->
-    <span class="text-3xl text-white font-light justify-start pl-2 mt-2">
+    <span class="text-3xl font-light justify-start pl-2 mt-2">
       Buy Orders
     </span>
     <div
@@ -675,7 +675,7 @@
   <!--second-->
   <div class="sm:w-1/3 h-[calc(100vh-70px)] mx-4 flex flex-col">
     <!--Nodes-->
-    <span class="basis text-3xl text-white font-thin justify-start pl-2">
+    <span class="basis text-3xl font-thin justify-start pl-2">
       Your Nodes
     </span>
     <div class="h-1/2 flex flex-col">
@@ -742,7 +742,7 @@
     </div>
 
     <!--Sell orders-->
-    <span class="text-3xl text-white font-light justify-start pl-2 mt-2">
+    <span class="text-3xl font-light justify-start pl-2 mt-2">
       Sell Orders
     </span>
     <div
@@ -816,7 +816,7 @@
   <!--third-->
   <div class="sm:w-1/3 sm:h-full">
     {#if nodeNameDetail != ""}
-      <span class="text-3xl text-white font-thin justify-start pl-2">
+      <span class="text-3xl font-thin justify-start pl-2">
         Node Details
       </span>
       <div class="h-5/6">

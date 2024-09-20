@@ -528,9 +528,9 @@
   }
 </script>
 
-<main class="container sm:mx-auto w-full h-screen sm:flex justify-center">
+<main class="container sm:mx-auto w-full sm:h-screen sm:max-h-screen sm:flex justify-center">
   <!--first-->
-  <div class="sm:w-1/3 h-screen flex flex-col">
+  <div class="sm:w-1/3 h-[calc(100vh-70px)] flex flex-col">
     <!--Personal Info-->
     <span class="text-3xl text-white font-thin justify-start pl-2">
       Personal Information
@@ -592,27 +592,34 @@
     <div
       class="rounded-2xl h-1/3 backdrop-blur-sm bg-white/30 p-2 overflow-y-auto"
     >
-      {#each buyorders as buyorder}
-        <div class="rounded-2xl min-w-1/3 bg-base-100 mb-2">
-          <div class="p-5">
-            <h2 class="card-title">Buy order</h2>
-            <p>
-              Filled units: {buyorder.filled_units.toFixed(1) + "Wh"}<br />
-              Max price: {formatCurrency(buyorder.max_price)}<br />
-              Min price: {formatCurrency(buyorder.min_price)}<br />
-              Units bought: {Intl.NumberFormat().format(buyorder.sought_units) +
-                "Wh"}<br />
-            </p>
-            <div class="card-actions">
-              <progress
-                class="progress progress-primary"
-                value={buyorder.filled_units}
-                max={buyorder.sought_units}
-              ></progress>
+      {#if buyorders.length == 0}
+        <div class="rounded-xl h-full bg-base-100 flex justify-center">
+          <p class="self-center text-2xl font-light">--No Buy Orders--</p>
+        </div>
+      {:else}
+        {#each buyorders as buyorder}
+          <div class="rounded-2xl min-w-1/3 bg-base-100 mb-2">
+            <div class="p-5">
+              <h2 class="card-title">Buy order</h2>
+              <p>
+                Filled units: {buyorder.filled_units.toFixed(1) + "Wh"}<br />
+                Max price: {formatCurrency(buyorder.max_price)}<br />
+                Min price: {formatCurrency(buyorder.min_price)}<br />
+                Units bought: {Intl.NumberFormat().format(
+                  buyorder.sought_units
+                ) + "Wh"}<br />
+              </p>
+              <div class="card-actions">
+                <progress
+                  class="progress progress-primary"
+                  value={buyorder.filled_units}
+                  max={buyorder.sought_units}
+                ></progress>
+              </div>
             </div>
           </div>
-        </div>
-      {/each}
+        {/each}
+      {/if}
     </div>
     <!-- change funds modals -->
     <dialog id="add_modal" class="modal">
@@ -666,54 +673,62 @@
   </div>
 
   <!--second-->
-  <div class="sm:w-1/3 h-screen mx-4 flex flex-col">
+  <div class="sm:w-1/3 h-[calc(100vh-70px)] mx-4 flex flex-col">
     <!--Nodes-->
     <span class="basis text-3xl text-white font-thin justify-start pl-2">
       Your Nodes
     </span>
     <div class="h-1/2 flex flex-col">
-      <div class="rounded-2xl p-2 backdrop-blur-sm bg-white/30 overflow-y-auto">
-        {#each nodes as node}
-          {#if node.name == nodeNameDetail}
-            <div
-              class="card card-side border-4 border-primary min-w-1/3 bg-base-100 mb-2"
-            >
-              <figure class="w-1/4 p-3 pr-0">
-                <img src="../src/images/house.png" alt="House node" />
-              </figure>
-              <div class="card-body pb-4 px-4">
-                <h2 class="card-title font-light text-2xl">{node.name}</h2>
-                <div class="card-actions justify-end">
-                  <button
-                    class="btn btn-primary"
-                    on:click={() => {
-                      fetchNodeDetails(node.node_id);
-                    }}>Details</button
-                  >
+      <div
+        class="rounded-2xl h-full p-2 backdrop-blur-sm bg-white/30 overflow-y-auto"
+      >
+        {#if nodes.length == 0}
+          <div class="rounded-xl h-full bg-base-100 flex justify-center">
+            <p class="self-center text-2xl font-light">--No Nodes--</p>
+          </div>
+        {:else}
+          {#each nodes as node}
+            {#if node.name == nodeNameDetail}
+              <div
+                class="card card-side border-4 border-primary min-w-1/3 bg-base-100 mb-2"
+              >
+                <figure class="w-1/4 p-3 pr-0">
+                  <img src="../src/images/house.png" alt="House node" />
+                </figure>
+                <div class="card-body pb-4 px-4">
+                  <h2 class="card-title font-light text-2xl">{node.name}</h2>
+                  <div class="card-actions justify-end">
+                    <button
+                      class="btn btn-primary"
+                      on:click={() => {
+                        fetchNodeDetails(node.node_id);
+                      }}>Details</button
+                    >
+                  </div>
                 </div>
               </div>
-            </div>
-          {:else}
-            <div
-              class="card card-side border-4 border-base-100 min-w-1/3 bg-base-100 mb-2"
-            >
-              <figure class="w-1/4 p-3 pr-0">
-                <img src="../src/images/house.png" alt="House node" />
-              </figure>
-              <div class="card-body pb-4 px-4">
-                <h2 class="card-title font-light text-2xl">{node.name}</h2>
-                <div class="card-actions justify-end">
-                  <button
-                    class="btn btn-primary"
-                    on:click={() => {
-                      fetchNodeDetails(node.node_id);
-                    }}>Details</button
-                  >
+            {:else}
+              <div
+                class="card card-side border-4 border-base-100 min-w-1/3 bg-base-100 mb-2"
+              >
+                <figure class="w-1/4 p-3 pr-0">
+                  <img src="../src/images/house.png" alt="House node" />
+                </figure>
+                <div class="card-body pb-4 px-4">
+                  <h2 class="card-title font-light text-2xl">{node.name}</h2>
+                  <div class="card-actions justify-end">
+                    <button
+                      class="btn btn-primary"
+                      on:click={() => {
+                        fetchNodeDetails(node.node_id);
+                      }}>Details</button
+                    >
+                  </div>
                 </div>
               </div>
-            </div>
-          {/if}
-        {/each}
+            {/if}
+          {/each}
+        {/if}
       </div>
 
       <!--Add New node-->
@@ -733,26 +748,32 @@
     <div
       class="rounded-2xl h-1/3 backdrop-blur-sm bg-white/30 p-2 overflow-y-auto"
     >
-      {#each sellorders as sellorder}
-        <div class="rounded-2xl min-w-1/3 bg-base-100 mb-2">
-          <div class="p-5">
-            <h2 class="card-title">Sell order</h2>
-            <p>
-              Claimed Units: {sellorder.claimed_units.toFixed(1) + "Wh"}<br />
-              Offered Units: {sellorder.offered_units.toFixed(1) + "Wh"}<br />
-              Max price: {formatCurrency(sellorder.max_price)}<br />
-              Min price: {formatCurrency(sellorder.min_price)}<br />
-            </p>
-            <div class="card-actions">
-              <progress
-                class="progress progress-accent"
-                value={sellorder.claimed_units}
-                max={sellorder.offered_units}
-              ></progress>
+      {#if sellorders.length == 0}
+        <div class="rounded-xl h-full bg-base-100 flex justify-center">
+          <p class="self-center text-2xl font-light">--No Sell Orders--</p>
+        </div>
+      {:else}
+        {#each sellorders as sellorder}
+          <div class="rounded-2xl min-w-1/3 bg-base-100 mb-2">
+            <div class="p-5">
+              <h2 class="card-title">Sell order</h2>
+              <p>
+                Claimed Units: {sellorder.claimed_units.toFixed(1) + "Wh"}<br />
+                Offered Units: {sellorder.offered_units.toFixed(1) + "Wh"}<br />
+                Max price: {formatCurrency(sellorder.max_price)}<br />
+                Min price: {formatCurrency(sellorder.min_price)}<br />
+              </p>
+              <div class="card-actions">
+                <progress
+                  class="progress progress-accent"
+                  value={sellorder.claimed_units}
+                  max={sellorder.offered_units}
+                ></progress>
+              </div>
             </div>
           </div>
-        </div>
-      {/each}
+        {/each}
+      {/if}
     </div>
 
     <!-- new node modals -->
@@ -793,7 +814,7 @@
   </div>
 
   <!--third-->
-  <div class="sm:w-1/3">
+  <div class="sm:w-1/3 sm:h-full">
     {#if nodeNameDetail != ""}
       <span class="text-3xl text-white font-thin justify-start pl-2">
         Node Details

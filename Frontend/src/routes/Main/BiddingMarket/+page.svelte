@@ -42,7 +42,7 @@
         Authorization: `Bearer ${sessionStorage.getItem("Token")}`,
       },
       body: JSON.stringify(data),
-      credentials: "include",
+      credentials: "include", 
     });
 
     goto("../Main/Dashboard");

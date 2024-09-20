@@ -614,8 +614,7 @@
             <h2 class="card-title">Buy order</h2>
             <p>
               Filled units: {buyorder.filled_units.toFixed(1) + "Wh"}<br />
-              Max price: {formatCurrency(buyorder.max_price)}<br />
-              Min price: {formatCurrency(buyorder.min_price)}<br />
+              Price: {formatCurrency(buyorder.max_price)}<br />
               Units bought: {Intl.NumberFormat().format(buyorder.sought_units) +
                 "Wh"}<br />
             </p>
@@ -756,8 +755,7 @@
             <p>
               Claimed Units: {sellorder.claimed_units.toFixed(1) + "Wh"}<br />
               Offered Units: {sellorder.offered_units.toFixed(1) + "Wh"}<br />
-              Max price: {formatCurrency(sellorder.max_price)}<br />
-              Min price: {formatCurrency(sellorder.min_price)}<br />
+              Price: {formatCurrency(sellorder.min_price)}<br />
             </p>
             <div class="card-actions">
               <progress
@@ -1028,7 +1026,7 @@
 
 
 
-  <div class="toast toast-top toast-center" id="errorToast">
+  <div class="toast toast-bottom toast-center hidden" id="errorToast">
     <div class="alert alert-error">
       <div>
         <span>Error: Please make sure to select a location on the map.</span>

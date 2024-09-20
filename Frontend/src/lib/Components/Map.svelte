@@ -55,34 +55,34 @@
   onDestroy(async () => {});
 
   function updateMarkers() {
+    markers.forEach((marker) => marker.remove());
+    markers = [];
     mapdata.forEach((circuit) => {
-      markers.forEach((marker) => marker.remove());
-      markers = [];
 
       circuit.loads.forEach((load) => {
-        if (load.id == 0) return;
+        // if (load.id == 0) return;
 
         if (load.load_type.Consumer) {
           const consumer = load.load_type.Consumer;
+          // console.log(consumer.location.latitude);
           const marker = L.marker(
-            [consumer.location.longitude, consumer.location.latitude],
+            [consumer.location.latitude, consumer.location.longitude],
             { icon: markerIcon }
           ).addTo(map);
 
           marker.bindPopup(
-            "Consumer " +
-              (load.id +
+            "Consumer" +
                 "<br>" +
-                consumer.location.longitude +
+                consumer.location.latitude +
                 " " +
-                consumer.location.latitude)
+                consumer.location.longitude
           );
 
           let generators = [];
           circuit.generators.forEach((generator) => {
             if (
-              consumer.location.longitude == generator.location.longitude &&
-              consumer.location.latitude == generator.location.latitude
+              consumer.location.latitude == generator.location.latitude &&
+              consumer.location.longitude == generator.location.longitude
             ) {
               generators.push(generator);
             }
@@ -100,25 +100,24 @@
       });
 
       circuit.transformers.forEach((transformer) => {
-        if (transformer.id == 0) return;
+        // if (transformer.id == 0) return;
 
         const marker = L.marker(
           [
+            transformer.location.latitude,
             transformer.location.longtitude
               ? transformer.location.longtitude
-              : 0,
-            transformer.location.latitude ? transformer.location.latitude : 0,
+              :  28.187,
           ],
           { icon: markerIcon }
         ).addTo(map);
 
         marker.bindPopup(
-          "Transformer " +
-            transformer.id +
+          "Transformer" +
             "<br>" +
-            transformer.location.longitude +
+            transformer.location.latitude +
             " " +
-            transformer.location.latitude
+            transformer.location.longitude
         );
 
         marker.on("click", () => {
@@ -145,14 +144,14 @@
           if (load.load_type.Consumer) {
             // if the load is a consumer
             latlngs.push([
-              load.load_type.Consumer.location.longitude,
               load.load_type.Consumer.location.latitude,
+              load.load_type.Consumer.location.longitude,
             ]);
           } else {
             // if the load is a transmission line
             latlngs.push([
-              load.load_type.TransmissionLine.location.longitude,
               load.load_type.TransmissionLine.location.latitude,
+              load.load_type.TransmissionLine.location.longitude,
             ]);
           }
 
@@ -163,14 +162,14 @@
           if (load.load_type.Consumer) {
             // if the load is a consumer
             latlngs.push([
-              load.load_type.Consumer.location.longitude,
               load.load_type.Consumer.location.latitude,
+              load.load_type.Consumer.location.longitude,
             ]);
           } else {
             // if the load is a transmission line
             latlngs.push([
-              load.load_type.TransmissionLine.location.longitude,
               load.load_type.TransmissionLine.location.latitude,
+              load.load_type.TransmissionLine.location.longitude,
             ]);
           }
         } else {
@@ -182,14 +181,14 @@
           if (load.load_type.Consumer) {
             // if the load is a consumer
             latlngs.push([
-              load.load_type.Consumer.location.longitude,
               load.load_type.Consumer.location.latitude,
+              load.load_type.Consumer.location.longitude,
             ]);
           } else {
             // if the load is a transmission line
             latlngs.push([
-              load.load_type.TransmissionLine.location.longitude,
               load.load_type.TransmissionLine.location.latitude,
+              load.load_type.TransmissionLine.location.longitude,
             ]);
           }
 
@@ -200,17 +199,18 @@
           if (load.load_type.Consumer) {
             // if the load is a consumer
             latlngs.push([
-              load.load_type.Consumer.location.longitude,
               load.load_type.Consumer.location.latitude,
+              load.load_type.Consumer.location.longitude,
             ]);
           } else {
             // if the load is a transmission line
             latlngs.push([
-              load.load_type.TransmissionLine.location.longitude,
               load.load_type.TransmissionLine.location.latitude,
+              load.load_type.TransmissionLine.location.longitude,
             ]);
           }
         }
+        console.log("Connection: " + latlngs);
         // add the line to the map:
         var line = L.polyline(latlngs, { color: "black", weight: 2 }).addTo(
           map

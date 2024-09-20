@@ -158,8 +158,8 @@ impl Agent {
     ) {
         let node_detail = NodeDetail {
             name,
-            location_x: location.latitude,
-            location_y: location.longitude,
+            location_y: location.latitude,
+            location_x: location.longitude,
         };
         let url = env::var("MURL").unwrap();
 

@@ -407,8 +407,8 @@ fn rocket() -> _ {
             },
         },
         location: Location {
-            latitude: 0.0,
-            longitude: 0.0,
+            latitude: -25.7563,
+            longitude: 28.2373,
         },
     };
     let trans_ref = Arc::new(Mutex::new(transformer));
@@ -449,14 +449,14 @@ fn rocket() -> _ {
                                 },
                             },
                             location: Location {
-                                latitude: 28.0248,
-                                longitude: -26.2044,
+                                latitude: -26.2044,
+                                longitude: 28.0248,
                             },
                         }),
                         id: 0,
                     },
                     Load {
-                        load_type: LoadType::new_transmission_line(80.0, -26.3044, 28.1),
+                        load_type: LoadType::new_transmission_line(80.0, -25.3044, 28.1),
                         id: 1,
                     },
                 ],
@@ -476,9 +476,9 @@ fn rocket() -> _ {
                     transmission_line: 0,
                     location: Location {
                         // reference point:
-                        // lat: 28.048782348632816, long: -26.120609901056977
-                        latitude: 28.04878,
-                        longitude: -26.12061,
+                        // lat: -25.7563, long: 28.2373
+                        latitude: -25.7331,
+                        longitude: 28.2473,
                     },
                 }],
                 transformers: vec![trans_ref.clone()],

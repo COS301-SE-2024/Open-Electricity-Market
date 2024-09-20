@@ -172,8 +172,8 @@ impl Grid {
                         let line_latitude = line.location.latitude;
                         let line_longitude = line.location.longitude;
 
-                        let x = latitude - line_latitude;
-                        let y = longitude - line_longitude;
+                        let y = latitude - line_latitude;
+                        let x = longitude - line_longitude;
 
                         let dist = f32::sqrt(x * x + y * y);
 
@@ -229,8 +229,8 @@ impl Grid {
                 let trans_latitude = transformer.location.latitude;
                 let trans_longitude = transformer.location.longitude;
 
-                let x = trans_latitude - latitude;
-                let y = trans_longitude - longitude;
+                let y = trans_latitude - latitude;
+                let x = trans_longitude - longitude;
 
                 let dist = f32::sqrt(x * x + y * y);
 

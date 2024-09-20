@@ -93,18 +93,6 @@
 
   let uniqueGens = [...new Set(generators.map((generator) => generator.type))];
 
-  $: intervalStart = "";
-  $: intervalEnd = "";
-
-  $: categoryChosen = false;
-  const onChangeGenerator = () => {
-    categoryChosen = false;
-  };
-
-  const onChangeCategory = () => {
-    categoryChosen = true;
-  };
-
   onMount(async () => {
     await fetchStart();
     await fetchNodes();
@@ -191,7 +179,7 @@
       nodeToProduce = data.units_to_produce;
       nodeToConsume = data.units_to_consume;
       selectedNodeID = data.node_id;
-      listCurves(email, node_id_in)
+      listCurves(email, node_id_in);
     }
   }
 
@@ -433,30 +421,6 @@
       sellorders = data.data;
     }
   }
-  async function listCurves(emailOfNode, node_id_in){
-    try{
-      const response = await fetch(`${API_URL_AGENT}/get_curve`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          Authorization: `Bearer ${sessionStorage.getItem("Token")}`,
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          email: emailOfNode,
-          node_id: node_id_in,
-        })
-      });
-      const fdata = await response.json();
-      data = fdata.data;
-      console.log("Data received from curve data: ", data);
-    }
-    catch(error)
-    {
-      console.log("There was an error fetching the curves");
-    }
-  }
 
   function handleMapClick(lat, lng) {
     latitude = lat;
@@ -475,6 +439,52 @@
     }).format(value);
 
     return value.slice(2, value.length);
+  }
+
+  async function addGenerator() {
+    let details2 = {
+      email: email,
+      node_id: selectedNodeID,
+      generators: [],
+    };
+
+    let onPeriods = {
+      start: 15.0,
+      //start: intervalStart,
+      end: 800.0,
+      //end: intervalEnd,
+    };
+
+    if (generator && category) {
+      console.log(generator + " " + category);
+      let generatorDetails = {
+        generator_type: { [generator]: category },
+        on_periods: [onPeriods],
+      };
+      details2.generators.push(generatorDetails);
+      //details2.generators.generator_type.push(onPeriods);
+      console.log(details2);
+      try {
+        const response = await fetch(`${API_URL_AGENT}/add_generators`, {
+          method: "POST",
+          body: JSON.stringify(details2),
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            Authorization: `Bearer ${sessionStorage.getItem("Token")}`,
+          },
+          credentials: "include",
+        });
+        const fdata = await response.json();
+        data = fdata;
+        console.log("Data received from add gen endpoint: ", data);
+      } catch (error) {
+        console.log(
+          "There was an error with the add generator endpoint: ",
+          error
+        );
+      }
+    }
   }
 
   async function addAppliance() {
@@ -522,52 +532,40 @@
     }
   }
 
-  async function addGenerator() {
-    let details2 = {
-      email: email,
-      node_id: selectedNodeID,
-      generators: [],
-    };
+  $: intervalStart = "";
+  $: intervalEnd = "";
 
-    let onPeriods = {
-      start: 15.0,
-      //start: intervalStart,
-      end: 800.0,
-      //end: intervalEnd,
-    };
+  $: categoryChosen = false;
+  const onChangeGenerator = () => {
+    categoryChosen = false;
+  };
 
-    if (generator && category) {
-      console.log(generator + " " + category);
-      let generatorDetails = {
-        generator_type: { [generator]: category },
-        on_periods: [onPeriods],
-      };
-      details2.generators.push(generatorDetails);
-      //details2.generators.generator_type.push(onPeriods);
-      console.log(details2);
-      try {
-        const response = await fetch(`${API_URL_AGENT}/add_generators`, {
-          method: "POST",
-          body: JSON.stringify(details2),
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          credentials: "include",
-        });
-        const fdata = await response.json();
-        data = fdata;
-        console.log("Data received from add gen endpoint: ", data);
-      } catch (error) {
-        console.log(
-          "There was an error with the add generator endpoint: ",
-          error
-        );
-      }
+  const onChangeCategory = () => {
+    categoryChosen = true;
+  };
+
+  async function listCurves(emailOfNode, node_id_in) {
+    try {
+      const response = await fetch(`${API_URL_AGENT}/get_curve`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${sessionStorage.getItem("Token")}`,
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          email: emailOfNode,
+          node_id: node_id_in,
+        }),
+      });
+      const fdata = await response.json();
+      data = fdata.data;
+      console.log("Data received from curve data: ", data);
+    } catch (error) {
+      console.log("There was an error fetching the curves");
     }
   }
-
-  
 </script>
 
 <main
@@ -918,11 +916,14 @@
         <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 my-2">
           <span class="text-3xl font-thin justify-start">
             Add an Appliance
-            <button class = "btn btn-primary my-2 ml-9" on:click={() => {
-              document.getElementById("displayApplications").showModal();
-            }}>See all node's appliances</button>
+            <button
+              class="btn btn-primary my-2 ml-9"
+              on:click={() => {
+                document.getElementById("displayApplications").showModal();
+              }}>See all node's appliances</button
+            >
           </span>
-          
+
           <!-- selecting appliance-->
           <div class="form-control">
             <select
@@ -944,11 +945,14 @@
           <div class="form-control">
             <span class="label">
               <span class="label-text">Select a generator</span>
-              <button class = "btn btn-primary my-2" on:click={() => {
-                document.getElementById("displayGenerators").showModal();
-              }}>See all node's generators</button>
+              <button
+                class="btn btn-primary my-2"
+                on:click={() => {
+                  document.getElementById("displayGenerators").showModal();
+                }}>See all node's generators</button
+              >
             </span>
-            
+
             <select
               bind:value={generator}
               class="select select-bordered max-h-40 overflow-y-auto"
@@ -1102,8 +1106,8 @@
     </div>
   </dialog>
 
-  <dialog id = "displayApplications" class = "modal"> 
-    <div class = "modal-box">
+  <dialog id="displayApplications" class="modal">
+    <div class="modal-box">
       <h3 class="text-lg font-bold">All {nodeNameDetail}'s applications</h3>
       <div class="modal-action">
         <form method="dialog">
@@ -1111,11 +1115,10 @@
         </form>
       </div>
     </div>
-    
   </dialog>
 
-  <dialog id = "displayGenerators" class = "modal">
-    <div class = "modal-box">
+  <dialog id="displayGenerators" class="modal">
+    <div class="modal-box">
       <h3 class="text-lg font-bold">All {nodeNameDetail}'s generators</h3>
       <div class="modal-action">
         <form method="dialog">
@@ -1123,6 +1126,5 @@
         </form>
       </div>
     </div>
-    
   </dialog>
 </main>

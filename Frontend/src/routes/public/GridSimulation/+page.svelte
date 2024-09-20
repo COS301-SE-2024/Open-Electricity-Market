@@ -57,7 +57,7 @@
       //console.log("Request being sent...");
       const fdata = await response.json();
       // console.log("Fetched data [gridsim /info]:", fdata);
-      mapdata = fdata.circuits[0]; // TODO: multiple circuits exist
+      mapdata = fdata.circuits;
       if (!fdata.started) {
         await fetchstart();
       }
@@ -83,13 +83,13 @@
       power =
         (Math.pow(consumerMarkerDetails.voltage.oscilloscope_detail.amplitude),
         2) / consumerMarkerDetails.resistance;
-      console.log(
-        consumerMarkerDetails.voltage.oscilloscope_detail.amplitude +
-          " " +
-          consumerMarkerDetails.resistance +
-          " " +
-          power
-      );
+      // console.log(
+      //   consumerMarkerDetails.voltage.oscilloscope_detail.amplitude +
+      //     " " +
+      //     consumerMarkerDetails.resistance +
+      //     " " +
+      //     power
+      // );
     } else if (entity.detail.type === "transformer") {
       transformerMarkerDetails = entity.detail;
     }

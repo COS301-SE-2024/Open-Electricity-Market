@@ -291,7 +291,7 @@ fn set_transformers_secondary_voltages_when_inductance_and_capacitance_zero() {
             latitude: 0.0,
             longitude: 0.0,
         },
-        target: None
+        target: None,
     };
 
     let trans_ref = Arc::new(Mutex::new(transformer));

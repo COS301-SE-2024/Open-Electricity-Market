@@ -82,6 +82,7 @@ fn rocket() -> _ {
                 index,
                 user_management::register,
                 user_management::login,
+                user_management::token_refresh,
                 user_management::add_funds,
                 user_management::remove_funds,
                 user_management::user_details,

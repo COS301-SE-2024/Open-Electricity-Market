@@ -3,7 +3,6 @@
   import { goto } from "$app/navigation";
   import Map from "$lib/Components/MapDashboard.svelte";
   import { API_URL_GRID, API_URL_MARKET, API_URL_AGENT } from "$lib/config.js";
-  import Scroller from "@sveltejs/svelte-scroller";
 
   let data = {};
   let nodeName = "";
@@ -180,6 +179,7 @@
       nodeToProduce = data.units_to_produce;
       nodeToConsume = data.units_to_consume;
       selectedNodeID = data.node_id;
+      listCurves(email, node_id_in);
     }
   }
 
@@ -441,7 +441,54 @@
     return value.slice(2, value.length);
   }
 
+  async function addGenerator() {
+    let details2 = {
+      email: email,
+      node_id: selectedNodeID,
+      generators: [],
+    };
+
+    let onPeriods = {
+      start: 15.0,
+      //start: intervalStart,
+      end: 800.0,
+      //end: intervalEnd,
+    };
+
+    if (generator && category) {
+      console.log(generator + " " + category);
+      let generatorDetails = {
+        generator_type: { [generator]: category },
+        on_periods: [onPeriods],
+      };
+      details2.generators.push(generatorDetails);
+      //details2.generators.generator_type.push(onPeriods);
+      console.log(details2);
+      try {
+        const response = await fetch(`${API_URL_AGENT}/add_generators`, {
+          method: "POST",
+          body: JSON.stringify(details2),
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            Authorization: `Bearer ${sessionStorage.getItem("Token")}`,
+          },
+          credentials: "include",
+        });
+        const fdata = await response.json();
+        data = fdata;
+        console.log("Data received from add gen endpoint: ", data);
+      } catch (error) {
+        console.log(
+          "There was an error with the add generator endpoint: ",
+          error
+        );
+      }
+    }
+  }
+
   async function addAppliance() {
+    //console.log(appliance);
     let details = {
       email: email,
       node_id: selectedNodeID,
@@ -467,6 +514,7 @@
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
+            Authorization: `Bearer ${sessionStorage.getItem("Token")}`,
           },
           credentials: "include",
         });
@@ -484,51 +532,51 @@
     }
   }
 
-  async function addGenerator() {
-    let details2 = {
-      email: email,
-      node_id: selectedNodeID,
-      generators: [],
-    };
+  $: intervalStart = "";
+  $: intervalEnd = "";
 
-    let onPeriods = {
-      start: 15.0,
-      end: 800.0,
-    };
+  $: appliancesJSON = [];
+  $: generatorsJSON = [];
 
-    if (generator && category) {
-      console.log(generator + " " + category);
-      let generatorDetails = {
-        generator_type: { [generator]: category },
-        on_periods: [onPeriods],
-      };
-      details2.generators.push(generatorDetails);
-      //details2.generators.generator_type.push(onPeriods);
-      console.log(details2);
-      try {
-        const response = await fetch(`${API_URL_AGENT}/add_generators`, {
-          method: "POST",
-          body: JSON.stringify(details2),
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          credentials: "include",
-        });
-        const fdata = await response.json();
-        data = fdata;
-        console.log("Data received from add gen endpoint: ", data);
-      } catch (error) {
-        console.log(
-          "There was an error with the add generator endpoint: ",
-          error
-        );
-      }
+  $: categoryChosen = false;
+  const onChangeGenerator = () => {
+    categoryChosen = false;
+  };
+
+  const onChangeCategory = () => {
+    categoryChosen = true;
+  };
+
+  async function listCurves(emailOfNode, node_id_in) {
+    try {
+      const response = await fetch(`${API_URL_AGENT}/get_curve`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${sessionStorage.getItem("Token")}`,
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          email: emailOfNode,
+          node_id: node_id_in,
+        }),
+      });
+      const fdata = await response.json();
+      appliancesJSON = fdata.data.consumption;
+      generatorsJSON = fdata.data.production;
+      console.log("Appliances received from curve data: ", appliancesJSON);
+      console.log("Generators received from curve data: ", generatorsJSON);
+      console.log(generatorsJSON[0][0])
+    } catch (error) {
+      console.log("There was an error fetching the curves");
     }
   }
 </script>
 
-<main class="container sm:mx-auto w-full sm:h-screen sm:max-h-screen sm:flex justify-center">
+<main
+  class="container sm:mx-auto w-full sm:h-screen sm:max-h-screen sm:flex justify-center"
+>
   <!--first-->
   <div class="sm:w-1/3 h-[calc(100vh-70px)] flex flex-col">
     <!--Personal Info-->
@@ -870,12 +918,19 @@
             </div>
           </div>
         </div>
-
+        <!--Add an appliance-->
         <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 my-2">
           <span class="text-3xl font-thin justify-start">
             Add an Appliance
+            <button
+              class="btn btn-primary my-2 ml-9"
+              on:click={() => {
+                document.getElementById("displayApplications").showModal();
+              }}>See all node's appliances</button
+            >
           </span>
 
+          <!-- selecting appliance-->
           <div class="form-control">
             <select
               bind:value={appliance}
@@ -886,18 +941,28 @@
                 <option value={appliance}>{appliance}</option>
               {/each}
             </select>
-            <button on:click={addAppliance} class="btn btn-primary my-2"
-              >Add Appliance</button
+            <button
+              on:click={addAppliance}
+              class="btn btn-primary my-2"
+              disabled={!appliance}>Add Appliance</button
             >
           </div>
-          <!-- selecting category  -->
+          <!-- selecting generator and category  -->
           <div class="form-control">
             <span class="label">
               <span class="label-text">Select a generator</span>
+              <button
+                class="btn btn-primary my-2"
+                on:click={() => {
+                  document.getElementById("displayGenerators").showModal();
+                }}>See all node's generators</button
+              >
             </span>
+
             <select
               bind:value={generator}
               class="select select-bordered max-h-40 overflow-y-auto"
+              on:change={onChangeGenerator}
             >
               <option value="" disabled selected>Select a generator</option>
               {#each uniqueGens as type}
@@ -909,15 +974,23 @@
               bind:value={category}
               class="select select-bordered max-h-40 overflow-y-auto mt-4"
               disabled={!generator}
+              on:change={onChangeCategory}
             >
               <option value="" disabled selected>Select a category</option>
               {#each generators.filter((g) => g.type === generator) as { category }}
                 <option value={category}>{category}</option>
               {/each}
             </select>
-            <button on:click={addGenerator} class="btn btn-primary mt-4"
-              >Add Generator</button
+            <!--<button on:click={addGenerator} class="btn btn-primary mt-4">Add Generator</button>-->
+            <button
+              class="btn btn-primary mt-4"
+              disabled={!categoryChosen}
+              on:click={() => {
+                document.getElementById("generatortimes").showModal();
+              }}
             >
+              Add Generator
+            </button>
           </div>
         </div>
       </div>
@@ -1000,5 +1073,69 @@
     <form method="dialog" class="modal-backdrop">
       <button on:click={nullifyValues}>close</button>
     </form>
+  </dialog>
+
+  <dialog id="generatortimes" class="modal">
+    <div class="modal-box">
+      <h3 class="text-lg font-bold">Time Interval</h3>
+      <p class="py-4">Please enter the duration the generator will be on for</p>
+      <div class="form-control mt-4 grid grid-cols-2 gap-4">
+        <div class="grid grid-rows-2">
+          <label for="start">Start-time:</label>
+          <input
+            id="start"
+            class="input input-bordered"
+            type="time"
+            required
+            bind:value={intervalStart}
+          />
+        </div>
+        <div class="grid grid-rows-2">
+          <label for="end">End-time:</label>
+          <input
+            id="end"
+            class="input input-bordered"
+            type="time"
+            required
+            bind:value={intervalEnd}
+          />
+        </div>
+      </div>
+      <div class="modal-action">
+        <form method="dialog">
+          <button class="btn bg-green-600" on:click={addGenerator}
+            >Continue</button
+          >
+          <button class="btn bg-red-600">Cancel</button>
+        </form>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="displayApplications" class="modal">
+    <div class="modal-box">
+      <h3 class="text-lg font-bold">All {nodeNameDetail}'s applications</h3>
+      <div class="modal-action">
+        <form method="dialog">
+          <button class="btn bg-red-600">Close</button>
+        </form>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="displayGenerators" class="modal">
+    <div class="modal-box">
+      <h3 class="text-lg font-bold">All {nodeNameDetail}'s generators</h3>
+      <div class = "overflow-auto h-32">
+        {#each generators as gen}
+        <p>{gen}</p>
+        {/each}
+      </div>
+      <div class="modal-action">
+        <form method="dialog">
+          <button class="btn bg-red-600">Close</button>
+        </form>
+      </div>
+    </div>
   </dialog>
 </main>

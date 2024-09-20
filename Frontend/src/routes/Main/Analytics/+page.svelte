@@ -292,10 +292,17 @@
         let temp2 = fdata.data.production;
 
         temp2.forEach((generator) => {
-            //should be the value
-            // productioncurvedata = temp2[1];
+          let startTime = generator[2][0].start;
+          let endTime = generator[2][0].end;
+          let startTimeHour = Math.round(startTime/3600); 
+          let endTimeHour = Math.round(endTime/3600);  
+          console.log("This is start time: ", startTimeHour); 
+          console.log("This is end time: ", endTimeHour);  
             for(let index = 0; index<24; index++){
-                productioncurvedata[index] = generator[1]; 
+              productioncurvedata[index] = 0; 
+            }
+            for(let index2 = startTimeHour; index2<endTimeHour; index2++){
+                productioncurvedata[index2] = generator[1]; 
             } 
         });
 
@@ -365,10 +372,20 @@
   
         });
         let temp2 = fdata.data.production;
+        // let startTime = temp2.
 
         temp2.forEach((generator) => {
+          let startTime = generator[2][0].start;
+          let endTime = generator[2][0].end;
+          let startTimeHour = Math.round(startTime/3600); 
+          let endTimeHour = Math.round(endTime/3600);  
+          console.log("This is start time: ", startTimeHour); 
+          console.log("This is end time: ", endTimeHour);  
             for(let index = 0; index<24; index++){
-                productioncurvedata[index] = generator[1]; 
+              productioncurvedata[index] = 0; 
+            }
+            for(let index2 = startTimeHour; index2<endTimeHour; index2++){
+                productioncurvedata[index2] = generator[1]; 
             } 
         });
 

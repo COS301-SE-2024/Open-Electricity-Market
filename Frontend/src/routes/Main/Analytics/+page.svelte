@@ -313,6 +313,71 @@
     }
   }
 
+
+
+
+  //getCurve function that will not reset the appliances
+  async function getCurve2() {
+    
+    
+    try {
+      
+      const response = await fetch(`${API_URL_AGENT}/get_curve`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${sessionStorage.getItem("Token")}`,
+        },
+        body: JSON.stringify({
+          email: sessionStorage.getItem("email"),
+          node_id: nodeid,
+        }),
+        credentials: "include",
+      });
+      
+      
+      const fdata = await response.json();
+      console.log(fdata);
+      let temp = fdata.data.consumption;
+
+        console.log("Selected appliances are ", selectedAppliances);
+        console.log("Appliances are: ", appliances); 
+      consumptioncurvedata = []; 
+      productioncurvedata = []; 
+      let index = 0; 
+      if (fdata.message == "Here is the detail") {
+        //console.log("gets to the first foreach"); 
+        temp.forEach((item) => {
+         
+          if(selectedAppliances.includes(item.appliance)){
+            console.log(item.appliance);
+            if (!consumptioncurvedata[index]) {
+              consumptioncurvedata[index] = 0;
+            }
+            consumptioncurvedata[index] += item.data;
+            index++; 
+            if(index >= 24){
+              index = 0; 
+            }
+
+          }
+  
+        });
+        let temp2 = fdata.data.production;
+
+        temp2.forEach((generator) => {
+            for(let index = 0; index<24; index++){
+                productioncurvedata[index] = generator[1]; 
+            } 
+        });
+
+      }
+    } catch (error) {
+      console.log("An error occurred while fetching getCurve2 data..\n", error);
+    }
+  }
+
   async function getConsumedProduced() {
     try {
       const response = await fetch(`${API_URL_AGENT}/get_consumed_produced`, {
@@ -378,6 +443,11 @@
 
   function updateAllAgent(){
     getCurve(); 
+    getConsumedProduced(); 
+  }
+
+  function updateAllAgent2(){
+    getCurve2(); 
     getConsumedProduced(); 
   }
 
@@ -519,7 +589,7 @@
                   type="checkbox"
                   class="checkbox checkbox-primary mr-2"
                   checked={selectedAppliances.includes(appliance)}
-                  on:change={() => {toggleAppliance(appliance); updateAllAgent()}}
+                  on:change={() => {toggleAppliance(appliance); updateAllAgent2()}}
                 />
                 {appliance}
               </label>

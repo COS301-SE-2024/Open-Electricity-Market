@@ -88,6 +88,7 @@
     } else {
       selectedAppliances = [...selectedAppliances, appliance];
     }
+    console.log(selectedAppliances); 
   }
 
   async function getBuyStats() {
@@ -234,8 +235,7 @@
 
   async function getCurve() {
     
-    console.log("curve was running");
-    console.log(sessionStorage.getItem("email")); 
+    
     try {
       
       const response = await fetch(`${API_URL_AGENT}/get_curve`, {
@@ -267,13 +267,15 @@
         }
         console.log("Selected appliances are ", selectedAppliances);
         console.log("Appliances are: ", appliances); 
-
+      consumptioncurvedata = []; 
+      productioncurvedata = []; 
       let index = 0; 
       if (fdata.message == "Here is the detail") {
         //console.log("gets to the first foreach"); 
         temp.forEach((item) => {
          
           if(selectedAppliances.includes(item.appliance)){
+            console.log(item.appliance);
             if (!consumptioncurvedata[index]) {
               consumptioncurvedata[index] = 0;
             }
@@ -302,8 +304,8 @@
 
         
 
-        console.log("This is consumption curve data:", consumptioncurvedata);
-        console.log("This is the production curve data: ", productioncurvedata); 
+        // console.log("This is consumption curve data:", consumptioncurvedata);
+        // console.log("This is the production curve data: ", productioncurvedata); 
       }
     } catch (error) {
       console.log("An error occurred while fetching getCurve data..\n", error);
@@ -432,9 +434,11 @@
         ></span
       >
         </div>
+        {#if marketpiedata.length>1}
         <div class="w-1/2 mr-16">
           <PieChart {marketpiedata} />
         </div>
+        {/if}
     </div>
 
     <!-- {/if} -->
@@ -502,7 +506,7 @@
 
       <div class=" w-1/2">
         <button
-          class="select select-bordered w-full text-left flex items-center h-full focus:outline-none z-10"
+          class="select select-bordered w-full text-left flex items-center h-full focus:outline-none z-9000"
           on:click={toggleDropdown}>Select Appliances</button
         >
 
@@ -524,11 +528,13 @@
       </div>
     </div>
 
+    <!-- {#if agentpiedata.length>1} -->
     <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3 h-80">
-      {#if agentpiedata}
+     
       <PieChartAgent {agentpiedata} />
-      {/if}
+     
     </div>
+    <!-- {/if} -->
     <div class="flex min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3 space-x-2">
       <ConsumptionCurve class="w-1/2" data = {consumptioncurvedata} />
       <ProductionCurve class = "fixed justify right-1" data = {productioncurvedata} />

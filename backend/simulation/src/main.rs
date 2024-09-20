@@ -228,6 +228,7 @@ fn add_consumer(
     }
 
     let out = serde_json::to_string(&new_consumer).unwrap();
+    println!("Added consumer");
 
     content::RawJson(out)
 }
@@ -410,6 +411,7 @@ fn rocket() -> _ {
             latitude: 0.0,
             longitude: 0.0,
         },
+        target : None
     };
     let trans_ref = Arc::new(Mutex::new(transformer));
 
@@ -485,8 +487,8 @@ fn rocket() -> _ {
                     transformers: vec![trans_ref.clone()],
                 },
                 Circuit {
-                    id: 0 ,
-                     loads: vec![
+                    id: 1,
+                    loads: vec![
                         Load {
                             load_type: LoadType::Consumer(Consumer {
                                 id: 0,

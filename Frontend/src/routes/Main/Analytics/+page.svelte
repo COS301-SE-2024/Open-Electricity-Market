@@ -9,7 +9,7 @@
   import PieChartAgent from "$lib/Components/PieChartAgent.svelte";
 
   let selectednode = "";
-  let selectedAppliances = ["asdf", "jkl", "oiu"]; //by default should be all of them
+  let selectedAppliances = []; //by default should be all of them
   let appliances = new Set(); 
   let dropdownvisible = false;
 
@@ -257,14 +257,15 @@
       console.log(fdata);
       let temp = fdata.data.consumption;
 
-      if(selectedAppliances[0]=="asdf"){
+      
+      appliances.clear(); 
           //only runs this first time - selectedAppliances gets updated in toggleAppliance
             temp.forEach((item) => {
               appliances.add(item.appliance); 
             });
             selectedAppliances = Array.from(appliances);
           
-        }
+        
         console.log("Selected appliances are ", selectedAppliances);
         console.log("Appliances are: ", appliances); 
       consumptioncurvedata = []; 

@@ -587,6 +587,8 @@ pub fn establish_connection() -> PgConnection {
 
 #[launch]
 fn rocket() -> _ {
+    let autos = Arc::new(Mutex::new(Vec::<Value>::new()));
+    let autos_clone_1 = autos.clone();
     thread::spawn(move || {
         let mut handels = vec![];
         dotenv().ok();
@@ -594,6 +596,7 @@ fn rocket() -> _ {
 
         for i in 1..15 {
             let password = password.clone();
+            let autos_clone_1 = autos_clone_1.clone();
             let handle = thread::spawn(move || {
                 let mut agent = Agent::new(
                     format!("{i}@example.com"),
@@ -623,7 +626,11 @@ fn rocket() -> _ {
                     false,
                     Box::new(SineCurve::new()),
                 );
-                agent.run();
+                {
+                    let mut autos = autos_clone_1.lock().unwrap();
+                    autos.push(json!(null))
+                }
+                agent.run(autos_clone_1.clone(), i - 1);
             });
             handels.push(handle);
             thread::sleep(time::Duration::from_secs(AGENT_SPEED));
@@ -648,11 +655,20 @@ fn rocket() -> _ {
                     use crate::agent_history::dsl::agent_history;
 
                     count = 0;
-                    let santas_address: serde_json::Value =
+                    let santas_address1: serde_json::Value =
                         serde_json::from_str(&serde_json::to_string(agents.deref()).unwrap())
                             .expect("REASON");
+                    let autos = autos.lock().unwrap();
+                    let santas_address2: serde_json::Value =
+                        serde_json::from_str(&serde_json::to_string(autos.deref()).unwrap())
+                            .expect("REASON");
+                    let santas_adress = json!({
+                        "user_agents" : santas_address1,
+                        "auto_agents" : santas_address2
+                    });
+
                     let _ = insert_into(agent_history)
-                        .values(agent_state.eq(santas_address))
+                        .values(agent_state.eq(santas_adress))
                         .execute(&mut establish_connection());
                 } else {
                     count += 1;

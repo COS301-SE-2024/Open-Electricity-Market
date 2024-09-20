@@ -212,7 +212,16 @@
           }
         }
         // add the line to the map:
-        var line = L.polyline(latlngs, { color: "black" }).addTo(map);
+        var line = L.polyline(latlngs, { color: "black", weight: 2 }).addTo(
+          map
+        );
+
+        // ------------------------------------------
+
+        // for each transformer within this circuit:
+        circuit.transformers.forEach((transformer) => {
+          
+        });
       });
     });
   }

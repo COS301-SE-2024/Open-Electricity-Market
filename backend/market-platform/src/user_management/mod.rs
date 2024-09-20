@@ -264,7 +264,6 @@ pub fn login(credentials: Json<Credentials>) -> Value {
 
 #[post("/token_refresh")]
 pub fn token_refresh(claims: Claims) -> Value {
-
     let user_id_parse = Uuid::parse_str(&*claims.user_id);
     if user_id_parse.is_err() {
         return json!({"status": "error",

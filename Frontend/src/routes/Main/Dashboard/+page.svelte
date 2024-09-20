@@ -540,6 +540,8 @@
       }
     }
   }
+
+
 </script>
 
 <main
@@ -890,7 +892,11 @@
         <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 my-2">
           <span class="text-3xl font-thin justify-start">
             Add an Appliance
+            <button class = "btn btn-primary my-2 ml-9" on:click={() => {
+              document.getElementById("displayApplications").showModal();
+            }}>See all node's appliances</button>
           </span>
+          
           <!-- selecting appliance-->
           <div class="form-control">
             <select
@@ -912,7 +918,11 @@
           <div class="form-control">
             <span class="label">
               <span class="label-text">Select a generator</span>
+              <button class = "btn btn-primary my-2" on:click={() => {
+                document.getElementById("displayGenerators").showModal();
+              }}>See all node's generators</button>
             </span>
+            
             <select
               bind:value={generator}
               class="select select-bordered max-h-40 overflow-y-auto"
@@ -1064,5 +1074,29 @@
         </form>
       </div>
     </div>
+  </dialog>
+
+  <dialog id = "displayApplications" class = "modal"> 
+    <div class = "modal-box">
+      <h3 class="text-lg font-bold">All {nodeNameDetail}'s applications</h3>
+      <div class="modal-action">
+        <form method="dialog">
+          <button class="btn bg-red-600">Close</button>
+        </form>
+      </div>
+    </div>
+    
+  </dialog>
+
+  <dialog id = "displayGenerators" class = "modal">
+    <div class = "modal-box">
+      <h3 class="text-lg font-bold">All {nodeNameDetail}'s generators</h3>
+      <div class="modal-action">
+        <form method="dialog">
+          <button class="btn bg-red-600">Close</button>
+        </form>
+      </div>
+    </div>
+    
   </dialog>
 </main>

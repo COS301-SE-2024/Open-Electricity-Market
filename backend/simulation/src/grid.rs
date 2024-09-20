@@ -1,12 +1,16 @@
+use std::sync::{Arc, Mutex};
 use std::usize;
 
 use crate::grid::circuit::Circuit;
 use crate::grid::load::Connection::{Parallel, Series};
 
+use rocket::form::validate::{Contains, Len};
 use rocket::serde::{Deserialize, Serialize};
 
 use self::generator::Generator;
 use self::load::{Load, LoadType};
+use self::location::Location;
+use self::transformer::Transformer;
 
 pub mod circuit;
 pub mod generator;
@@ -116,7 +120,7 @@ impl CurrentWrapper {
             current: self.current.scale(factor),
             oscilloscope_detail: OscilloscopeDetail {
                 frequency: self.oscilloscope_detail.frequency,
-                amplitude: self.oscilloscope_detail.frequency * factor,
+                amplitude: self.oscilloscope_detail.amplitude * factor,
                 phase: self.oscilloscope_detail.phase,
             },
         }
@@ -206,16 +210,55 @@ impl Grid {
             )
         }
 
-        let cn_id = tl_id + 1;
+        let cn_id = 0;
 
-        self.circuits[nearest_circuit as usize].loads.push(Load {
+        let new_circuit_id = self.circuits.len();
+
+        self.circuits.push(Circuit {
+            id: new_circuit_id as u32,
+            loads: vec![],
+            connections: vec![],
+            generators: vec![],
+            transformers: vec![],
+        });
+
+        let transformer = Transformer {
+            id: 0,
+            ratio: 1.0,
+            primary_circuit: nearest_circuit,
+            secondary_circuit: new_circuit_id as u32,
+            primary_load: tl_id as u32,
+            secondary_voltage: VoltageWrapper {
+                voltage: Voltage(0.0, 0.0, 0.0),
+                oscilloscope_detail: OscilloscopeDetail {
+                    frequency: 0.0,
+                    amplitude: 0.0,
+                    phase: 0.0,
+                },
+            },
+            location: Location {
+                latitude,
+                longitude,
+            },
+            target: Some(240.0),
+        };
+        let trans_ref = Arc::new(Mutex::new(transformer));
+
+        self.circuits[nearest_circuit as usize]
+            .transformers
+            .push(trans_ref.clone());
+        self.circuits[new_circuit_id]
+            .transformers
+            .push(trans_ref.clone());
+
+        self.circuits[new_circuit_id as usize].loads.push(Load {
             load_type: LoadType::new_consumer(latitude, longitude),
             id: cn_id as u32,
         });
 
-        self.connect_load_series(cn_id as u32, tl_id as u32, nearest_circuit as usize);
+        // self.connect_load_series(cn_id as u32, tl_id as u32, nearest_circuit as usize);
 
-        return (cn_id as u32, nearest_circuit as u32);
+        return (cn_id as u32, new_circuit_id as u32);
     }
 
     pub fn create_producer(&mut self, latitude: f32, longitude: f32) -> (u32, u32) {
@@ -291,24 +334,42 @@ impl Grid {
             .push(Parallel(new_primary, new))
     }
 
-    fn internal_update(&mut self, elapsed_time: f32, circuit: usize) {
+    fn internal_update(&mut self, elapsed_time: f32, circuit: usize, visited: &mut Vec<usize>) {
         // Step 1 Update voltages
         let voltage = self.circuits[circuit].calculate_ideal_generator_voltages(elapsed_time);
+
         // Step 2 Calculate Impedance
         let impedance =
             Resistance(self.circuits[circuit].calculate_equivalent_impedance(self.frequency, 0));
         // Step 3 Calculate current
-        let current = CurrentWrapper::ohms_law(voltage, impedance);
+        let current = CurrentWrapper::ohms_law(voltage.clone(), impedance.clone());
         // Step 4 Split resistors (and current) back down
         // Step 5 Determine Voltages
         self.circuits[circuit].set_voltages(current, self.frequency, 0);
 
         //Step 6 Switch to Connected Circuits
         self.circuits[circuit].set_transformers_secondary_voltages(self.frequency);
+
+        let mut next = vec![];
+
+        for trans in self.circuits[circuit].transformers.iter() {
+            let transformer = trans.lock().unwrap();
+            next.push(transformer.secondary_circuit as usize);
+        }
+
+        for n in next {
+            if !visited.contains(n) {
+                visited.push(n);
+                // println!("circuit {n}");
+                self.internal_update(elapsed_time, n, visited);
+            }
+        }
     }
 
     pub fn update(&mut self, elapsed_time: f32) {
-        self.internal_update(elapsed_time, 0);
+        // println!("Update");
+        let mut visited = vec![];
+        self.internal_update(elapsed_time, 0, &mut visited);
     }
 
     pub fn set_consumer(&mut self, grid_interface: ConsumerInterface) {

@@ -3,10 +3,11 @@ use crate::grid::load::Connection::{Parallel, Series};
 use crate::grid::load::{Connection, Load};
 use crate::grid::transformer::Transformer;
 use crate::grid::{CurrentWrapper, VoltageWrapper};
+use rocket::form::validate::Len;
 use rocket::serde::Serialize;
 use std::sync::{Arc, Mutex};
 
-use super::Resistance;
+use super::{OscilloscopeDetail, Resistance, Voltage};
 
 #[derive(Serialize)]
 #[serde(crate = "rocket::serde")]
@@ -62,7 +63,18 @@ impl Circuit {
             gen.voltage.oscilloscope_detail.frequency = gen.frequency;
         }
 
-        let mut out = self.generators[0].voltage.clone();
+        let mut out = VoltageWrapper {
+            voltage: Voltage(0.0, 0.0, 0.0),
+            oscilloscope_detail: OscilloscopeDetail {
+                frequency: 50.0,
+                amplitude: 0.0,
+                phase: 0.0,
+            },
+        };
+
+        if self.generators.len() > 0 {
+            out = self.generators[0].voltage.clone();
+        }
 
         for transformer in self.transformers.iter() {
             let transformer = transformer.lock().unwrap();
@@ -192,6 +204,14 @@ impl Circuit {
                     let load = self.loads[load_id as usize].get_voltage();
                     total_voltage.subtract_voltage(load);
                     if load_id == prev_load_id {
+                        if transformer.target.is_some() {
+                            let target = transformer.target.unwrap();
+                            let incomming_voltage = total_voltage.oscilloscope_detail.amplitude;
+                            if incomming_voltage != 0.0 {
+                                transformer.ratio = target / incomming_voltage;
+                            }
+                        }
+
                         transformer.secondary_voltage.voltage.0 =
                             total_voltage.voltage.0 * transformer.ratio;
                         transformer.secondary_voltage.voltage.1 =

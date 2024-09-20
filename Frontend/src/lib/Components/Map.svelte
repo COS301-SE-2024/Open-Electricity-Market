@@ -128,6 +128,93 @@
         markers.push(marker);
       });
     });
+
+    // for each circuit (which is later connected to others via transformers)
+    mapdata.forEach((circuit) => {
+      // which has an array of connection internally
+      circuit.connections.forEach((connection) => {
+        // this is for storing the line starting and ending points
+        var latlngs = Array();
+
+        if (connection.Parallel) {
+          // --- if the load ids are accessed under the "Parallel" key
+          // find the load matching the first id
+          var load = circuit.loads.find((l) => l.id === connection.Parallel[0]);
+
+          // add the coordinates to the array:
+          if (load.load_type.Consumer) {
+            // if the load is a consumer
+            latlngs.push([
+              load.load_type.Consumer.location.longitude,
+              load.load_type.Consumer.location.latitude,
+            ]);
+          } else {
+            // if the load is a transmission line
+            latlngs.push([
+              load.load_type.TransmissionLine.location.longitude,
+              load.load_type.TransmissionLine.location.latitude,
+            ]);
+          }
+
+          // find the load matching the second id
+          var load = circuit.loads.find((l) => l.id === connection.Parallel[1]);
+
+          // add the coordinates to the array:
+          if (load.load_type.Consumer) {
+            // if the load is a consumer
+            latlngs.push([
+              load.load_type.Consumer.location.longitude,
+              load.load_type.Consumer.location.latitude,
+            ]);
+          } else {
+            // if the load is a transmission line
+            latlngs.push([
+              load.load_type.TransmissionLine.location.longitude,
+              load.load_type.TransmissionLine.location.latitude,
+            ]);
+          }
+        } else {
+          // --- if the load ids are accessed under the "Series" key
+          // find the load matching the first id
+          var load = circuit.loads.find((l) => l.id === connection.Series[0]);
+
+          // add the coordinates to the array:
+          if (load.load_type.Consumer) {
+            // if the load is a consumer
+            latlngs.push([
+              load.load_type.Consumer.location.longitude,
+              load.load_type.Consumer.location.latitude,
+            ]);
+          } else {
+            // if the load is a transmission line
+            latlngs.push([
+              load.load_type.TransmissionLine.location.longitude,
+              load.load_type.TransmissionLine.location.latitude,
+            ]);
+          }
+
+          // find the load matching the second id
+          var load = circuit.loads.find((l) => l.id === connection.Series[1]);
+
+          // add the coordinates to the array:
+          if (load.load_type.Consumer) {
+            // if the load is a consumer
+            latlngs.push([
+              load.load_type.Consumer.location.longitude,
+              load.load_type.Consumer.location.latitude,
+            ]);
+          } else {
+            // if the load is a transmission line
+            latlngs.push([
+              load.load_type.TransmissionLine.location.longitude,
+              load.load_type.TransmissionLine.location.latitude,
+            ]);
+          }
+        }
+        // add the line to the map:
+        var line = L.polyline(latlngs, { color: "black" }).addTo(map);
+      });
+    });
   }
 </script>
 

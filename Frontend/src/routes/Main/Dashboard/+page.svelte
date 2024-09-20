@@ -504,10 +504,10 @@
     };
 
     let onPeriods = {
-      //start: 15.0,
-      start: intervalStart,
-      //end: 800.0,
-      end: intervalEnd,
+      start: 15.0,
+      //start: intervalStart,
+      end: 800.0,
+      //end: intervalEnd,
     };
 
     if (generator && category) {

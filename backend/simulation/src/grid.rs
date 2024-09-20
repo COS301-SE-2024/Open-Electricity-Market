@@ -240,7 +240,7 @@ impl Grid {
                 latitude,
                 longitude,
             },
-            target : Some(240.0)
+            target: Some(240.0),
         };
         let trans_ref = Arc::new(Mutex::new(transformer));
 
@@ -337,8 +337,7 @@ impl Grid {
     fn internal_update(&mut self, elapsed_time: f32, circuit: usize, visited: &mut Vec<usize>) {
         // Step 1 Update voltages
         let voltage = self.circuits[circuit].calculate_ideal_generator_voltages(elapsed_time);
-       
-       
+
         // Step 2 Calculate Impedance
         let impedance =
             Resistance(self.circuits[circuit].calculate_equivalent_impedance(self.frequency, 0));

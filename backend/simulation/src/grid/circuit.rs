@@ -208,7 +208,7 @@ impl Circuit {
                             let target = transformer.target.unwrap();
                             let incomming_voltage = total_voltage.oscilloscope_detail.amplitude;
                             if incomming_voltage != 0.0 {
-                            transformer.ratio = target/incomming_voltage;
+                                transformer.ratio = target / incomming_voltage;
                             }
                         }
 

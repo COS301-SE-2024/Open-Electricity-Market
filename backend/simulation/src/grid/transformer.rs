@@ -12,5 +12,5 @@ pub struct Transformer {
     pub(crate) primary_load: u32,
     pub(crate) secondary_voltage: VoltageWrapper,
     pub(crate) location: Location,
-    pub(crate) target: Option<f32>
+    pub(crate) target: Option<f32>,
 }

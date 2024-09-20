@@ -56,25 +56,19 @@
 
   function updateMarkers() {
     mapdata.forEach((circuit) => {
-      if (!circuit.loads || !circuit.generators) {
-        console.log(circuit);
-        console.log("No loads or generators available");
-        return;
-      }
-  
       markers.forEach((marker) => marker.remove());
       markers = [];
-  
+
       circuit.loads.forEach((load) => {
         if (load.id == 0) return;
-  
+
         if (load.load_type.Consumer) {
           const consumer = load.load_type.Consumer;
           const marker = L.marker(
             [consumer.location.longitude, consumer.location.latitude],
             { icon: markerIcon }
           ).addTo(map);
-  
+
           marker.bindPopup(
             "Consumer " +
               (load.id +
@@ -83,7 +77,7 @@
                 " " +
                 consumer.location.latitude)
           );
-  
+
           let generators = [];
           circuit.generators.forEach((generator) => {
             if (
@@ -93,7 +87,7 @@
               generators.push(generator);
             }
           });
-  
+
           // marker.on("click", () => showMarkerPopup(marker, consumer));
           // marker.on('click', ()=> updateChart(consumer));
           marker.on("click", () => {
@@ -104,19 +98,20 @@
           markers.push(marker);
         }
       });
-  
+
       circuit.transformers.forEach((transformer) => {
-        // TODO: remember to uncomment this when you are done.
-        // if (transformer.id == 0) return;
-  
+        if (transformer.id == 0) return;
+
         const marker = L.marker(
           [
-            transformer.location.longtitude ? transformer.location.longtitude : 0,
+            transformer.location.longtitude
+              ? transformer.location.longtitude
+              : 0,
             transformer.location.latitude ? transformer.location.latitude : 0,
           ],
           { icon: markerIcon }
         ).addTo(map);
-  
+
         marker.bindPopup(
           "Transformer " +
             transformer.id +
@@ -125,16 +120,14 @@
             " " +
             transformer.location.latitude
         );
-  
+
         marker.on("click", () => {
           transformer["type"] = "transformer";
           dispatch("markerClick", transformer);
         });
         markers.push(marker);
       });
-
     });
-
   }
 </script>
 

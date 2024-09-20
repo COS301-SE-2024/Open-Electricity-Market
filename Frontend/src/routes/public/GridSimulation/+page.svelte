@@ -7,13 +7,7 @@
 
   $: voltageData = null;
   $: power = null;
-  // let interval;
-  // let dropdownViewable = false;
   $: mapdata = null;
-
-  // function toggleDropdown() {
-  //   dropdownViewable = !dropdownViewable;
-  // }
 
   onMount(async () => {
     await fetchData();
@@ -34,12 +28,8 @@
           Accept: "application/json",
         },
       });
-      console.log("start being sent...");
-      // const response = fetch("http://localhost:8000");
+      // console.log("start being sent...");
       const startdata = await response.json();
-      // console.log(startdata);
-      //Voltage 1,2,3 as well as price
-      //updateChart(data.Phase1, data.Phase2);
     } catch (error) {
       console.log("There was an error fetching the JSON for start()..", error);
     }
@@ -57,10 +47,11 @@
       //console.log("Request being sent...");
       const fdata = await response.json();
       // console.log("Fetched data [gridsim /info]:", fdata);
-      mapdata = fdata.circuits;
       if (!fdata.started) {
         await fetchstart();
+        return;
       }
+      mapdata = fdata.circuits;
     } catch (error) {
       console.log(
         "There was an error fetching the JSON for the overview:",

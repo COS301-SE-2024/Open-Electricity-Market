@@ -191,6 +191,7 @@
       nodeToProduce = data.units_to_produce;
       nodeToConsume = data.units_to_consume;
       selectedNodeID = data.node_id;
+      listCurves(email, node_id_in)
     }
   }
 
@@ -432,6 +433,30 @@
       sellorders = data.data;
     }
   }
+  async function listCurves(emailOfNode, node_id_in){
+    try{
+      const response = await fetch(`${API_URL_AGENT}/get_curve`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${sessionStorage.getItem("Token")}`,
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          email: emailOfNode,
+          node_id: node_id_in,
+        })
+      });
+      const fdata = await response.json();
+      data = fdata.data;
+      console.log("Data received from curve data: ", data);
+    }
+    catch(error)
+    {
+      console.log("There was an error fetching the curves");
+    }
+  }
 
   function handleMapClick(lat, lng) {
     latitude = lat;
@@ -479,6 +504,7 @@
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
+            Authorization: `Bearer ${sessionStorage.getItem("Token")}`,
           },
           credentials: "include",
         });
@@ -541,7 +567,7 @@
     }
   }
 
-
+  
 </script>
 
 <main

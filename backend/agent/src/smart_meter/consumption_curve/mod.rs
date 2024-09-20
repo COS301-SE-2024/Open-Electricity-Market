@@ -38,7 +38,7 @@ impl HomeApplianceType {
     pub fn to_string(&self) -> String {
         return match self {
             HomeApplianceType::WashingMachine => String::from("washing_machine"),
-            HomeApplianceType::Router => String::from("washing_machine"),
+            HomeApplianceType::Router => String::from("router"),
             HomeApplianceType::Vacuum => String::from("vacuum"),
             HomeApplianceType::Dishwasher => String::from("dish_washer"),
             HomeApplianceType::Boiler => String::from("boiler"),
@@ -49,7 +49,7 @@ impl HomeApplianceType {
             HomeApplianceType::PhoneCharger => String::from("phone_charger"),
             HomeApplianceType::Fridge => String::from("fridge"),
             HomeApplianceType::Radiator => String::from("radiator"),
-            HomeApplianceType::Dehumidifier => String::from("dehumifer"),
+            HomeApplianceType::Dehumidifier => String::from("dehumidifier"),
             HomeApplianceType::MicroWaveOven => String::from("micro_wave_oven"),
             HomeApplianceType::Laptop => String::from("laptop"),
             HomeApplianceType::Tv => String::from("tv"),

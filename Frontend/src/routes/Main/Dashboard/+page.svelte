@@ -1057,7 +1057,9 @@
       </div>
       <div class="modal-action">
         <form method="dialog">
-          <button class="btn bg-green-600" on:click={addFunds}>Continue</button>
+          <button class="btn bg-green-600" on:click={addGenerator}
+            >Continue</button
+          >
           <button class="btn bg-red-600">Cancel</button>
         </form>
       </div>

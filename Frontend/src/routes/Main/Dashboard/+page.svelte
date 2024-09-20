@@ -535,6 +535,9 @@
   $: intervalStart = "";
   $: intervalEnd = "";
 
+  $: appliancesJSON = [];
+  $: generatorsJSON = [];
+
   $: categoryChosen = false;
   const onChangeGenerator = () => {
     categoryChosen = false;
@@ -560,8 +563,11 @@
         }),
       });
       const fdata = await response.json();
-      data = fdata.data;
-      console.log("Data received from curve data: ", data);
+      appliancesJSON = fdata.data.consumption;
+      generatorsJSON = fdata.data.production;
+      console.log("Appliances received from curve data: ", appliancesJSON);
+      console.log("Generators received from curve data: ", generatorsJSON);
+      console.log(generatorsJSON[0][0])
     } catch (error) {
       console.log("There was an error fetching the curves");
     }
@@ -1120,6 +1126,11 @@
   <dialog id="displayGenerators" class="modal">
     <div class="modal-box">
       <h3 class="text-lg font-bold">All {nodeNameDetail}'s generators</h3>
+      <div class = "overflow-auto h-32">
+        {#each generators as gen}
+        <p>{gen}</p>
+        {/each}
+      </div>
       <div class="modal-action">
         <form method="dialog">
           <button class="btn bg-red-600">Close</button>

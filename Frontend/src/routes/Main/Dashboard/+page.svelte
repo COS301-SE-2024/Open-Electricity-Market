@@ -542,6 +542,18 @@
       }
     }
   }
+
+  $: intervalStart = "";
+  $: intervalEnd = "";
+
+  $: categoryChosen = false;
+  const onChangeGenerator = () => {
+    categoryChosen = false;
+  };
+
+  const onChangeCategory = () => {
+    categoryChosen = true;
+  };
 </script>
 
 <main class="container sm:mx-auto w-full h-screen sm:flex justify-center">
@@ -880,7 +892,7 @@
               {/each}
             </select>
             <button on:click={addAppliance} class="btn btn-primary my-2"
-              >Add Appliance</button
+              disabled = {!appliance}>Add Appliance</button
             >
           </div>
           <!-- selecting category  -->
@@ -891,6 +903,7 @@
             <select
               bind:value={generator}
               class="select select-bordered max-h-40 overflow-y-auto"
+              on:change={onChangeGenerator}
             >
               <option value="" disabled selected>Select a generator</option>
               {#each uniqueGens as type}
@@ -902,13 +915,14 @@
               bind:value={category}
               class="select select-bordered max-h-40 overflow-y-auto mt-4"
               disabled={!generator}
+              on:change={onChangeCategory}
             >
               <option value="" disabled selected>Select a category</option>
               {#each generators.filter((g) => g.type === generator) as { category }}
                 <option value={category}>{category}</option>
               {/each}
             </select>
-            <button on:click={addGenerator} class="btn btn-primary mt-4"
+            <button on:click={addGenerator} class="btn btn-primary mt-4" disabled = {!categoryChosen}
               >Add Generator</button
             >
           </div>

@@ -102,15 +102,14 @@
       circuit.transformers.forEach((transformer) => {
         // if (transformer.id == 0) return;
 
-        const marker = L.marker(
-          [
-            transformer.location.latitude,
-            transformer.location.longtitude
-              ? transformer.location.longtitude
-              : 28.187,
-          ],
-          { icon: transformerIcon }
-        ).addTo(map);
+        var location = {
+          lat: transformer.location.latitude,
+          lng: transformer.location.longitude,
+        };
+        console.log(location);
+        const marker = L.marker(L.latLng(location), {
+          icon: transformerIcon,
+        }).addTo(map);
 
         marker.bindPopup(
           "Transformer" +
@@ -226,9 +225,9 @@
           var latlngs = Array();
 
           // store the location of the load on the primary circuit
-          var primary_load = mapdata[
-            transformer.primary_circuit
-          ].loads.find((l) => l.id === transformer.primary_load);
+          var primary_load = mapdata[transformer.primary_circuit].loads.find(
+            (l) => l.id === transformer.primary_load
+          );
           // unfortunately it could be of any type of load:
           if (primary_load.load_type.Consumer) {
             latlngs.push([
@@ -252,7 +251,9 @@
           // (always assumed to connect to the load with id = 0)
           var secondary_circuit = mapdata[transformer.secondary_circuit];
           if (secondary_circuit) {
-            var secondary_load = secondary_circuit.loads.find((l) => l.id === 0);
+            var secondary_load = secondary_circuit.loads.find(
+              (l) => l.id === 0
+            );
             // there seems to be a chance that there is no second circuit
             // again
             if (secondary_load.load_type.Consumer) {

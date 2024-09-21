@@ -93,6 +93,10 @@
 
   let uniqueGens = [...new Set(generators.map((generator) => generator.type))];
 
+  //viewing appliances and generators
+  let applianceNames = new Set(); 
+  let generatorNames = []; 
+
   onMount(async () => {
     await fetchStart();
     await fetchNodes();
@@ -678,63 +682,18 @@
       let temp = fdata.data.consumption;
 
       
-      appliances.clear(); 
-          //only runs this first time - selectedAppliances gets updated in toggleAppliance
-            temp.forEach((item) => {
-              appliances.add(item.appliance); 
-            });
-            selectedAppliances = Array.from(appliances);
-          
-        
-        console.log("Selected appliances are ", selectedAppliances);
-        console.log("Appliances are: ", appliances); 
-      consumptioncurvedata = []; 
-      productioncurvedata = []; 
-      let index = 0; 
-      if (fdata.message == "Here is the detail") {
-        //console.log("gets to the first foreach"); 
-        temp.forEach((item) => {
-         
-          if(selectedAppliances.includes(item.appliance)){
-            console.log(item.appliance);
-            if (!consumptioncurvedata[index]) {
-              consumptioncurvedata[index] = 0;
-            }
-            consumptioncurvedata[index] += item.data;
-            index++; 
-            if(index >= 24){
-              index = 0; 
-            }
-
-          }
-  
-        });
+      applianceNames.clear(); 
+      
+      temp.forEach((item) => {
+        applianceNames.add(item.appliance); 
+      });
+            
         let temp2 = fdata.data.production;
 
-        temp2.forEach((generator) => {
-          let startTime = generator[2][0].start;
-          let endTime = generator[2][0].end;
-          let startTimeHour = Math.round(startTime/3600); 
-          let endTimeHour = Math.round(endTime/3600);  
-          console.log("This is start time: ", startTimeHour); 
-          console.log("This is end time: ", endTimeHour);  
-            for(let index = 0; index<24; index++){
-              productioncurvedata[index] = 0; 
-            }
-            for(let index2 = startTimeHour; index2<endTimeHour; index2++){
-                productioncurvedata[index2] = generator[1]; 
-            } 
+        generatorNames = temp2.flatMap(item => {
+          return Object.keys(item[0]); 
         });
-
-       
-
-        
-
-        
-
-        // console.log("This is consumption curve data:", consumptioncurvedata);
-        // console.log("This is the production curve data: ", productioncurvedata); 
-      }
+      
     } catch (error) {
       console.log("An error occurred while fetching getCurve data..\n", error);
     }

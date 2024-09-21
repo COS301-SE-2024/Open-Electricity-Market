@@ -58,7 +58,6 @@
     markers.forEach((marker) => marker.remove());
     markers = [];
     mapdata.forEach((circuit) => {
-
       circuit.loads.forEach((load) => {
         // if (load.id == 0) return;
 
@@ -72,10 +71,10 @@
 
           marker.bindPopup(
             "Consumer" +
-                "<br>" +
-                consumer.location.latitude +
-                " " +
-                consumer.location.longitude
+              "<br>" +
+              consumer.location.latitude +
+              " " +
+              consumer.location.longitude
           );
 
           let generators = [];
@@ -107,7 +106,7 @@
             transformer.location.latitude,
             transformer.location.longtitude
               ? transformer.location.longtitude
-              :  28.187,
+              : 28.187,
           ],
           { icon: markerIcon }
         ).addTo(map);
@@ -210,17 +209,67 @@
             ]);
           }
         }
-        console.log("Connection: " + latlngs);
+        // console.log("Connection: " + latlngs);
         // add the line to the map:
-        var line = L.polyline(latlngs, { color: "black", weight: 2 }).addTo(
-          map
-        );
+        L.polyline(latlngs, {
+          color: "black",
+          weight: 2,
+          dashArray: "4 1 2",
+        }).addTo(map);
 
         // ------------------------------------------
 
         // for each transformer within this circuit:
         circuit.transformers.forEach((transformer) => {
-          
+          // a line will be drawn in the order we put the locations into this array
+          var latlngs = Array();
+
+          // store the location of the load on the primary circuit
+          var primary_load = mapdata.circuit[
+            transformer.primary_circuit
+          ].loads.find((l) => l.id === transformer.primary_load);
+          // unfortunately it could be of any type of load:
+          if (primary_load.load_type.Consumer) {
+            latlngs.push([
+              primary_load.load_type.Consumer.location.latitude,
+              primary_load.load_type.Consumer.location.longitude,
+            ]);
+          } else {
+            latlngs.push([
+              primary_load.load_type.TransmissionLine.location.latitude,
+              primary_load.load_type.TransmissionLine.location.longitude,
+            ]);
+          }
+
+          // store the location of the transformer
+          latlngs.push([
+            transformer.location.latitude,
+            transformer.location.longitude,
+          ]);
+
+          // store the location of the load on the secondary circuit
+          // (always assumed to connect to the load with id = 0)
+          var secondary_load = mapdata.circuit[
+            transformer.secondary_circuit
+          ].loads.find((l) => l.id === 0);
+          if (secondary_load) {
+            // there seems to be a chance that there is no second circuit
+            // again
+            if (secondary_load.load_type.Consumer) {
+              latlngs.push([
+                secondary_load.load_type.Consumer.location.latitude,
+                secondary_load.load_type.Consumer.location.longitude,
+              ]);
+            } else {
+              latlngs.push([
+                secondary_load.load_type.TransmissionLine.location.latitude,
+                secondary_load.load_type.TransmissionLine.location.longitude,
+              ]);
+            }
+          }
+
+          // add the line to the map:
+          L.polyline(latlngs, { color: "black", weight: 2 }).addTo(map);
         });
       });
     });

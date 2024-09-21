@@ -355,6 +355,11 @@
       let index = 0; 
       if (fdata.message == "Here is the detail") {
         //console.log("gets to the first foreach"); 
+        //check to see if all the appliances are toggled off 
+        if(selectedAppliances.length === 0){
+          productioncurvedata = new Array(24).fill(0); 
+          return; 
+        }
         temp.forEach((item) => {
          
           if(selectedAppliances.includes(item.appliance)){

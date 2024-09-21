@@ -452,6 +452,7 @@
         nodes = fdata.data;
         listofnodes = fdata.data.map((nodes) => nodes.name);
         listofnodeids = fdata.data.map((nodes) => nodes.node_id);
+        selectednode = listofnodes.length > 0 ? listofnodes[0] : '';
         console.log(listofnodes);
         console.log(listofnodeids);
         nodeid = listofnodeids[0]; 
@@ -592,9 +593,9 @@
         class="select select-bordered overflow-y-auto w-1/2 focus:outline-none"
         on:change={()=>{updateNode(); updateAllAgent();}}
       >
-        <option value="" disabled selected id = "nodeselector">Select Node</option>
-        {#each listofnodes as node, i}
-          <option value={node} selected={i===0}>{node}</option>
+        <!-- <option value="" disabled id = "nodeselector">Select Node</option> -->
+        {#each listofnodes as node}
+          <option value={node}>{node}</option>
         {/each}
       </select>
 

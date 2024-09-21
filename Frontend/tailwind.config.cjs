@@ -55,9 +55,9 @@ module.exports = {
           "accent-content": "#130601",
           neutral: "#2d2b26",
           "neutral-content": "#d1d0cf",
-          "base-100": "#F9FAFF", // d1dddd / f4f5f7 / FFF4E9
-          "base-200": "#4f444b",
-          "base-300": "#da8c5e",
+          "base-100": "#F9FAFF", // older alternatives: d1dddd / f4f5f7 / FFF4E9
+          "base-200": "#faccae", // 4f444b
+          "base-300": "#da8c5e", // #FAB17E
           "base-content": "#101111",
           info: "#009dee",
           "info-content": "#000914",
@@ -81,7 +81,7 @@ module.exports = {
           "neutral-content": "#c4c9cb",
           "base-100": "#1C1E1E",
           "base-200": "#4f444b",
-          "base-300": "#da8c5e",
+          "base-300": "#101010",
           "base-content": "#ccced0",
           info: "#00d2ff",
           "info-content": "#001016",

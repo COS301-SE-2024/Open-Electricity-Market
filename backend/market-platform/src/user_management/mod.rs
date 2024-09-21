@@ -262,6 +262,34 @@ pub fn login(credentials: Json<Credentials>) -> Value {
     }
 }
 
+#[post("/token_refresh")]
+pub fn token_refresh(claims: Claims) -> Value {
+    let user_id_parse = Uuid::parse_str(&*claims.user_id);
+    if user_id_parse.is_err() {
+        return json!({"status": "error",
+            "message": "Invalid User ID".to_string(),
+            "data": {"token": "".to_string()}
+        });
+    }
+    let claim_user_id = user_id_parse.unwrap();
+
+    let claim = Claims::from_name(claim_user_id.to_string());
+    match claim.into_token() {
+        Ok(token) => {
+            json!({"status": "ok",
+                "message": "Token refreshed".to_string(),
+                "data": {"token": token}
+            })
+        }
+        Err(_) => {
+            json!({"status": "error",
+                "message": "Something went wrong".to_string(),
+                "data": {"token": "".to_string()}
+            })
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "rocket::serde")]
 pub struct RemoveFundsReq {

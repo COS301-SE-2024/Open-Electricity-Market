@@ -52,6 +52,7 @@ pub mod open_em {
             location_x -> Float8,
             location_y -> Float8,
             node_active -> Bool,
+            created_at -> Timestamptz,
             name -> Text,
         }
     }

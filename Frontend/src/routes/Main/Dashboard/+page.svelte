@@ -3,7 +3,6 @@
   import { goto } from "$app/navigation";
   import Map from "$lib/Components/MapDashboard.svelte";
   import { API_URL_GRID, API_URL_MARKET, API_URL_AGENT } from "$lib/config.js";
-  import Scroller from "@sveltejs/svelte-scroller";
 
   let data = {};
   let nodeName = "";
@@ -101,13 +100,13 @@
     await listOpenBuys();
     await listOpenSells();
 
-    // const buyOrderInterval = setInterval(listOpenBuys, 10000);
-    // const sellOrderInterval = setInterval(listOpenSells, 10000);
+    const buyOrderInterval = setInterval(listOpenBuys, 10000);
+    const sellOrderInterval = setInterval(listOpenSells, 10000);
 
-    // return () => {
-    //   clearInterval(buyOrderInterval);
-    //   clearInterval(sellOrderInterval);
-    // }
+    return () => {
+      clearInterval(buyOrderInterval);
+      clearInterval(sellOrderInterval);
+    }
   });
 
   async function fetchStart() {
@@ -192,6 +191,11 @@
     // only proceed if all fields filled in
     if (nodeName == "" || latitude == "" || longtitude == "") {
       // maybe show an error
+      let errorToast = document.getElementById("errorToast"); 
+      errorToast.style.display =  "block"; 
+      setTimeout(()=>{
+        errorToast.style.display = "none"; 
+      }, 3000); 
       return;
     }
 
@@ -356,6 +360,7 @@
       email = data.data.email;
       firstname = data.data.first_name;
       lastname = data.data.last_name;
+      sessionStorage.setItem("email", email);
     } else {
       // this is intended to reroute the user to the login page if they send an invalid session id
       sessionStorage.clear();
@@ -467,12 +472,17 @@
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
+            Authorization: `Bearer ${sessionStorage.getItem("Token")}`,
           },
           credentials: "include",
         });
         const fdata = await response.json();
         data = fdata;
-        console.log("Data received from user details is: ", data);
+        console.log(fdata); 
+        if(fdata.message == "Succesfully added appliances"){
+          document.getElementById("addappliancemodal").showModal();
+        }
+        // console.log("Data received from user details is: ", data);
       } catch (error) {
         console.log(
           "There was an error with the add appliance endpoint: ",
@@ -492,8 +502,8 @@
     };
 
     let onPeriods = {
-      start: 15.0,
-      end: 800.0,
+      start: 28800.0,
+      end: 64800.0,
     };
 
     if (generator && category) {
@@ -512,12 +522,17 @@
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
+            Authorization: `Bearer ${sessionStorage.getItem("Token")}`,
           },
           credentials: "include",
         });
         const fdata = await response.json();
         data = fdata;
-        console.log("Data received from add gen endpoint: ", data);
+        if(fdata.message == "Succesfully added generators"){
+          document.getElementById("addgeneratormodal").showModal();
+        }
+        // console.log("Data received from add gen endpoint: ", data);
+        
       } catch (error) {
         console.log(
           "There was an error with the add generator endpoint: ",
@@ -526,13 +541,25 @@
       }
     }
   }
+
+  $: intervalStart = "";
+  $: intervalEnd = "";
+
+  $: categoryChosen = false;
+  const onChangeGenerator = () => {
+    categoryChosen = false;
+  };
+
+  const onChangeCategory = () => {
+    categoryChosen = true;
+  };
 </script>
 
-<main class="container sm:mx-auto w-full sm:h-screen sm:max-h-screen sm:flex justify-center">
+<main class="container sm:mx-auto w-full h-screen sm:flex justify-center">
   <!--first-->
   <div class="sm:w-1/3 h-[calc(100vh-70px)] flex flex-col">
     <!--Personal Info-->
-    <span class="text-3xl text-white font-thin justify-start pl-2">
+    <span class="text-3xl font-thin justify-start pl-2">
       Personal Information
     </span>
 
@@ -586,7 +613,7 @@
     </div>
 
     <!--Buy orders-->
-    <span class="text-3xl text-white font-light justify-start pl-2 mt-2">
+    <span class="text-3xl font-light justify-start pl-2 mt-2">
       Buy Orders
     </span>
     <div
@@ -603,8 +630,7 @@
               <h2 class="card-title">Buy order</h2>
               <p>
                 Filled units: {buyorder.filled_units.toFixed(1) + "Wh"}<br />
-                Max price: {formatCurrency(buyorder.max_price)}<br />
-                Min price: {formatCurrency(buyorder.min_price)}<br />
+                Price: {formatCurrency(buyorder.max_price)}<br />
                 Units bought: {Intl.NumberFormat().format(
                   buyorder.sought_units
                 ) + "Wh"}<br />
@@ -675,60 +701,52 @@
   <!--second-->
   <div class="sm:w-1/3 h-[calc(100vh-70px)] mx-4 flex flex-col">
     <!--Nodes-->
-    <span class="basis text-3xl text-white font-thin justify-start pl-2">
+    <span class="basis text-3xl font-thin justify-start pl-2">
       Your Nodes
     </span>
     <div class="h-1/2 flex flex-col">
-      <div
-        class="rounded-2xl h-full p-2 backdrop-blur-sm bg-white/30 overflow-y-auto"
-      >
-        {#if nodes.length == 0}
-          <div class="rounded-xl h-full bg-base-100 flex justify-center">
-            <p class="self-center text-2xl font-light">--No Nodes--</p>
-          </div>
-        {:else}
-          {#each nodes as node}
-            {#if node.name == nodeNameDetail}
-              <div
-                class="card card-side border-4 border-primary min-w-1/3 bg-base-100 mb-2"
-              >
-                <figure class="w-1/4 p-3 pr-0">
-                  <img src="../src/images/house.png" alt="House node" />
-                </figure>
-                <div class="card-body pb-4 px-4">
-                  <h2 class="card-title font-light text-2xl">{node.name}</h2>
-                  <div class="card-actions justify-end">
-                    <button
-                      class="btn btn-primary"
-                      on:click={() => {
-                        fetchNodeDetails(node.node_id);
-                      }}>Details</button
-                    >
-                  </div>
+      <div class="rounded-2xl h-full p-2 backdrop-blur-sm bg-white/30 overflow-y-auto">
+        {#each nodes as node}
+          {#if node.name == nodeNameDetail}
+            <div
+              class="card card-side border-4 border-primary min-w-1/3 bg-base-100 mb-2"
+            >
+              <figure class="w-1/4 p-3 pr-0">
+                <img src="../src/images/house.png" alt="House node" />
+              </figure>
+              <div class="card-body pb-4 px-4">
+                <h2 class="card-title font-light text-2xl">{node.name}</h2>
+                <div class="card-actions justify-end">
+                  <button
+                    class="btn btn-primary"
+                    on:click={() => {
+                      fetchNodeDetails(node.node_id);
+                    }}>Details</button
+                  >
                 </div>
               </div>
-            {:else}
-              <div
-                class="card card-side border-4 border-base-100 min-w-1/3 bg-base-100 mb-2"
-              >
-                <figure class="w-1/4 p-3 pr-0">
-                  <img src="../src/images/house.png" alt="House node" />
-                </figure>
-                <div class="card-body pb-4 px-4">
-                  <h2 class="card-title font-light text-2xl">{node.name}</h2>
-                  <div class="card-actions justify-end">
-                    <button
-                      class="btn btn-primary"
-                      on:click={() => {
-                        fetchNodeDetails(node.node_id);
-                      }}>Details</button
-                    >
-                  </div>
+            </div>
+          {:else}
+            <div
+              class="card card-side border-4 border-base-100 min-w-1/3 bg-base-100 mb-2"
+            >
+              <figure class="w-1/4 p-3 pr-0">
+                <img src="../src/images/house.png" alt="House node" />
+              </figure>
+              <div class="card-body pb-4 px-4">
+                <h2 class="card-title font-light text-2xl">{node.name}</h2>
+                <div class="card-actions justify-end">
+                  <button
+                    class="btn btn-primary"
+                    on:click={() => {
+                      fetchNodeDetails(node.node_id);
+                    }}>Details</button
+                  >
                 </div>
               </div>
-            {/if}
-          {/each}
-        {/if}
+            </div>
+          {/if}
+        {/each}
       </div>
 
       <!--Add New node-->
@@ -742,7 +760,7 @@
     </div>
 
     <!--Sell orders-->
-    <span class="text-3xl text-white font-light justify-start pl-2 mt-2">
+    <span class="text-3xl font-light justify-start pl-2 mt-2">
       Sell Orders
     </span>
     <div
@@ -760,8 +778,7 @@
               <p>
                 Claimed Units: {sellorder.claimed_units.toFixed(1) + "Wh"}<br />
                 Offered Units: {sellorder.offered_units.toFixed(1) + "Wh"}<br />
-                Max price: {formatCurrency(sellorder.max_price)}<br />
-                Min price: {formatCurrency(sellorder.min_price)}<br />
+                Price: {formatCurrency(sellorder.min_price)}<br />
               </p>
               <div class="card-actions">
                 <progress
@@ -816,7 +833,7 @@
   <!--third-->
   <div class="sm:w-1/3 sm:h-full">
     {#if nodeNameDetail != ""}
-      <span class="text-3xl text-white font-thin justify-start pl-2">
+      <span class="text-3xl font-thin justify-start pl-2">
         Node Details
       </span>
       <div class="h-5/6">
@@ -887,7 +904,7 @@
               {/each}
             </select>
             <button on:click={addAppliance} class="btn btn-primary my-2"
-              >Add Appliance</button
+              disabled = {!appliance}>Add Appliance</button
             >
           </div>
           <!-- selecting category  -->
@@ -898,6 +915,7 @@
             <select
               bind:value={generator}
               class="select select-bordered max-h-40 overflow-y-auto"
+              on:change={onChangeGenerator}
             >
               <option value="" disabled selected>Select a generator</option>
               {#each uniqueGens as type}
@@ -909,13 +927,14 @@
               bind:value={category}
               class="select select-bordered max-h-40 overflow-y-auto mt-4"
               disabled={!generator}
+              on:change={onChangeCategory}
             >
               <option value="" disabled selected>Select a category</option>
               {#each generators.filter((g) => g.type === generator) as { category }}
                 <option value={category}>{category}</option>
               {/each}
             </select>
-            <button on:click={addGenerator} class="btn btn-primary mt-4"
+            <button on:click={addGenerator} class="btn btn-primary mt-4" disabled = {!categoryChosen}
               >Add Generator</button
             >
           </div>
@@ -1001,4 +1020,45 @@
       <button on:click={nullifyValues}>close</button>
     </form>
   </dialog>
+
+  
+<!-- add appliance modal  -->
+  <dialog id="addappliancemodal" class="modal">
+    <div class="modal-box">
+      <h3 class="font-bold text-lg">Addition successful.</h3>
+      <p>
+        Addition of {appliance} was successful. 
+      </p>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button >close</button>
+    </form>
+  </dialog>
+
+
+
+<!-- add generator modal  -->
+  <dialog id="addgeneratormodal" class="modal">
+    <div class="modal-box">
+      <h3 class="font-bold text-lg">Addition successful.</h3>
+      <p>
+        Addition of {generator} was successful. 
+      </p>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button >close</button>
+    </form>
+  </dialog>
+
+
+
+  <div class="toast toast-bottom toast-center hidden" id="errorToast">
+    <div class="alert alert-error">
+      <div>
+        <span>Error: Please make sure to select a location on the map.</span>
+      </div>
+    </div>
+  </div>
+
+
 </main>

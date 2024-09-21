@@ -6,12 +6,12 @@
 
   let data = {};
   let nodeName = "";
-  let nodeLongitude = "";
   let nodeLatitude = "";
+  let nodeLongitude = "";
 
   $: nodeNameDetail = "";
-  $: nodeLongitudeDetail = "";
   $: nodeLatitudeDetail = "";
+  $: nodeLongitudeDetail = "";
   $: nodeToProduce = "";
   $: nodeToConsume = "";
   $: selectedNodeID = "";
@@ -174,8 +174,8 @@
       // console.log(data);
 
       nodeNameDetail = data.name;
-      nodeLatitudeDetail = data.location_x;
-      nodeLongitudeDetail = data.location_y;
+      nodeLatitudeDetail = data.location_y;
+      nodeLongitudeDetail = data.location_x;
       nodeToProduce = data.units_to_produce;
       nodeToConsume = data.units_to_consume;
       selectedNodeID = data.node_id;
@@ -210,8 +210,8 @@
         credentials: "include",
         body: JSON.stringify({
           name: nodeName,
-          location_x: Number(latitude),
-          location_y: Number(longtitude),
+          location_y: Number(latitude),
+          location_x: Number(longtitude),
         }),
       });
       // console.log("request being sent...");
@@ -864,12 +864,12 @@
           <div class="stat">
             <div class="stat-title">Node Location</div>
             <div class="stat-value font-light">
-              {nodeLongitudeDetail < 0
-                ? nodeLongitudeDetail.toFixed(3) * -1 + "S "
-                : nodeLongitudeDetail.toFixed(3) + "N "}
               {nodeLatitudeDetail < 0
-                ? nodeLatitudeDetail.toFixed(3) * -1 + "W"
-                : nodeLatitudeDetail.toFixed(3) + "E"}
+                ? nodeLatitudeDetail.toFixed(3) * -1 + "S "
+                : nodeLatitudeDetail.toFixed(3) + "N "}
+              {nodeLongitudeDetail < 0
+                ? nodeLongitudeDetail.toFixed(3) * -1 + "W "
+                : nodeLongitudeDetail.toFixed(3) + "E "}
             </div>
           </div>
 

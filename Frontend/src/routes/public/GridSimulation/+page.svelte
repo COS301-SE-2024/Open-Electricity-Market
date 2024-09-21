@@ -146,6 +146,37 @@
           > -->
         </div>
       </div>
+    {:else if transformerMarkerDetails != null}
+      <div
+        class="chartsection md:w-1/4 mx-2 p-5 xs:w-full bg-base-100 rounded-2xl flex flex-col max-w-full"
+      >
+        <h1 class="text-3xl">Transformer Details</h1>
+        <hr />
+        <span class="pt-5">
+          <span class="font-light text-lg mt-10">Ratio: </span><br />
+          <span class="text-4xl"
+            >{Intl.NumberFormat().format(transformerMarkerDetails.ratio)}</span
+          >
+          <br />
+          <span class="font-light text-lg mt-10">Output Voltage: </span><br />
+          <span class="text-4xl"
+            >{Intl.NumberFormat().format(
+              transformerMarkerDetails.secondary_voltage.oscilloscope_detail.amplitude.toFixed(
+                3
+              )
+            )} V</span
+          >
+        </span>
+        <div class="flex w-full justify-end -mt-4">
+          <span class="text-lg font-light"
+            >{transformerMarkerDetails.secondary_voltage.oscilloscope_detail
+              .frequency} Hz</span
+          >
+          <!-- <span class="text-lg font-light"
+        >{voltageData.oscilloscope_detail.amplitude}</span
+      > -->
+        </div>
+      </div>
     {:else}
       <div
         class="chartsection md:w-1/4 mx-2 p-5 xs:w-full bg-base-100 rounded-2xl"

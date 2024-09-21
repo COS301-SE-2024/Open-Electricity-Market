@@ -37,8 +37,8 @@
       transformerIcon = leaflet.icon({
         iconUrl: transformermarkerpng,
         iconSize: [50, 41],
-        iconAnchor: [25, 41],
-        popupAnchor: [0, -36],
+        iconAnchor: [25, 20],
+        popupAnchor: [0, -16],
         shadowSize: [41, 41],
         shadowAnchor: [12, 41],
       });
@@ -106,7 +106,6 @@
           lat: transformer.location.latitude,
           lng: transformer.location.longitude,
         };
-        console.log(location);
         const marker = L.marker(L.latLng(location), {
           icon: transformerIcon,
         }).addTo(map);

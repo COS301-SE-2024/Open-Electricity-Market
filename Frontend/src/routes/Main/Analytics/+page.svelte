@@ -630,9 +630,9 @@
      
     </div>
     <!-- {/if} -->
-    <div class="flex min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3 space-x-2">
+    <div class="flex min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3 ">
       <ConsumptionCurve class="w-1/2" data = {consumptioncurvedata} />
-      <ProductionCurve class = "fixed justify right-1" data = {productioncurvedata} />
+      <ProductionCurve class = "ml-8" data = {productioncurvedata} />
     </div>
     <!-- <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
     

@@ -9,7 +9,8 @@
 
   function resizeChart() {
     if (window.innerWidth <= 760) {
-      chartCanvas.style.height = "320px";
+      chartCanvas.style.height = "150px";
+      chartCanvas.style.width = "150px";
     } else {
       chartCanvas.style.height = "700px";
     }
@@ -18,7 +19,7 @@
   onMount(async () => {
     if (typeof window !== "undefined") {
       chart = createChart(chartCanvas, sampleChartConfig);
-      fillChart();
+      // fillChart();
     }
 
     window.addEventListener("resize", resizeChart);
@@ -47,7 +48,7 @@
 </script>
 
 <div style="display: flex; max-height: 100%">
-  <canvas bind:this={chartCanvas} height="340px"></canvas>
+  <canvas bind:this={chartCanvas} height="450px" width = "350px"></canvas>
 </div>
 
 <style>

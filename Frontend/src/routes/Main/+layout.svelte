@@ -93,6 +93,7 @@
 
       <div class="navbar-center hidden lg:flex">
         <ul class="menu menu-horizontal px-1">
+          
           <li class="px-2">
             <a
               class="btn btn-ghost rounded-btn font-normal"
@@ -103,6 +104,12 @@
             <a
               class="btn btn-ghost rounded-btn font-normal"
               href="/Main/Dashboard">Dashboard</a
+            >
+          </li>
+          <li class="px-2">
+            <a
+              class="btn btn-ghost rounded-btn font-normal"
+              href="/Main/Analytics">Analytics</a
             >
           </li>
         </ul>

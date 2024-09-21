@@ -684,6 +684,11 @@
       
       
       const fdata = await response.json();
+      if(fdata.message == "Invalid Email or node_id"){
+        applianceNames = "There was an issue retrieving your appliances.";
+        generatorNames = "There was an issue retrieving your generators.";
+        return;
+      }
       console.log(fdata);
       let temp = fdata.data.consumption;
 

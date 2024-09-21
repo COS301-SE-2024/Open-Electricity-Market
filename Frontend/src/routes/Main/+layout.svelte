@@ -20,6 +20,8 @@
       document.getElementById("my_modal_dash").showModal();
     } else if (activebutton == "/Main/BiddingMarket") {
       document.getElementById("help_modal").showModal();
+    } else if (activebutton == "/Main/Analytics") {
+      document.getElementById("analytics_help").showModal();
     }
   }
 
@@ -86,14 +88,13 @@
               : activebutton == "/Main/Dashboard"
                 ? "Dashboard"
                 : activebutton == "/Main/Analytics"
-                ? "Analytics"
-                : ""}
+                  ? "Analytics"
+                  : ""}
         </span>
       </div>
 
       <div class="navbar-center hidden lg:flex">
         <ul class="menu menu-horizontal px-1">
-          
           <li class="px-2">
             <a
               class="btn btn-ghost rounded-btn font-normal"
@@ -117,7 +118,10 @@
 
       <div class="navbar-end">
         <div class="xs: hidden md:flex">
+          <!-- svelte-ignore a11y-no-static-element-interactions -->
           <div class="dropdown dropdown-end">
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
+            <!-- svelte-ignore a11y-missing-attribute -->
             <a
               class="btn btn-ghost rounded-btn font-normal mx-2"
               on:click={showModal}>Help</a
@@ -270,6 +274,23 @@
         </form>
       </dialog>
 
+      <dialog id="analytics_help" class="modal">
+        <div class="modal-box">
+          <h3 class="font-bold text-lg">Analytics</h3>
+          <p class="py-4">
+            This is the analytics page. Users can see in-depth analytics for their profiles. Users 
+            can specify nodes that they would like to view their analytics for - and toggle their 
+            appliances on and off (using the dropdown) to see how each appliance affects their 
+            consumption curve. Users are also able to see market stats related to their profile including 
+            previous buy and sell history as well as bought vs. sold ratios. Different time periods can be 
+            used on the price history charts by making use of the dropdown. 
+          </p>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+          <button>close</button>
+        </form>
+      </dialog>
+
       <dialog id="removeaccount_modal" class="modal">
         <div class="modal-box">
           <h3 class="text-lg font-bold">Delete Account</h3>
@@ -289,7 +310,7 @@
   </header>
   <main class="container mx-auto mt-8">
     {#if loggedIn}
-    <slot />
+      <slot />
     {/if}
   </main>
 </body>

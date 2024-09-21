@@ -641,6 +641,104 @@
   function showTimeInput(){
     document.getElementById("generatortimes").showModal();
   }
+
+
+  function showAppliances(){
+
+  }
+
+
+  function showGenerators(){
+
+  }
+
+
+  async function getCurve() {
+    
+    
+    try {
+      
+      const response = await fetch(`${API_URL_AGENT}/get_curve`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${sessionStorage.getItem("Token")}`,
+        },
+        body: JSON.stringify({
+          email: sessionStorage.getItem("email"),
+          node_id: nodeid,
+        }),
+        credentials: "include",
+      });
+      
+      
+      const fdata = await response.json();
+      console.log(fdata);
+      let temp = fdata.data.consumption;
+
+      
+      appliances.clear(); 
+          //only runs this first time - selectedAppliances gets updated in toggleAppliance
+            temp.forEach((item) => {
+              appliances.add(item.appliance); 
+            });
+            selectedAppliances = Array.from(appliances);
+          
+        
+        console.log("Selected appliances are ", selectedAppliances);
+        console.log("Appliances are: ", appliances); 
+      consumptioncurvedata = []; 
+      productioncurvedata = []; 
+      let index = 0; 
+      if (fdata.message == "Here is the detail") {
+        //console.log("gets to the first foreach"); 
+        temp.forEach((item) => {
+         
+          if(selectedAppliances.includes(item.appliance)){
+            console.log(item.appliance);
+            if (!consumptioncurvedata[index]) {
+              consumptioncurvedata[index] = 0;
+            }
+            consumptioncurvedata[index] += item.data;
+            index++; 
+            if(index >= 24){
+              index = 0; 
+            }
+
+          }
+  
+        });
+        let temp2 = fdata.data.production;
+
+        temp2.forEach((generator) => {
+          let startTime = generator[2][0].start;
+          let endTime = generator[2][0].end;
+          let startTimeHour = Math.round(startTime/3600); 
+          let endTimeHour = Math.round(endTime/3600);  
+          console.log("This is start time: ", startTimeHour); 
+          console.log("This is end time: ", endTimeHour);  
+            for(let index = 0; index<24; index++){
+              productioncurvedata[index] = 0; 
+            }
+            for(let index2 = startTimeHour; index2<endTimeHour; index2++){
+                productioncurvedata[index2] = generator[1]; 
+            } 
+        });
+
+       
+
+        
+
+        
+
+        // console.log("This is consumption curve data:", consumptioncurvedata);
+        // console.log("This is the production curve data: ", productioncurvedata); 
+      }
+    } catch (error) {
+      console.log("An error occurred while fetching getCurve data..\n", error);
+    }
+  }
 </script>
 
 <main class="container sm:mx-auto w-full h-screen sm:flex justify-center">
@@ -975,8 +1073,8 @@
             </div>
           </div>
           <div id = "viewbuttons" class = "stat flex w-full justify-center mt-2 mb-2">
-            <button class = "btn btn-primary w-6/12">View Appliances</button>
-            <button class = "btn btn-primary w-6/12">View Generators</button>
+            <button class = "btn btn-primary w-6/12" on:click={showAppliances}>View Appliances</button>
+            <button class = "btn btn-primary w-6/12" on:click={showGenerators}>View Generators</button>
           </div>
         </div>
         

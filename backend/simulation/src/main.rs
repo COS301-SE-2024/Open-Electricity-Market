@@ -478,7 +478,7 @@ fn rocket() -> _ {
                         frequency: 50.0,
                         transmission_line: 0,
                         location: Location {
-                            // reference point: 
+                            // reference point:
                             // (latitude is first, measures y-axis, and for SA is negative)
                             // long: 28.048782348632816, lat: -26.120609901056977
                             latitude: -26.2044,

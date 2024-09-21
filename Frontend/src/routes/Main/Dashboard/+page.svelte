@@ -649,10 +649,16 @@
 
   function showAppliances(){
 
+    getCurve(); 
+    document.getElementById("viewappliancemodal").showModal(); 
+
   }
 
 
   function showGenerators(){
+
+    getCurve(); 
+    document.getElementById("viewgeneratormodal").showModal(); 
 
   }
 
@@ -670,8 +676,8 @@
           Authorization: `Bearer ${sessionStorage.getItem("Token")}`,
         },
         body: JSON.stringify({
-          email: sessionStorage.getItem("email"),
-          node_id: nodeid,
+          email: email,
+          node_id: selectedNodeID,
         }),
         credentials: "include",
       });
@@ -683,16 +689,28 @@
 
       
       applianceNames.clear(); 
-      
+
       temp.forEach((item) => {
         applianceNames.add(item.appliance); 
       });
+
+      applianceNames = Array.from(applianceNames).join('\n'); 
+      if(applianceNames===""){
+        applianceNames = "You currently do not have any appliances linked to this node."; 
+      }
             
         let temp2 = fdata.data.production;
 
         generatorNames = temp2.flatMap(item => {
           return Object.keys(item[0]); 
         });
+
+        generatorNames = generatorNames.join('\n'); 
+        if(generatorNames===""){
+        generatorNames = "You currently do not have any generators linked to this node."; 
+      }
+
+        
       
     } catch (error) {
       console.log("An error occurred while fetching getCurve data..\n", error);
@@ -1192,6 +1210,33 @@
       <h3 class="font-bold text-lg">Addition successful.</h3>
       <p>
         Addition of {generator} was successful. 
+      </p>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button >close</button>
+    </form>
+  </dialog>
+
+  <!-- view generator modal  -->
+  <dialog id="viewgeneratormodal" class="modal">
+    <div class="modal-box">
+      <h3 class="font-bold text-lg">List of generators ({nodeNameDetail})</h3>
+      <p>
+        {generatorNames} 
+      </p>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button >close</button>
+    </form>
+  </dialog>
+
+
+  <!-- view appliance modal  -->
+  <dialog id="viewappliancemodal" class="modal">
+    <div class="modal-box">
+      <h3 class="font-bold text-lg">List of appliances ({nodeNameDetail})</h3>
+      <p>
+        {applianceNames} 
       </p>
     </div>
     <form method="dialog" class="modal-backdrop">

@@ -225,7 +225,7 @@
           var latlngs = Array();
 
           // store the location of the load on the primary circuit
-          var primary_load = mapdata.circuit[
+          var primary_load = mapdata[
             transformer.primary_circuit
           ].loads.find((l) => l.id === transformer.primary_load);
           // unfortunately it could be of any type of load:
@@ -249,7 +249,7 @@
 
           // store the location of the load on the secondary circuit
           // (always assumed to connect to the load with id = 0)
-          var secondary_load = mapdata.circuit[
+          var secondary_load = mapdata[
             transformer.secondary_circuit
           ].loads.find((l) => l.id === 0);
           if (secondary_load) {

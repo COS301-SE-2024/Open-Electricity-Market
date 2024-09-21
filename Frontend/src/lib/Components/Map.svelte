@@ -2,6 +2,7 @@
   import { onMount, onDestroy, createEventDispatcher } from "svelte";
   import { browser } from "$app/environment";
   import iconmarkerpng from "$lib/assets/marker-icon.png";
+  import transformermarkerpng from "$lib/assets/transformer.png";
 
   let mapContainer;
   let map;
@@ -34,10 +35,10 @@
       });
 
       transformerIcon = leaflet.icon({
-        iconUrl: iconmarkerpng,
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
+        iconUrl: transformermarkerpng,
+        iconSize: [50, 41],
+        iconAnchor: [25, 41],
+        popupAnchor: [0, -36],
         shadowSize: [41, 41],
         shadowAnchor: [12, 41],
       });
@@ -108,7 +109,7 @@
               ? transformer.location.longtitude
               : 28.187,
           ],
-          { icon: markerIcon }
+          { icon: transformerIcon }
         ).addTo(map);
 
         marker.bindPopup(

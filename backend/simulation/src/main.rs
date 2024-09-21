@@ -407,8 +407,8 @@ fn rocket() -> _ {
             },
         },
         location: Location {
-            latitude: 0.0,
-            longitude: 0.0,
+            latitude: -25.7563,
+            longitude: 28.2373,
         },
     };
     let trans_ref = Arc::new(Mutex::new(transformer));
@@ -433,56 +433,110 @@ fn rocket() -> _ {
         .manage(Arc::new(Mutex::new(Vec::<GeneratorOwner>::new())))
         .manage(Arc::new(Mutex::new(Vec::<EmailRecord>::new())))
         .manage(Arc::new(Mutex::new(Grid {
-            circuits: vec![Circuit {
-                id: 0,
-                loads: vec![
-                    Load {
-                        load_type: LoadType::Consumer(Consumer {
-                            id: 0,
-                            resistance: Resistance(10.0),
-                            voltage: VoltageWrapper {
-                                voltage: Voltage(0.0, 0.0, 0.0),
-                                oscilloscope_detail: OscilloscopeDetail {
-                                    frequency: 0.0,
-                                    amplitude: 0.0,
-                                    phase: 0.0,
-                                },
-                            },
-                            location: Location {
-                                latitude: 28.0248,
-                                longitude: -26.2044,
-                            },
-                        }),
-                        id: 0,
-                    },
-                    Load {
-                        load_type: LoadType::new_transmission_line(80.0, -26.3044, 28.1),
-                        id: 1,
-                    },
-                ],
-                connections: vec![Parallel(0, 1)],
-                generators: vec![Generator {
+            circuits: vec![
+                Circuit {
                     id: 0,
-                    voltage: VoltageWrapper {
-                        voltage: Voltage(0.0, 0.0, 0.0),
-                        oscilloscope_detail: OscilloscopeDetail {
-                            frequency: 0.0,
-                            amplitude: 0.0,
-                            phase: 0.0,
+                    loads: vec![
+                        Load {
+                            load_type: LoadType::Consumer(Consumer {
+                                id: 0,
+                                resistance: Resistance(10.0),
+                                voltage: VoltageWrapper {
+                                    voltage: Voltage(0.0, 0.0, 0.0),
+                                    oscilloscope_detail: OscilloscopeDetail {
+                                        frequency: 0.0,
+                                        amplitude: 0.0,
+                                        phase: 0.0,
+                                    },
+                                },
+                                location: Location {
+                                    latitude: 28.0248,
+                                    longitude: -26.2044,
+                                },
+                            }),
+                            id: 0,
                         },
-                    },
-                    max_voltage: 240.0,
-                    frequency: 50.0,
-                    transmission_line: 0,
-                    location: Location {
-                        // reference point:
-                        // lat: 28.048782348632816, long: -26.120609901056977
-                        latitude: 28.04878,
-                        longitude: -26.12061,
-                    },
-                }],
-                transformers: vec![trans_ref.clone()],
-            }],
+                        Load {
+                            load_type: LoadType::new_transmission_line(80.0, -26.3044, 28.1),
+                            id: 1,
+                        },
+                    ],
+                    connections: vec![Parallel(0, 1)],
+                    generators: vec![Generator {
+                        id: 2,
+                        voltage: VoltageWrapper {
+                            voltage: Voltage(0.0, 0.0, 0.0),
+                            oscilloscope_detail: OscilloscopeDetail {
+                                frequency: 0.0,
+                                amplitude: 0.0,
+                                phase: 0.0,
+                            },
+                        },
+                        max_voltage: 240.0,
+                        frequency: 50.0,
+                        transmission_line: 0,
+                        location: Location {
+                            // reference point:
+                            // (latitude is first, measures y-axis, and for SA is negative)
+                            // long: 28.048782348632816, lat: -26.120609901056977
+                            latitude: -26.2044,
+                            longitude: 28.0248,
+                        },
+                    }],
+                    transformers: vec![trans_ref.clone()],
+                },
+                Circuit {
+                    id: 1,
+                    loads: vec![
+                        Load {
+                            load_type: LoadType::Consumer(Consumer {
+                                id: 0,
+                                resistance: Resistance(10.0),
+                                voltage: VoltageWrapper {
+                                    voltage: Voltage(0.0, 0.0, 0.0),
+                                    oscilloscope_detail: OscilloscopeDetail {
+                                        frequency: 0.0,
+                                        amplitude: 0.0,
+                                        phase: 0.0,
+                                    },
+                                },
+                                location: Location {
+                                    latitude: -25.7331,
+                                    longitude: 28.2473,
+                                },
+                            }),
+                            id: 0,
+                        },
+                        Load {
+                            load_type: LoadType::new_transmission_line(80.0, -26.3044, 28.1),
+                            id: 1,
+                        },
+                    ],
+                    connections: vec![Parallel(0, 1)],
+                    generators: vec![Generator {
+                        id: 0,
+                        voltage: VoltageWrapper {
+                            voltage: Voltage(0.0, 0.0, 0.0),
+                            oscilloscope_detail: OscilloscopeDetail {
+                                frequency: 0.0,
+                                amplitude: 0.0,
+                                phase: 0.0,
+                            },
+                        },
+                        max_voltage: 240.0,
+                        frequency: 50.0,
+                        transmission_line: 0,
+                        location: Location {
+                            // reference point:
+                            // long: 28.048782348632816, lat: -26.120609901056977
+                            latitude: -25.7331,
+                            longitude: 28.1473,
+                        },
+                    }],
+
+                    transformers: vec![trans_ref.clone()],
+                },
+            ],
             frequency: 50.0,
             started: false,
         })))

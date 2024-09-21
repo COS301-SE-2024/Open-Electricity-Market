@@ -249,10 +249,9 @@
 
           // store the location of the load on the secondary circuit
           // (always assumed to connect to the load with id = 0)
-          var secondary_load = mapdata[
-            transformer.secondary_circuit
-          ].loads.find((l) => l.id === 0);
-          if (secondary_load) {
+          var secondary_circuit = mapdata[transformer.secondary_circuit];
+          if (secondary_circuit) {
+            var secondary_load = secondary_circuit.loads.find((l) => l.id === 0);
             // there seems to be a chance that there is no second circuit
             // again
             if (secondary_load.load_type.Consumer) {

@@ -3,16 +3,15 @@
   import { goto } from "$app/navigation";
   import Map from "$lib/Components/MapDashboard.svelte";
   import { API_URL_GRID, API_URL_MARKET, API_URL_AGENT } from "$lib/config.js";
-  import Scroller from "@sveltejs/svelte-scroller";
 
   let data = {};
   let nodeName = "";
-  let nodeLongitude = "";
   let nodeLatitude = "";
+  let nodeLongitude = "";
 
   $: nodeNameDetail = "";
-  $: nodeLongitudeDetail = "";
   $: nodeLatitudeDetail = "";
+  $: nodeLongitudeDetail = "";
   $: nodeToProduce = "";
   $: nodeToConsume = "";
   $: selectedNodeID = "";
@@ -175,8 +174,8 @@
       // console.log(data);
 
       nodeNameDetail = data.name;
-      nodeLatitudeDetail = data.location_x;
-      nodeLongitudeDetail = data.location_y;
+      nodeLatitudeDetail = data.location_y;
+      nodeLongitudeDetail = data.location_x;
       nodeToProduce = data.units_to_produce;
       nodeToConsume = data.units_to_consume;
       selectedNodeID = data.node_id;
@@ -211,8 +210,8 @@
         credentials: "include",
         body: JSON.stringify({
           name: nodeName,
-          location_x: Number(latitude),
-          location_y: Number(longtitude),
+          location_y: Number(latitude),
+          location_x: Number(longtitude),
         }),
       });
       // console.log("request being sent...");
@@ -542,11 +541,23 @@
       }
     }
   }
+
+  $: intervalStart = "";
+  $: intervalEnd = "";
+
+  $: categoryChosen = false;
+  const onChangeGenerator = () => {
+    categoryChosen = false;
+  };
+
+  const onChangeCategory = () => {
+    categoryChosen = true;
+  };
 </script>
 
 <main class="container sm:mx-auto w-full h-screen sm:flex justify-center">
   <!--first-->
-  <div class="sm:w-1/3 h-screen flex flex-col">
+  <div class="sm:w-1/3 h-[calc(100vh-70px)] flex flex-col">
     <!--Personal Info-->
     <span class="text-3xl font-thin justify-start pl-2">
       Personal Information
@@ -608,26 +619,33 @@
     <div
       class="rounded-2xl h-1/3 backdrop-blur-sm bg-white/30 p-2 overflow-y-auto"
     >
-      {#each buyorders as buyorder}
-        <div class="rounded-2xl min-w-1/3 bg-base-100 mb-2">
-          <div class="p-5">
-            <h2 class="card-title">Buy order</h2>
-            <p>
-              Filled units: {buyorder.filled_units.toFixed(1) + "Wh"}<br />
-              Price: {formatCurrency(buyorder.max_price)}<br />
-              Units bought: {Intl.NumberFormat().format(buyorder.sought_units) +
-                "Wh"}<br />
-            </p>
-            <div class="card-actions">
-              <progress
-                class="progress progress-primary"
-                value={buyorder.filled_units}
-                max={buyorder.sought_units}
-              ></progress>
+      {#if buyorders.length == 0}
+        <div class="rounded-xl h-full bg-base-100 flex justify-center">
+          <p class="self-center text-2xl font-light">--No Buy Orders--</p>
+        </div>
+      {:else}
+        {#each buyorders as buyorder}
+          <div class="rounded-2xl min-w-1/3 bg-base-100 mb-2">
+            <div class="p-5">
+              <h2 class="card-title">Buy order</h2>
+              <p>
+                Filled units: {buyorder.filled_units.toFixed(1) + "Wh"}<br />
+                Price: {formatCurrency(buyorder.max_price)}<br />
+                Units bought: {Intl.NumberFormat().format(
+                  buyorder.sought_units
+                ) + "Wh"}<br />
+              </p>
+              <div class="card-actions">
+                <progress
+                  class="progress progress-primary"
+                  value={buyorder.filled_units}
+                  max={buyorder.sought_units}
+                ></progress>
+              </div>
             </div>
           </div>
-        </div>
-      {/each}
+        {/each}
+      {/if}
     </div>
     <!-- change funds modals -->
     <dialog id="add_modal" class="modal">
@@ -681,13 +699,13 @@
   </div>
 
   <!--second-->
-  <div class="sm:w-1/3 h-screen mx-4 flex flex-col">
+  <div class="sm:w-1/3 h-[calc(100vh-70px)] mx-4 flex flex-col">
     <!--Nodes-->
     <span class="basis text-3xl font-thin justify-start pl-2">
       Your Nodes
     </span>
     <div class="h-1/2 flex flex-col">
-      <div class="rounded-2xl p-2 backdrop-blur-sm bg-white/30 overflow-y-auto">
+      <div class="rounded-2xl h-full p-2 backdrop-blur-sm bg-white/30 overflow-y-auto">
         {#each nodes as node}
           {#if node.name == nodeNameDetail}
             <div
@@ -748,25 +766,31 @@
     <div
       class="rounded-2xl h-1/3 backdrop-blur-sm bg-white/30 p-2 overflow-y-auto"
     >
-      {#each sellorders as sellorder}
-        <div class="rounded-2xl min-w-1/3 bg-base-100 mb-2">
-          <div class="p-5">
-            <h2 class="card-title">Sell order</h2>
-            <p>
-              Claimed Units: {sellorder.claimed_units.toFixed(1) + "Wh"}<br />
-              Offered Units: {sellorder.offered_units.toFixed(1) + "Wh"}<br />
-              Price: {formatCurrency(sellorder.min_price)}<br />
-            </p>
-            <div class="card-actions">
-              <progress
-                class="progress progress-accent"
-                value={sellorder.claimed_units}
-                max={sellorder.offered_units}
-              ></progress>
+      {#if sellorders.length == 0}
+        <div class="rounded-xl h-full bg-base-100 flex justify-center">
+          <p class="self-center text-2xl font-light">--No Sell Orders--</p>
+        </div>
+      {:else}
+        {#each sellorders as sellorder}
+          <div class="rounded-2xl min-w-1/3 bg-base-100 mb-2">
+            <div class="p-5">
+              <h2 class="card-title">Sell order</h2>
+              <p>
+                Claimed Units: {sellorder.claimed_units.toFixed(1) + "Wh"}<br />
+                Offered Units: {sellorder.offered_units.toFixed(1) + "Wh"}<br />
+                Price: {formatCurrency(sellorder.min_price)}<br />
+              </p>
+              <div class="card-actions">
+                <progress
+                  class="progress progress-accent"
+                  value={sellorder.claimed_units}
+                  max={sellorder.offered_units}
+                ></progress>
+              </div>
             </div>
           </div>
-        </div>
-      {/each}
+        {/each}
+      {/if}
     </div>
 
     <!-- new node modals -->
@@ -807,7 +831,7 @@
   </div>
 
   <!--third-->
-  <div class="sm:w-1/3">
+  <div class="sm:w-1/3 sm:h-full">
     {#if nodeNameDetail != ""}
       <span class="text-3xl font-thin justify-start pl-2">
         Node Details
@@ -840,12 +864,12 @@
           <div class="stat">
             <div class="stat-title">Node Location</div>
             <div class="stat-value font-light">
-              {nodeLongitudeDetail < 0
-                ? nodeLongitudeDetail.toFixed(3) * -1 + "S "
-                : nodeLongitudeDetail.toFixed(3) + "N "}
               {nodeLatitudeDetail < 0
-                ? nodeLatitudeDetail.toFixed(3) * -1 + "W"
-                : nodeLatitudeDetail.toFixed(3) + "E"}
+                ? nodeLatitudeDetail.toFixed(3) * -1 + "S "
+                : nodeLatitudeDetail.toFixed(3) + "N "}
+              {nodeLongitudeDetail < 0
+                ? nodeLongitudeDetail.toFixed(3) * -1 + "W "
+                : nodeLongitudeDetail.toFixed(3) + "E "}
             </div>
           </div>
 
@@ -880,7 +904,7 @@
               {/each}
             </select>
             <button on:click={addAppliance} class="btn btn-primary my-2"
-              >Add Appliance</button
+              disabled = {!appliance}>Add Appliance</button
             >
           </div>
           <!-- selecting category  -->
@@ -891,6 +915,7 @@
             <select
               bind:value={generator}
               class="select select-bordered max-h-40 overflow-y-auto"
+              on:change={onChangeGenerator}
             >
               <option value="" disabled selected>Select a generator</option>
               {#each uniqueGens as type}
@@ -902,13 +927,14 @@
               bind:value={category}
               class="select select-bordered max-h-40 overflow-y-auto mt-4"
               disabled={!generator}
+              on:change={onChangeCategory}
             >
               <option value="" disabled selected>Select a category</option>
               {#each generators.filter((g) => g.type === generator) as { category }}
                 <option value={category}>{category}</option>
               {/each}
             </select>
-            <button on:click={addGenerator} class="btn btn-primary mt-4"
+            <button on:click={addGenerator} class="btn btn-primary mt-4" disabled = {!categoryChosen}
               >Add Generator</button
             >
           </div>

@@ -245,12 +245,12 @@ impl Agent {
         if self.grid_token == "" || self.market_token == "" {
             return;
         }
-        println!("{}", self.market_token.clone());
-        let mut has_nodes = true;
+        // println!("{}", self.market_token.clone());
+        let mut has_nodes_on_market = true;
 
         let mut node_ids = Agent::get_nodes(1024, self.market_token.clone(), &client);
         if node_ids.is_empty() {
-            has_nodes = false;
+            has_nodes_on_market = false;
         }
 
         for node in self.nodes.iter_mut() {
@@ -282,7 +282,7 @@ impl Agent {
             }
 
             //Add nodes to market platform
-            if !has_nodes {
+            if !has_nodes_on_market {
                 Agent::add_node(
                     node.location,
                     String::from("Simulated Node"),
@@ -292,18 +292,36 @@ impl Agent {
             }
         }
 
-        if !has_nodes {
+        if !has_nodes_on_market {
             node_ids = Agent::get_nodes(1024, self.market_token.clone(), &client);
         }
 
         println!("Is empty {}", self.nodes.is_empty());
         if !self.nodes.is_empty() {
-            for (i, id) in node_ids.into_iter().enumerate() {
-                if i >= self.nodes.len() {
-                    break;
+            if !self.linked_to_user {
+                for (i, id) in node_ids.into_iter().enumerate() {
+                    if i >= self.nodes.len() {
+                        break;
+                    }
+                    self.nodes[i].node_id.clone_from(&id);
+                    println!("{id}");
                 }
-                self.nodes[i].node_id.clone_from(&id);
-                println!("{id}");
+            } else {
+                for id in node_ids.iter() {
+                    let pos = self.nodes.iter().position(|n| n.node_id == *id);
+                    match pos {
+                        Some(_) => {}
+                        None => {
+                            self.nodes.push(Node {
+                                node_id: id.clone(),
+                                location: Location::new(),
+                                smart_meter: SmartMeter::InActtive,
+                                generator: Generator::InAcctive,
+                            });
+                            println!("{id}");
+                        }
+                    }
+                }
             }
         } else {
             for id in node_ids.iter() {

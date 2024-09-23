@@ -1,10 +1,12 @@
-
 use crate::{
-    curve::{CummutiveCurve, Curve, SineCurve}, generator::production_curve::{
+    curve::{CummutiveCurve, Curve, SineCurve},
+    generator::production_curve::{
         CoalGeneratorType, DieselGeneratorType, GeneratorCurve, GeneratorCurveType,
         HydraulicTurbineType, NuclearReactTypes, PetrolGeneratorType, SolarPanelType,
         WindTurbineType,
-    }, period::{self, Period}, smart_meter::consumption_curve::{HomeAppliance, HomeApplianceType}
+    },
+    period::{self, Period},
+    smart_meter::consumption_curve::{HomeAppliance, HomeApplianceType},
 };
 #[test]
 pub fn solar_panel_type_home_value() {
@@ -545,37 +547,48 @@ pub fn cummitive_curve_total_in_24_hours_none() {
 
 #[test]
 pub fn cummitive_curve_total_in_24_hours_multiple() {
-    let mut cummitive_curve = CummutiveCurve { curves: vec![Box::new(SineCurve),Box::new(SineCurve)] };
-    assert_eq!(cummitive_curve.total_in_24_hour(), 86.0*2.0);
+    let mut cummitive_curve = CummutiveCurve {
+        curves: vec![Box::new(SineCurve), Box::new(SineCurve)],
+    };
+    assert_eq!(cummitive_curve.total_in_24_hour(), 86.0 * 2.0);
 }
 
 #[test]
 pub fn cummitive_curve_add_curve() {
     let mut cummutive_curve = CummutiveCurve { curves: vec![] };
-    assert_eq!(cummutive_curve.curves.len(),0);
+    assert_eq!(cummutive_curve.curves.len(), 0);
     cummutive_curve.add_curve(Box::new(SineCurve));
-    assert_eq!(cummutive_curve.curves.len(),1);
+    assert_eq!(cummutive_curve.curves.len(), 1);
     cummutive_curve.add_curve(Box::new(SineCurve));
-    assert_eq!(cummutive_curve.curves.len(),2);
+    assert_eq!(cummutive_curve.curves.len(), 2);
     cummutive_curve.add_curve(Box::new(SineCurve));
-    assert_eq!(cummutive_curve.curves.len(),3)
+    assert_eq!(cummutive_curve.curves.len(), 3)
 }
 
 #[test]
-pub fn period_during(){
-    let period = Period { start: 0.0, end: 15.0 };
-    assert_eq!(period.during(0.0),true);
-    assert_eq!(period.during(16.0),false)
+pub fn period_during() {
+    let period = Period {
+        start: 0.0,
+        end: 15.0,
+    };
+    assert_eq!(period.during(0.0), true);
+    assert_eq!(period.during(16.0), false)
 }
 
 #[test]
 pub fn period_duration_non_0() {
-    let period = Period {start:0.0, end: 15.0};
-    assert_eq!(period.duration(),15.0)
+    let period = Period {
+        start: 0.0,
+        end: 15.0,
+    };
+    assert_eq!(period.duration(), 15.0)
 }
 
 #[test]
 pub fn period_duration_0() {
-    let period = Period{ start: 0.0, end: 0.0 };
-    assert_eq!(period.duration(),0.0)
+    let period = Period {
+        start: 0.0,
+        end: 0.0,
+    };
+    assert_eq!(period.duration(), 0.0)
 }

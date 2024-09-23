@@ -553,7 +553,6 @@ fn add_agent(
                 .to_string(),
         );
     }
-    let lock = agents.inner().clone();
     let mut agents = agents.lock().unwrap();
     let agent_index = agents.iter().position(|agent| agent.email == data.email);
     if agent_index.is_some() {

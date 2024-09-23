@@ -91,7 +91,7 @@ pub fn petrol_generator_type_industrial_value() {
 #[test]
 pub fn coal_generator_type_small_value() {
     let value = CoalGeneratorType::Small.value();
-    assert_eq!(value, 63_000_000.0);
+    assert_eq!(value, 630_000.0);
 }
 #[test]
 pub fn coal_generator_type_medium_value() {

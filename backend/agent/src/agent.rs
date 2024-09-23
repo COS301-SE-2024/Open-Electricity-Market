@@ -1,15 +1,13 @@
 use core::time;
 use rand::Rng;
-use reqwest::{blocking, header, Client};
+use reqwest::{blocking, header};
 use std::sync::{Arc, Mutex};
 
 use serde::Serialize;
 use serde_json::Value;
 use std::time::Instant;
 use std::{env, f64, thread};
-use tungstenite::client;
 
-use crate::schema::open_em::appliance_data::data;
 use crate::{
     curve::Curve,
     generator::{Generator, GeneratorDetail},

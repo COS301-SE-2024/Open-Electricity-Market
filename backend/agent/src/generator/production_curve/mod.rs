@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{curve::Curve, period::Period};
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub enum SolarPanelType {
     Home,
     Industrial,
@@ -18,7 +18,7 @@ impl SolarPanelType {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub enum WindTurbineType {
     Small,
     Medium,
@@ -36,7 +36,7 @@ impl WindTurbineType {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub enum NuclearReactTypes {
     PWR,
     BWR,
@@ -62,7 +62,7 @@ impl NuclearReactTypes {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub enum DieselGeneratorType {
     Home,
     Industrial,
@@ -77,7 +77,7 @@ impl DieselGeneratorType {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub enum PetrolGeneratorType {
     Home,
     Industrial,
@@ -93,7 +93,7 @@ impl PetrolGeneratorType {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub enum CoalGeneratorType {
     Small,
     Medium,
@@ -111,7 +111,7 @@ impl CoalGeneratorType {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub enum HydraulicTurbineType {
     Small,
     Medium,
@@ -130,7 +130,7 @@ impl HydraulicTurbineType {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug)]
 pub enum GeneratorCurveType {
     SolarPanel(SolarPanelType),
     WindTurbine(WindTurbineType),
@@ -142,7 +142,7 @@ pub enum GeneratorCurveType {
 }
 
 impl GeneratorCurveType {
-    fn value(&self) -> f64 {
+    pub fn value(&self) -> f64 {
         match self {
             GeneratorCurveType::SolarPanel(sort) => sort.value(),
             GeneratorCurveType::WindTurbine(sort) => sort.value(),

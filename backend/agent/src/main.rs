@@ -7,6 +7,9 @@ use std::{
     thread, time,
 };
 
+#[cfg(test)]
+pub mod tests;
+
 use crate::time::Instant;
 use agent::Agent;
 use claims::Claims;

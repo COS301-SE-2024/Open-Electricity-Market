@@ -278,12 +278,14 @@
         <div class="modal-box">
           <h3 class="font-bold text-lg">Analytics</h3>
           <p class="py-4">
-            This is the analytics page. Users can see in-depth analytics for their profiles. Users 
-            can specify nodes that they would like to view their analytics for - and toggle their 
-            appliances on and off (using the dropdown) to see how each appliance affects their 
-            consumption curve. Users are also able to see market stats related to their profile including 
-            previous buy and sell history as well as bought vs. sold ratios. Different time periods can be 
-            used on the price history charts by making use of the dropdown. 
+            This is the analytics page. Users can see in-depth analytics for
+            their profiles. Users can specify nodes that they would like to view
+            their analytics for - and toggle their appliances on and off (using
+            the dropdown) to see how each appliance affects their consumption
+            curve. Users are also able to see market stats related to their
+            profile including previous buy and sell history as well as bought
+            vs. sold ratios. Different time periods can be used on the price
+            history charts by making use of the dropdown.
           </p>
         </div>
         <form method="dialog" class="modal-backdrop">

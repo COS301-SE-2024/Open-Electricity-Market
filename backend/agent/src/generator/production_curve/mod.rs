@@ -104,7 +104,7 @@ pub enum CoalGeneratorType {
 impl CoalGeneratorType {
     pub fn value(&self) -> f64 {
         match self {
-            CoalGeneratorType::Small => 63_000_000.0,
+            CoalGeneratorType::Small => 630_000.0,
             CoalGeneratorType::Medium => 2_520_000.0,
             CoalGeneratorType::Large => 5_040_000.0,
         }

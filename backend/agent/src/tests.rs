@@ -169,7 +169,7 @@ pub fn generator_curve_type_petrol_generator_value() {
 #[test]
 pub fn generator_curve_type_coal_generator_value() {
     let value = GeneratorCurveType::CoalGenerator(CoalGeneratorType::Small).value();
-    assert_eq!(value, 63_000.0);
+    assert_eq!(value, 630_000.0);
     let value = GeneratorCurveType::CoalGenerator(CoalGeneratorType::Medium).value();
     assert_eq!(value, 2_520_000.0);
     let value = GeneratorCurveType::CoalGenerator(CoalGeneratorType::Large).value();

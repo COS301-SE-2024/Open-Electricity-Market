@@ -6,12 +6,12 @@
 
   let data = {};
   let nodeName = "";
-  let nodeLongitude = "";
   let nodeLatitude = "";
+  let nodeLongitude = "";
 
   $: nodeNameDetail = "";
-  $: nodeLongitudeDetail = "";
   $: nodeLatitudeDetail = "";
+  $: nodeLongitudeDetail = "";
   $: nodeToProduce = "";
   $: nodeToConsume = "";
   $: selectedNodeID = "";
@@ -174,8 +174,8 @@
       // console.log(data);
 
       nodeNameDetail = data.name;
-      nodeLatitudeDetail = data.location_x;
-      nodeLongitudeDetail = data.location_y;
+      nodeLatitudeDetail = data.location_y;
+      nodeLongitudeDetail = data.location_x;
       nodeToProduce = data.units_to_produce;
       nodeToConsume = data.units_to_consume;
       selectedNodeID = data.node_id;
@@ -210,8 +210,8 @@
         credentials: "include",
         body: JSON.stringify({
           name: nodeName,
-          location_x: Number(latitude),
-          location_y: Number(longtitude),
+          location_y: Number(latitude),
+          location_x: Number(longtitude),
         }),
       });
       // console.log("request being sent...");
@@ -559,7 +559,7 @@
   <!--first-->
   <div class="sm:w-1/3 h-[calc(100vh-70px)] flex flex-col">
     <!--Personal Info-->
-    <span class="text-3xl text-white font-thin justify-start pl-2">
+    <span class="text-3xl font-thin justify-start pl-2">
       Personal Information
     </span>
 
@@ -613,7 +613,7 @@
     </div>
 
     <!--Buy orders-->
-    <span class="text-3xl text-white font-light justify-start pl-2 mt-2">
+    <span class="text-3xl font-light justify-start pl-2 mt-2">
       Buy Orders
     </span>
     <div
@@ -701,7 +701,7 @@
   <!--second-->
   <div class="sm:w-1/3 h-[calc(100vh-70px)] mx-4 flex flex-col">
     <!--Nodes-->
-    <span class="basis text-3xl text-white font-thin justify-start pl-2">
+    <span class="basis text-3xl font-thin justify-start pl-2">
       Your Nodes
     </span>
     <div class="h-1/2 flex flex-col">
@@ -766,7 +766,7 @@
     </div>
 
     <!--Sell orders-->
-    <span class="text-3xl text-white font-light justify-start pl-2 mt-2">
+    <span class="text-3xl font-light justify-start pl-2 mt-2">
       Sell Orders
     </span>
     <div
@@ -839,7 +839,7 @@
   <!--third-->
   <div class="sm:w-1/3 sm:h-full">
     {#if nodeNameDetail != ""}
-      <span class="text-3xl text-white font-thin justify-start pl-2">
+      <span class="text-3xl font-thin justify-start pl-2">
         Node Details
       </span>
       <div class="h-5/6">
@@ -870,12 +870,12 @@
           <div class="stat">
             <div class="stat-title">Node Location</div>
             <div class="stat-value font-light">
-              {nodeLongitudeDetail < 0
-                ? nodeLongitudeDetail.toFixed(3) * -1 + "S "
-                : nodeLongitudeDetail.toFixed(3) + "N "}
               {nodeLatitudeDetail < 0
-                ? nodeLatitudeDetail.toFixed(3) * -1 + "W"
-                : nodeLatitudeDetail.toFixed(3) + "E"}
+                ? nodeLatitudeDetail.toFixed(3) * -1 + "S "
+                : nodeLatitudeDetail.toFixed(3) + "N "}
+              {nodeLongitudeDetail < 0
+                ? nodeLongitudeDetail.toFixed(3) * -1 + "W "
+                : nodeLongitudeDetail.toFixed(3) + "E "}
             </div>
           </div>
 

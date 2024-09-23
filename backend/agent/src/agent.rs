@@ -1,12 +1,15 @@
 use core::time;
 use rand::Rng;
 use reqwest::{blocking, header, Client};
+use std::sync::{Arc, Mutex};
 
 use serde::Serialize;
+use serde_json::Value;
 use std::time::Instant;
 use std::{env, f64, thread};
 use tungstenite::client;
 
+use crate::schema::open_em::appliance_data::data;
 use crate::{
     curve::Curve,
     generator::{Generator, GeneratorDetail},
@@ -19,6 +22,7 @@ use crate::{
 #[derive(Serialize)]
 pub struct Agent {
     pub email: String,
+    #[serde(skip_serializing)]
     pub password: String,
     pub market_token: String,
     pub grid_token: String,
@@ -158,8 +162,8 @@ impl Agent {
     ) {
         let node_detail = NodeDetail {
             name,
-            location_x: location.latitude,
-            location_y: location.longitude,
+            location_y: location.latitude,
+            location_x: location.longitude,
         };
         let url = env::var("MURL").unwrap();
 
@@ -783,7 +787,7 @@ impl Agent {
         Ok(())
     }
 
-    pub fn run(&mut self) {
+    pub fn run(&mut self, autos: Arc<Mutex<Vec<Value>>>, val_id: usize) {
         self.intialise();
 
         let mut accumlated_time = 0.0;
@@ -793,6 +797,12 @@ impl Agent {
             let result = self.update(accumlated_time);
             elapsed = now.elapsed().as_secs_f64();
             accumlated_time += elapsed;
+            let santas_address: serde_json::Value =
+                serde_json::from_str(&serde_json::to_string(self).unwrap()).expect("REASON");
+            {
+                let mut autos = autos.lock().unwrap();
+                autos[val_id] = santas_address;
+            }
 
             match result {
                 Ok(_) => thread::sleep(time::Duration::from_secs(15 * AGENT_SPEED)),

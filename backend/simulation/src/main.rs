@@ -408,8 +408,8 @@ fn rocket() -> _ {
             },
         },
         location: Location {
-            latitude: 0.0,
-            longitude: 0.0,
+            latitude: -25.7563,
+            longitude: 28.2373,
         },
         target: None,
     };
@@ -479,9 +479,10 @@ fn rocket() -> _ {
                         transmission_line: 0,
                         location: Location {
                             // reference point:
-                            // lat: 28.048782348632816, long: -26.120609901056977
-                            latitude: 28.04878,
-                            longitude: -26.12061,
+                            // (latitude is first, measures y-axis, and for SA is negative)
+                            // long: 28.048782348632816, lat: -26.120609901056977
+                            latitude: -26.2044,
+                            longitude: 28.0248,
                         },
                     }],
                     transformers: vec![trans_ref.clone()],
@@ -502,8 +503,8 @@ fn rocket() -> _ {
                                     },
                                 },
                                 location: Location {
-                                    latitude: 28.0248,
-                                    longitude: -26.2044,
+                                    latitude: -25.7331,
+                                    longitude: 28.2473,
                                 },
                             }),
                             id: 0,
@@ -529,9 +530,9 @@ fn rocket() -> _ {
                         transmission_line: 0,
                         location: Location {
                             // reference point:
-                            // lat: 28.048782348632816, long: -26.120609901056977
-                            latitude: 28.04878,
-                            longitude: -26.12061,
+                            // long: 28.048782348632816, lat: -26.120609901056977
+                            latitude: -25.7331,
+                            longitude: 28.1473,
                         },
                     }],
 

@@ -7,13 +7,7 @@
 
   $: voltageData = null;
   $: power = null;
-  // let interval;
-  // let dropdownViewable = false;
   $: mapdata = null;
-
-  // function toggleDropdown() {
-  //   dropdownViewable = !dropdownViewable;
-  // }
 
   onMount(async () => {
     await fetchData();
@@ -34,12 +28,8 @@
           Accept: "application/json",
         },
       });
-      console.log("start being sent...");
-      // const response = fetch("http://localhost:8000");
+      // console.log("start being sent...");
       const startdata = await response.json();
-      // console.log(startdata);
-      //Voltage 1,2,3 as well as price
-      //updateChart(data.Phase1, data.Phase2);
     } catch (error) {
       console.log("There was an error fetching the JSON for start()..", error);
     }
@@ -57,10 +47,11 @@
       //console.log("Request being sent...");
       const fdata = await response.json();
       // console.log("Fetched data [gridsim /info]:", fdata);
-      mapdata = fdata.circuits[0]; // TODO: multiple circuits exist
       if (!fdata.started) {
         await fetchstart();
+        return;
       }
+      mapdata = fdata.circuits;
     } catch (error) {
       console.log(
         "There was an error fetching the JSON for the overview:",
@@ -69,16 +60,30 @@
     }
   }
 
-  let markerDetails = null;
+  $: consumerMarkerDetails = null;
+  $: transformerMarkerDetails = null;
   function handleMarkerClick(entity) {
-    // console.log(entity);
-    markerDetails = entity.detail;
-    voltageData = { ...markerDetails.voltage };
+    // reset everything to null beforehand:
+    consumerMarkerDetails = null;
+    transformerMarkerDetails = null;
 
-    power =
-      (Math.pow(markerDetails.voltage.oscilloscope_detail.amplitude) ,
-      2)/markerDetails.resistance;
-    console.log(markerDetails.voltage.oscilloscope_detail.amplitude+" "+markerDetails.resistance+" "+power);
+    if (entity.detail.type === "consumer") {
+      consumerMarkerDetails = entity.detail;
+      voltageData = { ...consumerMarkerDetails.voltage };
+
+      power =
+        (Math.pow(consumerMarkerDetails.voltage.oscilloscope_detail.amplitude),
+        2) / consumerMarkerDetails.resistance;
+      // console.log(
+      //   consumerMarkerDetails.voltage.oscilloscope_detail.amplitude +
+      //     " " +
+      //     consumerMarkerDetails.resistance +
+      //     " " +
+      //     power
+      // );
+    } else if (entity.detail.type === "transformer") {
+      transformerMarkerDetails = entity.detail;
+    }
   }
 </script>
 
@@ -95,7 +100,7 @@
         <GridStats />
       </div>
     </div>
-    {#if voltageData != null}
+    {#if consumerMarkerDetails != null}
       <div
         class="chartsection md:w-1/4 mx-2 p-5 xs:w-full bg-base-100 rounded-2xl flex flex-col max-w-full"
       >
@@ -103,25 +108,25 @@
         <hr />
         <span class="pt-5">
           <span class="font-light text-lg mt-10">Consumption: </span><br />
-          <span class="text-4xl"
-            >{Intl.NumberFormat().format(power)} W</span
-          > <br />
+          <!-- TODO: format according to the average consumption rate of a typical consumer -->
+          <span class="text-4xl">{Intl.NumberFormat().format(power)} W</span>
+          <br />
           <span class="font-light text-lg mt-10">Impedance: </span><br />
           <span class="text-4xl"
             >{Intl.NumberFormat().format(
-              (markerDetails.resistance / 1000).toFixed(3)
+              (consumerMarkerDetails.resistance / 1000).toFixed(3)
             )} kΩ</span
           >
         </span>
-        {#if markerDetails.generators != null}
+        {#if consumerMarkerDetails.generators != null}
           <span class="pt-5">
             <span class="font-light text-lg">Generators: </span> <br />
-            {#each markerDetails.generators as generator}
+            {#each consumerMarkerDetails.generators as generator}
               <span class="text-2xl">Generator ID: {generator.id}</span><br />
               <span class="text-2xl"
                 >Current Generation: {(
                   Math.pow(generator.max_voltage, 2) /
-                  markerDetails.resistance /
+                  consumerMarkerDetails.resistance /
                   1000
                 ).toFixed(3)} kW</span
               >
@@ -139,6 +144,37 @@
           <!-- <span class="text-lg font-light"
             >{voltageData.oscilloscope_detail.amplitude}</span
           > -->
+        </div>
+      </div>
+    {:else if transformerMarkerDetails != null}
+      <div
+        class="chartsection md:w-1/4 mx-2 p-5 xs:w-full bg-base-100 rounded-2xl flex flex-col max-w-full"
+      >
+        <h1 class="text-3xl">Transformer Details</h1>
+        <hr />
+        <span class="pt-5">
+          <span class="font-light text-lg mt-10">Ratio: </span><br />
+          <span class="text-4xl"
+            >{Intl.NumberFormat().format(transformerMarkerDetails.ratio)}</span
+          >
+          <br />
+          <span class="font-light text-lg mt-10">Output Voltage: </span><br />
+          <span class="text-4xl"
+            >{Intl.NumberFormat().format(
+              transformerMarkerDetails.secondary_voltage.oscilloscope_detail.amplitude.toFixed(
+                3
+              )
+            )} V</span
+          >
+        </span>
+        <div class="flex w-full justify-end -mt-4">
+          <span class="text-lg font-light"
+            >{transformerMarkerDetails.secondary_voltage.oscilloscope_detail
+              .frequency} Hz</span
+          >
+          <!-- <span class="text-lg font-light"
+        >{voltageData.oscilloscope_detail.amplitude}</span
+      > -->
         </div>
       </div>
     {:else}

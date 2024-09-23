@@ -387,9 +387,9 @@
       });
       const fdata = await response.json();
       data = fdata;
-      console.log("Data received from user details is: ", data);
+      //console.log("Data received from user details is: ", data);
     } catch (error) {
-      console.log("There was an error fetching user details:", error);
+      //console.log("There was an error fetching user details:", error);
     }
 
     if (data.message == "Successfully retrieved open buy orders") {
@@ -414,9 +414,9 @@
       });
       const fdata = await response.json();
       data = fdata;
-      console.log("Data received from user details is: ", data);
+      //console.log("Data received from user details is: ", data);
     } catch (error) {
-      console.log("There was an error fetching user details:", error);
+      //console.log("There was an error fetching user details:", error);
     }
 
     if (data.message == "Successfully retrieved open sell orders") {
@@ -546,6 +546,9 @@
   $: intervalStart = "";
   $: intervalEnd = "";
 
+  $: appliancesJSON = "";
+  $: generatorsJSON = "";
+
   $: categoryChosen = false;
   const onChangeGenerator = () => {
     categoryChosen = false;
@@ -556,6 +559,8 @@
   };
 
   async function listCurves(emailOfNode, node_id_in) {
+    console.log("Email", emailOfNode );
+    console.log("Node id", node_id_in);
     try {
       const response = await fetch(`${API_URL_AGENT}/get_curve`, {
         method: "POST",
@@ -567,15 +572,16 @@
         credentials: "include",
         body: JSON.stringify({
           email: emailOfNode,
-          node_id: node_id_in,
+          node_id: node_id_in
         }),
       });
       const fdata = await response.json();
+      console.log(fdata);
       appliancesJSON = fdata.data.consumption;
       generatorsJSON = fdata.data.production;
       console.log("Appliances received from curve data: ", appliancesJSON);
       console.log("Generators received from curve data: ", generatorsJSON);
-      console.log(generatorsJSON[0][0])
+      //console.log(generatorsJSON[0][0])
     } catch (error) {
       console.log("There was an error fetching the curves");
     }
@@ -1154,7 +1160,7 @@
     <div class="modal-box">
       <h3 class="text-lg font-bold">All {nodeNameDetail}'s generators</h3>
       <div class = "overflow-auto h-32">
-        {#each generators as gen}
+        {#each generatorsJSON as gen}
         <p>{gen}</p>
         {/each}
       </div>

@@ -8,10 +8,10 @@ use serde_json::Value;
 use std::time::Instant;
 use std::{env, f64, thread};
 
+use crate::location::Location;
 use crate::{
     curve::Curve,
     generator::{Generator, GeneratorDetail},
-    location::Location,
     net_structs::*,
     node::Node,
     smart_meter::{SmartMeter, SmartMeterDetail},
@@ -236,6 +236,38 @@ impl Agent {
         }
     }
 
+    fn get_node_location(
+        node_id: String,
+        token: String,
+        client: &reqwest::blocking::Client,
+    ) -> Location {
+        let node_details_details = NodeDetailsDetails { node_id };
+        let url = env::var("MURL").unwrap();
+
+        match client
+            .post(format!("http://{url}:8001/node_details"))
+            .header(header::AUTHORIZATION, format!("Bearer {token}"))
+            .json(&node_details_details)
+            .send()
+        {
+            Ok(res) => {
+                let result: NodeDetailsResult = res.json().unwrap();
+                if result.message == "Node details retrieved succesfully" {
+                    return Location {
+                        latitude: result.data.location_x,
+                        longitude: result.data.location_y,
+                    };
+                } else {
+                    return Location::new();
+                }
+            }
+            Err(err) => {
+                println!("Get node location {}", err);
+                return Location::new();
+            }
+        }
+    }
+
     pub fn intialise(&mut self) {
         let client = blocking::Client::new();
         self.grid_token = Agent::get_grid_token(self.email.clone(), &client);
@@ -314,7 +346,11 @@ impl Agent {
                         None => {
                             self.nodes.push(Node {
                                 node_id: id.clone(),
-                                location: Location::new(),
+                                location: Agent::get_node_location(
+                                    id.clone(),
+                                    self.market_token.clone(),
+                                    &client,
+                                ),
                                 smart_meter: SmartMeter::InActtive,
                                 generator: Generator::InAcctive,
                             });
@@ -325,13 +361,27 @@ impl Agent {
             }
         } else {
             for id in node_ids.iter() {
-                self.nodes.push(Node {
-                    node_id: id.clone(),
-                    location: Location::new(),
-                    smart_meter: SmartMeter::InActtive,
-                    generator: Generator::InAcctive,
-                });
-                println!("{id}");
+                if !self.linked_to_user {
+                    self.nodes.push(Node {
+                        node_id: id.clone(),
+                        location: Location::new(),
+                        smart_meter: SmartMeter::InActtive,
+                        generator: Generator::InAcctive,
+                    });
+                    println!("{id}");
+                } else {
+                    self.nodes.push(Node {
+                        node_id: id.clone(),
+                        location: Agent::get_node_location(
+                            id.clone(),
+                            self.market_token.clone(),
+                            &client,
+                        ),
+                        smart_meter: SmartMeter::InActtive,
+                        generator: Generator::InAcctive,
+                    });
+                    println!("{id}");
+                }
             }
         }
     }

@@ -77,13 +77,7 @@ impl Curve for HomeAppliance {
         let time = time % 86400.0;
         let conn = &mut establish_connection();
         let sample_appliance = sample_appliance(time, self.appliance_type.to_string());
-        let sample: f64 = match diesel::select(sample_appliance).first(conn) {
-            Ok(s) => s,
-            Err(err) => {
-                println!("{}", err);
-                0.0
-            }
-        };
+        let sample: f64 = diesel::select(sample_appliance).first(conn).unwrap();
 
         sample
     }
@@ -91,13 +85,7 @@ impl Curve for HomeAppliance {
     fn total_in_24_hour(&mut self) -> f64 {
         let conn = &mut establish_connection();
         let total_appliance = total_appliance(self.appliance_type.to_string());
-        let total = match diesel::select(total_appliance).first(conn) {
-            Ok(t) => t,
-            Err(err) => {
-                println!("{}", err);
-                0.0
-            }
-        };
+        let total = diesel::select(total_appliance).first(conn).unwrap();
 
         total
     }

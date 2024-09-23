@@ -228,6 +228,7 @@ fn add_consumer(
     }
 
     let out = serde_json::to_string(&new_consumer).unwrap();
+    println!("Added consumer");
 
     content::RawJson(out)
 }
@@ -410,6 +411,7 @@ fn rocket() -> _ {
             latitude: -25.7563,
             longitude: 28.2373,
         },
+        target: None,
     };
     let trans_ref = Arc::new(Mutex::new(transformer));
 

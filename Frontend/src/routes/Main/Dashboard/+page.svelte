@@ -179,6 +179,7 @@
       nodeToProduce = data.units_to_produce;
       nodeToConsume = data.units_to_consume;
       selectedNodeID = data.node_id;
+      listCurves(email, node_id_in);
     }
   }
 
@@ -553,6 +554,32 @@
   const onChangeCategory = () => {
     categoryChosen = true;
   };
+
+  async function listCurves(emailOfNode, node_id_in) {
+    try {
+      const response = await fetch(`${API_URL_AGENT}/get_curve`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${sessionStorage.getItem("Token")}`,
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          email: emailOfNode,
+          node_id: node_id_in,
+        }),
+      });
+      const fdata = await response.json();
+      appliancesJSON = fdata.data.consumption;
+      generatorsJSON = fdata.data.production;
+      console.log("Appliances received from curve data: ", appliancesJSON);
+      console.log("Generators received from curve data: ", generatorsJSON);
+      console.log(generatorsJSON[0][0])
+    } catch (error) {
+      console.log("There was an error fetching the curves");
+    }
+  }
 </script>
 
 <main class="container sm:mx-auto w-full h-screen sm:flex justify-center">
@@ -887,12 +914,19 @@
             </div>
           </div>
         </div>
-
+         <!--Add an appliance-->
         <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 my-2">
           <span class="text-3xl font-thin justify-start">
             Add an Appliance
+            <button
+              class="btn btn-primary my-2 ml-9"
+              on:click={() => {
+                document.getElementById("displayApplications").showModal();
+              }}>See all node's appliances</button
+            >
           </span>
 
+          <!-- selecting appliance-->
           <div class="form-control">
             <select
               bind:value={appliance}
@@ -911,6 +945,12 @@
           <div class="form-control">
             <span class="label">
               <span class="label-text">Select a generator</span>
+              <button
+                class="btn btn-primary my-2"
+                on:click={() => {
+                  document.getElementById("displayGenerators").showModal();
+                }}>See all node's generators</button
+              >
             </span>
             <select
               bind:value={generator}
@@ -934,7 +974,9 @@
                 <option value={category}>{category}</option>
               {/each}
             </select>
-            <button on:click={addGenerator} class="btn btn-primary mt-4" disabled = {!categoryChosen}
+            <button on:click={() => {
+              document.getElementById("generatortimes").showModal();
+            }} class="btn btn-primary mt-4" disabled = {!categoryChosen}
               >Add Generator</button
             >
           </div>
@@ -1060,5 +1102,67 @@
     </div>
   </div>
 
+  <dialog id="generatortimes" class="modal">
+    <div class="modal-box">
+      <h3 class="text-lg font-bold">Time Interval</h3>
+      <p class="py-4">Please enter the duration the generator will be on for</p>
+      <div class="form-control mt-4 grid grid-cols-2 gap-4">
+        <div class="grid grid-rows-2">
+          <label for="start">Start-time:</label>
+          <input
+            id="start"
+            class="input input-bordered"
+            type="time"
+            required
+            bind:value={intervalStart}
+          />
+        </div>
+        <div class="grid grid-rows-2">
+          <label for="end">End-time:</label>
+          <input
+            id="end"
+            class="input input-bordered"
+            type="time"
+            required
+            bind:value={intervalEnd}
+          />
+        </div>
+      </div>
+      <div class="modal-action">
+        <form method="dialog">
+          <button class="btn bg-green-600" on:click={addGenerator}
+            >Continue</button
+          >
+          <button class="btn bg-red-600">Cancel</button>
+        </form>
+      </div>
+    </div>
+  </dialog>
 
+  <dialog id="displayApplications" class="modal">
+    <div class="modal-box">
+      <h3 class="text-lg font-bold">All {nodeNameDetail}'s applications</h3>
+      <div class="modal-action">
+        <form method="dialog">
+          <button class="btn bg-red-600">Close</button>
+        </form>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="displayGenerators" class="modal">
+    <div class="modal-box">
+      <h3 class="text-lg font-bold">All {nodeNameDetail}'s generators</h3>
+      <div class = "overflow-auto h-32">
+        {#each generators as gen}
+        <p>{gen}</p>
+        {/each}
+      </div>
+      <div class="modal-action">
+        <form method="dialog">
+          <button class="btn bg-red-600">Close</button>
+        </form>
+      </div>
+    </div>
+  </dialog>
 </main>

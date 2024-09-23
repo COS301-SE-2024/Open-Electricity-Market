@@ -1,0 +1,85 @@
+name: Staging
+
+on:
+  push:
+    branches: ["staging"]
+
+jobs:
+  rust-test:
+    uses: ./.github/workflows/rust.yml
+    permissions:
+      contents: read
+      packages: read
+      statuses: write # Updates commit statuses
+
+  deploy-staging:
+    needs: rust-test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Make db.env
+        uses: SpicyPizza/create-envfile@v2.0.3
+        with:
+          envkey_POSTGRES_PASSWORD : ${{ secrets.STAGING_POSTGRES_PASSWORD }}
+          envkey_OPEN_EM_PASS : ${{ secrets.STAGING_OPEN_EM_PASS }}
+          directory : backend
+          file_name: db.env
+
+      - name: Make agent .env
+        uses: SpicyPizza/create-envfile@v2.0.3
+        with:
+          envkey_PASSWORD : ${{ secrets.STAGING_AGENT_PASSWORD }}
+          envkey_DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+          envkey_FRONTEND_URL: ${{ vars.STAGING_FRONTEND_URL }}
+          envkey_JWT_SECRET: ${{ secrets.STAGING_JWT_SECRET }}
+          envkey_GRID_PASS: ${{ secrets.STAGING_GRID_PASS }}
+          directory : backend/agent
+          file_name: .env
+
+      - name: Make market-platform .env
+        uses: SpicyPizza/create-envfile@v2.0.3
+        with:
+          envkey_DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+          envkey_GRID_URL: ${{ vars.STAGING_GRID_URL }}
+          envkey_AGENT_URL: ${{ vars.STAGING_AGENT_URL }}
+          envkey_FRONTEND_URL: ${{ vars.STAGING_FRONTEND_URL }}
+          envkey_JWT_SECRET: ${{ secrets.STAGING_JWT_SECRET }}
+          directory: backend/market-platform
+          file_name: .env
+
+      - name: Make market-platform .env
+        uses: SpicyPizza/create-envfile@v2.0.3
+        with:
+          envkey_DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
+          envkey_JWT_SECRET: ${{ secrets.STAGING_JWT_SECRET }}
+          envkey_GRID_PASS: ${{ secrets.STAGING_GRID_PASS }}
+          directory: backend/simulation
+          file_name: .env
+
+      - name: Make config.js
+        run: echo "${{ vars.STAGING_CONFIG_JS }}" > Frontend/src/lib/config.js
+
+      - name: Make Caddyfile
+        run: echo "${{ vars.STAGING_CADDYFILE }}" > Caddyfile
+
+      - name: Install sshpass
+        run: sudo apt install sshpass
+
+      - name: Copy backend to droplet
+        run: sshpass -v -p ${{ secrets.STAGING_DROPLET_PASSWORD }} scp -o StrictHostKeyChecking=no -r "$(pwd)" root@${{ vars.STAGING_DROPLET_IP }}:~
+
+      - name: Deploy to droplet
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ vars.STAGING_DROPLET_IP }}
+          username: root
+          password: ${{ secrets.STAGING_DROPLET_PASSWORD }}
+          script: |
+            cd Open-Electricity-Market
+            docker compose down 
+            docker image rm amplify-simulation
+            docker image rm amplify-market-platform
+            docker image rm amplify-agent
+            docker image rm amplify-site
+            docker compose up -d

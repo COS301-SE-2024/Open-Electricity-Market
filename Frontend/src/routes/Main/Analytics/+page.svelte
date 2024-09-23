@@ -10,7 +10,7 @@
 
   let selectednode = "";
   let selectedAppliances = []; //by default should be all of them
-  let appliances = new Set(); 
+  let appliances = new Set();
   let dropdownvisible = false;
 
   //required for curve endpoint
@@ -28,17 +28,15 @@
   let unitssold;
   let listofnodeids = [];
   let marketpiedata = {};
-  let agentpiedata = {}; 
+  let agentpiedata = {};
   let consumptioncurvedata = [];
   let unitsproduced;
   let unitsconsumed;
-  let productioncurvedata = []; 
-  let buyChartPeriod; 
-  let sellChartPeriod; 
-  let buyhistorydata = []; 
-  let sellhistorydata = [];  
-
-  
+  let productioncurvedata = [];
+  let buyChartPeriod;
+  let sellChartPeriod;
+  let buyhistorydata = [];
+  let sellhistorydata = [];
 
   onMount(async () => {
     await getNodes();
@@ -49,13 +47,12 @@
     await getBuyHistory();
     await getSellHistory();
     await getConsumedProduced();
-    await getCurve(); 
+    await getCurve();
 
-    console.log("Appliances are: ", appliances); 
+    console.log("Appliances are: ", appliances);
     console.log("Selected Appliances are: ", selectedAppliances);
     console.log("Units produced are: ", unitsproduced);
-    console.log("Units consumed are: ", unitsconsumed);   
-    
+    console.log("Units consumed are: ", unitsconsumed);
   });
 
   function toggleDropdown() {
@@ -88,7 +85,7 @@
     } else {
       selectedAppliances = [...selectedAppliances, appliance];
     }
-    console.log(selectedAppliances); 
+    console.log(selectedAppliances);
   }
 
   async function getBuyStats() {
@@ -210,7 +207,6 @@
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
-          
         },
         credentials: "include",
       });
@@ -234,10 +230,7 @@
   }
 
   async function getCurve() {
-    
-    
     try {
-      
       const response = await fetch(`${API_URL_AGENT}/get_curve`, {
         method: "POST",
         headers: {
@@ -251,84 +244,66 @@
         }),
         credentials: "include",
       });
-      
-      
+
       const fdata = await response.json();
       console.log(fdata);
       let temp = fdata.data.consumption;
 
-      
-      appliances.clear(); 
-          //only runs this first time - selectedAppliances gets updated in toggleAppliance
-            temp.forEach((item) => {
-              appliances.add(item.appliance); 
-            });
-            selectedAppliances = Array.from(appliances);
-          
-        
-        console.log("Selected appliances are ", selectedAppliances);
-        console.log("Appliances are: ", appliances); 
-      consumptioncurvedata = []; 
-      productioncurvedata = []; 
-      let index = 0; 
+      appliances.clear();
+      //only runs this first time - selectedAppliances gets updated in toggleAppliance
+      temp.forEach((item) => {
+        appliances.add(item.appliance);
+      });
+      selectedAppliances = Array.from(appliances);
+
+      console.log("Selected appliances are ", selectedAppliances);
+      console.log("Appliances are: ", appliances);
+      consumptioncurvedata = [];
+      productioncurvedata = [];
+      let index = 0;
       if (fdata.message == "Here is the detail") {
-        //console.log("gets to the first foreach"); 
+        //console.log("gets to the first foreach");
         temp.forEach((item) => {
-         
-          if(selectedAppliances.includes(item.appliance)){
+          if (selectedAppliances.includes(item.appliance)) {
             console.log(item.appliance);
             if (!consumptioncurvedata[index]) {
               consumptioncurvedata[index] = 0;
             }
             consumptioncurvedata[index] += item.data;
-            index++; 
-            if(index >= 24){
-              index = 0; 
+            index++;
+            if (index >= 24) {
+              index = 0;
             }
-
           }
-  
         });
         let temp2 = fdata.data.production;
 
         temp2.forEach((generator) => {
           let startTime = generator[2][0].start;
           let endTime = generator[2][0].end;
-          let startTimeHour = Math.round(startTime/3600); 
-          let endTimeHour = Math.round(endTime/3600);  
-          console.log("This is start time: ", startTimeHour); 
-          console.log("This is end time: ", endTimeHour);  
-            for(let index = 0; index<24; index++){
-              productioncurvedata[index] = 0; 
-            }
-            for(let index2 = startTimeHour; index2<endTimeHour; index2++){
-                productioncurvedata[index2] = generator[1]; 
-            } 
+          let startTimeHour = Math.round(startTime / 3600);
+          let endTimeHour = Math.round(endTime / 3600);
+          console.log("This is start time: ", startTimeHour);
+          console.log("This is end time: ", endTimeHour);
+          for (let index = 0; index < 24; index++) {
+            productioncurvedata[index] = 0;
+          }
+          for (let index2 = startTimeHour; index2 < endTimeHour; index2++) {
+            productioncurvedata[index2] = generator[1];
+          }
         });
 
-       
-
-        
-
-        
-
         // console.log("This is consumption curve data:", consumptioncurvedata);
-        // console.log("This is the production curve data: ", productioncurvedata); 
+        // console.log("This is the production curve data: ", productioncurvedata);
       }
     } catch (error) {
       console.log("An error occurred while fetching getCurve data..\n", error);
     }
   }
 
-
-
-
   //getCurve function that will not reset the appliances
   async function getCurve2() {
-    
-    
     try {
-      
       const response = await fetch(`${API_URL_AGENT}/get_curve`, {
         method: "POST",
         headers: {
@@ -342,34 +317,35 @@
         }),
         credentials: "include",
       });
-      
-      
+
       const fdata = await response.json();
       console.log(fdata);
       let temp = fdata.data.consumption;
 
-        console.log("Selected appliances are ", selectedAppliances);
-        console.log("Appliances are: ", appliances); 
-      consumptioncurvedata = []; 
-      productioncurvedata = []; 
-      let index = 0; 
+      console.log("Selected appliances are ", selectedAppliances);
+      console.log("Appliances are: ", appliances);
+      consumptioncurvedata = [];
+      productioncurvedata = [];
+      let index = 0;
       if (fdata.message == "Here is the detail") {
-        //console.log("gets to the first foreach"); 
+        //console.log("gets to the first foreach");
+        //check to see if all the appliances are toggled off
+        if (selectedAppliances.length === 0) {
+          productioncurvedata = new Array(24).fill(0);
+          return;
+        }
         temp.forEach((item) => {
-         
-          if(selectedAppliances.includes(item.appliance)){
+          if (selectedAppliances.includes(item.appliance)) {
             console.log(item.appliance);
             if (!consumptioncurvedata[index]) {
               consumptioncurvedata[index] = 0;
             }
             consumptioncurvedata[index] += item.data;
-            index++; 
-            if(index >= 24){
-              index = 0; 
+            index++;
+            if (index >= 24) {
+              index = 0;
             }
-
           }
-  
         });
         let temp2 = fdata.data.production;
         // let startTime = temp2.
@@ -377,18 +353,17 @@
         temp2.forEach((generator) => {
           let startTime = generator[2][0].start;
           let endTime = generator[2][0].end;
-          let startTimeHour = Math.round(startTime/3600); 
-          let endTimeHour = Math.round(endTime/3600);  
-          console.log("This is start time: ", startTimeHour); 
-          console.log("This is end time: ", endTimeHour);  
-            for(let index = 0; index<24; index++){
-              productioncurvedata[index] = 0; 
-            }
-            for(let index2 = startTimeHour; index2<endTimeHour; index2++){
-                productioncurvedata[index2] = generator[1]; 
-            } 
+          let startTimeHour = Math.round(startTime / 3600);
+          let endTimeHour = Math.round(endTime / 3600);
+          console.log("This is start time: ", startTimeHour);
+          console.log("This is end time: ", endTimeHour);
+          for (let index = 0; index < 24; index++) {
+            productioncurvedata[index] = 0;
+          }
+          for (let index2 = startTimeHour; index2 < endTimeHour; index2++) {
+            productioncurvedata[index2] = generator[1];
+          }
         });
-
       }
     } catch (error) {
       console.log("An error occurred while fetching getCurve2 data..\n", error);
@@ -415,8 +390,7 @@
       if (fdata.message == "Here is the detail") {
         unitsconsumed = fdata.data.consumed;
         unitsproduced = fdata.data.produced;
-        agentpiedata = {unitsconsumed, unitsproduced}; 
-
+        agentpiedata = { unitsconsumed, unitsproduced };
       }
     } catch (error) {
       console.log(
@@ -447,37 +421,32 @@
         nodes = fdata.data;
         listofnodes = fdata.data.map((nodes) => nodes.name);
         listofnodeids = fdata.data.map((nodes) => nodes.node_id);
+        selectednode = listofnodes.length > 0 ? listofnodes[0] : "";
         console.log(listofnodes);
         console.log(listofnodeids);
-        nodeid = listofnodeids[0]; 
-        
+        nodeid = listofnodeids[0];
+        // document.getElementById("nodeselector").selected = listofnodes[0];
       }
     } catch (error) {
       console.log("An error occurred while fetching getNodes data..\n", error);
     }
   }
 
-
-  function updateAllAgent(){
-    getCurve(); 
-    getConsumedProduced(); 
+  function updateAllAgent() {
+    getCurve();
+    getConsumedProduced();
   }
 
-  function updateAllAgent2(){
-    getCurve2(); 
-    getConsumedProduced(); 
+  function updateAllAgent2() {
+    getCurve2();
+    getConsumedProduced();
   }
 
-  function updateNode(){
+  function updateNode() {
     //function that updates nodeid before agent endpoints get called
     let currindex = listofnodes.indexOf(selectednode);
-    nodeid = listofnodeids[currindex]; 
+    nodeid = listofnodeids[currindex];
   }
-
-
-
-
-  
 </script>
 
 <div class="flex">
@@ -489,44 +458,41 @@
     </span>
     <div class="flex min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
       <div class="flex-col w-2/3">
-
-    
-     
-      <span class="font-light"
-        >Minimum price bought at: <span class="font-normal">R{minbuy}</span
-        ></span
-      >
-      <br />
-      <span class="font-light"
-        >Maximum price bought at: <span class="font-normal">R{maxbuy}</span
-        ></span
-      >
-      <br />
-      <span class="font-light"
-        >Average price bought at: <span class="font-normal">R{avgbuy}</span
-        ></span
-      >
-      <br />
-      <span class="font-light"
-        >Minimum price sold at: <span class="font-normal">R{minsell}</span
-        ></span
-      >
-      <br />
-      <span class="font-light"
-        >Maximum price sold at: <span class="font-normal">R{maxsell}</span
-        ></span
-      >
-      <br />
-      <span class="font-light"
-        >Average price sold at: <span class="font-normal">R{avgsell}</span
-        ></span
-      >
-        </div>
-        {#if marketpiedata.length>1}
+        <span class="font-light"
+          >Minimum price bought at: <span class="font-normal">R{minbuy}</span
+          ></span
+        >
+        <br />
+        <span class="font-light"
+          >Maximum price bought at: <span class="font-normal">R{maxbuy}</span
+          ></span
+        >
+        <br />
+        <span class="font-light"
+          >Average price bought at: <span class="font-normal">R{avgbuy}</span
+          ></span
+        >
+        <br />
+        <span class="font-light"
+          >Minimum price sold at: <span class="font-normal">R{minsell}</span
+          ></span
+        >
+        <br />
+        <span class="font-light"
+          >Maximum price sold at: <span class="font-normal">R{maxsell}</span
+          ></span
+        >
+        <br />
+        <span class="font-light"
+          >Average price sold at: <span class="font-normal">R{avgsell}</span
+          ></span
+        >
+      </div>
+      {#if marketpiedata.length > 1}
         <div class="w-1/2 mr-16">
           <PieChart {marketpiedata} />
         </div>
-        {/if}
+      {/if}
     </div>
 
     <!-- {/if} -->
@@ -574,8 +540,6 @@
     </div>
   </div>
 
-
-  
   <div id="rhs" class="w-1/2">
     <span class="text-3xl text-white font-thin justify-start pl-2">
       Node Stats
@@ -584,9 +548,12 @@
       <select
         bind:value={selectednode}
         class="select select-bordered overflow-y-auto w-1/2 focus:outline-none"
-        on:change={()=>{updateNode(); updateAllAgent();}}
+        on:change={() => {
+          updateNode();
+          updateAllAgent();
+        }}
       >
-        <option value="" disabled selected>Select Node</option>
+        <!-- <option value="" disabled id = "nodeselector">Select Node</option> -->
         {#each listofnodes as node}
           <option value={node}>{node}</option>
         {/each}
@@ -606,7 +573,10 @@
                   type="checkbox"
                   class="checkbox checkbox-primary mr-2"
                   checked={selectedAppliances.includes(appliance)}
-                  on:change={() => {toggleAppliance(appliance); updateAllAgent2()}}
+                  on:change={() => {
+                    toggleAppliance(appliance);
+                    updateAllAgent2();
+                  }}
                 />
                 {appliance}
               </label>
@@ -618,14 +588,12 @@
 
     <!-- {#if agentpiedata.length>1} -->
     <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3 h-80">
-     
       <PieChartAgent {agentpiedata} />
-     
     </div>
     <!-- {/if} -->
-    <div class="flex min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3 space-x-2">
-      <ConsumptionCurve class="w-1/2" data = {consumptioncurvedata} />
-      <ProductionCurve class = "fixed justify right-1" data = {productioncurvedata} />
+    <div class="flex min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
+      <ConsumptionCurve class="w-1/2" data={consumptioncurvedata} />
+      <ProductionCurve class="ml-8" data={productioncurvedata} />
     </div>
     <!-- <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
     

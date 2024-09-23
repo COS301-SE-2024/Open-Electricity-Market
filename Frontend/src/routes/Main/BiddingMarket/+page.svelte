@@ -42,7 +42,7 @@
         Authorization: `Bearer ${sessionStorage.getItem("Token")}`,
       },
       body: JSON.stringify(data),
-      credentials: "include", 
+      credentials: "include",
     });
 
     goto("../Main/Dashboard");
@@ -178,6 +178,7 @@
             <input
               id="buy_price"
               type="number"
+              step="0.01"
               placeholder={selectedPrice}
               class="basis-2/3 input input-bordered font-bold"
               name="buy_price"
@@ -269,4 +270,12 @@
 </main>
 
 <style>
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
 </style>

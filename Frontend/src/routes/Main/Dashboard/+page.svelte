@@ -93,6 +93,10 @@
 
   let uniqueGens = [...new Set(generators.map((generator) => generator.type))];
 
+  //viewing appliances and generators
+  let applianceNames = new Set(); 
+  let generatorNames = []; 
+
   onMount(async () => {
     await fetchStart();
     await fetchNodes();
@@ -191,7 +195,13 @@
     // only proceed if all fields filled in
     if (nodeName == "" || latitude == "" || longtitude == "") {
       // maybe show an error
-      let errorToast = document.getElementById("errorToast"); 
+      let errorToast;
+      if(nodeName == "" && latitude != ""){
+        errorToast = document.getElementById("errorNodeName"); 
+      }
+      else{
+        errorToast = document.getElementById("errorToast"); 
+      }
       errorToast.style.display =  "block"; 
       setTimeout(()=>{
         errorToast.style.display = "none"; 
@@ -501,9 +511,92 @@
       generators: [],
     };
 
+    //default is 08:00 - 18:00 (10 hour lapse)
     let onPeriods = {
       start: 28800.0,
       end: 64800.0,
+    };
+
+    if (generator && category) {
+      console.log(generator + " " + category);
+      let generatorDetails = {
+        generator_type: { [generator]: category },
+        on_periods: [onPeriods],
+      };
+      details2.generators.push(generatorDetails);
+      //details2.generators.generator_type.push(onPeriods);
+      console.log(details2);
+      try {
+        const response = await fetch(`${API_URL_AGENT}/add_generators`, {
+          method: "POST",
+          body: JSON.stringify(details2),
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            Authorization: `Bearer ${sessionStorage.getItem("Token")}`,
+          },
+          credentials: "include",
+        });
+        const fdata = await response.json();
+        data = fdata;
+        if(fdata.message == "Succesfully added generators"){
+          document.getElementById("addgeneratormodal").showModal();
+        }
+        // console.log("Data received from add gen endpoint: ", data);
+        
+      } catch (error) {
+        console.log(
+          "There was an error with the add generator endpoint: ",
+          error
+        );
+      }
+    }
+  }
+
+  async function addGeneratorWithTime() {
+
+
+
+    //conversion of time input
+    let startHoursMinutes = intervalStart.split(":"); 
+    let endHoursMinutes = intervalEnd.split(":"); 
+
+    if(startHoursMinutes[0]>endHoursMinutes[0]){
+      //start is after end (invalid input)
+      //show error message
+      let errortime = document.getElementById("errorTime"); 
+      errortime.style.display =  "block"; 
+      setTimeout(()=>{
+        errortime.style.display = "none"; 
+      }, 3000); 
+      return; 
+    }
+    else if(startHoursMinutes[0]==endHoursMinutes[0]){
+      if(startHoursMinutes[1]>=endHoursMinutes[1]){
+          //start time is either greater than or equal to endTime (invalid input)
+          let errortime = document.getElementById("errorTime"); 
+          errortime.style.display =  "block"; 
+          setTimeout(()=>{
+            errortime.style.display = "none"; 
+          }, 3000); 
+          return; 
+      }
+    }
+    
+    intervalStartSeconds = (startHoursMinutes[0]*3600)+(startHoursMinutes[1]*60); 
+    intervalEndSeconds = (endHoursMinutes[0]*3600)+(endHoursMinutes[1]*60);
+
+
+
+    let details2 = {
+      email: email,
+      node_id: selectedNodeID,
+      generators: [],
+    };
+
+    let onPeriods = {
+      start: intervalStartSeconds,
+      end: intervalEndSeconds,
     };
 
     if (generator && category) {
@@ -553,6 +646,87 @@
   const onChangeCategory = () => {
     categoryChosen = true;
   };
+
+
+  function showTimeInput(){
+    document.getElementById("generatortimes").showModal();
+  }
+
+
+  function showAppliances(){
+
+    getCurve(); 
+    document.getElementById("viewappliancemodal").showModal(); 
+
+  }
+
+
+  function showGenerators(){
+
+    getCurve(); 
+    document.getElementById("viewgeneratormodal").showModal(); 
+
+  }
+
+
+  async function getCurve() {
+    
+    
+    try {
+      
+      const response = await fetch(`${API_URL_AGENT}/get_curve`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${sessionStorage.getItem("Token")}`,
+        },
+        body: JSON.stringify({
+          email: email,
+          node_id: selectedNodeID,
+        }),
+        credentials: "include",
+      });
+      
+      
+      const fdata = await response.json();
+      if(fdata.message == "Invalid Email or node_id"){
+        applianceNames = "There was an issue retrieving your appliances.";
+        generatorNames = "There was an issue retrieving your generators.";
+        return;
+      }
+      console.log(fdata);
+      let temp = fdata.data.consumption;
+
+      
+      applianceNames.clear(); 
+
+      temp.forEach((item) => {
+        applianceNames.add(item.appliance); 
+      });
+
+      applianceNames = Array.from(applianceNames).join('\n'); 
+      if(applianceNames===""){
+        applianceNames = "You currently do not have any appliances linked to this node."; 
+      }
+            
+        let temp2 = fdata.data.production;
+
+        generatorNames = temp2.flatMap(item => {
+          return Object.keys(item[0]); 
+        });
+
+        generatorNames = generatorNames.join('\n'); 
+        if(generatorNames===""){
+        generatorNames = "You currently do not have any generators linked to this node."; 
+      }
+
+        
+      
+    } catch (error) {
+      console.log("An error occurred while fetching getCurve data..\n", error);
+    }
+  }
 </script>
 
 <main class="container sm:mx-auto w-full h-screen sm:flex justify-center">
@@ -660,10 +834,10 @@
             required
             bind:value={amount}
           />
-        </div>
+        </div> 
 
         <div class="modal-action">
-          <form method="dialog">
+          <form method="dialog" >
             <button class="btn bg-green-600" on:click={addFunds}
               >Continue</button
             >
@@ -849,7 +1023,7 @@
             <div class="stat-value font-light">{nodeNameDetail}</div>
           </div>
           <!-- flex min-w-max py-0 justify-center -->
-          <div class="stat flex w-full py-0 justify-center">
+          <div class="stat flex w-full py-0 justify-center mb-2 mt-2">
             <button
               class="btn btn-primary w-6/12"
               on:click={() => {
@@ -892,8 +1066,12 @@
               {Intl.NumberFormat().format(nodeToProduce)} Wh
             </div>
           </div>
+          <div id = "viewbuttons" class = "stat flex w-full justify-center mt-2 mb-2">
+            <button class = "btn btn-primary w-6/12" on:click={showAppliances}>View Appliances</button>
+            <button class = "btn btn-primary w-6/12" on:click={showGenerators}>View Generators</button>
+          </div>
         </div>
-
+        
         <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 my-2">
           <span class="text-3xl font-thin justify-start">
             Add an Appliance
@@ -914,7 +1092,7 @@
             >
           </div>
           <!-- selecting category  -->
-          <div class="form-control">
+          <div class="form-control mb-1">
             <span class="label">
               <span class="label-text">Select a generator</span>
             </span>
@@ -940,7 +1118,7 @@
                 <option value={category}>{category}</option>
               {/each}
             </select>
-            <button on:click={addGenerator} class="btn btn-primary mt-4" disabled = {!categoryChosen}
+            <button on:click={showTimeInput} class="btn btn-primary mt-4" disabled = {!categoryChosen}
               >Add Generator</button
             >
           </div>
@@ -1056,6 +1234,71 @@
     </form>
   </dialog>
 
+  <!-- view generator modal  -->
+  <dialog id="viewgeneratormodal" class="modal">
+    <div class="modal-box">
+      <h3 class="font-bold text-lg">List of generators ({nodeNameDetail})</h3>
+      <p>
+        {generatorNames} 
+      </p>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button >close</button>
+    </form>
+  </dialog>
+
+
+  <!-- view appliance modal  -->
+  <dialog id="viewappliancemodal" class="modal">
+    <div class="modal-box">
+      <h3 class="font-bold text-lg">List of appliances ({nodeNameDetail})</h3>
+      <p>
+        {applianceNames} 
+      </p>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button >close</button>
+    </form>
+  </dialog>
+
+
+  <!-- time input modal -->
+  <dialog id="generatortimes" class="modal">
+    <div class="modal-box">
+      <span class="text-lg font-bold">Operating Time Interval</span>
+      <p class="py-4">Please enter the typical time periods your generator is running.</p>
+      <div class="form-control mt-4 grid grid-cols-2 gap-4">
+        <div class="grid grid-rows-2">
+          <label for="start">Start-time:</label>
+          <input
+            id="start"
+            class="input input-bordered"
+            type="time"
+            
+            bind:value={intervalStart}
+            on:change={console.log(intervalStart)}
+          />
+        </div>
+        <div class="grid grid-rows-2">
+          <label for="end">End-time:</label>
+          <input
+            id="end"
+            class="input input-bordered"
+            type="time"
+            
+            bind:value={intervalEnd}
+          />
+        </div>
+      </div>
+      <div class="modal-action">
+        <form method="dialog">
+          <button class="btn btn-success" on:click={addGeneratorWithTime}>Continue</button>
+          <button class="btn btn-primary" on:click={addGenerator}>Skip</button>
+        </form>
+      </div>
+    </div>
+  </dialog>
+
 
 
   <div class="toast toast-bottom toast-center hidden" id="errorToast">
@@ -1066,5 +1309,44 @@
     </div>
   </div>
 
+  <div class="toast toast-bottom toast-center hidden" id="errorNodeName">
+    <div class="alert alert-error">
+      <div>
+        <span>Error: Please make sure to enter a name when creating a new node.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast toast-bottom toast-center hidden" id="errorTime">
+    <div class="alert alert-error">
+      <div>
+        <span>Error: Please make sure to select valid time periods.
+        </span>
+      </div>
+    </div>
+  </div>
+
 
 </main>
+
+
+
+
+
+<style>
+  input[type="number"] {
+  -moz-appearance: textfield;
+}
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button{
+  -webkit-appearance: none;
+  margin: 0; 
+}
+
+/* option to take out the lines from stat class */
+
+/* .stat {
+    border: none; 
+    
+  } */
+</style>

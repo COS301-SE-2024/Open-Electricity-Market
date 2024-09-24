@@ -32,8 +32,9 @@
       loggedIn = true;
     } else {
       loggedIn = false;
-      // window.location.href = "/login";
-      goto("/login");
+      window.location.href = "/login";
+      // this does not work here:
+      // goto("/login");
     }
     // loggedIn = session === 'loggedIn';
   });

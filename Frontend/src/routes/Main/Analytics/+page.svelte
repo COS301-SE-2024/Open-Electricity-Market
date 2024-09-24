@@ -39,6 +39,35 @@
   let sellhistorydata = [];
 
   onMount(async () => {
+    // token check and refresh
+    const session = sessionStorage.getItem("Token");
+    
+    if (!session) {
+      goto("/login")
+    } else {
+      const response = await fetch(`${API_URL_MARKET}/token_refresh`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${sessionStorage.getItem("Token")}`,
+        },
+        credentials: "include",
+      });
+
+      const fdata = await response.json();
+
+      // console.log(fdata);
+      if (!fdata.error) {
+        // swap out to the new token
+        sessionStorage.removeItem("Token");
+        sessionStorage.setItem("Token", fdata.data.token)
+      } else {
+        goto("/login")
+      }
+    }
+
+
     await getNodes();
     await getSellStats();
     await getBuyStats();

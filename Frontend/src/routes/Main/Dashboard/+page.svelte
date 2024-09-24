@@ -98,6 +98,35 @@
   let generatorNames = []; 
 
   onMount(async () => {
+    // token check and refresh
+    const session = sessionStorage.getItem("Token");
+    
+    if (!session) {
+      goto("/login")
+    } else {
+      const response = await fetch(`${API_URL_MARKET}/token_refresh`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${sessionStorage.getItem("Token")}`,
+        },
+        credentials: "include",
+      });
+
+      const fdata = await response.json();
+
+      // console.log(fdata);
+      if (!fdata.error) {
+        // swap out to the new token
+        sessionStorage.removeItem("Token");
+        sessionStorage.setItem("Token", fdata.data.token)
+      } else {
+        goto("/login")
+      }
+    }
+
+
     await fetchStart();
     await fetchNodes();
     await getUserDetails();
@@ -228,7 +257,7 @@
       // console.log(response);
 
       const fdata = await response.json();
-      console.log(fdata);
+      // console.log(fdata);
 
       if (fdata.status === "ok") {
         document.getElementById("mapModal").close();
@@ -384,6 +413,7 @@
   }
 
   async function listOpenBuys() {
+    console.log("fetching open buys")
     try {
       const response = await fetch(`${API_URL_MARKET}/list_open_buys`, {
         method: "POST",
@@ -396,7 +426,7 @@
       });
       const fdata = await response.json();
       data = fdata;
-      console.log("Data received from user details is: ", data);
+      // console.log("Data received from user details is: ", data);
     } catch (error) {
       console.log("There was an error fetching user details:", error);
     }

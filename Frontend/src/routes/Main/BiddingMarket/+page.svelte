@@ -31,8 +31,7 @@
 
     let data = {
       node_id: selected_node_id,
-      min_price: selectedPrice > 1 ? selectedPrice - 1 : 0.01,
-      max_price: selectedPrice + 1,
+      price: selectedPrice,
       units: units,
     };
 
@@ -58,8 +57,7 @@
 
     let data = {
       node_id: selected_node_id,
-      min_price: selectedPrice > 1 ? selectedPrice - 1 : 0.01,
-      max_price: selectedPrice + 1,
+      price: selectedPrice,
       units: units,
     };
 
@@ -141,7 +139,7 @@
   <div class="md:flex md:flex-row">
     <div class="md:basis-2/3 bg-base-100 md:card md:mr-5 md:p-4">
       <h1 class="md:text-5xl md:font-light md:pt-8">Marketplace</h1>
-      <div class="form-control">
+      <div class="form-control mt-3">
         <!-- svelte-ignore a11y-label-has-associated-control -->
         <select
           bind:value={chartPeriod}
@@ -180,6 +178,7 @@
             <input
               id="buy_price"
               type="number"
+              step="0.01"
               placeholder={selectedPrice}
               class="basis-2/3 input input-bordered font-bold"
               name="buy_price"
@@ -271,4 +270,12 @@
 </main>
 
 <style>
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
 </style>

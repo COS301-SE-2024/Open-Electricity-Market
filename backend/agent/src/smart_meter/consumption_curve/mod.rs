@@ -38,7 +38,7 @@ impl HomeApplianceType {
     pub fn to_string(&self) -> String {
         return match self {
             HomeApplianceType::WashingMachine => String::from("washing_machine"),
-            HomeApplianceType::Router => String::from("washing_machine"),
+            HomeApplianceType::Router => String::from("router"),
             HomeApplianceType::Vacuum => String::from("vacuum"),
             HomeApplianceType::Dishwasher => String::from("dish_washer"),
             HomeApplianceType::Boiler => String::from("boiler"),
@@ -49,7 +49,7 @@ impl HomeApplianceType {
             HomeApplianceType::PhoneCharger => String::from("phone_charger"),
             HomeApplianceType::Fridge => String::from("fridge"),
             HomeApplianceType::Radiator => String::from("radiator"),
-            HomeApplianceType::Dehumidifier => String::from("dehumifer"),
+            HomeApplianceType::Dehumidifier => String::from("dehumidifier"),
             HomeApplianceType::MicroWaveOven => String::from("micro_wave_oven"),
             HomeApplianceType::Laptop => String::from("laptop"),
             HomeApplianceType::Tv => String::from("tv"),
@@ -77,7 +77,13 @@ impl Curve for HomeAppliance {
         let time = time % 86400.0;
         let conn = &mut establish_connection();
         let sample_appliance = sample_appliance(time, self.appliance_type.to_string());
-        let sample: f64 = diesel::select(sample_appliance).first(conn).unwrap();
+        let sample: f64 = match diesel::select(sample_appliance).first(conn) {
+            Ok(s) => s,
+            Err(err) => {
+                println!("{}", err);
+                0.0
+            }
+        };
 
         sample
     }
@@ -85,7 +91,13 @@ impl Curve for HomeAppliance {
     fn total_in_24_hour(&mut self) -> f64 {
         let conn = &mut establish_connection();
         let total_appliance = total_appliance(self.appliance_type.to_string());
-        let total = diesel::select(total_appliance).first(conn).unwrap();
+        let total = match diesel::select(total_appliance).first(conn) {
+            Ok(t) => t,
+            Err(err) => {
+                println!("{}", err);
+                0.0
+            }
+        };
 
         total
     }

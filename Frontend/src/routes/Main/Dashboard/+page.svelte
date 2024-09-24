@@ -96,8 +96,8 @@
   let uniqueGens = [...new Set(generators.map((generator) => generator.type))];
 
   //viewing appliances and generators
-  let applianceNames = new Set();
-  let generatorNames = [];
+  $: applianceNames = new Set();
+  $: generatorNames = [];
 
   onMount(async () => {
     await fetchStart();
@@ -147,9 +147,10 @@
       // console.log(response);
 
       const fdata = await response.json();
+      nodes = fdata.data;
       listOpenBuys();
       listOpenSells();
-      nodes = fdata.data;
+      
     } catch (error) {
       console.log("An error occurred while fetching nodes..\n", error);
     }
@@ -228,7 +229,7 @@
         }),
       });
       // console.log("request being sent...");
-      // console.log(response);
+       console.log(response);
 
       const fdata = await response.json();
       console.log(fdata);
@@ -676,6 +677,7 @@
       });
 
       const fdata = await response.json();
+      console.log("data received ",fdata)
       if (fdata.message == "Invalid Email or node_id") {
         applianceNames = "There was an issue retrieving your appliances.";
         generatorNames = "There was an issue retrieving your generators.";
@@ -684,8 +686,8 @@
       console.log(fdata);
       let temp = fdata.data.consumption;
 
-      applianceNames.clear();
-
+      //applianceNames.clear();
+      applianceNames = new Set();
       temp.forEach((item) => {
         applianceNames.add(item.appliance);
       });

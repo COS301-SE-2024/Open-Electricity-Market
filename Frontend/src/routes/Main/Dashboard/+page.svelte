@@ -91,6 +91,8 @@
     { type: "HydraulicTurbine", category: "Large" },
   ];
 
+  $: addWot = "";
+
   let uniqueGens = [...new Set(generators.map((generator) => generator.type))];
 
   //viewing appliances and generators
@@ -184,6 +186,7 @@
       nodeToProduce = data.units_to_produce;
       nodeToConsume = data.units_to_consume;
       selectedNodeID = data.node_id;
+      addWot = "a";
     }
   }
 
@@ -708,6 +711,16 @@
       console.log("An error occurred while fetching getCurve data..\n", error);
     }
   }
+
+  function switchAddWot(){
+    if (addWot == "a")
+    {
+      addWot = "g";
+    } 
+    else{
+      addWot = "a";
+    }
+  }
 </script>
 
 <main class="container mx-auto p-4">
@@ -1067,11 +1080,12 @@
           </div>
 
           <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 my-2">
-            <span class="text-3xl font-thin justify-start">
-              Add an Appliance
-            </span>
-
-            <div class="form-control">
+          {#if addWot == "a"}
+            <div class="form-control mb-1">
+              <span class="label text-3xl font-thin overflow-y-auto">
+                Add an Appliance
+                <button on:click={switchAddWot} class = "btn btn-primary">To Generator</button>
+              </span>
               <select
                 bind:value={appliance}
                 class="select select-bordered max-h-40 overflow-y-auto my-2"
@@ -1087,14 +1101,16 @@
                 disabled={!appliance}>Add Appliance</button
               >
             </div>
+          {:else}
             <!-- selecting category  -->
             <div class="form-control mb-1">
-              <span class="label">
-                <span class="label-text">Select a generator</span>
+              <span class="label text-3xl font-thin overflow-y-auto" >
+                Add a Generator
+                <button on:click={switchAddWot} class = "btn btn-primary">To Application</button>
               </span>
               <select
                 bind:value={generator}
-                class="select select-bordered max-h-40 overflow-y-auto"
+                class="select select-bordered max-h-40 overflow-y-auto my-2"
                 on:change={onChangeGenerator}
               >
                 <option value="" disabled selected>Select a generator</option>
@@ -1120,6 +1136,7 @@
                 disabled={!categoryChosen}>Add Generator</button
               >
             </div>
+          {/if}
           </div>
         </div>
       {/if}

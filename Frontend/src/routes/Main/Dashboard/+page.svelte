@@ -710,415 +710,421 @@
   }
 </script>
 
-<main class="container sm:mx-auto w-full h-screen sm:flex justify-center">
-  <!--first-->
-  <div class="sm:w-1/3 h-[calc(100vh-70px)] flex flex-col">
-    <!--Personal Info-->
-    <span class="text-3xl font-thin justify-start pl-2">
-      Personal Information
-    </span>
+<main class="container mx-auto p-4">
+  <div class="md:flex md:flex-row">
+    <!--first-->
+    <div class="sm:w-1/3 h-[calc(100vh-70px)] flex flex-col">
+      <!--Personal Info-->
+      <span class="text-3xl font-thin justify-start pl-2">
+        Personal Information
+      </span>
 
-    <div class="h-1/2 stats stats-vertical w-full">
-      <div class="stat">
-        <div class="stat-title">Available Credit</div>
-        {#if totalamount == null}
-          <span class="loading loading-spinner loading-lg"></span>
-        {:else}
-          <div class="stat-value font-normal">
-            {formatCurrency(totalamount)}
-          </div>
-        {/if}
-      </div>
-
-      <div class="stat flex min-w-max py-0 justify-center">
-        <button class="btn btn-primary w-6/12" onclick="add_modal.showModal()"
-          >Add funds</button
-        >
-        <button class="btn btn-accent w-6/12" onclick="remove_modal.showModal()"
-          >Withdraw funds</button
-        >
-      </div>
-
-      <div class="stat">
-        <div class="stat-title">Firstname</div>
-        {#if firstname == null}
-          <span class="loading loading-spinner loading-lg"></span>
-        {:else}
-          <div class="stat-value font-light">{firstname}</div>
-        {/if}
-      </div>
-
-      <div class="stat">
-        <div class="stat-title">Lastname</div>
-        {#if lastname == null}
-          <span class="loading loading-spinner loading-lg"></span>
-        {:else}
-          <div class="stat-value font-light">{lastname}</div>
-        {/if}
-      </div>
-
-      <div class="stat">
-        <div class="stat-title">Email</div>
-        {#if email == null}
-          <span class="loading loading-spinner loading-lg"></span>
-        {:else}
-          <div class="stat-value font-light">{email}</div>
-        {/if}
-      </div>
-    </div>
-
-    <!--Buy orders-->
-    <span class="text-3xl font-light justify-start pl-2 mt-2">
-      Buy Orders
-    </span>
-    <div
-      class="rounded-2xl h-1/3 backdrop-blur-sm bg-white/30 p-2 overflow-y-auto"
-    >
-      {#if buyorders.length == 0}
-        <div class="rounded-xl h-full bg-base-100 flex justify-center">
-          <p class="self-center text-2xl font-light">--No Buy Orders--</p>
+      <div class="h-1/2 stats stats-vertical w-full">
+        <div class="stat">
+          <div class="stat-title">Available Credit</div>
+          {#if totalamount == null}
+            <span class="loading loading-spinner loading-lg"></span>
+          {:else}
+            <div class="stat-value font-normal">
+              {formatCurrency(totalamount)}
+            </div>
+          {/if}
         </div>
-      {:else}
-        {#each buyorders as buyorder}
-          <div class="rounded-2xl min-w-1/3 bg-base-100 mb-2">
-            <div class="p-5">
-              <h2 class="card-title">Buy order</h2>
-              <p>
-                Filled units: {buyorder.filled_units.toFixed(1) + "Wh"}<br />
-                Price: {formatCurrency(buyorder.max_price)}<br />
-                Units bought: {Intl.NumberFormat().format(
-                  buyorder.sought_units
-                ) + "Wh"}<br />
-              </p>
-              <div class="card-actions">
-                <progress
-                  class="progress progress-primary"
-                  value={buyorder.filled_units}
-                  max={buyorder.sought_units}
-                ></progress>
+
+        <div class="stat flex min-w-max py-0 justify-center">
+          <button class="btn btn-primary w-6/12" onclick="add_modal.showModal()"
+            >Add funds</button
+          >
+          <button
+            class="btn btn-accent w-6/12"
+            onclick="remove_modal.showModal()">Withdraw funds</button
+          >
+        </div>
+
+        <div class="stat">
+          <div class="stat-title">Firstname</div>
+          {#if firstname == null}
+            <span class="loading loading-spinner loading-lg"></span>
+          {:else}
+            <div class="stat-value font-light">{firstname}</div>
+          {/if}
+        </div>
+
+        <div class="stat">
+          <div class="stat-title">Lastname</div>
+          {#if lastname == null}
+            <span class="loading loading-spinner loading-lg"></span>
+          {:else}
+            <div class="stat-value font-light">{lastname}</div>
+          {/if}
+        </div>
+
+        <div class="stat">
+          <div class="stat-title">Email</div>
+          {#if email == null}
+            <span class="loading loading-spinner loading-lg"></span>
+          {:else}
+            <div class="stat-value font-light">{email}</div>
+          {/if}
+        </div>
+      </div>
+
+      <!--Buy orders-->
+      <span class="text-3xl font-light justify-start pl-2 mt-2">
+        Buy Orders
+      </span>
+      <div
+        class="rounded-2xl h-1/3 backdrop-blur-sm bg-white/30 p-2 overflow-y-auto"
+      >
+        {#if buyorders.length == 0}
+          <div class="rounded-xl h-full bg-base-100 flex justify-center">
+            <p class="self-center text-2xl font-light">--No Buy Orders--</p>
+          </div>
+        {:else}
+          {#each buyorders as buyorder}
+            <div class="rounded-2xl min-w-1/3 bg-base-100 mb-2">
+              <div class="p-5">
+                <h2 class="card-title">Buy order</h2>
+                <p>
+                  Filled units: {buyorder.filled_units.toFixed(1) + "Wh"}<br />
+                  Price: {formatCurrency(buyorder.max_price)}<br />
+                  Units bought: {Intl.NumberFormat().format(
+                    buyorder.sought_units
+                  ) + "Wh"}<br />
+                </p>
+                <div class="card-actions">
+                  <progress
+                    class="progress progress-primary"
+                    value={buyorder.filled_units}
+                    max={buyorder.sought_units}
+                  ></progress>
+                </div>
               </div>
             </div>
+          {/each}
+        {/if}
+      </div>
+      <!-- change funds modals -->
+      <dialog id="add_modal" class="modal">
+        <div class="modal-box">
+          <h3 class="text-lg font-bold">Add funds</h3>
+          <p class="py-4">Please enter an amount you would like to add.</p>
+          <div class="form-control mt-4">
+            <input
+              class="input input-bordered"
+              type="number"
+              placeholder="Amount"
+              required
+              bind:value={amount}
+            />
           </div>
-        {/each}
-      {/if}
+
+          <div class="modal-action">
+            <form method="dialog">
+              <button class="btn bg-green-600" on:click={addFunds}
+                >Continue</button
+              >
+              <button class="btn bg-red-600">Cancel</button>
+            </form>
+          </div>
+        </div>
+      </dialog>
+
+      <dialog id="remove_modal" class="modal">
+        <div class="modal-box">
+          <h3 class="text-lg font-bold">Withdraw funds</h3>
+          <p>Please enter an amount you would like to withdraw.</p>
+          <div class="form-control mt-4">
+            <input
+              class="input input-bordered"
+              type="number"
+              placeholder="Amount"
+              required
+              bind:value={withdrawamount}
+            />
+          </div>
+          <div class="modal-action">
+            <form method="dialog">
+              <button class="btn bg-green-600" on:click={withdrawFunds}
+                >Continue</button
+              >
+              <button class="btn bg-red-500">Cancel</button>
+            </form>
+          </div>
+        </div>
+      </dialog>
     </div>
-    <!-- change funds modals -->
-    <dialog id="add_modal" class="modal">
-      <div class="modal-box">
-        <h3 class="text-lg font-bold">Add funds</h3>
-        <p class="py-4">Please enter an amount you would like to add.</p>
-        <div class="form-control mt-4">
-          <input
-            class="input input-bordered"
-            type="number"
-            placeholder="Amount"
-            required
-            bind:value={amount}
-          />
+
+    <!--second-->
+    <div class="sm:w-1/3 h-[calc(100vh-70px)] mx-4 flex flex-col">
+      <!--Nodes-->
+      <span class="basis text-3xl font-thin justify-start pl-2">
+        Your Nodes
+      </span>
+      <div class="h-1/2 flex flex-col">
+        <div
+          class="rounded-2xl h-full p-2 backdrop-blur-sm bg-white/30 overflow-y-auto"
+        >
+          {#if nodes.length == 0}
+            <div class="rounded-xl h-full bg-base-100 flex justify-center">
+              <p class="self-center text-2xl font-light">--No Nodes--</p>
+            </div>
+          {:else}
+            {#each nodes as node}
+              {#if node.name == nodeNameDetail}
+                <div
+                  class="card card-side border-4 border-primary min-w-1/3 bg-base-100 mb-2"
+                >
+                  <figure class="w-1/4 p-3 pr-0">
+                    <img src="../src/images/house.png" alt="House node" />
+                  </figure>
+                  <div class="card-body pb-4 px-4">
+                    <h2 class="card-title font-light text-2xl">{node.name}</h2>
+                    <div class="card-actions justify-end">
+                      <button
+                        class="btn btn-primary"
+                        on:click={() => {
+                          fetchNodeDetails(node.node_id);
+                        }}>Details</button
+                      >
+                    </div>
+                  </div>
+                </div>
+              {:else}
+                <div
+                  class="card card-side border-4 border-base-100 min-w-1/3 bg-base-100 mb-2"
+                >
+                  <figure class="w-1/4 p-3 pr-0">
+                    <img src="../src/images/house.png" alt="House node" />
+                  </figure>
+                  <div class="card-body pb-4 px-4">
+                    <h2 class="card-title font-light text-2xl">{node.name}</h2>
+                    <div class="card-actions justify-end">
+                      <button
+                        class="btn btn-primary"
+                        on:click={() => {
+                          fetchNodeDetails(node.node_id);
+                        }}>Details</button
+                      >
+                    </div>
+                  </div>
+                </div>
+              {/if}
+            {/each}
+          {/if}
         </div>
 
-        <div class="modal-action">
-          <form method="dialog">
-            <button class="btn bg-green-600" on:click={addFunds}
-              >Continue</button
+        <!--Add New node-->
+        <div class="rounded-2xl min-w-1/3 bg-base-100 mt-2 p-3">
+          <div class="w-full">
+            <button class="btn btn-outline w-full" on:click={createModal}
+              >Add a New Node</button
             >
-            <button class="btn bg-red-600">Cancel</button>
-          </form>
+          </div>
         </div>
       </div>
-    </dialog>
 
-    <dialog id="remove_modal" class="modal">
-      <div class="modal-box">
-        <h3 class="text-lg font-bold">Withdraw funds</h3>
-        <p>Please enter an amount you would like to withdraw.</p>
-        <div class="form-control mt-4">
-          <input
-            class="input input-bordered"
-            type="number"
-            placeholder="Amount"
-            required
-            bind:value={withdrawamount}
-          />
-        </div>
-        <div class="modal-action">
-          <form method="dialog">
-            <button class="btn bg-green-600" on:click={withdrawFunds}
-              >Continue</button
-            >
-            <button class="btn bg-red-500">Cancel</button>
-          </form>
-        </div>
-      </div>
-    </dialog>
-  </div>
-
-  <!--second-->
-  <div class="sm:w-1/3 h-[calc(100vh-70px)] mx-4 flex flex-col">
-    <!--Nodes-->
-    <span class="basis text-3xl font-thin justify-start pl-2">
-      Your Nodes
-    </span>
-    <div class="h-1/2 flex flex-col">
+      <!--Sell orders-->
+      <span class="text-3xl font-light justify-start pl-2 mt-2">
+        Sell Orders
+      </span>
       <div
-        class="rounded-2xl h-full p-2 backdrop-blur-sm bg-white/30 overflow-y-auto"
+        class="rounded-2xl h-1/3 backdrop-blur-sm bg-white/30 p-2 overflow-y-auto"
       >
-        {#if nodes.length == 0}
+        {#if sellorders.length == 0}
           <div class="rounded-xl h-full bg-base-100 flex justify-center">
-            <p class="self-center text-2xl font-light">--No Nodes--</p>
+            <p class="self-center text-2xl font-light">--No Sell Orders--</p>
           </div>
         {:else}
-          {#each nodes as node}
-            {#if node.name == nodeNameDetail}
-              <div
-                class="card card-side border-4 border-primary min-w-1/3 bg-base-100 mb-2"
-              >
-                <figure class="w-1/4 p-3 pr-0">
-                  <img src="../src/images/house.png" alt="House node" />
-                </figure>
-                <div class="card-body pb-4 px-4">
-                  <h2 class="card-title font-light text-2xl">{node.name}</h2>
-                  <div class="card-actions justify-end">
-                    <button
-                      class="btn btn-primary"
-                      on:click={() => {
-                        fetchNodeDetails(node.node_id);
-                      }}>Details</button
-                    >
-                  </div>
+          {#each sellorders as sellorder}
+            <div class="rounded-2xl min-w-1/3 bg-base-100 mb-2">
+              <div class="p-5">
+                <h2 class="card-title">Sell order</h2>
+                <p>
+                  Claimed Units: {sellorder.claimed_units.toFixed(1) + "Wh"}<br
+                  />
+                  Offered Units: {sellorder.offered_units.toFixed(1) + "Wh"}<br
+                  />
+                  Price: {formatCurrency(sellorder.min_price)}<br />
+                </p>
+                <div class="card-actions">
+                  <progress
+                    class="progress progress-accent"
+                    value={sellorder.claimed_units}
+                    max={sellorder.offered_units}
+                  ></progress>
                 </div>
               </div>
-            {:else}
-              <div
-                class="card card-side border-4 border-base-100 min-w-1/3 bg-base-100 mb-2"
-              >
-                <figure class="w-1/4 p-3 pr-0">
-                  <img src="../src/images/house.png" alt="House node" />
-                </figure>
-                <div class="card-body pb-4 px-4">
-                  <h2 class="card-title font-light text-2xl">{node.name}</h2>
-                  <div class="card-actions justify-end">
-                    <button
-                      class="btn btn-primary"
-                      on:click={() => {
-                        fetchNodeDetails(node.node_id);
-                      }}>Details</button
-                    >
-                  </div>
-                </div>
-              </div>
-            {/if}
+            </div>
           {/each}
         {/if}
       </div>
 
-      <!--Add New node-->
-      <div class="rounded-2xl min-w-1/3 bg-base-100 mt-2 p-3">
-        <div class="w-full">
-          <button class="btn btn-outline w-full" on:click={createModal}
-            >Add a New Node</button
-          >
+      <!-- new node modals -->
+      <dialog id="mapModal" class="modal">
+        <div class="modal-box">
+          <h3 class="font-bold text-lg">Add a Node</h3>
+          <form class="">
+            <div class="form-control mt-4">
+              <input
+                class="input input-bordered"
+                type="text"
+                placeholder="Name"
+                bind:value={nodeName}
+              />
+            </div>
+            <!-- <div class="form-control mt-4">
+              <input class="input input-bordered" type="text" placeholder="Latitude" bind:value={nodeLatitude}>
+            </div>
+            <div class="form-control mt-4">
+              <input class="input input-bordered" type="text" placeholder="Longtitude" bind:value={nodeLongitude}>
+            </div> -->
+            <div class="form-control mt-4">
+              <Map onMapClick={handleMapClick} />
+            </div>
+
+            <div class="form-control mt-4">
+              <button class="btn btn-primary" on:click={createNode}
+                >Confirm</button
+              >
+            </div>
+          </form>
         </div>
-      </div>
+
+        <form method="dialog" class="modal-backdrop">
+          <button>close</button>
+        </form>
+      </dialog>
     </div>
 
-    <!--Sell orders-->
-    <span class="text-3xl font-light justify-start pl-2 mt-2">
-      Sell Orders
-    </span>
-    <div
-      class="rounded-2xl h-1/3 backdrop-blur-sm bg-white/30 p-2 overflow-y-auto"
-    >
-      {#if sellorders.length == 0}
-        <div class="rounded-xl h-full bg-base-100 flex justify-center">
-          <p class="self-center text-2xl font-light">--No Sell Orders--</p>
-        </div>
-      {:else}
-        {#each sellorders as sellorder}
-          <div class="rounded-2xl min-w-1/3 bg-base-100 mb-2">
-            <div class="p-5">
-              <h2 class="card-title">Sell order</h2>
-              <p>
-                Claimed Units: {sellorder.claimed_units.toFixed(1) + "Wh"}<br />
-                Offered Units: {sellorder.offered_units.toFixed(1) + "Wh"}<br />
-                Price: {formatCurrency(sellorder.min_price)}<br />
-              </p>
-              <div class="card-actions">
-                <progress
-                  class="progress progress-accent"
-                  value={sellorder.claimed_units}
-                  max={sellorder.offered_units}
-                ></progress>
+    <!--third-->
+    <div class="sm:w-1/3 sm:h-full">
+      {#if nodeNameDetail != ""}
+        <span class="text-3xl font-thin justify-start pl-2">
+          Node Details
+        </span>
+        <div class="h-5/6">
+          <div class="stats stats-vertical w-full">
+            <div class="stat">
+              <div class="stat-title">Node</div>
+              <div class="stat-value font-light">{nodeNameDetail}</div>
+            </div>
+            <!-- flex min-w-max py-0 justify-center -->
+            <div class="stat flex w-full py-0 justify-center mb-2 mt-2">
+              <button
+                class="btn btn-primary w-6/12"
+                on:click={() => {
+                  sessionStorage.setItem("node_id", selectedNodeID);
+                  sessionStorage.setItem("node_name", nodeNameDetail);
+                  //reroute to market
+                  goto("../Main/BiddingMarket");
+                }}>Transact with this node</button
+              >
+              <button
+                class="btn btn-error w-6/12"
+                on:click={() => {
+                  document.getElementById("removeNodeConfirmation").showModal();
+                }}>Remove node</button
+              >
+            </div>
+
+            <div class="stat">
+              <div class="stat-title">Node Location</div>
+              <div class="stat-value font-light">
+                {nodeLatitudeDetail < 0
+                  ? nodeLatitudeDetail.toFixed(3) * -1 + "S "
+                  : nodeLatitudeDetail.toFixed(3) + "N "}
+                {nodeLongitudeDetail < 0
+                  ? nodeLongitudeDetail.toFixed(3) * -1 + "W "
+                  : nodeLongitudeDetail.toFixed(3) + "E "}
               </div>
             </div>
+
+            <div class="stat">
+              <div class="stat-title">Available Consumption</div>
+              <div class="stat-value font-light">
+                {Intl.NumberFormat().format(nodeToConsume)} Wh
+              </div>
+            </div>
+
+            <div class="stat">
+              <div class="stat-title">Pending Generation</div>
+              <div class="stat-value font-light">
+                {Intl.NumberFormat().format(nodeToProduce)} Wh
+              </div>
+            </div>
+            <div
+              id="viewbuttons"
+              class="stat flex w-full justify-center mt-2 mb-2"
+            >
+              <button class="btn btn-primary w-6/12" on:click={showAppliances}
+                >View Appliances</button
+              >
+              <button class="btn btn-primary w-6/12" on:click={showGenerators}
+                >View Generators</button
+              >
+            </div>
           </div>
-        {/each}
+
+          <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 my-2">
+            <span class="text-3xl font-thin justify-start">
+              Add an Appliance
+            </span>
+
+            <div class="form-control">
+              <select
+                bind:value={appliance}
+                class="select select-bordered max-h-40 overflow-y-auto my-2"
+              >
+                <option value="" disabled selected>Select an appliance</option>
+                {#each appliances as appliance}
+                  <option value={appliance}>{appliance}</option>
+                {/each}
+              </select>
+              <button
+                on:click={addAppliance}
+                class="btn btn-primary my-2"
+                disabled={!appliance}>Add Appliance</button
+              >
+            </div>
+            <!-- selecting category  -->
+            <div class="form-control mb-1">
+              <span class="label">
+                <span class="label-text">Select a generator</span>
+              </span>
+              <select
+                bind:value={generator}
+                class="select select-bordered max-h-40 overflow-y-auto"
+                on:change={onChangeGenerator}
+              >
+                <option value="" disabled selected>Select a generator</option>
+                {#each uniqueGens as type}
+                  <option value={type}>{type}</option>
+                {/each}
+              </select>
+
+              <select
+                bind:value={category}
+                class="select select-bordered max-h-40 overflow-y-auto mt-4"
+                disabled={!generator}
+                on:change={onChangeCategory}
+              >
+                <option value="" disabled selected>Select a category</option>
+                {#each generators.filter((g) => g.type === generator) as { category }}
+                  <option value={category}>{category}</option>
+                {/each}
+              </select>
+              <button
+                on:click={showTimeInput}
+                class="btn btn-primary mt-4"
+                disabled={!categoryChosen}>Add Generator</button
+              >
+            </div>
+          </div>
+        </div>
       {/if}
     </div>
-
-    <!-- new node modals -->
-    <dialog id="mapModal" class="modal">
-      <div class="modal-box">
-        <h3 class="font-bold text-lg">Add a Node</h3>
-        <form class="">
-          <div class="form-control mt-4">
-            <input
-              class="input input-bordered"
-              type="text"
-              placeholder="Name"
-              bind:value={nodeName}
-            />
-          </div>
-          <!-- <div class="form-control mt-4">
-            <input class="input input-bordered" type="text" placeholder="Latitude" bind:value={nodeLatitude}>
-          </div>
-          <div class="form-control mt-4">
-            <input class="input input-bordered" type="text" placeholder="Longtitude" bind:value={nodeLongitude}>
-          </div> -->
-          <div class="form-control mt-4">
-            <Map onMapClick={handleMapClick} />
-          </div>
-
-          <div class="form-control mt-4">
-            <button class="btn btn-primary" on:click={createNode}
-              >Confirm</button
-            >
-          </div>
-        </form>
-      </div>
-
-      <form method="dialog" class="modal-backdrop">
-        <button>close</button>
-      </form>
-    </dialog>
   </div>
-
-  <!--third-->
-  <div class="sm:w-1/3 sm:h-full">
-    {#if nodeNameDetail != ""}
-      <span class="text-3xl font-thin justify-start pl-2"> Node Details </span>
-      <div class="h-5/6">
-        <div class="stats stats-vertical w-full">
-          <div class="stat">
-            <div class="stat-title">Node</div>
-            <div class="stat-value font-light">{nodeNameDetail}</div>
-          </div>
-          <!-- flex min-w-max py-0 justify-center -->
-          <div class="stat flex w-full py-0 justify-center mb-2 mt-2">
-            <button
-              class="btn btn-primary w-6/12"
-              on:click={() => {
-                sessionStorage.setItem("node_id", selectedNodeID);
-                sessionStorage.setItem("node_name", nodeNameDetail);
-                //reroute to market
-                goto("../Main/BiddingMarket");
-              }}>Transact with this node</button
-            >
-            <button
-              class="btn btn-error w-6/12"
-              on:click={() => {
-                document.getElementById("removeNodeConfirmation").showModal();
-              }}>Remove node</button
-            >
-          </div>
-
-          <div class="stat">
-            <div class="stat-title">Node Location</div>
-            <div class="stat-value font-light">
-              {nodeLatitudeDetail < 0
-                ? nodeLatitudeDetail.toFixed(3) * -1 + "S "
-                : nodeLatitudeDetail.toFixed(3) + "N "}
-              {nodeLongitudeDetail < 0
-                ? nodeLongitudeDetail.toFixed(3) * -1 + "W "
-                : nodeLongitudeDetail.toFixed(3) + "E "}
-            </div>
-          </div>
-
-          <div class="stat">
-            <div class="stat-title">Available Consumption</div>
-            <div class="stat-value font-light">
-              {Intl.NumberFormat().format(nodeToConsume)} Wh
-            </div>
-          </div>
-
-          <div class="stat">
-            <div class="stat-title">Pending Generation</div>
-            <div class="stat-value font-light">
-              {Intl.NumberFormat().format(nodeToProduce)} Wh
-            </div>
-          </div>
-          <div
-            id="viewbuttons"
-            class="stat flex w-full justify-center mt-2 mb-2"
-          >
-            <button class="btn btn-primary w-6/12" on:click={showAppliances}
-              >View Appliances</button
-            >
-            <button class="btn btn-primary w-6/12" on:click={showGenerators}
-              >View Generators</button
-            >
-          </div>
-        </div>
-
-        <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 my-2">
-          <span class="text-3xl font-thin justify-start">
-            Add an Appliance
-          </span>
-
-          <div class="form-control">
-            <select
-              bind:value={appliance}
-              class="select select-bordered max-h-40 overflow-y-auto my-2"
-            >
-              <option value="" disabled selected>Select an appliance</option>
-              {#each appliances as appliance}
-                <option value={appliance}>{appliance}</option>
-              {/each}
-            </select>
-            <button
-              on:click={addAppliance}
-              class="btn btn-primary my-2"
-              disabled={!appliance}>Add Appliance</button
-            >
-          </div>
-          <!-- selecting category  -->
-          <div class="form-control mb-1">
-            <span class="label">
-              <span class="label-text">Select a generator</span>
-            </span>
-            <select
-              bind:value={generator}
-              class="select select-bordered max-h-40 overflow-y-auto"
-              on:change={onChangeGenerator}
-            >
-              <option value="" disabled selected>Select a generator</option>
-              {#each uniqueGens as type}
-                <option value={type}>{type}</option>
-              {/each}
-            </select>
-
-            <select
-              bind:value={category}
-              class="select select-bordered max-h-40 overflow-y-auto mt-4"
-              disabled={!generator}
-              on:change={onChangeCategory}
-            >
-              <option value="" disabled selected>Select a category</option>
-              {#each generators.filter((g) => g.type === generator) as { category }}
-                <option value={category}>{category}</option>
-              {/each}
-            </select>
-            <button
-              on:click={showTimeInput}
-              class="btn btn-primary mt-4"
-              disabled={!categoryChosen}>Add Generator</button
-            >
-          </div>
-        </div>
-      </div>
-    {/if}
-  </div>
-
   <!-- confirm remove node modal -->
 
   <dialog id="removeNodeConfirmation" class="modal">

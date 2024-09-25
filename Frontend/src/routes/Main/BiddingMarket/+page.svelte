@@ -77,9 +77,9 @@
   onMount(async () => {
     // token check and refresh
     const session = sessionStorage.getItem("Token");
-    
+
     if (!session) {
-      goto("/login")
+      goto("/login");
     } else {
       const response = await fetch(`${API_URL_MARKET}/token_refresh`, {
         method: "POST",
@@ -97,9 +97,9 @@
       if (!fdata.error) {
         // swap out to the new token
         sessionStorage.removeItem("Token");
-        sessionStorage.setItem("Token", fdata.data.token)
+        sessionStorage.setItem("Token", fdata.data.token);
       } else {
-        goto("/login")
+        goto("/login");
       }
     }
 
@@ -165,29 +165,33 @@
 
 <main class="container mx-auto p-4">
   <div class="md:flex md:flex-row">
-    <div class="md:basis-2/3 bg-base-100 card md:mr-5 md:mb-0 mb-4 p-4">
-      <h1 class="text-5xl font-light md:pt-8">Marketplace</h1>
-      <div class="form-control mt-3">
-        <!-- svelte-ignore a11y-label-has-associated-control -->
-        <select
-          bind:value={chartPeriod}
-          class="select select-bordered max-h-40 overflow-y-auto"
-          on:change={() => fetchPriceHistory(chartPeriod)}
-        >
-          <option value="Day1" default>24h</option>
-          <option value="Week1">7d</option>
-          <option value="Month1">1M</option>
-          <option value="Month3">3M</option>
-          <option value="Month6">6M</option>
-          <option value="Year1">1Y</option>
-          <!-- This works so long as the endpoint retrieves different num values for longer hours etc... to be discussed with ruan -->
-        </select>
+    <div class="md:basis-2/3 bg-base-100 card md:mr-5 md:mb-0 mb-4 p-6">
+      <span class="flex">
+        <h1 class="text-5xl font-light">Marketplace</h1>
+        <div class="form-control mt-3 ml-auto">
+          <!-- svelte-ignore a11y-label-has-associated-control -->
+          <select
+            bind:value={chartPeriod}
+            class="select select-bordered max-h-40 overflow-y-auto"
+            on:change={() => fetchPriceHistory(chartPeriod)}
+          >
+            <option value="Day1" default>24h</option>
+            <option value="Week1">7d</option>
+            <option value="Month1">1M</option>
+            <option value="Month3">3M</option>
+            <option value="Month6">6M</option>
+            <option value="Year1">1Y</option>
+            <!-- This works so long as the endpoint retrieves different num values for longer hours etc... to be discussed with ruan -->
+          </select>
+        </div>
+      </span>
+      <div class="h-full w-2/3">
+        <Chart {data} />
       </div>
-      <Chart {data} />
       <!-- <PriceChartD3 id = "chartPrice" />  -->
     </div>
-    <div class="md:basis-1/3 card bg-base-100 p-4">
-      <h1 class="text-4xl font-light pt-4">Node Info</h1>
+    <div class="md:basis-1/3 card bg-base-100 p-6 max-h-fit">
+      <h1 class="text-4xl font-light">Node Info</h1>
       <hr />
       <br />
       <span class="text-lg font-light">Selected Node: </span>

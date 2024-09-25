@@ -5,7 +5,7 @@
   let email = "";
   let password = "";
   let errormessage = "";
-  import { API_URL_GRID, API_URL_MARKET, COOKIE_DOMAIN } from "$lib/config.js";
+  import { API_URL_GRID, API_URL_MARKET, COOKIE_DOMAIN, API_URL_AGENT } from "$lib/config.js";
 
   // RFC 2822 standard email validation pattern
   var emailregex =
@@ -35,6 +35,7 @@
     console.log(json);
     if (json.message == "User logged in") {
       sessionStorage.setItem("Token", json.data.token);
+      await addAgent(); 
       goto("/Main/Dashboard");
     } else {
       errormessage = "Invalid Credentials";
@@ -48,6 +49,33 @@
       input.type = "text";
     } else {
       input.type = "password";
+    }
+  }
+
+
+  async function addAgent() {
+    let details = {
+      email: email,
+      password: password,
+      token: sessionStorage.getItem("Token"),
+    };
+    try {
+      const res = await fetch(`${API_URL_AGENT}/add_agent`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${sessionStorage.getItem("Token")}`,
+        },
+        body: JSON.stringify(details),
+        credentials: "include",
+      });
+      const fdata = await res.json();
+      console.log("Add agent endpoint: ", fdata);
+    } catch (error) {
+      console.log(
+        "There was an error with the add_agent endpoint during login: ",
+        error
+      );
     }
   }
 </script>

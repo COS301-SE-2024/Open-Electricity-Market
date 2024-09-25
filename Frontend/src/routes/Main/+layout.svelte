@@ -33,6 +33,8 @@
     } else {
       loggedIn = false;
       window.location.href = "/login";
+      // this does not work here:
+      // goto("/login");
     }
     // loggedIn = session === 'loggedIn';
   });
@@ -40,7 +42,7 @@
   async function removeAccount() {
     let data;
     try {
-      const response = await fetch("http://localhost:8001/remove_account", {
+      const response = await fetch(`${API_URL_MARKET}/remove_account`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

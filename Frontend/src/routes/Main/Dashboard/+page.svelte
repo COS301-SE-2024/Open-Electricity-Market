@@ -719,25 +719,25 @@
         generatorNames = "There was an issue retrieving your generators.";
         return;
       }
-      //console.log(fdata);
       let temp = fdata.data.consumption;
-
-      //applianceNames.clear();
-      applianceNames = new Set();
-      temp.forEach((item) => {
-        applianceNames.add(
-          (
-            item.appliance.charAt(0).toUpperCase() + item.appliance.substring(1)
-          ).replace("_", " ")
-        );
-      });
-
-      applianceNames = Array.from(applianceNames).join("\n");
-      console.log(applianceNames);
-      if (applianceNames === "") {
+      let size = Object.keys(temp).length;
+      if(size != 0)
+      {
+        //applianceNames.clear();
+        applianceNames = new Set();
+        temp.forEach((item) => {
+          applianceNames.add(item.appliance);
+        });
+        applianceNames = Array.from(applianceNames).join("\n");
+      }
+      else{
+        applianceNames = "You currently do not have any appliances linked to this node.";
+      }
+      
+      /*if (applianceNames === "") {
         applianceNames =
           "You currently do not have any appliances linked to this node.";
-      }
+      }*/
 
       let temp2 = fdata.data.production;
 

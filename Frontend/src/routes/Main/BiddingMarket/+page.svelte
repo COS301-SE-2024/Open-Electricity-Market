@@ -8,7 +8,7 @@
   // ***********************************************
 
   // **********************************************
-  let selectedPrice = 0;
+  let selectedPricePerkWh = 0;
   $: price = 0;
   let units = 1;
   let chartPeriod = "Day1";
@@ -19,20 +19,20 @@
   let data = [];
   async function reset_price() {
     // console.log("setting price to " + price);
-    selectedPrice = price;
+    selectedPricePerkWh = price * 1000;
   }
 
   async function place_buy_order(at_market_price) {
     // TODO: add a check that fails if units <= 0
 
     if (at_market_price == true) {
-      selectedPrice = price;
+      selectedPricePerkWh = price * 1000;
     }
 
     let data = {
       node_id: selected_node_id,
-      price: selectedPrice,
-      units: units,
+      price: selectedPricePerkWh / 1000,
+      units: units * 1000,
     };
 
     const response = await fetch(`${API_URL_MARKET}/buy_order`, {
@@ -52,13 +52,13 @@
     // TODO: add a check that fails if units <= 0
 
     if (at_market_price == true) {
-      selectedPrice = price;
+      selectedPricePerkWh = price * 1000;
     }
 
     let data = {
       node_id: selected_node_id,
-      price: selectedPrice,
-      units: units,
+      price: selectedPricePerkWh / 1000,
+      units: units * 1000,
     };
 
     const response = await fetch(`${API_URL_MARKET}/sell_order`, {
@@ -104,9 +104,10 @@
     }
 
     await fetchPriceHistory(chartPeriod);
+    await fetchData();
     // let interval = setInterval(fetchPriceHistory, 2000);
 
-    selectedPrice = price;
+    selectedPricePerkWh = price * 1000;
 
     //return function runs when the component is unmounted
     return () => {
@@ -130,6 +131,7 @@
       // console.log(data)
 
       price = data.price;
+      // price = data.price.toPrecision(2);
     } catch (error) {
       console.log(
         "There was an error fetching the JSON for the overview..",
@@ -154,8 +156,7 @@
 
       const fdata = await response.json();
       // console.log(fdata);
-      data = fdata.data.map((item) => parseFloat(item.price.toFixed(2)));
-      price = data.length > 0 ? data[data.length - 1] : 0;
+      data = fdata.data.map((item) => parseFloat((item.price * 1000).toFixed(2)));
       // console.log("This is data for the chart: " + data);
     } catch (error) {
       console.log("An error occurred while fetching price history", error);
@@ -185,7 +186,7 @@
           </select>
         </div>
       </span>
-      <div class="h-full w-2/3">
+      <div class="w-full">
         <Chart {data} />
       </div>
       <!-- <PriceChartD3 id = "chartPrice" />  -->
@@ -199,7 +200,7 @@
       <hr />
       <br />
       <span class="text-lg font-light">Current Average Market Price: </span>
-      <span class="text-3xl">R {price.toFixed(2)}</span> <br />
+      <span class="text-3xl">R {(price*1000).toFixed(2)}</span> <br />
       <hr />
       <br />
 
@@ -211,11 +212,11 @@
               id="buy_price"
               type="number"
               step="0.01"
-              placeholder={selectedPrice}
+              placeholder={selectedPricePerkWh.toFixed(2)}
               class="basis-2/3 input input-bordered font-bold"
               name="buy_price"
               required
-              bind:value={selectedPrice}
+              bind:value={selectedPricePerkWh}
             />
             <button
               class="btn btn-primary basis-1/3 ml-1"
@@ -228,7 +229,7 @@
         <hr />
         <br />
         <div class="form-control mt-1">
-          <label for="amount" class="font-light"> Watt-hours </label>
+          <label for="amount" class="font-light"> Kilowatt-hours </label>
           <input
             id="buy_units"
             type="number"
@@ -251,9 +252,9 @@
               <p class="py-4">
                 Please confirm your buy order for {units == null
                   ? (units = 1)
-                  : units} units at R{(selectedPrice == null
-                  ? (selectedPrice = price)
-                  : selectedPrice
+                  : units} kWh at R{(selectedPricePerkWh == null
+                  ? (selectedPricePerkWh = price)
+                  : selectedPricePerkWh
                 ).toFixed(2)}
               </p>
               <div class="modal-action">
@@ -278,9 +279,9 @@
               <p class="py-4">
                 Please confirm your sell order for {units == null
                   ? (units = 1)
-                  : units} units at R{(selectedPrice == null
-                  ? (selectedPrice = price)
-                  : selectedPrice
+                  : units} kWh at R{(selectedPricePerkWh == null
+                  ? (selectedPricePerkWh = price)
+                  : selectedPricePerkWh
                 ).toFixed(2)}
               </p>
               <div class="modal-action">

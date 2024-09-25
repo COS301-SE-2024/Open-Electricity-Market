@@ -459,7 +459,7 @@ fn rocket() -> _ {
                             id: 0,
                         },
                         Load {
-                            load_type: LoadType::new_transmission_line(80.0, -26.3044, 28.1),
+                            load_type: LoadType::new_transmission_line(80.0, -25.724639, 28.25625),
                             id: 1,
                         },
                     ],

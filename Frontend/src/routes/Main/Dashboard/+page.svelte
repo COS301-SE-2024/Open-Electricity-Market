@@ -583,8 +583,8 @@
       }
     }
     
-    intervalStartSeconds = (startHoursMinutes[0]*3600)+(startHoursMinutes[1]*60); 
-    intervalEndSeconds = (endHoursMinutes[0]*3600)+(endHoursMinutes[1]*60);
+    let intervalStartSeconds = (startHoursMinutes[0]*3600)+(startHoursMinutes[1]*60); 
+    let intervalEndSeconds = (endHoursMinutes[0]*3600)+(endHoursMinutes[1]*60);
 
 
 

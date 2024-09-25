@@ -452,8 +452,8 @@ fn rocket() -> _ {
                                     },
                                 },
                                 location: Location {
-                                    latitude: 28.0248,
-                                    longitude: -26.2044,
+                                    latitude: -26.2977,
+                                    longitude: 28.1028,
                                 },
                             }),
                             id: 0,

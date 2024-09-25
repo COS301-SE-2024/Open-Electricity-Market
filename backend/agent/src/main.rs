@@ -198,7 +198,7 @@ fn get_consumed_produced(
             produced = a;
         }
         Err(_) => {
-            produced =0.0;  
+            produced = 0.0;
         }
     }
 
@@ -218,7 +218,7 @@ fn get_consumed_produced(
             consumed = a;
         }
         Err(_) => {
-           consumed = 0.0; 
+            consumed = 0.0;
         }
     }
 

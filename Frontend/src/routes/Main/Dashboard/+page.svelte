@@ -840,7 +840,7 @@
             <div class="rounded-2xl min-w-1/3 bg-base-100 mb-2 p-3">
               <span class="w-full flex">
                 <span class="text-ss -pt-3">
-                  buying at:
+                  Buying at:
                 </span>
                 <h2 class="text-2xl ml-auto">
                   {formatCurrency(buyorder.max_price)}
@@ -849,7 +849,7 @@
               <div class="card-actions">
                 <span class="w-full flex text-ss">
                   <span class="text-ss -pt-3">
-                    filled units:
+                    Filled units:
                   </span>
                   <span class="ml-auto">
                     {buyorder.filled_units.toFixed(1)} /
@@ -1002,7 +1002,7 @@
             <div class="rounded-2xl min-w-1/3 bg-base-100 mb-2 p-3">
               <span class="w-full flex">
                 <span class="text-ss -pt-3">
-                  selling at:
+                  Selling at:
                 </span>
                 <h2 class="text-2xl ml-auto">
                   {formatCurrency(sellorder.min_price)}
@@ -1011,7 +1011,7 @@
               <div class="card-actions">
                 <span class="w-full flex text-ss">
                   <span class="text-ss -pt-3">
-                    claimed units:
+                    Claimed units:
                   </span>
                   <span class="ml-auto">
                     {sellorder.claimed_units.toFixed(1)} /

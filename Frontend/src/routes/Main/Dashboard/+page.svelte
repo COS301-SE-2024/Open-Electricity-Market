@@ -148,17 +148,16 @@
 
       const fdata = await response.json();
       nodes = fdata.data;
-      console.log("Nodes retrieved: ",nodes)
+      //console.log("Nodes retrieved: ",nodes)
       listOpenBuys();
       listOpenSells();
-      
     } catch (error) {
       console.log("An error occurred while fetching nodes..\n", error);
     }
   }
 
   async function fetchNodeDetails(node_id_in) {
-    console.log(node_id_in)
+    //console.log(node_id_in)
     const response = await fetch(`${API_URL_MARKET}/node_details`, {
       method: "POST",
       headers: {
@@ -181,7 +180,7 @@
       }
     } else {
       data = fdata.data;
-       console.log(data);
+      //console.log(data);
 
       nodeNameDetail = data.name;
       nodeLatitudeDetail = data.location_y;
@@ -235,7 +234,7 @@
       // console.log(response);
 
       const fdata = await response.json();
-      console.log(fdata);
+      //console.log(fdata);
 
       if (fdata.status === "ok") {
         document.getElementById("mapModal").close();
@@ -297,7 +296,7 @@
       });
       const fdata = await response.json();
       data = fdata;
-      console.log("Data received from add funds endpoint is this: ", data);
+      //console.log("Data received from add funds endpoint is this: ", data);
     } catch (error) {
       console.log(
         "There was an error fetching the JSON for the add funds endpoint:",
@@ -336,7 +335,7 @@
       });
       const fdata = await response.json();
       data = fdata;
-      console.log("Data received from withdraw funds endpoint is this: ", data);
+      //console.log("Data received from withdraw funds endpoint is this: ", data);
     } catch (error) {
       console.log(
         "There was an error fetching the JSON for the withdrawfunds:",
@@ -367,7 +366,7 @@
       });
       const fdata = await response.json();
       data = fdata;
-      console.log("Data received from user details is: ", data);
+      //console.log("Data received from user details is: ", data);
     } catch (error) {
       console.log("There was an error fetching user details:", error);
     }
@@ -484,7 +483,7 @@
         on_periods: onPeriods,
       };
       details.appliances.push(applianceDetails);
-      console.log(details);
+      //console.log(details);
       try {
         const response = await fetch(`${API_URL_AGENT}/add_appliances`, {
           method: "POST",
@@ -498,7 +497,7 @@
         });
         const fdata = await response.json();
         data = fdata;
-        console.log(fdata);
+        //console.log(fdata);
         if (fdata.message == "Succesfully added appliances") {
           document.getElementById("addappliancemodal").showModal();
         }
@@ -528,14 +527,14 @@
     };
 
     if (generator && category) {
-      console.log(generator + " " + category);
+      //console.log(generator + " " + category);
       let generatorDetails = {
         generator_type: { [generator]: category },
         on_periods: [onPeriods],
       };
       details2.generators.push(generatorDetails);
       //details2.generators.generator_type.push(onPeriods);
-      console.log(details2);
+      //console.log(details2);
       try {
         const response = await fetch(`${API_URL_AGENT}/add_generators`, {
           method: "POST",
@@ -604,14 +603,14 @@
     };
 
     if (generator && category) {
-      console.log(generator + " " + category);
+      //console.log(generator + " " + category);
       let generatorDetails = {
         generator_type: { [generator]: category },
         on_periods: [onPeriods],
       };
       details2.generators.push(generatorDetails);
       //details2.generators.generator_type.push(onPeriods);
-      console.log(details2);
+      //console.log(details2);
       try {
         const response = await fetch(`${API_URL_AGENT}/add_generators`, {
           method: "POST",
@@ -666,8 +665,8 @@
 
   async function getCurve() {
     const tempEmail = email;
-    console.log(tempEmail);
-    console.log(selectedNodeID);
+    //console.log(tempEmail);
+    //console.log(selectedNodeID);
     try {
       const response = await fetch(`${API_URL_AGENT}/get_curve`, {
         method: "POST",
@@ -680,17 +679,17 @@
           email: tempEmail,
           node_id: selectedNodeID,
         }),
-        credentials: "include"
+        credentials: "include",
       });
 
       const fdata = await response.json();
-      console.log("data received ",fdata)
+      //console.log("data received ",fdata)
       if (fdata.message == "Invalid Email or node_id") {
         applianceNames = "There was an issue retrieving your appliances.";
         generatorNames = "There was an issue retrieving your generators.";
         return;
       }
-      console.log(fdata);
+      //console.log(fdata);
       let temp = fdata.data.consumption;
 
       //applianceNames.clear();
@@ -721,12 +720,10 @@
     }
   }
 
-  function switchAddWot(){
-    if (addWot == "a")
-    {
+  function switchAddWot() {
+    if (addWot == "a") {
       addWot = "g";
-    } 
-    else{
+    } else {
       addWot = "a";
     }
   }
@@ -1089,63 +1086,68 @@
           </div>
 
           <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 my-2">
-          {#if addWot == "a"}
-            <div class="form-control mb-1">
-              <span class="label text-3xl font-thin overflow-y-auto">
-                Add an Appliance
-                <button on:click={switchAddWot} class = "btn btn-primary">To Generator</button>
-              </span>
-              <select
-                bind:value={appliance}
-                class="select select-bordered max-h-40 overflow-y-auto my-2"
-              >
-                <option value="" disabled selected>Select an appliance</option>
-                {#each appliances as appliance}
-                  <option value={appliance}>{appliance}</option>
-                {/each}
-              </select>
-              <button
-                on:click={addAppliance}
-                class="btn btn-primary my-2"
-                disabled={!appliance}>Add Appliance</button
-              >
-            </div>
-          {:else}
-            <!-- selecting category  -->
-            <div class="form-control mb-1">
-              <span class="label text-3xl font-thin overflow-y-auto" >
-                Add a Generator
-                <button on:click={switchAddWot} class = "btn btn-primary">To Application</button>
-              </span>
-              <select
-                bind:value={generator}
-                class="select select-bordered max-h-40 overflow-y-auto my-2"
-                on:change={onChangeGenerator}
-              >
-                <option value="" disabled selected>Select a generator</option>
-                {#each uniqueGens as type}
-                  <option value={type}>{type}</option>
-                {/each}
-              </select>
+            {#if addWot == "a"}
+              <div class="form-control mb-1">
+                <span class="label text-3xl font-thin overflow-y-auto">
+                  Add an Appliance
+                  <button on:click={switchAddWot} class="btn btn-primary"
+                    >To Generator</button
+                  >
+                </span>
+                <select
+                  bind:value={appliance}
+                  class="select select-bordered max-h-40 overflow-y-auto my-2"
+                >
+                  <option value="" disabled selected>Select an appliance</option
+                  >
+                  {#each appliances as appliance}
+                    <option value={appliance}>{appliance}</option>
+                  {/each}
+                </select>
+                <button
+                  on:click={addAppliance}
+                  class="btn btn-primary my-2"
+                  disabled={!appliance}>Add Appliance</button
+                >
+              </div>
+            {:else}
+              <!-- selecting category  -->
+              <div class="form-control mb-1">
+                <span class="label text-3xl font-thin overflow-y-auto">
+                  Add a Generator
+                  <button on:click={switchAddWot} class="btn btn-primary"
+                    >To Application</button
+                  >
+                </span>
+                <select
+                  bind:value={generator}
+                  class="select select-bordered max-h-40 overflow-y-auto my-2"
+                  on:change={onChangeGenerator}
+                >
+                  <option value="" disabled selected>Select a generator</option>
+                  {#each uniqueGens as type}
+                    <option value={type}>{type}</option>
+                  {/each}
+                </select>
 
-              <select
-                bind:value={category}
-                class="select select-bordered max-h-40 overflow-y-auto mt-4"
-                disabled={!generator}
-                on:change={onChangeCategory}
-              >
-                <option value="" disabled selected>Select a category</option>
-                {#each generators.filter((g) => g.type === generator) as { category }}
-                  <option value={category}>{category}</option>
-                {/each}
-              </select>
-              <button
-                on:click={showTimeInput}
-                class="btn btn-primary mt-4"
-                disabled={!categoryChosen}>Add Generator</button
-              >
-            </div>
-          {/if}
+                <select
+                  bind:value={category}
+                  class="select select-bordered max-h-40 overflow-y-auto mt-4"
+                  disabled={!generator}
+                  on:change={onChangeCategory}
+                >
+                  <option value="" disabled selected>Select a category</option>
+                  {#each generators.filter((g) => g.type === generator) as { category }}
+                    <option value={category}>{category}</option>
+                  {/each}
+                </select>
+                <button
+                  on:click={showTimeInput}
+                  class="btn btn-primary mt-4"
+                  disabled={!categoryChosen}>Add Generator</button
+                >
+              </div>
+            {/if}
           </div>
         </div>
       {/if}

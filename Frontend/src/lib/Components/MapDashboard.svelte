@@ -40,7 +40,7 @@
         }
         marker = L.marker([lat, lng], { icon: markerIcon }).addTo(map);
         if (onMapClick) {
-          onMapClick(lng, lat);
+          onMapClick(lat, lng);
         }
       });
     }

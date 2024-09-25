@@ -616,10 +616,9 @@
         return;
       }
     }
-
-    intervalStartSeconds =
-      startHoursMinutes[0] * 3600 + startHoursMinutes[1] * 60;
-    intervalEndSeconds = endHoursMinutes[0] * 3600 + endHoursMinutes[1] * 60;
+    
+    let intervalStartSeconds = (startHoursMinutes[0]*3600)+(startHoursMinutes[1]*60); 
+    let intervalEndSeconds = (endHoursMinutes[0]*3600)+(endHoursMinutes[1]*60);
 
     let details2 = {
       email: email,
@@ -744,9 +743,10 @@
 
       let temp2 = fdata.data.production;
 
-      generatorNames = temp2.flatMap((item) => {
-        return Object.keys(item[0]);
-      });
+      generatorNames = temp2.flatMap(item => {
+          let gens =  Object.keys(item[0])[0]; 
+          return gens.replace(/([A-Z])/g, ' $1').trim();
+        });
 
       generatorNames = generatorNames.join("\n");
       if (generatorNames === "") {
@@ -1298,9 +1298,9 @@
   <!-- view generator modal  -->
   <dialog id="viewgeneratormodal" class="modal">
     <div class="modal-box">
-      <h3 class="font-bold text-lg">List of generators ({nodeNameDetail})</h3>
-      <p>
-        {generatorNames}
+      <h3 class="font-bold text-lg">List of generators ({nodeNameDetail.trimEnd()})</h3>
+      <p style = "white-space: pre-line; line-height:1.2;">
+        {generatorNames} 
       </p>
     </div>
     <form method="dialog" class="modal-backdrop">
@@ -1311,8 +1311,8 @@
   <!-- view appliance modal  -->
   <dialog id="viewappliancemodal" class="modal">
     <div class="modal-box">
-      <h3 class="font-bold text-lg">List of appliances ({nodeNameDetail})</h3>
-      <p>
+      <h3 class="font-bold text-lg">List of appliances ({nodeNameDetail.trimEnd()})</h3>
+      <p style = 'white-space: pre-line; line-height: 1.2'>
         {applianceNames}
       </p>
     </div>

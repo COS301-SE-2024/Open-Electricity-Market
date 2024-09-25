@@ -722,18 +722,25 @@
       console.log(fdata);
       let temp = fdata.data.consumption;
       let size = Object.keys(temp).length;
-      console.log(size)
-      //applianceNames.clear();
-      applianceNames = new Set();
-      temp.forEach((item) => {
-        applianceNames.add(item.appliance);
-      });
+      if(size != 0)
+      {
+        //applianceNames.clear();
+        applianceNames = new Set();
+        temp.forEach((item) => {
+          applianceNames.add(item.appliance);
+        });
+        applianceNames = Array.from(applianceNames).join("\n");
+      }
+      else{
+        applianceNames = "You currently do not have any appliances linked to this node.";
+      }
+      
 
-      applianceNames = Array.from(applianceNames).join("\n");
-      if (applianceNames === "") {
+      
+      /*if (applianceNames === "") {
         applianceNames =
           "You currently do not have any appliances linked to this node.";
-      }
+      }*/
 
       let temp2 = fdata.data.production;
 

@@ -111,9 +111,9 @@
       <div class="navbar-end">
         <div class="xs: hidden md:flex">
           <div class="dropdown dropdown-end">
-            <a
+            <button
               class="btn btn-ghost rounded-btn font-normal mx-2"
-              on:click={showModal}>Help</a
+              on:click={showModal}>Help</button
             >
             {#if loggedIn}
               <span

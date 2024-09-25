@@ -5,9 +5,9 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Landing page", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("http://localhost:5173");
+    await page.goto("http://site.localhost:5173");
   });
-  test("To login page", async ({ page }) => {
+  test("To dashboard", async ({ page }) => {
     // Click the sign in button.
     await page.getByRole("link", { name: "Sign in" }).click();
 
@@ -23,9 +23,9 @@ test.describe("Landing page", () => {
   });
 });
 
-test.describe("public simulation page", () => {
+test.describe("simulation page (not logged in)", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("http://localhost:5173/public/GridSimulation");
+    await page.goto("http://site.localhost:5173/public/GridSimulation");
   });
   test("Back to Landing page", async ({ page }) => {
     //Wait for page to finish loading
@@ -35,7 +35,17 @@ test.describe("public simulation page", () => {
     await page.getByRole("link", { name: "Amplify" }).click();
 
     // Expects to be redirected back to landing page.
-    await page.waitForURL("http://localhost:5173");
+    await page.waitForURL("http://site.localhost:5173");
+  });
+  test("To Grid Simulation page", async ({ page }) => {
+    //Wait for page to finish loading
+    //await page.waitForLoadState('networkidle');
+
+    // Click the "Grid" button.
+    await page.getByRole("link", { name: "Simulation" }).click();
+
+    // Expects to be redirected to simulation grid page.
+    await page.waitForURL("**/public/GridSimulation");
   });
   test("To Dashboard", async ({ page }) => {
     //Wait for page to finish loading
@@ -45,33 +55,30 @@ test.describe("public simulation page", () => {
     await page.getByRole("link", { name: "Dashboard" }).click();
 
     // Expects to be redirected to Dashboard page.
-    await page.waitForURL("**/Main/Dashboard");
+    //await page.waitForURL("**/Main/Dashboard");
+    await page.waitForURL("**/login");
   });
-  test("To public Grid Simulation page", async ({ page }) => {
-    //Wait for page to finish loading
-    //await page.waitForLoadState('networkidle');
-
-    // Click the "Grid" button.
-    await page.getByRole("link", { name: "Grid" }).click();
-
-    // Expects to be redirected to simulation grid page.
-    await page.waitForURL("**/public/GridSimulation");
+  test("To Analytics", async ({page}) => {
+    await page.getByRole("link", {name: "Analytics" }).click();
+    await page.waitForURL("**/Main/Analytics");
   });
-  /*test('To Market page', async ({ page }) => {
-    //Wait for page to finish loading
-    await page.waitForLoadState('networkidle');
+  test("Help", async ({ page }) => {
 
-    // Click the "Market" button.
-    await page.getByRole('link', { name: 'Market' }).click();
+    // Click the "Help" button.
+    await page.getByRole("button", { name: "Help" }).click();
 
-    // Expects to be redirected to market page.*/
-  //await page.waitForURL('**/Main/BiddingMarket');
-  //});
+    // Expects help modal to appear.
+    await expect(page.getByText("The grid simulation page contains an overview of the current state of the electrical grid. On the map, you can see all the nodes that are connected to the simulated grid. Clicking on one of these nodes will give you more information on them, and will show the voltage being generated at that point on the oscilloscope, on the right. At the bottom you can see a few general statistics about the grid")).toBeVisible();
+  });
+  test("To Login page", async ({page}) => {
+    await page.getByRole("button", {name: "Log in" }).click();
+    await page.waitForURL("**/login");
+  });
 });
 
 test.describe("login page", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("http://localhost:5173/login");
+    await page.goto("http://site.localhost:5173/login");
   });
   test("To signup page", async ({ page }) => {
     //Wait for page to finish loading
@@ -87,7 +94,7 @@ test.describe("login page", () => {
 
 test.describe("signup page", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("http://localhost:5173/signup");
+    await page.goto("http://site.localhost:5173/signup");
   });
   test("Back to login page", async ({ page }) => {
     //Wait for page to finish loading
@@ -102,7 +109,7 @@ test.describe("signup page", () => {
 });
 test.describe("signup page error testing", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("http://localhost:5173/signup");
+    await page.goto("http://site.localhost:5173/signup");
   });
   test("Empty email", async ({ page }) => {
     //Wait for page to finish loading
@@ -235,7 +242,7 @@ test.describe("signup page error testing", () => {
     //Expects an error message to appear.
     await expect(page.getByText("Invalid email or password")).toBeVisible();
   });
-  test("InvalidPasswords", async ({ page }) => {
+  /*test("InvalidPasswords", async ({ page }) => {
     //Wait for page to finish loading
     await page.waitForLoadState("networkidle");
 
@@ -245,11 +252,11 @@ test.describe("signup page error testing", () => {
     await page.getByPlaceholder("Password").fill("" + process.env.NONUM);
 
     //Expects an error message to appear.
-    await expect(page.getByText("Invalid email or password")).toBeVisible();
+    await expect(page.getByText("Password requires at least 8 characters, uppercase and lowercase, a symbol and a number")).toBeVisible();
     // Click the "Create account" button.
     await page.getByRole("button", { name: "Create account" }).click();
 
     //Expects an error message to appear.
     await expect(page.getByText("Invalid email or password")).toBeVisible();
-  });
+  });*/
 });

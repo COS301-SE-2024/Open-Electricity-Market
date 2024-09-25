@@ -732,7 +732,7 @@
       applianceNames.clear(); 
 
       temp.forEach((item) => {
-        applianceNames.add(item.appliance.charAt(0).toUpperCase() + item.appliance.substring(1)); 
+        applianceNames.add((item.appliance.charAt(0).toUpperCase() + item.appliance.substring(1)).replace("_", " ")); 
       });
 
       

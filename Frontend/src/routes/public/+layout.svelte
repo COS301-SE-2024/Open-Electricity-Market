@@ -34,7 +34,7 @@
   async function removeAccount() {
     let data;
     try {
-      const response = await fetch("http://localhost:8001/remove_account", {
+      const response = await fetch(`${API_URL_MARKET}/remove_account`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -97,6 +97,12 @@
             <a
               class="btn btn-ghost rounded-btn font-normal"
               href="/Main/Dashboard">Dashboard</a
+            >
+          </li>
+          <li class="px-2">
+            <a
+              class="btn btn-ghost rounded-btn font-normal"
+              href="/Main/Analytics">Analytics</a
             >
           </li>
         </ul>

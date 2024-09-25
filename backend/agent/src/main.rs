@@ -7,6 +7,9 @@ use std::{
     thread, time,
 };
 
+#[cfg(test)]
+pub mod tests;
+
 use crate::time::Instant;
 use agent::Agent;
 use claims::Claims;
@@ -195,10 +198,7 @@ fn get_consumed_produced(
             produced = a;
         }
         Err(_) => {
-            return content::RawJson(
-                json!({"status": "error", "message": "Something went wrong" , "data": {}})
-                    .to_string(),
-            );
+            produced = 0.0;
         }
     }
 
@@ -218,10 +218,7 @@ fn get_consumed_produced(
             consumed = a;
         }
         Err(_) => {
-            return content::RawJson(
-                json!({"status": "error", "message": "Something went wrong" , "data": {}})
-                    .to_string(),
-            );
+            consumed = 0.0;
         }
     }
 
@@ -550,7 +547,6 @@ fn add_agent(
                 .to_string(),
         );
     }
-    let lock = agents.inner().clone();
     let mut agents = agents.lock().unwrap();
     let agent_index = agents.iter().position(|agent| agent.email == data.email);
     if agent_index.is_some() {

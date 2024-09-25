@@ -42,7 +42,7 @@
         Authorization: `Bearer ${sessionStorage.getItem("Token")}`,
       },
       body: JSON.stringify(data),
-      credentials: "include", 
+      credentials: "include",
     });
 
     goto("../Main/Dashboard");
@@ -75,6 +75,34 @@
   }
 
   onMount(async () => {
+    // token check and refresh
+    const session = sessionStorage.getItem("Token");
+    
+    if (!session) {
+      goto("/login")
+    } else {
+      const response = await fetch(`${API_URL_MARKET}/token_refresh`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${sessionStorage.getItem("Token")}`,
+        },
+        credentials: "include",
+      });
+
+      const fdata = await response.json();
+
+      // console.log(fdata);
+      if (!fdata.error) {
+        // swap out to the new token
+        sessionStorage.removeItem("Token");
+        sessionStorage.setItem("Token", fdata.data.token)
+      } else {
+        goto("/login")
+      }
+    }
+
     await fetchPriceHistory(chartPeriod);
     // let interval = setInterval(fetchPriceHistory, 2000);
 
@@ -125,10 +153,10 @@
       });
 
       const fdata = await response.json();
-      console.log(fdata);
+      // console.log(fdata);
       data = fdata.data.map((item) => parseFloat(item.price.toFixed(2)));
       price = data.length > 0 ? data[data.length - 1] : 0;
-      console.log("This is data for the chart: " + data);
+      // console.log("This is data for the chart: " + data);
     } catch (error) {
       console.log("An error occurred while fetching price history", error);
     }
@@ -137,8 +165,8 @@
 
 <main class="container mx-auto p-4">
   <div class="md:flex md:flex-row">
-    <div class="md:basis-2/3 bg-base-100 md:card md:mr-5 md:p-4">
-      <h1 class="md:text-5xl md:font-light md:pt-8">Marketplace</h1>
+    <div class="md:basis-2/3 bg-base-100 card md:mr-5 md:mb-0 mb-4 p-4">
+      <h1 class="text-5xl font-light md:pt-8">Marketplace</h1>
       <div class="form-control mt-3">
         <!-- svelte-ignore a11y-label-has-associated-control -->
         <select
@@ -158,8 +186,8 @@
       <Chart {data} />
       <!-- <PriceChartD3 id = "chartPrice" />  -->
     </div>
-    <div class="md:basis-1/3 md:card bg-base-100 md:p-4 xs:pt-10">
-      <h1 class="md:text-4xl md:font-light md:pt-4">Node Info</h1>
+    <div class="md:basis-1/3 card bg-base-100 p-4">
+      <h1 class="text-4xl font-light pt-4">Node Info</h1>
       <hr />
       <br />
       <span class="text-lg font-light">Selected Node: </span>
@@ -172,21 +200,21 @@
       <br />
 
       <form>
-        <div class="form-control mt-1">
+        <div class="form-control w-full">
           <label for="buy_price" class="font-light"> Price </label>
-          <div class="flex">
+          <div class="flex max-w-full">
             <input
               id="buy_price"
               type="number"
+              step="0.01"
               placeholder={selectedPrice}
               class="basis-2/3 input input-bordered font-bold"
               name="buy_price"
               required
               bind:value={selectedPrice}
             />
-            <span class="md:p-1"> </span>
             <button
-              class="btn btn-primary basis-1/3"
+              class="btn btn-primary basis-1/3 ml-1"
               title="Resets price back to current average market price"
               on:click={reset_price}>Market price</button
             >
@@ -210,7 +238,7 @@
 
         <div class="mt-1 xs:pt-5 flex justify-center">
           <button
-            class="md:basis-1/2 btn btn-primary mx-1"
+            class="basis-1/2 btn btn-primary mx-1"
             onclick="my_modal_1.showModal()">Buy</button
           >
           <dialog id="my_modal_1" class="modal">
@@ -237,7 +265,7 @@
           </dialog>
 
           <button
-            class="md:basis-1/2 btn btn-accent mx-1"
+            class="basis-1/2 btn btn-accent mx-1"
             onclick="my_modal_2.showModal()">Sell</button
           >
           <dialog id="my_modal_2" class="modal">
@@ -269,4 +297,12 @@
 </main>
 
 <style>
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
 </style>

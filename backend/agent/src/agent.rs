@@ -1,19 +1,17 @@
 use core::time;
 use rand::Rng;
-use reqwest::{blocking, header, Client};
+use reqwest::{blocking, header};
 use std::sync::{Arc, Mutex};
 
 use serde::Serialize;
 use serde_json::Value;
 use std::time::Instant;
 use std::{env, f64, thread};
-use tungstenite::client;
 
-use crate::schema::open_em::appliance_data::data;
+use crate::location::Location;
 use crate::{
     curve::Curve,
     generator::{Generator, GeneratorDetail},
-    location::Location,
     net_structs::*,
     node::Node,
     smart_meter::{SmartMeter, SmartMeterDetail},
@@ -162,8 +160,8 @@ impl Agent {
     ) {
         let node_detail = NodeDetail {
             name,
-            location_x: location.latitude,
-            location_y: location.longitude,
+            location_y: location.latitude,
+            location_x: location.longitude,
         };
         let url = env::var("MURL").unwrap();
 
@@ -238,6 +236,38 @@ impl Agent {
         }
     }
 
+    fn get_node_location(
+        node_id: String,
+        token: String,
+        client: &reqwest::blocking::Client,
+    ) -> Location {
+        let node_details_details = NodeDetailsDetails { node_id };
+        let url = env::var("MURL").unwrap();
+
+        match client
+            .post(format!("http://{url}:8001/node_details"))
+            .header(header::AUTHORIZATION, format!("Bearer {token}"))
+            .json(&node_details_details)
+            .send()
+        {
+            Ok(res) => {
+                let result: NodeDetailsResult = res.json().unwrap();
+                if result.message == "Node details retrieved succesfully" {
+                    return Location {
+                        latitude: result.data.location_x,
+                        longitude: result.data.location_y,
+                    };
+                } else {
+                    return Location::new();
+                }
+            }
+            Err(err) => {
+                println!("Get node location {}", err);
+                return Location::new();
+            }
+        }
+    }
+
     pub fn intialise(&mut self) {
         let client = blocking::Client::new();
         self.grid_token = Agent::get_grid_token(self.email.clone(), &client);
@@ -247,12 +277,12 @@ impl Agent {
         if self.grid_token == "" || self.market_token == "" {
             return;
         }
-        println!("{}", self.market_token.clone());
-        let mut has_nodes = true;
+        // println!("{}", self.market_token.clone());
+        let mut has_nodes_on_market = true;
 
         let mut node_ids = Agent::get_nodes(1024, self.market_token.clone(), &client);
         if node_ids.is_empty() {
-            has_nodes = false;
+            has_nodes_on_market = false;
         }
 
         for node in self.nodes.iter_mut() {
@@ -284,7 +314,7 @@ impl Agent {
             }
 
             //Add nodes to market platform
-            if !has_nodes {
+            if !has_nodes_on_market {
                 Agent::add_node(
                     node.location,
                     String::from("Simulated Node"),
@@ -294,28 +324,64 @@ impl Agent {
             }
         }
 
-        if !has_nodes {
+        if !has_nodes_on_market {
             node_ids = Agent::get_nodes(1024, self.market_token.clone(), &client);
         }
 
         println!("Is empty {}", self.nodes.is_empty());
         if !self.nodes.is_empty() {
-            for (i, id) in node_ids.into_iter().enumerate() {
-                if i >= self.nodes.len() {
-                    break;
+            if !self.linked_to_user {
+                for (i, id) in node_ids.into_iter().enumerate() {
+                    if i >= self.nodes.len() {
+                        break;
+                    }
+                    self.nodes[i].node_id.clone_from(&id);
+                    println!("{id}");
                 }
-                self.nodes[i].node_id.clone_from(&id);
-                println!("{id}");
+            } else {
+                for id in node_ids.iter() {
+                    let pos = self.nodes.iter().position(|n| n.node_id == *id);
+                    match pos {
+                        Some(_) => {}
+                        None => {
+                            self.nodes.push(Node {
+                                node_id: id.clone(),
+                                location: Agent::get_node_location(
+                                    id.clone(),
+                                    self.market_token.clone(),
+                                    &client,
+                                ),
+                                smart_meter: SmartMeter::InActtive,
+                                generator: Generator::InAcctive,
+                            });
+                            println!("{id}");
+                        }
+                    }
+                }
             }
         } else {
             for id in node_ids.iter() {
-                self.nodes.push(Node {
-                    node_id: id.clone(),
-                    location: Location::new(),
-                    smart_meter: SmartMeter::InActtive,
-                    generator: Generator::InAcctive,
-                });
-                println!("{id}");
+                if !self.linked_to_user {
+                    self.nodes.push(Node {
+                        node_id: id.clone(),
+                        location: Location::new(),
+                        smart_meter: SmartMeter::InActtive,
+                        generator: Generator::InAcctive,
+                    });
+                    println!("{id}");
+                } else {
+                    self.nodes.push(Node {
+                        node_id: id.clone(),
+                        location: Agent::get_node_location(
+                            id.clone(),
+                            self.market_token.clone(),
+                            &client,
+                        ),
+                        smart_meter: SmartMeter::InActtive,
+                        generator: Generator::InAcctive,
+                    });
+                    println!("{id}");
+                }
             }
         }
     }

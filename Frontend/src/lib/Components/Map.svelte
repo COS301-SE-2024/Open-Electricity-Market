@@ -213,7 +213,7 @@
         L.polyline(latlngs, {
           color: "black",
           weight: 2,
-          dashArray: "4 1 2",
+          // dashArray: "4 1 2",
         }).addTo(map);
 
         // ------------------------------------------

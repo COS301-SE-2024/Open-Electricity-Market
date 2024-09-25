@@ -213,7 +213,6 @@
         L.polyline(latlngs, {
           color: "black",
           weight: 2,
-          dashArray: "4 1 2",
         }).addTo(map);
 
         // ------------------------------------------
@@ -269,7 +268,12 @@
           }
 
           // add the line to the map:
-          L.polyline(latlngs, { color: "black", weight: 2 }).addTo(map);
+          // dashArray: "4 1 2",
+          L.polyline(latlngs, {
+            color: "black",
+            weight: 2,
+            dashArray: "4 1 2",
+          }).addTo(map);
         });
       });
     });

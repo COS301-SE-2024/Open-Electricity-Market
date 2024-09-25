@@ -148,6 +148,7 @@
 
       const fdata = await response.json();
       nodes = fdata.data;
+      console.log("Nodes retrieved: ",nodes)
       listOpenBuys();
       listOpenSells();
       
@@ -157,6 +158,7 @@
   }
 
   async function fetchNodeDetails(node_id_in) {
+    console.log(node_id_in)
     const response = await fetch(`${API_URL_MARKET}/node_details`, {
       method: "POST",
       headers: {
@@ -179,14 +181,15 @@
       }
     } else {
       data = fdata.data;
-      // console.log(data);
+       console.log(data);
 
       nodeNameDetail = data.name;
       nodeLatitudeDetail = data.location_y;
       nodeLongitudeDetail = data.location_x;
       nodeToProduce = data.units_to_produce;
       nodeToConsume = data.units_to_consume;
-      selectedNodeID = data.node_id;
+      //selectedNodeID = data.node_id;
+      selectedNodeID = node_id_in;
       addWot = "a";
     }
   }
@@ -229,7 +232,7 @@
         }),
       });
       // console.log("request being sent...");
-       console.log(response);
+      // console.log(response);
 
       const fdata = await response.json();
       console.log(fdata);
@@ -481,6 +484,7 @@
         on_periods: onPeriods,
       };
       details.appliances.push(applianceDetails);
+      console.log(details);
       try {
         const response = await fetch(`${API_URL_AGENT}/add_appliances`, {
           method: "POST",
@@ -661,6 +665,9 @@
   }
 
   async function getCurve() {
+    const tempEmail = email;
+    console.log(tempEmail);
+    console.log(selectedNodeID);
     try {
       const response = await fetch(`${API_URL_AGENT}/get_curve`, {
         method: "POST",
@@ -670,10 +677,10 @@
           Authorization: `Bearer ${sessionStorage.getItem("Token")}`,
         },
         body: JSON.stringify({
-          email: email,
+          email: tempEmail,
           node_id: selectedNodeID,
         }),
-        credentials: "include",
+        credentials: "include"
       });
 
       const fdata = await response.json();

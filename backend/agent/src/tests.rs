@@ -339,7 +339,7 @@ pub fn home_appliance_type_printer3d_to_string() {
 #[test]
 pub fn home_appliance_type_coffee_machine_to_string() {
     let value = HomeApplianceType::CoffeeMachine.to_string();
-    assert_eq!(value, String::from("coffee_machine"));
+    assert_eq!(value, String::from("coffee"));
 }
 #[test]
 pub fn home_appliance_type_phone_charger_to_string() {

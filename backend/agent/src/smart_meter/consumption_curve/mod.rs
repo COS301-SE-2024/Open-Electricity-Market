@@ -45,7 +45,7 @@ impl HomeApplianceType {
             HomeApplianceType::HairPurifier => String::from("hair_purifier"),
             HomeApplianceType::SoundSystem => String::from("sound_system"),
             HomeApplianceType::Printer3d => String::from("printer_3D"),
-            HomeApplianceType::CoffeeMachine => String::from("coffee_machine"),
+            HomeApplianceType::CoffeeMachine => String::from("coffee"),
             HomeApplianceType::PhoneCharger => String::from("phone_charger"),
             HomeApplianceType::Fridge => String::from("fridge"),
             HomeApplianceType::Radiator => String::from("radiator"),

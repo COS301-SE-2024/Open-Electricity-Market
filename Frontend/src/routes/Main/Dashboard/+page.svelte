@@ -719,9 +719,10 @@
         generatorNames = "There was an issue retrieving your generators.";
         return;
       }
-      //console.log(fdata);
+      console.log(fdata);
       let temp = fdata.data.consumption;
-
+      let size = Object.keys(temp).length;
+      console.log(size)
       //applianceNames.clear();
       applianceNames = new Set();
       temp.forEach((item) => {

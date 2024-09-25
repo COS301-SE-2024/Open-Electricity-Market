@@ -360,7 +360,9 @@
         //console.log("gets to the first foreach");
         //check to see if all the appliances are toggled off
         if (selectedAppliances.length === 0) {
-          productioncurvedata = new Array(24).fill(0);
+          consumptioncurvedata = new Array(24).fill(0);
+          console.log("Selected appliances is empty");
+          // console.log(productioncurvedata);  
           return;
         }
         temp.forEach((item) => {
@@ -538,7 +540,7 @@
           class="select select-bordered max-h-40 overflow-y-auto"
           on:change={() => getBuyHistory(buyChartPeriod)}
         >
-          <option value="Day1" default>24h</option>
+          <option value="Day1" default selected>24h</option>
           <option value="Week1">7d</option>
           <option value="Month1">1M</option>
           <option value="Month3">3M</option>
@@ -557,7 +559,7 @@
           class="select select-bordered max-h-40 overflow-y-auto"
           on:change={() => getSellHistory(sellChartPeriod)}
         >
-          <option value="Day1" default>24h</option>
+          <option value="Day1" default selected>24h</option>
           <option value="Week1">7d</option>
           <option value="Month1">1M</option>
           <option value="Month3">3M</option>

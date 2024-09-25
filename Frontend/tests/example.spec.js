@@ -90,6 +90,10 @@ test.describe("login page", () => {
     // Expects to be redirected to signup page.
     await page.waitForURL("**/signup");
   });
+  test("Back to landing page", async ({page}) => {
+    await page.getByRole("link", {name: "Amplify"}).click();
+    await page.waitForURL("http://site.localhost:5173")
+  });
 });
 
 test.describe("signup page", () => {
@@ -106,7 +110,12 @@ test.describe("signup page", () => {
     // Expects to be redirected back to login page.
     await page.waitForURL("**/login");
   });
+  test("Back to landing page", async ({page}) => {
+    await page.getByRole("link", {name: "Amplify"}).click();
+    await page.waitForURL("http://site.localhost:5173")
+  });
 });
+
 test.describe("signup page error testing", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("http://site.localhost:5173/signup");
@@ -163,6 +172,27 @@ test.describe("signup page error testing", () => {
     //Expects an error message to appear.
     await expect(page.getByText("Invalid email or password")).toBeVisible();
   });
+  test("Email no prefix", async ({ page }) => {
+    //Wait for page to finish loading
+    await page.waitForLoadState("networkidle");
+
+    //type in an email with a suffix but no dot
+    await page.getByPlaceholder("Email").fill("" + process.env.EMAILNOPRE);
+
+    //Click on name field so to get page to check email Input
+    await page.getByPlaceholder("First name").click();
+
+    //Expects an error message to appear saying the email address is not valid.
+    await expect(
+      page.getByText("Please enter a valid email address.")
+    ).toBeVisible();
+
+    // Click the "Create account" button.
+    await page.getByRole("button", { name: "Create account" }).click();
+
+    //Expects an error message to appear.
+    await expect(page.getByText("Invalid email or password")).toBeVisible();
+  });
   test("Email no dot", async ({ page }) => {
     //Wait for page to finish loading
     await page.waitForLoadState("networkidle");
@@ -190,6 +220,69 @@ test.describe("signup page error testing", () => {
 
     //type in an email that has a dot before @
     await page.getByPlaceholder("Email").fill("" + process.env.EMAILDOT);
+
+    //Click on name field so to get page to check email Input
+    await page.getByPlaceholder("First name").click();
+
+    //Expects an error message to appear saying the email address is not valid.
+    await expect(
+      page.getByText("Please enter a valid email address.")
+    ).toBeVisible();
+
+    // Click the "Create account" button.
+    await page.getByRole("button", { name: "Create account" }).click();
+
+    //Expects an error message to appear.
+    await expect(page.getByText("Invalid email or password")).toBeVisible();
+  });
+  test("Email dot after @", async ({ page }) => {
+    //Wait for page to finish loading
+    await page.waitForLoadState("networkidle");
+
+    //type in an email that has a dot before @
+    await page.getByPlaceholder("Email").fill("" + process.env.EMAILAT);
+
+    //Click on name field so to get page to check email Input
+    await page.getByPlaceholder("First name").click();
+
+    //Expects an error message to appear saying the email address is not valid.
+    await expect(
+      page.getByText("Please enter a valid email address.")
+    ).toBeVisible();
+
+    // Click the "Create account" button.
+    await page.getByRole("button", { name: "Create account" }).click();
+
+    //Expects an error message to appear.
+    await expect(page.getByText("Invalid email or password")).toBeVisible();
+  });
+  test("Email @ before dot", async ({ page }) => {
+    //Wait for page to finish loading
+    await page.waitForLoadState("networkidle");
+
+    //type in an email that has a dot before @
+    await page.getByPlaceholder("Email").fill("" + process.env.EMAILSUFAT);
+
+    //Click on name field so to get page to check email Input
+    await page.getByPlaceholder("First name").click();
+
+    //Expects an error message to appear saying the email address is not valid.
+    await expect(
+      page.getByText("Please enter a valid email address.")
+    ).toBeVisible();
+
+    // Click the "Create account" button.
+    await page.getByRole("button", { name: "Create account" }).click();
+
+    //Expects an error message to appear.
+    await expect(page.getByText("Invalid email or password")).toBeVisible();
+  });
+  test("Email @ after dot", async ({ page }) => {
+    //Wait for page to finish loading
+    await page.waitForLoadState("networkidle");
+
+    //type in an email that has a dot before @
+    await page.getByPlaceholder("Email").fill("" + process.env.EMAILSUFDOT);
 
     //Click on name field so to get page to check email Input
     await page.getByPlaceholder("First name").click();

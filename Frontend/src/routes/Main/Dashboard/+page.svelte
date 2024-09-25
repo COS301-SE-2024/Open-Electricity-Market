@@ -840,7 +840,7 @@
             <div class="rounded-2xl min-w-1/3 bg-base-100 mb-2 p-3">
               <span class="w-full flex">
                 <span class="text-ss -pt-3">
-                  buying at:
+                  Buying at:
                 </span>
                 <h2 class="text-2xl ml-auto">
                   {formatCurrency(buyorder.max_price)}
@@ -849,7 +849,7 @@
               <div class="card-actions">
                 <span class="w-full flex text-ss">
                   <span class="text-ss -pt-3">
-                    filled units:
+                    Filled units:
                   </span>
                   <span class="ml-auto">
                     {buyorder.filled_units.toFixed(1)} /
@@ -1002,7 +1002,7 @@
             <div class="rounded-2xl min-w-1/3 bg-base-100 mb-2 p-3">
               <span class="w-full flex">
                 <span class="text-ss -pt-3">
-                  selling at:
+                  Selling at:
                 </span>
                 <h2 class="text-2xl ml-auto">
                   {formatCurrency(sellorder.min_price)}
@@ -1011,7 +1011,7 @@
               <div class="card-actions">
                 <span class="w-full flex text-ss">
                   <span class="text-ss -pt-3">
-                    claimed units:
+                    Claimed units:
                   </span>
                   <span class="ml-auto">
                     {sellorder.claimed_units.toFixed(1)} /
@@ -1141,7 +1141,7 @@
                 <span class="label text-3xl font-thin overflow-y-auto">
                   Add an Appliance
                   <button on:click={switchAddWot} class="btn btn-primary"
-                    >To Generator</button
+                    >Add Generator</button
                   >
                 </span>
                 <select
@@ -1166,7 +1166,7 @@
                 <span class="label text-3xl font-thin overflow-y-auto">
                   Add a Generator
                   <button on:click={switchAddWot} class="btn btn-primary"
-                    >To Application</button
+                    >Add Appliance</button
                   >
                 </span>
                 <select
@@ -1182,7 +1182,7 @@
 
                 <select
                   bind:value={category}
-                  class="select select-bordered max-h-40 overflow-y-auto mt-4"
+                  class="select select-bordered max-h-40 overflow-y-auto my-2"
                   disabled={!generator}
                   on:change={onChangeCategory}
                 >
@@ -1193,7 +1193,7 @@
                 </select>
                 <button
                   on:click={showTimeInput}
-                  class="btn btn-primary mt-4"
+                  class="btn btn-primary mt-2"
                   disabled={!categoryChosen}>Add Generator</button
                 >
               </div>

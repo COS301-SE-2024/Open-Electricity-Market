@@ -287,7 +287,12 @@ fn get_curve(
 
                 let conn = &mut establish_connection();
                 let appliance_curve = appliance_curve(argument);
-                consumption = diesel::select(appliance_curve).first(conn).unwrap();
+                consumption = match diesel::select(appliance_curve).first(conn) {
+                    Ok(c) => c,
+                    Err(_) => {
+                        json!(null)
+                    }
+                };
             }
             SmartMeter::InActtive => {
                 consumption = serde_json::from_str("{}").unwrap();

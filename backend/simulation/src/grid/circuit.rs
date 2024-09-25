@@ -202,7 +202,6 @@ impl Circuit {
 
                 for load_id in lane {
                     let load = self.loads[load_id as usize].get_voltage();
-                    total_voltage.subtract_voltage(load);
                     if load_id == prev_load_id {
                         if transformer.target.is_some() {
                             let target = transformer.target.unwrap();
@@ -220,6 +219,8 @@ impl Circuit {
                             total_voltage.voltage.2 * transformer.ratio;
                         transformer.secondary_voltage.oscilloscope_detail.amplitude =
                             total_voltage.oscilloscope_detail.amplitude * transformer.ratio;
+
+                        total_voltage.subtract_voltage(load);
                     }
                 }
             }

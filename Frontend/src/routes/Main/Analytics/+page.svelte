@@ -11,7 +11,10 @@
   let selectednode = "";
   let selectedAppliances = []; //by default should be all of them
   let appliances = new Set();
+  let selectedGenerators = []; 
+  let generators = []; 
   let dropdownvisible = false;
+  let generatordropdownvisible = false; 
 
   //required for curve endpoint
   let email = "";
@@ -88,6 +91,10 @@
     dropdownvisible = !dropdownvisible;
   }
 
+  function toggleDropdownGenerators(){
+    generatordropdownvisible = !generatordropdownvisible; 
+  }
+
   async function fetchAgentData() {
     // try {
     //   const response = await fetch(`${API_URL_MARKET}/get_nodes`, {
@@ -115,6 +122,15 @@
       selectedAppliances = [...selectedAppliances, appliance];
     }
     console.log(selectedAppliances);
+  }
+
+  function toggleGenerator(generator){
+    if(selectedGenerators.includes(generator)){
+      selectedGenerators = selectedGenerators.filter((n)=> n!== generator); 
+    }
+    else{
+      selectedGenerators = [...selectedGenerators, generator]; 
+    }
   }
 
   async function getBuyStats() {
@@ -519,7 +535,7 @@
           ></span
         >
       </div>
-      {#if marketpiedata.length > 1}
+      {#if marketpiedata.length >= 1}
         <div class="w-1/2 mr-16">
           <PieChart {marketpiedata} />
         </div>
@@ -533,6 +549,7 @@
     </div> -->
 
     <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
+      
       <div class="form-control">
         <!-- svelte-ignore a11y-label-has-associated-control -->
         <select
@@ -578,7 +595,7 @@
     <div class="flex bg-base-100 rounded-2xl p-5 mt-3 h-20">
       <select
         bind:value={selectednode}
-        class="select select-bordered overflow-y-auto w-1/2 focus:outline-none"
+        class="select select-bordered overflow-y-auto w-1/3 focus:outline-none"
         on:change={() => {
           updateNode();
           updateAllAgent();
@@ -590,7 +607,7 @@
         {/each}
       </select>
 
-      <div class=" w-1/2">
+      <div class=" w-1/3">
         <button
           class="select select-bordered w-full text-left flex items-center h-full focus:outline-none z-9000"
           on:click={toggleDropdown}>Select Appliances</button
@@ -606,6 +623,32 @@
                   checked={selectedAppliances.includes(appliance)}
                   on:change={() => {
                     toggleAppliance(appliance);
+                    updateAllAgent2();
+                  }}
+                />
+                {appliance}
+              </label>
+            {/each}
+          </div>
+        {/if}
+      </div>
+
+      <div class=" w-1/3">
+        <button
+          class="select select-bordered w-full text-left flex items-center h-full focus:outline-none z-9000"
+          on:click={toggleDropdownGenerators}>Select Generators</button
+        >
+
+        {#if generatordropdownvisible}
+          <div class="mt-2 w-full bg-base-100 rounded-md overflow-y-auto">
+            {#each generators as generator}
+              <label class="flex items-center p-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  class="checkbox checkbox-primary mr-2"
+                  checked={selectedGenerators.includes(generator)}
+                  on:change={() => {
+                    toggleGenerator(generator);
                     updateAllAgent2();
                   }}
                 />

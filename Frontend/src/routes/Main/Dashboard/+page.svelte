@@ -718,7 +718,6 @@
         generatorNames = "There was an issue retrieving your generators.";
         return;
       }
-      console.log(fdata);
       let temp = fdata.data.consumption;
       let size = Object.keys(temp).length;
       if(size != 0)
@@ -733,8 +732,6 @@
       else{
         applianceNames = "You currently do not have any appliances linked to this node.";
       }
-      
-
       
       /*if (applianceNames === "") {
         applianceNames =

@@ -254,8 +254,8 @@ impl Agent {
                 let result: NodeDetailsResult = res.json().unwrap();
                 if result.message == "Node details retrieved succesfully" {
                     return Location {
-                        latitude: result.data.location_x,
-                        longitude: result.data.location_y,
+                        latitude: result.data.location_y,
+                        longitude: result.data.location_x,
                     };
                 } else {
                     return Location::new();

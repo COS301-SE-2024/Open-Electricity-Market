@@ -198,10 +198,7 @@ fn get_consumed_produced(
             produced = a;
         }
         Err(_) => {
-            return content::RawJson(
-                json!({"status": "error", "message": "Something went wrong" , "data": {}})
-                    .to_string(),
-            );
+            produced =0.0;  
         }
     }
 
@@ -221,10 +218,7 @@ fn get_consumed_produced(
             consumed = a;
         }
         Err(_) => {
-            return content::RawJson(
-                json!({"status": "error", "message": "Something went wrong" , "data": {}})
-                    .to_string(),
-            );
+           consumed = 0.0; 
         }
     }
 

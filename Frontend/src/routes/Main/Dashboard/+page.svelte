@@ -102,9 +102,9 @@
   onMount(async () => {
     // token check and refresh
     const session = sessionStorage.getItem("Token");
-    
+
     if (!session) {
-      goto("/login")
+      goto("/login");
     } else {
       const response = await fetch(`${API_URL_MARKET}/token_refresh`, {
         method: "POST",
@@ -122,12 +122,11 @@
       if (!fdata.error) {
         // swap out to the new token
         sessionStorage.removeItem("Token");
-        sessionStorage.setItem("Token", fdata.data.token)
+        sessionStorage.setItem("Token", fdata.data.token);
       } else {
-        goto("/login")
+        goto("/login");
       }
     }
-
 
     await fetchStart();
     await fetchNodes();
@@ -419,7 +418,7 @@
   }
 
   async function listOpenBuys() {
-    console.log("fetching open buys")
+    console.log("fetching open buys");
     try {
       const response = await fetch(`${API_URL_MARKET}/list_open_buys`, {
         method: "POST",
@@ -616,9 +615,11 @@
         return;
       }
     }
-    
-    let intervalStartSeconds = (startHoursMinutes[0]*3600)+(startHoursMinutes[1]*60); 
-    let intervalEndSeconds = (endHoursMinutes[0]*3600)+(endHoursMinutes[1]*60);
+
+    let intervalStartSeconds =
+      startHoursMinutes[0] * 3600 + startHoursMinutes[1] * 60;
+    let intervalEndSeconds =
+      endHoursMinutes[0] * 3600 + endHoursMinutes[1] * 60;
 
     let details2 = {
       email: email,
@@ -718,27 +719,32 @@
         generatorNames = "There was an issue retrieving your generators.";
         return;
       }
-      //console.log(fdata);
       let temp = fdata.data.consumption;
-
-      //applianceNames.clear();
-      applianceNames = new Set();
-      temp.forEach((item) => {
-        applianceNames.add((item.appliance.charAt(0).toUpperCase() + item.appliance.substring(1)).replace("_", " ")); 
-      });
-
-      applianceNames = Array.from(applianceNames).join('\n'); 
-      console.log(applianceNames); 
-      if(applianceNames===""){
-        applianceNames = "You currently do not have any appliances linked to this node."; 
+      let size = Object.keys(temp).length;
+      if(size != 0)
+      {
+        //applianceNames.clear();
+        applianceNames = new Set();
+        temp.forEach((item) => {
+          applianceNames.add(item.appliance);
+        });
+        applianceNames = Array.from(applianceNames).join("\n");
       }
+      else{
+        applianceNames = "You currently do not have any appliances linked to this node.";
+      }
+      
+      /*if (applianceNames === "") {
+        applianceNames =
+          "You currently do not have any appliances linked to this node.";
+      }*/
 
       let temp2 = fdata.data.production;
 
-      generatorNames = temp2.flatMap(item => {
-          let gens =  Object.keys(item[0])[0]; 
-          return gens.replace(/([A-Z])/g, ' $1').trim();
-        });
+      generatorNames = temp2.flatMap((item) => {
+        let gens = Object.keys(item[0])[0];
+        return gens.replace(/([A-Z])/g, " $1").trim();
+      });
 
       generatorNames = generatorNames.join("\n");
       if (generatorNames === "") {
@@ -831,23 +837,30 @@
           </div>
         {:else}
           {#each buyorders as buyorder}
-            <div class="rounded-2xl min-w-1/3 bg-base-100 mb-2">
-              <div class="p-5">
-                <h2 class="card-title">Buy order</h2>
-                <p>
-                  Filled units: {buyorder.filled_units.toFixed(1) + "Wh"}<br />
-                  Price: {formatCurrency(buyorder.max_price)}<br />
-                  Units bought: {Intl.NumberFormat().format(
-                    buyorder.sought_units
-                  ) + "Wh"}<br />
-                </p>
-                <div class="card-actions">
-                  <progress
-                    class="progress progress-primary"
-                    value={buyorder.filled_units}
-                    max={buyorder.sought_units}
-                  ></progress>
-                </div>
+            <div class="rounded-2xl min-w-1/3 bg-base-100 mb-2 p-3">
+              <span class="w-full flex">
+                <span class="text-ss -pt-3">
+                  Buying at:
+                </span>
+                <h2 class="text-2xl ml-auto">
+                  {formatCurrency(buyorder.max_price)}
+                </h2>
+              </span>
+              <div class="card-actions">
+                <span class="w-full flex text-ss">
+                  <span class="text-ss -pt-3">
+                    Filled units:
+                  </span>
+                  <span class="ml-auto">
+                    {buyorder.filled_units.toFixed(1)} /
+                    {Intl.NumberFormat().format(buyorder.sought_units) + " Wh"}
+                  </span>
+                </span>
+                <progress
+                  class="progress progress-primary"
+                  value={buyorder.filled_units}
+                  max={buyorder.sought_units}
+                ></progress>
               </div>
             </div>
           {/each}
@@ -986,23 +999,30 @@
           </div>
         {:else}
           {#each sellorders as sellorder}
-            <div class="rounded-2xl min-w-1/3 bg-base-100 mb-2">
-              <div class="p-5">
-                <h2 class="card-title">Sell order</h2>
-                <p>
-                  Claimed Units: {sellorder.claimed_units.toFixed(1) + "Wh"}<br
-                  />
-                  Offered Units: {sellorder.offered_units.toFixed(1) + "Wh"}<br
-                  />
-                  Price: {formatCurrency(sellorder.min_price)}<br />
-                </p>
-                <div class="card-actions">
-                  <progress
-                    class="progress progress-accent"
-                    value={sellorder.claimed_units}
+            <div class="rounded-2xl min-w-1/3 bg-base-100 mb-2 p-3">
+              <span class="w-full flex">
+                <span class="text-ss -pt-3">
+                  Selling at:
+                </span>
+                <h2 class="text-2xl ml-auto">
+                  {formatCurrency(sellorder.min_price)}
+                </h2>
+              </span>
+              <div class="card-actions">
+                <span class="w-full flex text-ss">
+                  <span class="text-ss -pt-3">
+                    Claimed units:
+                  </span>
+                  <span class="ml-auto">
+                    {sellorder.claimed_units.toFixed(1)} /
+                    {sellorder.offered_units.toFixed(1) + " Wh"}
+                  </span>
+                </span>
+                <progress
+                  class="progress progress-primary"
+                  value={sellorder.claimed_units}
                     max={sellorder.offered_units}
-                  ></progress>
-                </div>
+                ></progress>
               </div>
             </div>
           {/each}
@@ -1121,7 +1141,7 @@
                 <span class="label text-3xl font-thin overflow-y-auto">
                   Add an Appliance
                   <button on:click={switchAddWot} class="btn btn-primary"
-                    >To Generator</button
+                    >Add Generator</button
                   >
                 </span>
                 <select
@@ -1146,7 +1166,7 @@
                 <span class="label text-3xl font-thin overflow-y-auto">
                   Add a Generator
                   <button on:click={switchAddWot} class="btn btn-primary"
-                    >To Application</button
+                    >Add Appliance</button
                   >
                 </span>
                 <select
@@ -1162,7 +1182,7 @@
 
                 <select
                   bind:value={category}
-                  class="select select-bordered max-h-40 overflow-y-auto mt-4"
+                  class="select select-bordered max-h-40 overflow-y-auto my-2"
                   disabled={!generator}
                   on:change={onChangeCategory}
                 >
@@ -1173,7 +1193,7 @@
                 </select>
                 <button
                   on:click={showTimeInput}
-                  class="btn btn-primary mt-4"
+                  class="btn btn-primary mt-2"
                   disabled={!categoryChosen}>Add Generator</button
                 >
               </div>
@@ -1290,9 +1310,11 @@
   <!-- view generator modal  -->
   <dialog id="viewgeneratormodal" class="modal">
     <div class="modal-box">
-      <h3 class="font-bold text-lg">List of generators ({nodeNameDetail.trimEnd()})</h3>
-      <p style = "white-space: pre-line; line-height:1.2;">
-        {generatorNames} 
+      <h3 class="font-bold text-lg">
+        List of generators ({nodeNameDetail.trimEnd()})
+      </h3>
+      <p style="white-space: pre-line; line-height:1.2;">
+        {generatorNames}
       </p>
     </div>
     <form method="dialog" class="modal-backdrop">
@@ -1303,8 +1325,10 @@
   <!-- view appliance modal  -->
   <dialog id="viewappliancemodal" class="modal">
     <div class="modal-box">
-      <h3 class="font-bold text-lg">List of appliances ({nodeNameDetail.trimEnd()})</h3>
-      <p style = 'white-space: pre-line; line-height: 1.2'>
+      <h3 class="font-bold text-lg">
+        List of appliances ({nodeNameDetail.trimEnd()})
+      </h3>
+      <p style="white-space: pre-line; line-height: 1.2">
         {applianceNames}
       </p>
     </div>

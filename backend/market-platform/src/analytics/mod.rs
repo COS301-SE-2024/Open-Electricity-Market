@@ -3,6 +3,7 @@ use crate::user_management::Claims;
 use crate::{establish_connection, schema};
 use chrono::{DateTime, Utc};
 use diesel::prelude::*;
+use diesel::sql_types::Nullable;
 use rocket::serde::{
     json::{serde_json::json, Json, Value},
     Deserialize, Serialize,
@@ -137,30 +138,30 @@ pub fn buy_history_stat(buy_history_request: Json<UserHistoryRequest>, claims: C
     let (timestamp_str, time_bucket) = match buy_history_request.time_frame {
         TimeFrame::Day1 => (
             "NOW() - INTERVAL '1 day'",
-            "time_bucket('5 minutes', transactions.created_at)".to_string(),
+            "time_bucket_gapfill('5 minutes', transactions.created_at) AS tb".to_string(),
         ),
         TimeFrame::Week1 => (
             "NOW() - INTERVAL '1 week'",
-            "time_bucket('1 hour', transactions.created_at)".to_string(),
+            "time_bucket_gapfill('1 hour', transactions.created_at) AS tb".to_string(),
         ),
         TimeFrame::Month1 => (
             "NOW() - INTERVAL '1 month'",
-            "time_bucket('1 day', transactions.created_at)".to_string(),
+            "time_bucket_gapfill('1 day', transactions.created_at) AS tb".to_string(),
         ),
         TimeFrame::Month3 => (
             "NOW() - INTERVAL '3 months'",
-            "time_bucket('1 day', transactions.created_at)".to_string(),
+            "time_bucket_gapfill('1 day', transactions.created_at) AS tb".to_string(),
         ),
         TimeFrame::Month6 => (
             "NOW() - INTERVAL '6 months'",
-            "time_bucket('1 day', transactions.created_at)".to_string(),
+            "time_bucket_gapfill('1 day', transactions.created_at) AS tb".to_string(),
         ),
         TimeFrame::Year1 => (
             "NOW() - INTERVAL '1 year'",
-            "time_bucket('1 day', transactions.created_at)".to_string(),
+            "time_bucket_gapfill('1 day', transactions.created_at) AS tb".to_string(),
         ),
     };
-    let select_str = time_bucket.clone() + &*", AVG(transacted_price)".to_string();
+    let select_str = time_bucket.clone() + &*", locf(AVG(transacted_price))".to_string();
 
     let connection = &mut establish_connection();
 
@@ -171,27 +172,31 @@ pub fn buy_history_stat(buy_history_request: Json<UserHistoryRequest>, claims: C
         )
         .filter(buyer_id.eq(claim_user_id))
         .filter(
-            schema::open_em::transactions::created_at.gt(diesel::dsl::sql::<
+            schema::open_em::transactions::created_at.ge(diesel::dsl::sql::<
                 diesel::sql_types::Timestamptz,
             >(timestamp_str)),
         )
-        .group_by(diesel::dsl::sql::<diesel::sql_types::Timestamptz>(
-            &*(time_bucket.clone()),
-        ))
-        .order_by(diesel::dsl::sql::<diesel::sql_types::Timestamptz>(
-            &*(time_bucket),
-        ))
+        .filter(
+            schema::open_em::transactions::created_at
+                .le(diesel::dsl::sql::<diesel::sql_types::Timestamptz>("NOW()")),
+        )
+        .group_by(diesel::dsl::sql::<diesel::sql_types::Timestamptz>("tb"))
+        .order_by(diesel::dsl::sql::<diesel::sql_types::Timestamptz>("tb"))
         .select(diesel::dsl::sql::<(
             diesel::sql_types::Timestamptz,
-            diesel::sql_types::Double,
+            Nullable<diesel::sql_types::Double>,
         )>(&*select_str))
-        .load::<(DateTime<Utc>, f64)>(connection)
+        .load::<(DateTime<Utc>, Option<f64>)>(connection)
     {
         Ok(result_vec) => {
             for result in result_vec {
+                let result_price = match result.1 {
+                    None => 0.0,
+                    Some(value) => value,
+                };
                 data.push(Price {
                     timestamp: result.0.to_string(),
-                    price: result.1,
+                    price: result_price,
                 })
             }
             json!({"status": "ok",
@@ -226,30 +231,30 @@ pub fn sell_history_stat(sell_history_request: Json<UserHistoryRequest>, claims:
     let (timestamp_str, time_bucket) = match sell_history_request.time_frame {
         TimeFrame::Day1 => (
             "NOW() - INTERVAL '1 day'",
-            "time_bucket('5 minutes', transactions.created_at)".to_string(),
+            "time_bucket_gapfill('5 minutes', transactions.created_at) AS tb".to_string(),
         ),
         TimeFrame::Week1 => (
             "NOW() - INTERVAL '1 week'",
-            "time_bucket('1 hour', transactions.created_at)".to_string(),
+            "time_bucket_gapfill('1 hour', transactions.created_at) AS tb".to_string(),
         ),
         TimeFrame::Month1 => (
             "NOW() - INTERVAL '1 month'",
-            "time_bucket('1 day', transactions.created_at)".to_string(),
+            "time_bucket_gapfill('1 day', transactions.created_at) AS tb".to_string(),
         ),
         TimeFrame::Month3 => (
             "NOW() - INTERVAL '3 months'",
-            "time_bucket('1 day', transactions.created_at)".to_string(),
+            "time_bucket_gapfill('1 day', transactions.created_at) AS tb".to_string(),
         ),
         TimeFrame::Month6 => (
             "NOW() - INTERVAL '6 months'",
-            "time_bucket('1 day', transactions.created_at)".to_string(),
+            "time_bucket_gapfill('1 day', transactions.created_at) AS tb".to_string(),
         ),
         TimeFrame::Year1 => (
             "NOW() - INTERVAL '1 year'",
-            "time_bucket('1 day', transactions.created_at)".to_string(),
+            "time_bucket_gapfill('1 day', transactions.created_at) AS tb".to_string(),
         ),
     };
-    let select_str = time_bucket.clone() + &*", AVG(transacted_price)".to_string();
+    let select_str = time_bucket.clone() + &*", locf(AVG(transacted_price))".to_string();
 
     let connection = &mut establish_connection();
 
@@ -260,27 +265,31 @@ pub fn sell_history_stat(sell_history_request: Json<UserHistoryRequest>, claims:
         )
         .filter(seller_id.eq(claim_user_id))
         .filter(
-            schema::open_em::transactions::created_at.gt(diesel::dsl::sql::<
+            schema::open_em::transactions::created_at.ge(diesel::dsl::sql::<
                 diesel::sql_types::Timestamptz,
             >(timestamp_str)),
         )
-        .group_by(diesel::dsl::sql::<diesel::sql_types::Timestamptz>(
-            &*(time_bucket.clone()),
-        ))
-        .order_by(diesel::dsl::sql::<diesel::sql_types::Timestamptz>(
-            &*(time_bucket),
-        ))
+        .filter(
+            schema::open_em::transactions::created_at
+                .le(diesel::dsl::sql::<diesel::sql_types::Timestamptz>("NOW()")),
+        )
+        .group_by(diesel::dsl::sql::<diesel::sql_types::Timestamptz>("tb"))
+        .order_by(diesel::dsl::sql::<diesel::sql_types::Timestamptz>("tb"))
         .select(diesel::dsl::sql::<(
             diesel::sql_types::Timestamptz,
-            diesel::sql_types::Double,
+            Nullable<diesel::sql_types::Double>,
         )>(&*select_str))
-        .load::<(DateTime<Utc>, f64)>(connection)
+        .load::<(DateTime<Utc>, Option<f64>)>(connection)
     {
         Ok(result_vec) => {
             for result in result_vec {
+                let result_price = match result.1 {
+                    None => 0.0,
+                    Some(value) => value,
+                };
                 data.push(Price {
                     timestamp: result.0.to_string(),
-                    price: result.1,
+                    price: result_price,
                 })
             }
             json!({"status": "ok",

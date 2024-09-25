@@ -269,6 +269,7 @@ fn get_curve(
             );
         }
         let agent_index = agent_index.unwrap();
+        agents[agent_index].intialise();
         let node_index = agents[agent_index]
             .nodes
             .iter()

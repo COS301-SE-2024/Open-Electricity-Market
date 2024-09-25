@@ -73,8 +73,8 @@
     await getBuyStats();
     await getBoughtSold();
 
-    await getBuyHistory();
-    await getSellHistory();
+    await getBuyHistory("Day1");
+    await getSellHistory("Day1");
     await getConsumedProduced();
     await getCurve();
 
@@ -538,7 +538,7 @@
         <select
           bind:value={buyChartPeriod}
           class="select select-bordered max-h-40 overflow-y-auto"
-          on:change={() => getBuyHistory(buyChartPeriod)}
+          on:change={() => getBuyHistory(buyChartPeriod)} 
         >
           <option value="Day1" default selected>24h</option>
           <option value="Week1">7d</option>
@@ -557,7 +557,7 @@
         <select
           bind:value={sellChartPeriod}
           class="select select-bordered max-h-40 overflow-y-auto"
-          on:change={() => getSellHistory(sellChartPeriod)}
+          on:change={() => getSellHistory(sellChartPeriod)} 
         >
           <option value="Day1" default selected>24h</option>
           <option value="Week1">7d</option>

@@ -163,7 +163,7 @@ pub struct GeneratorCurve {
 
 impl Curve for GeneratorCurve {
     fn sample(&mut self, time: f64) -> f64 {
-        let time = time % 64.0;
+        let time = time % 86400.0;
         let mut on = false;
         for period in self.on_periods.iter() {
             if period.during(time) {

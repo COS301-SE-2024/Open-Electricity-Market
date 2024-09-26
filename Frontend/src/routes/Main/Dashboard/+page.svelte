@@ -840,10 +840,10 @@
             <div class="rounded-2xl min-w-1/3 bg-base-100 mb-2 p-3">
               <span class="w-full flex">
                 <span class="text-ss -pt-3">
-                  Buying at:
+                  Buying at (per kWh):
                 </span>
                 <h2 class="text-2xl ml-auto">
-                  {formatCurrency(buyorder.max_price)}
+                  {formatCurrency(buyorder.max_price * 1000)}
                 </h2>
               </span>
               <div class="card-actions">
@@ -852,8 +852,8 @@
                     Filled units:
                   </span>
                   <span class="ml-auto">
-                    {buyorder.filled_units.toFixed(1)} /
-                    {Intl.NumberFormat().format(buyorder.sought_units) + " Wh"}
+                    {Intl.NumberFormat().format(buyorder.filled_units/1000)} /
+                    {Intl.NumberFormat().format(buyorder.sought_units/1000) + " kWh"}
                   </span>
                 </span>
                 <progress
@@ -1002,10 +1002,10 @@
             <div class="rounded-2xl min-w-1/3 bg-base-100 mb-2 p-3">
               <span class="w-full flex">
                 <span class="text-ss -pt-3">
-                  Selling at:
+                  Selling at (per kWh):
                 </span>
                 <h2 class="text-2xl ml-auto">
-                  {formatCurrency(sellorder.min_price)}
+                  {formatCurrency(sellorder.min_price * 1000)}
                 </h2>
               </span>
               <div class="card-actions">
@@ -1014,8 +1014,8 @@
                     Claimed units:
                   </span>
                   <span class="ml-auto">
-                    {sellorder.claimed_units.toFixed(1)} /
-                    {sellorder.offered_units.toFixed(1) + " Wh"}
+                    {Intl.NumberFormat().format(sellorder.claimed_units / 1000)} /
+                    {Intl.NumberFormat().format(sellorder.offered_units / 1000) + " kWh"}
                   </span>
                 </span>
                 <progress

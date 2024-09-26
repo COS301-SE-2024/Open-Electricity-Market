@@ -293,7 +293,7 @@
 
       const fdata = await response.json();
       console.log(fdata);
-      let temp = fdata.data.consumption;
+      let temp = fdata.data.consumption || [];
 
       appliances.clear();
       //only runs this first time - selectedAppliances gets updated in toggleAppliance
@@ -304,8 +304,9 @@
 
       console.log("Selected appliances are ", selectedAppliances);
       console.log("Appliances are: ", appliances);
-      consumptioncurvedata = [];
-      productioncurvedata = [];
+      // alert("it makes it here")
+      consumptioncurvedata = new Array(24).fill(0);
+      productioncurvedata = new Array(24).fill(0); 
       let index = 0;
       if (fdata.message == "Here is the detail") {
         //console.log("gets to the first foreach");
@@ -322,14 +323,14 @@
             }
           }
         });
-        let temp2 = fdata.data.production;
+        let temp2 = fdata.data.production || [];
 
         generatorNames = temp2.flatMap(item => {
           let gens =  Object.keys(item[0])[0]; 
-          return gens.replace(/([A-Z])/g, ' $1').trim();
+          return gens.replace(/([A-Z])/g, ' $1').trim(); 
         });
         selectedGenerators = Array.from(generatorNames); 
-
+        //let mikindex = 0; 
         temp2.forEach((generator) => {
           let startTime = generator[2][0].start;
           let endTime = generator[2][0].end;
@@ -337,13 +338,17 @@
           let endTimeHour = Math.round(endTime / 3600);
           console.log("This is start time: ", startTimeHour);
           console.log("This is end time: ", endTimeHour);
-          for (let index = 0; index < 24; index++) {
-            productioncurvedata[index] = 0;
-          }
+          // for (let index = 0; index < 24; index++) {
+          //   productioncurvedata[index] = 0;
+          // }
           for (let index2 = startTimeHour; index2 < endTimeHour; index2++) {
-            productioncurvedata[index2] = generator[1];
+            productioncurvedata[index2] += generator[1];
           }
+          //mikindex++; 
         });
+
+        // alert(consumptioncurvedata); 
+        // alert(productioncurvedata); 
 
         // console.log("This is consumption curve data:", consumptioncurvedata);
         // console.log("This is the production curve data: ", productioncurvedata);
@@ -575,6 +580,8 @@
   }
 
   function updateAllAgent() {
+    productioncurvedata = new Array(24).fill(0); 
+    consumptioncurvedata = new Array(24).fill(0); 
     getCurve();
     getConsumedProduced();
   }

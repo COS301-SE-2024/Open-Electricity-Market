@@ -40,6 +40,7 @@
   let sellChartPeriod;
   let buyhistorydata = [];
   let sellhistorydata = [];
+  let generatorNames = []; 
 
   onMount(async () => {
     // token check and refresh
@@ -323,6 +324,12 @@
         });
         let temp2 = fdata.data.production;
 
+        generatorNames = temp2.flatMap(item => {
+          let gens =  Object.keys(item[0])[0]; 
+          return gens.replace(/([A-Z])/g, ' $1').trim();
+        });
+        selectedGenerators = Array.from(generatorNames); 
+
         temp2.forEach((generator) => {
           let startTime = generator[2][0].start;
           let endTime = generator[2][0].end;
@@ -417,6 +424,94 @@
     }
   }
 
+  //will not reset the generators
+  async function getCurve3() {
+    try {
+      const response = await fetch(`${API_URL_AGENT}/get_curve`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${sessionStorage.getItem("Token")}`,
+        },
+        body: JSON.stringify({
+          email: sessionStorage.getItem("email"),
+          node_id: nodeid,
+        }),
+        credentials: "include",
+      });
+
+      const fdata = await response.json();
+      console.log(fdata);
+      let temp = fdata.data.consumption;
+
+     
+      //consumptioncurvedata = [];
+      // productioncurvedata = [];
+      productioncurvedata = new Array(24).fill(0);
+      let index = 0;
+      if (fdata.message == "Here is the detail") {
+        //console.log("gets to the first foreach");
+        //check to see if all the appliances are toggled off
+        // if (selectedAppliances.length === 0) {
+        //   consumptioncurvedata = new Array(24).fill(0);
+        //   console.log("Selected appliances is empty");
+        //   // console.log(productioncurvedata);  
+        //   return;
+        // }
+        // temp.forEach((item) => {
+        //   if (selectedAppliances.includes(item.appliance)) {
+        //     console.log(item.appliance);
+        //     if (!consumptioncurvedata[index]) {
+        //       consumptioncurvedata[index] = 0;
+        //     }
+        //     consumptioncurvedata[index] += item.data;
+        //     index++;
+        //     if (index >= 24) {
+        //       index = 0;
+        //     }
+        //   }
+        // });
+        let temp2 = fdata.data.production;
+        
+        
+        // let startTime = temp2.
+        let tempindex = 0; 
+        temp2.forEach((generator) => {
+          let genInfo = generator[0]; 
+          // alert(Object.keys(genInfo)); 
+
+          let alteredSelectedGenerators = selectedGenerators.map(gen => {
+            return gen.replace(/\s+/g, ""); 
+          }); 
+          let listOfGenerators = Object.keys(genInfo).toString();
+          // alert("This is list of selected: "+ alteredSelectedGenerators.join('')); 
+          // alert("This is curr gen '"+ listOfGenerators+"'"); 
+          // alert(alteredSelectedGenerators.includes(listOfGenerators)); 
+          if(alteredSelectedGenerators.includes(listOfGenerators)){
+              //alert("The if condition was met"); 
+          let startTime = generator[2][0].start;
+          let endTime = generator[2][0].end;
+          let startTimeHour = Math.round(startTime / 3600);
+          let endTimeHour = Math.round(endTime / 3600);
+          console.log("This is start time: ", startTimeHour);
+          console.log("This is end time: ", endTimeHour);
+          // for (let index = 0; index < 24; index++) {
+          //   productioncurvedata[index] += 0;
+          // }
+          for (let index2 = startTimeHour; index2 < endTimeHour; index2++) {
+            productioncurvedata[index2] += generator[1];
+          }
+          }
+        });
+      }
+    } catch (error) {
+      console.log("An error occurred while fetching getCurve3 data..\n", error);
+    }
+  }
+
+  
+
   async function getConsumedProduced() {
     try {
       const response = await fetch(`${API_URL_AGENT}/get_consumed_produced`, {
@@ -487,6 +582,10 @@
   function updateAllAgent2() {
     getCurve2();
     getConsumedProduced();
+  }
+
+  function updateAllAgent3(){
+    getCurve3(); 
   }
 
   function updateNode() {
@@ -641,7 +740,7 @@
 
         {#if generatordropdownvisible}
           <div class="mt-2 w-full bg-base-100 rounded-md overflow-y-auto">
-            {#each generators as generator}
+            {#each generatorNames as generator}
               <label class="flex items-center p-2 cursor-pointer">
                 <input
                   type="checkbox"
@@ -649,10 +748,10 @@
                   checked={selectedGenerators.includes(generator)}
                   on:change={() => {
                     toggleGenerator(generator);
-                    updateAllAgent2();
+                    updateAllAgent3();
                   }}
                 />
-                {appliance}
+                {generator}
               </label>
             {/each}
           </div>

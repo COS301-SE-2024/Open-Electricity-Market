@@ -296,6 +296,7 @@
       let temp = fdata.data.consumption || [];
 
       appliances.clear();
+      generatorNames = []; 
       //only runs this first time - selectedAppliances gets updated in toggleAppliance
       temp.forEach((item) => {
         appliances.add(item.appliance);
@@ -406,23 +407,23 @@
             }
           }
         });
-        let temp2 = fdata.data.production;
+        // let temp2 = fdata.data.production;
         // let startTime = temp2.
 
-        temp2.forEach((generator) => {
-          let startTime = generator[2][0].start;
-          let endTime = generator[2][0].end;
-          let startTimeHour = Math.round(startTime / 3600);
-          let endTimeHour = Math.round(endTime / 3600);
-          console.log("This is start time: ", startTimeHour);
-          console.log("This is end time: ", endTimeHour);
-          for (let index = 0; index < 24; index++) {
-            productioncurvedata[index] = 0;
-          }
-          for (let index2 = startTimeHour; index2 < endTimeHour; index2++) {
-            productioncurvedata[index2] = generator[1];
-          }
-        });
+        // temp2.forEach((generator) => {
+        //   let startTime = generator[2][0].start;
+        //   let endTime = generator[2][0].end;
+        //   let startTimeHour = Math.round(startTime / 3600);
+        //   let endTimeHour = Math.round(endTime / 3600);
+        //   console.log("This is start time: ", startTimeHour);
+        //   console.log("This is end time: ", endTimeHour);
+        //   for (let index = 0; index < 24; index++) {
+        //     productioncurvedata[index] = 0;
+        //   }
+        //   for (let index2 = startTimeHour; index2 < endTimeHour; index2++) {
+        //     productioncurvedata[index2] = generator[1];
+        //   }
+        // });
       }
     } catch (error) {
       console.log("An error occurred while fetching getCurve2 data..\n", error);

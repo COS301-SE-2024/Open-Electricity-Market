@@ -4,8 +4,7 @@
 
   let chart;
   let chartCanvas;
-  export let data = [];
-  let interval;
+  export let chartData;
 
   function resizeChart() {
     if (window.innerWidth <= 760) {
@@ -15,21 +14,13 @@
     }
   }
 
-  // onMount(() => {
-  //   resizeChart();
-  //   window.addEventListener('resize', resizeChart);
-  //   return () => window.removeEventListener('resize', resizeChart);
-  // });
-
   onMount(async () => {
     if (typeof window !== "undefined") {
       // Check if running in the browser
       chart = createChart(chartCanvas, sampleChartConfig);
       fillChart();
     }
-    // resizeChart();
     window.addEventListener("resize", resizeChart);
-    // interval = setInterval(resizeChart, 5000);
 
     return () => {
       if (chart) {
@@ -39,35 +30,27 @@
     };
   });
 
-  $: if (chart && data.length > 0) {
-    console.log("data was updated..." + data);
-    // updateChart();
+  $: if (chart && chartData != null) {
     updateChart();
-    //  console.log("this was a succcess");
   }
 
-  //  $: if (chart ) {
-  //   updateChart();
-  // }
-
   function fillChart() {
-    if (chart && data.length > 0) {
-      chart.data.datasets[0].data = data;
-      chart.data.labels = data.map((_, index) => index + 1);
+    if (chart && chartData != null) {
+      chart.data.datasets[0].data = chartData.prices;
+      chart.data.labels = chartData.prices.map(
+        (_, index) => chartData.timestamps[index]
+      );
       chart.update();
     }
   }
 
   async function updateChart() {
-    if (chart && data.length > 0) {
-      chart.data.datasets[0].data = data;
-      chart.data.labels = data.map((_, index) => index + 1);
+    if (chart && chartData != null) {
+      chart.data.datasets[0].data = chartData.prices;
+      chart.data.labels = chartData.prices.map(
+        (_, index) => chartData.timestamps[index]
+      );
       chart.update();
-
-      // chart.data.datasets[1].data.push(data.Phase2);
-      // chart.data.datasets[2].data.push(data.Phase3);
-      // chart.data.labels.push(chart.data.labels.length + 1);
-      //chart.update();
     }
     return;
   }

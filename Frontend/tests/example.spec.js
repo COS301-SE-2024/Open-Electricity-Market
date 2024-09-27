@@ -439,4 +439,31 @@ test.describe("signup page error testing", () => {
     await expect(page.getByText("Passwords must match")).toBeVisible();
   });
 
+  test("All valid", async ({ page }) => {
+    //Wait for page to finish loading
+    await page.waitForLoadState("networkidle");
+
+    //type in a valid email
+    await page.getByPlaceholder("Email").fill("" + process.env.EMAIL);
+    //Type in valid.
+
+    await page.locator('input[placeholder="First name"]').fill("" + process.env.FIRSTNAME);
+
+    await page.locator('input[placeholder="Surname"]').fill("" + process.env.SURNAME);
+
+    //
+    await page.locator('input[placeholder="Password"]').fill("" + process.env.PASSWORD);
+    await page.locator('input[placeholder="Re-enter password"]').fill("" + process.env.PASSWORD);
+    
+    // Click the "Create account" button.
+    await page.getByRole("button", { name: "Create account" }).click();
+
+    await page.waitForURL("http://site.localhost:5173/Main/Dashboard");
+
+    //await page.getByRole("button", {name: "Add funds"}).click();
+    //await expect(page.getByText("Please enter an amount you would like to add.")).toBeVisible();
+    await page.getByRole("link", {name: "Analytics"}).click();
+    await page.waitForURL("http://site.localhost:5173/Main/Analytics");
+  });
+
 });

@@ -95,7 +95,7 @@ impl Agent {
             }
             Err(err) => {
                 println!("Create Consumer Grid {}", err);
-                return SmartMeterDetail::new();
+                SmartMeterDetail::new()
             }
         }
     }
@@ -227,11 +227,11 @@ impl Agent {
         {
             Ok(res) => {
                 let result: GetTokenResult = res.json().unwrap();
-                return result.token;
+                result.token
             }
             Err(err) => {
                 println!("Get Token: {}", err);
-                return String::new();
+                String::new()
             }
         }
     }
@@ -253,17 +253,17 @@ impl Agent {
             Ok(res) => {
                 let result: NodeDetailsResult = res.json().unwrap();
                 if result.message == "Node details retrieved succesfully" {
-                    return Location {
+                    Location {
                         latitude: result.data.location_y,
                         longitude: result.data.location_x,
-                    };
+                    }
                 } else {
-                    return Location::new();
+                    Location::new()
                 }
             }
             Err(err) => {
                 println!("Get node location {}", err);
-                return Location::new();
+                Location::new()
             }
         }
     }
@@ -274,7 +274,7 @@ impl Agent {
         self.market_token =
             Agent::login_or_register_agent(self.email.clone(), self.password.clone(), &client);
 
-        if self.grid_token == "" || self.market_token == "" {
+        if self.grid_token.is_empty() || self.market_token.is_empty() {
             return;
         }
         // println!("{}", self.market_token.clone());
@@ -625,7 +625,7 @@ impl Agent {
             }
             Err(err) => {
                 println!("Place buy order {}", err);
-                return 0.0;
+                0.0
             }
         }
     }
@@ -699,7 +699,7 @@ impl Agent {
         self.market_token =
             Agent::login_or_register_agent(self.email.clone(), self.password.clone(), &client);
 
-        if self.grid_token == "" || self.market_token == "" {
+        if self.grid_token.is_empty() || self.market_token.is_empty() {
             return Ok(());
         }
 

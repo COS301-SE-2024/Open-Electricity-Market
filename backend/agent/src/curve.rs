@@ -1,5 +1,5 @@
 use erased_serde::serialize_trait_object;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 
 use crate::{generator::production_curve::GeneratorCurveType, period::Period};
 
@@ -10,10 +10,10 @@ pub trait Curve: erased_serde::Serialize {
         //DO nothing
     }
     fn get_appliance_list_if_possible(&mut self) -> Vec<String> {
-        return vec![];
+        vec![]
     }
     fn get_generator_curve_if_possible(&mut self) -> Vec<(GeneratorCurveType, f64, Vec<Period>)> {
-        return vec![];
+        vec![]
     }
 }
 
@@ -87,7 +87,7 @@ impl Curve for CummutiveCurve {
         for curve in self.curves.iter_mut() {
             out.append(&mut curve.get_appliance_list_if_possible())
         }
-        return out;
+        out
     }
 
     fn get_generator_curve_if_possible(&mut self) -> Vec<(GeneratorCurveType, f64, Vec<Period>)> {
@@ -96,6 +96,6 @@ impl Curve for CummutiveCurve {
         for curve in self.curves.iter_mut() {
             out.append(&mut curve.get_generator_curve_if_possible())
         }
-        return out;
+        out
     }
 }

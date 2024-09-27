@@ -5,7 +5,7 @@ use crate::{
         HydraulicTurbineType, NuclearReactTypes, PetrolGeneratorType, SolarPanelType,
         WindTurbineType,
     },
-    period::{self, Period},
+    period::Period,
     smart_meter::consumption_curve::{HomeAppliance, HomeApplianceType},
 };
 #[test]
@@ -571,8 +571,8 @@ pub fn period_during() {
         start: 0.0,
         end: 15.0,
     };
-    assert_eq!(period.during(0.0), true);
-    assert_eq!(period.during(16.0), false)
+    assert!(period.during(0.0));
+    assert!(!period.during(16.0))
 }
 
 #[test]

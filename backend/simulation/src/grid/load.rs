@@ -90,7 +90,7 @@ pub enum LoadType {
 
 impl LoadType {
     pub fn new_transmission_line(length: f32, latitude: f32, longitude: f32) -> LoadType {
-        return LoadType::TransmissionLine(TransmissionLine {
+        LoadType::TransmissionLine(TransmissionLine {
             id: 0,
             resistance: Resistance(1.0),
             voltage: VoltageWrapper {
@@ -107,10 +107,10 @@ impl LoadType {
                 latitude,
                 longitude,
             },
-        });
+        })
     }
     pub fn new_consumer(latitude: f32, longitude: f32) -> LoadType {
-        return LoadType::Consumer(Consumer {
+        LoadType::Consumer(Consumer {
             id: 0,
             resistance: Resistance(1.0),
             voltage: VoltageWrapper {
@@ -125,7 +125,7 @@ impl LoadType {
                 latitude,
                 longitude,
             },
-        });
+        })
     }
 }
 

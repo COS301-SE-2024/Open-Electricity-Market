@@ -1,10 +1,9 @@
 use std::sync::{Arc, Mutex};
-use std::usize;
 
 use crate::grid::circuit::Circuit;
 use crate::grid::load::Connection::{Parallel, Series};
 
-use rocket::form::validate::{Contains, Len};
+use rocket::form::validate::Contains;
 use rocket::serde::{Deserialize, Serialize};
 
 use self::generator::Generator;
@@ -205,7 +204,7 @@ impl Grid {
         if found {
             self.connect_load_series(
                 tl_id as u32,
-                nearest_transmission_line as u32,
+                nearest_transmission_line,
                 nearest_circuit as usize,
             )
         }
@@ -251,14 +250,14 @@ impl Grid {
             .transformers
             .push(trans_ref.clone());
 
-        self.circuits[new_circuit_id as usize].loads.push(Load {
+        self.circuits[new_circuit_id].loads.push(Load {
             load_type: LoadType::new_consumer(latitude, longitude),
             id: cn_id as u32,
         });
 
         // self.connect_load_series(cn_id as u32, tl_id as u32, nearest_circuit as usize);
 
-        return (cn_id as u32, new_circuit_id as u32);
+        (cn_id as u32, new_circuit_id as u32)
     }
 
     pub fn create_producer(&mut self, latitude: f32, longitude: f32) -> (u32, u32) {
@@ -290,13 +289,13 @@ impl Grid {
             .position(|cur| cur.id == nearest_circuit)
             .unwrap();
 
-        let id = self.circuits[index as usize].generators.len();
+        let id = self.circuits[index].generators.len();
 
-        self.circuits[index as usize]
+        self.circuits[index]
             .generators
             .push(Generator::new(id as u32, 50.0, latitude, longitude));
 
-        return (nearest_circuit, id as u32);
+        (nearest_circuit, id as u32)
     }
 
     pub fn connect_load_series(&mut self, new: u32, to: u32, circuit: usize) {

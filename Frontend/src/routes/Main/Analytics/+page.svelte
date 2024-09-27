@@ -699,10 +699,10 @@
     <span class="text-3xl text-white font-thin justify-start pl-2">
       Node Stats
     </span>
-    <div class="flex bg-base-100 rounded-2xl p-5 mt-3 h-20">
+    <div class="md:flex sm:flex-col  md:flex-row bg-base-100 rounded-2xl p-5 mt-3 md:h-20 xs:h-50">
       <select
         bind:value={selectednode}
-        class="select select-bordered overflow-y-auto w-1/3 focus:outline-none"
+        class="select select-bordered overflow-y-auto md:w-1/3 focus:outline-none xs:w-33 xs:-ml-4"
         on:change={() => {
           updateNode();
           updateAllAgent();
@@ -714,7 +714,7 @@
         {/each}
       </select>
 
-      <div class=" w-1/3">
+      <div class=" md:w-1/3 xs:w-36 xs:my-2 md:my-0 md:ml-0 xs:-ml-4">
         <button
           class="select select-bordered w-full text-left flex items-center h-full focus:outline-none z-9000"
           on:click={toggleDropdown}>Select Appliances</button
@@ -740,7 +740,7 @@
         {/if}
       </div>
 
-      <div class=" w-1/3">
+      <div class=" md:w-1/3 xs:w-36 xs:my-2 xs:-ml-4 md:my-0 md:ml-0">
         <button
           class="select select-bordered w-full text-left flex items-center h-full focus:outline-none z-9000"
           on:click={toggleDropdownGenerators}>Select Generators</button

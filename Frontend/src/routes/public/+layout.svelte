@@ -111,6 +111,9 @@
       <div class="navbar-end">
         <div class="xs: hidden md:flex">
           <div class="dropdown dropdown-end">
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
+            <!-- svelte-ignore a11y-no-static-element-interactions -->
+            <!-- svelte-ignore a11y-missing-attribute -->
             <a
               class="btn btn-ghost rounded-btn font-normal mx-2"
               on:click={showModal}>Help</a
@@ -139,6 +142,8 @@
                 href="/login">Log in</a
               >
             {/if}
+           
+           
           </div>
         </div>
         <!-- mobile hamburger menu-->
@@ -195,6 +200,7 @@
                     >
                   </li>
                 {/if}
+                <li><a on:click={showModal} class="text-lg">Help</a></li>
               </ul>
             </div>
           </div>

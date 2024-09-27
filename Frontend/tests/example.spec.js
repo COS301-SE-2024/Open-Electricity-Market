@@ -335,14 +335,15 @@ test.describe("signup page error testing", () => {
     //Expects an error message to appear.
     await expect(page.getByText("Invalid email or password")).toBeVisible();
   });
-  /*test("InvalidPasswords", async ({ page }) => {
+
+  test("password with no integers", async ({ page }) => {
     //Wait for page to finish loading
     await page.waitForLoadState("networkidle");
 
     //type in a valid email
     await page.getByPlaceholder("Email").fill("" + process.env.EMAIL);
-    //Type in
-    await page.getByPlaceholder("Password").fill("" + process.env.NONUM);
+    //Type in password with no numerical characters.
+    await page.locator('input[placeholder="Password"]').fill("" + process.env.NONUM);
 
     //Expects an error message to appear.
     await expect(page.getByText("Password requires at least 8 characters, uppercase and lowercase, a symbol and a number")).toBeVisible();
@@ -351,5 +352,91 @@ test.describe("signup page error testing", () => {
 
     //Expects an error message to appear.
     await expect(page.getByText("Invalid email or password")).toBeVisible();
-  });*/
+  });
+
+  test("password with no symbols", async ({ page }) => {
+    //Wait for page to finish loading
+    await page.waitForLoadState("networkidle");
+
+    //type in a valid email
+    await page.getByPlaceholder("Email").fill("" + process.env.EMAIL);
+    //Type in password with no numerical characters.
+    await page.locator('input[placeholder="Password"]').fill("" + process.env.NOSYM);
+
+    //Expects an error message to appear.
+    await expect(page.getByText("Password requires at least 8 characters, uppercase and lowercase, a symbol and a number")).toBeVisible();
+    // Click the "Create account" button.
+    await page.getByRole("button", { name: "Create account" }).click();
+
+    //Expects an error message to appear.
+    await expect(page.getByText("Invalid email or password")).toBeVisible();
+  });
+  test("password with no capital letters", async ({ page }) => {
+    //Wait for page to finish loading
+    await page.waitForLoadState("networkidle");
+
+    //type in a valid email
+    await page.getByPlaceholder("Email").fill("" + process.env.EMAIL);
+    //Type in password with no numerical characters.
+    await page.locator('input[placeholder="Password"]').fill("" + process.env.NOCAP);
+
+    //Expects an error message to appear.
+    await expect(page.getByText("Password requires at least 8 characters, uppercase and lowercase, a symbol and a number")).toBeVisible();
+    // Click the "Create account" button.
+    await page.getByRole("button", { name: "Create account" }).click();
+
+    //Expects an error message to appear.
+    await expect(page.getByText("Invalid email or password")).toBeVisible();
+  });
+  test("Too short password", async ({ page }) => {
+    //Wait for page to finish loading
+    await page.waitForLoadState("networkidle");
+
+    //type in a valid email
+    await page.getByPlaceholder("Email").fill("" + process.env.EMAIL);
+    //Type in password with no numerical characters.
+    await page.locator('input[placeholder="Password"]').fill("" + process.env.SHORT);
+
+    //Expects an error message to appear.
+    await expect(page.getByText("Password requires at least 8 characters, uppercase and lowercase, a symbol and a number")).toBeVisible();
+    // Click the "Create account" button.
+    await page.getByRole("button", { name: "Create account" }).click();
+
+    //Expects an error message to appear.
+    await expect(page.getByText("Invalid email or password")).toBeVisible();
+  });
+  test("Not retyping password", async ({ page }) => {
+    //Wait for page to finish loading
+    await page.waitForLoadState("networkidle");
+
+    //type in a valid email
+    await page.getByPlaceholder("Email").fill("" + process.env.EMAIL);
+    //Type in password with no numerical characters.
+    await page.locator('input[placeholder="Password"]').fill("" + process.env.PASSWORD);
+
+    // Click the "Create account" button.
+    await page.getByRole("button", { name: "Create account" }).click();
+
+    //Expects an error message to appear.
+    await expect(page.getByText("Passwords must match")).toBeVisible();
+  });
+  test("Retyped password does not match", async ({ page }) => {
+    //Wait for page to finish loading
+    await page.waitForLoadState("networkidle");
+
+    //type in a valid email
+    await page.getByPlaceholder("Email").fill("" + process.env.EMAIL);
+    //Type in valid.
+    await page.locator('input[placeholder="Password"]').fill("" + process.env.PASSWORD);
+
+    //
+    await page.locator('input[placeholder="Re-enter password"]').fill("" + process.env.SHORT);
+    
+    // Click the "Create account" button.
+    await page.getByRole("button", { name: "Create account" }).click();
+
+    //Expects an error message to appear.
+    await expect(page.getByText("Passwords must match")).toBeVisible();
+  });
+
 });

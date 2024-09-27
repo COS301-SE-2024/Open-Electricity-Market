@@ -64,5 +64,10 @@ export const sampleChartConfig = {
     options: {
       responsive: true,
     },
+    plugins: {
+      legend: {
+        display: false,
+      },
+    },
   },
 };

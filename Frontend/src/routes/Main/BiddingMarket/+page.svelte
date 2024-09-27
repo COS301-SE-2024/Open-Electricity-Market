@@ -9,7 +9,7 @@
 
   // **********************************************
   let selectedPricePerkWh = 0;
-  $: price = 0;
+  $: pricePerWh = 0;
   let units = 1;
   let chartPeriod = "Day1";
 
@@ -19,14 +19,14 @@
   let data = [];
   async function reset_price() {
     // console.log("setting price to " + price);
-    selectedPricePerkWh = price * 1000;
+    selectedPricePerkWh = pricePerWh * 1000;
   }
 
   async function place_buy_order(at_market_price) {
     // TODO: add a check that fails if units <= 0
 
     if (at_market_price == true) {
-      selectedPricePerkWh = price * 1000;
+      selectedPricePerkWh = pricePerWh * 1000;
     }
 
     let data = {
@@ -52,7 +52,7 @@
     // TODO: add a check that fails if units <= 0
 
     if (at_market_price == true) {
-      selectedPricePerkWh = price * 1000;
+      selectedPricePerkWh = pricePerWh * 1000;
     }
 
     let data = {
@@ -107,7 +107,7 @@
     await fetchData();
     // let interval = setInterval(fetchPriceHistory, 2000);
 
-    selectedPricePerkWh = price * 1000;
+    selectedPricePerkWh = pricePerWh * 1000;
 
     //return function runs when the component is unmounted
     return () => {
@@ -128,10 +128,8 @@
       const fdata = await response.json();
 
       data = fdata.data;
-      // console.log(data)
-
-      price = data.price;
-      // price = data.price.toPrecision(2);
+      
+      pricePerWh = data.price.toFixed(2);
     } catch (error) {
       console.log(
         "There was an error fetching the JSON for the overview..",
@@ -156,10 +154,12 @@
 
       const fdata = await response.json();
       // console.log(fdata);
-      data = fdata.data.map((item) => parseFloat((item.price * 1000).toFixed(2)));
+      data = fdata.data.map((item) =>
+        parseFloat((item.price * 1000).toFixed(2))
+      );
       // console.log("This is data for the chart: " + data);
     } catch (error) {
-      console.log("An error occurred while fetching price history", error);
+      console.log("An error occurred while fetching price history");
     }
   }
 </script>
@@ -199,8 +199,10 @@
       <span class="text-3xl">{selected_node_name}</span> <br />
       <hr />
       <br />
-      <span class="text-lg font-light">Current Average Market Price: </span>
-      <span class="text-3xl">R {(price*1000).toFixed(2)}</span> <br />
+      <span class="text-lg font-light"
+        >Current Average Market Price: (Rands per kWh)</span
+      >
+      <span class="text-3xl">R {(pricePerWh * 1000).toFixed(2)}</span> <br />
       <hr />
       <br />
 
@@ -212,7 +214,7 @@
               id="buy_price"
               type="number"
               step="0.01"
-              placeholder={selectedPricePerkWh.toFixed(2)}
+              placeholder={selectedPricePerkWh}
               class="basis-2/3 input input-bordered font-bold"
               name="buy_price"
               required
@@ -253,7 +255,7 @@
                 Please confirm your buy order for {units == null
                   ? (units = 1)
                   : units} kWh at R{(selectedPricePerkWh == null
-                  ? (selectedPricePerkWh = price)
+                  ? (selectedPricePerkWh = pricePerWh)
                   : selectedPricePerkWh
                 ).toFixed(2)}
               </p>
@@ -280,7 +282,7 @@
                 Please confirm your sell order for {units == null
                   ? (units = 1)
                   : units} kWh at R{(selectedPricePerkWh == null
-                  ? (selectedPricePerkWh = price)
+                  ? (selectedPricePerkWh = pricePerWh)
                   : selectedPricePerkWh
                 ).toFixed(2)}
               </p>

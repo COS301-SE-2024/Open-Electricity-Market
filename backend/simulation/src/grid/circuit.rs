@@ -3,8 +3,6 @@ use crate::grid::load::Connection::{Parallel, Series};
 use crate::grid::load::{Connection, Load};
 use crate::grid::transformer::Transformer;
 use crate::grid::{CurrentWrapper, VoltageWrapper};
-use rocket::form::validate::Len;
-use rocket::futures::stream::iter;
 use rocket::serde::Serialize;
 use std::sync::{Arc, Mutex};
 
@@ -73,7 +71,7 @@ impl Circuit {
             },
         };
 
-        if self.generators.len() > 0 {
+        if !self.generators.is_empty() {
             for gen in self.generators.iter() {
                 out = out.add_voltage(gen.voltage.clone())
             }

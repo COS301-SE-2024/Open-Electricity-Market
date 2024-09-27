@@ -187,11 +187,11 @@ impl Curve for GeneratorCurve {
     }
 
     fn get_generator_curve_if_possible(&mut self) -> Vec<(GeneratorCurveType, f64, Vec<Period>)> {
-        return vec![(
+        vec![(
             self.generator_type.clone(),
             self.generator_type.value(),
             self.on_periods.clone(),
-        )];
+        )]
     }
 }
 

@@ -29,6 +29,7 @@ use generator::{
 };
 use node::Node;
 use period::Period;
+use rocket::response::content;
 use rocket::serde::json::Json;
 use rocket::{
     fairing::{Fairing, Info, Kind},
@@ -38,7 +39,6 @@ use rocket::{
     http::{Header, Method, Status},
     Request, Response,
 };
-use rocket::{response::content, tokio};
 use schema::open_em::agent_history::{self, agent_state};
 use serde::Deserialize;
 use serde_json::{json, Value};
@@ -149,7 +149,7 @@ fn validate_email_and_node_id(
         }
     }
 
-    return true;
+    true
 }
 
 #[derive(Deserialize)]
@@ -168,7 +168,7 @@ fn get_consumed_produced(
     use crate::schema::open_em::transactions::dsl::*;
 
     if !validate_email_and_node_id(
-        Uuid::parse_str(&*claim.user_id).unwrap(),
+        Uuid::parse_str(&claim.user_id).unwrap(),
         None,
         Some(data.node_id.clone()),
     ) {
@@ -246,7 +246,7 @@ fn get_curve(
     claim: Claims,
 ) -> content::RawJson<String> {
     if !validate_email_and_node_id(
-        Uuid::parse_str(&*claim.user_id).unwrap(),
+        Uuid::parse_str(&claim.user_id).unwrap(),
         Some(data.email.clone()),
         Some(data.node_id.clone()),
     ) {
@@ -261,7 +261,7 @@ fn get_curve(
     let consumption: Value;
     {
         let mut agents = agents.lock().unwrap();
-        let agent_index = agents.iter().position(|a| return a.email == email);
+        let agent_index = agents.iter().position(|a| a.email == email);
         if agent_index.is_none() {
             return content::RawJson(
                 json!({"status": "error", "message": "Invalid Email or node_id", "data": {}})
@@ -273,7 +273,7 @@ fn get_curve(
         let node_index = agents[agent_index]
             .nodes
             .iter()
-            .position(|n| return n.node_id == node_id);
+            .position(|n| n.node_id == node_id);
         if node_index.is_none() {
             return content::RawJson(
                 json!({"status": "error", "message": "Invalid Email or node_id" , "data": {}})
@@ -388,7 +388,7 @@ fn add_appliances(
     claim: Claims,
 ) -> content::RawJson<String> {
     if !validate_email_and_node_id(
-        Uuid::parse_str(&*claim.user_id).unwrap(),
+        Uuid::parse_str(&claim.user_id).unwrap(),
         Some(data.email.clone()),
         Some(data.node_id.clone()),
     ) {
@@ -448,7 +448,7 @@ fn add_generators(
     claim: Claims,
 ) -> content::RawJson<String> {
     if !validate_email_and_node_id(
-        Uuid::parse_str(&*claim.user_id).unwrap(),
+        Uuid::parse_str(&claim.user_id).unwrap(),
         Some(data.email.clone()),
         Some(data.node_id.clone()),
     ) {
@@ -506,7 +506,7 @@ fn set_session(
     claim: Claims,
 ) -> content::RawJson<String> {
     if !validate_email_and_node_id(
-        Uuid::parse_str(&*claim.user_id).unwrap(),
+        Uuid::parse_str(&claim.user_id).unwrap(),
         Some(data.email.clone()),
         None,
     ) {
@@ -544,7 +544,7 @@ fn add_agent(
     claim: Claims,
 ) -> content::RawJson<String> {
     if !validate_email_and_node_id(
-        Uuid::parse_str(&*claim.user_id).unwrap(),
+        Uuid::parse_str(&claim.user_id).unwrap(),
         Some(data.email.clone()),
         None,
     ) {

@@ -11,7 +11,10 @@
   let selectednode = "";
   let selectedAppliances = []; //by default should be all of them
   let appliances = new Set();
+  let selectedGenerators = []; 
+  let generators = []; 
   let dropdownvisible = false;
+  let generatordropdownvisible = false; 
 
   //required for curve endpoint
   let email = "";
@@ -37,6 +40,7 @@
   let sellChartPeriod;
   let buyhistorydata = [];
   let sellhistorydata = [];
+  let generatorNames = []; 
 
   onMount(async () => {
     // token check and refresh
@@ -73,8 +77,8 @@
     await getBuyStats();
     await getBoughtSold();
 
-    await getBuyHistory();
-    await getSellHistory();
+    await getBuyHistory("Day1");
+    await getSellHistory("Day1");
     await getConsumedProduced();
     await getCurve();
 
@@ -86,6 +90,10 @@
 
   function toggleDropdown() {
     dropdownvisible = !dropdownvisible;
+  }
+
+  function toggleDropdownGenerators(){
+    generatordropdownvisible = !generatordropdownvisible; 
   }
 
   async function fetchAgentData() {
@@ -115,6 +123,15 @@
       selectedAppliances = [...selectedAppliances, appliance];
     }
     console.log(selectedAppliances);
+  }
+
+  function toggleGenerator(generator){
+    if(selectedGenerators.includes(generator)){
+      selectedGenerators = selectedGenerators.filter((n)=> n!== generator); 
+    }
+    else{
+      selectedGenerators = [...selectedGenerators, generator]; 
+    }
   }
 
   async function getBuyStats() {
@@ -276,9 +293,10 @@
 
       const fdata = await response.json();
       console.log(fdata);
-      let temp = fdata.data.consumption;
+      let temp = fdata.data.consumption || [];
 
       appliances.clear();
+      generatorNames = []; 
       //only runs this first time - selectedAppliances gets updated in toggleAppliance
       temp.forEach((item) => {
         appliances.add(item.appliance);
@@ -287,8 +305,9 @@
 
       console.log("Selected appliances are ", selectedAppliances);
       console.log("Appliances are: ", appliances);
-      consumptioncurvedata = [];
-      productioncurvedata = [];
+      // alert("it makes it here")
+      consumptioncurvedata = new Array(24).fill(0);
+      productioncurvedata = new Array(24).fill(0); 
       let index = 0;
       if (fdata.message == "Here is the detail") {
         //console.log("gets to the first foreach");
@@ -305,8 +324,14 @@
             }
           }
         });
-        let temp2 = fdata.data.production;
+        let temp2 = fdata.data.production || [];
 
+        generatorNames = temp2.flatMap(item => {
+          let gens =  Object.keys(item[0])[0]; 
+          return gens.replace(/([A-Z])/g, ' $1').trim(); 
+        });
+        selectedGenerators = Array.from(generatorNames); 
+        //let mikindex = 0; 
         temp2.forEach((generator) => {
           let startTime = generator[2][0].start;
           let endTime = generator[2][0].end;
@@ -314,13 +339,17 @@
           let endTimeHour = Math.round(endTime / 3600);
           console.log("This is start time: ", startTimeHour);
           console.log("This is end time: ", endTimeHour);
-          for (let index = 0; index < 24; index++) {
-            productioncurvedata[index] = 0;
-          }
+          // for (let index = 0; index < 24; index++) {
+          //   productioncurvedata[index] = 0;
+          // }
           for (let index2 = startTimeHour; index2 < endTimeHour; index2++) {
-            productioncurvedata[index2] = generator[1];
+            productioncurvedata[index2] += generator[1];
           }
+          //mikindex++; 
         });
+
+        // alert(consumptioncurvedata); 
+        // alert(productioncurvedata); 
 
         // console.log("This is consumption curve data:", consumptioncurvedata);
         // console.log("This is the production curve data: ", productioncurvedata);
@@ -378,28 +407,116 @@
             }
           }
         });
-        let temp2 = fdata.data.production;
+        // let temp2 = fdata.data.production;
         // let startTime = temp2.
 
+        // temp2.forEach((generator) => {
+        //   let startTime = generator[2][0].start;
+        //   let endTime = generator[2][0].end;
+        //   let startTimeHour = Math.round(startTime / 3600);
+        //   let endTimeHour = Math.round(endTime / 3600);
+        //   console.log("This is start time: ", startTimeHour);
+        //   console.log("This is end time: ", endTimeHour);
+        //   for (let index = 0; index < 24; index++) {
+        //     productioncurvedata[index] = 0;
+        //   }
+        //   for (let index2 = startTimeHour; index2 < endTimeHour; index2++) {
+        //     productioncurvedata[index2] = generator[1];
+        //   }
+        // });
+      }
+    } catch (error) {
+      console.log("An error occurred while fetching getCurve2 data..\n", error);
+    }
+  }
+
+  //will not reset the generators
+  async function getCurve3() {
+    try {
+      const response = await fetch(`${API_URL_AGENT}/get_curve`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${sessionStorage.getItem("Token")}`,
+        },
+        body: JSON.stringify({
+          email: sessionStorage.getItem("email"),
+          node_id: nodeid,
+        }),
+        credentials: "include",
+      });
+
+      const fdata = await response.json();
+      console.log(fdata);
+      let temp = fdata.data.consumption;
+
+     
+      //consumptioncurvedata = [];
+      // productioncurvedata = [];
+      productioncurvedata = new Array(24).fill(0);
+      let index = 0;
+      if (fdata.message == "Here is the detail") {
+        //console.log("gets to the first foreach");
+        //check to see if all the appliances are toggled off
+        // if (selectedAppliances.length === 0) {
+        //   consumptioncurvedata = new Array(24).fill(0);
+        //   console.log("Selected appliances is empty");
+        //   // console.log(productioncurvedata);  
+        //   return;
+        // }
+        // temp.forEach((item) => {
+        //   if (selectedAppliances.includes(item.appliance)) {
+        //     console.log(item.appliance);
+        //     if (!consumptioncurvedata[index]) {
+        //       consumptioncurvedata[index] = 0;
+        //     }
+        //     consumptioncurvedata[index] += item.data;
+        //     index++;
+        //     if (index >= 24) {
+        //       index = 0;
+        //     }
+        //   }
+        // });
+        let temp2 = fdata.data.production;
+        
+        
+        // let startTime = temp2.
+        let tempindex = 0; 
         temp2.forEach((generator) => {
+          let genInfo = generator[0]; 
+          // alert(Object.keys(genInfo)); 
+
+          let alteredSelectedGenerators = selectedGenerators.map(gen => {
+            return gen.replace(/\s+/g, ""); 
+          }); 
+          let listOfGenerators = Object.keys(genInfo).toString();
+          // alert("This is list of selected: "+ alteredSelectedGenerators.join('')); 
+          // alert("This is curr gen '"+ listOfGenerators+"'"); 
+          // alert(alteredSelectedGenerators.includes(listOfGenerators)); 
+          if(alteredSelectedGenerators.includes(listOfGenerators)){
+              //alert("The if condition was met"); 
           let startTime = generator[2][0].start;
           let endTime = generator[2][0].end;
           let startTimeHour = Math.round(startTime / 3600);
           let endTimeHour = Math.round(endTime / 3600);
           console.log("This is start time: ", startTimeHour);
           console.log("This is end time: ", endTimeHour);
-          for (let index = 0; index < 24; index++) {
-            productioncurvedata[index] = 0;
-          }
+          // for (let index = 0; index < 24; index++) {
+          //   productioncurvedata[index] += 0;
+          // }
           for (let index2 = startTimeHour; index2 < endTimeHour; index2++) {
-            productioncurvedata[index2] = generator[1];
+            productioncurvedata[index2] += generator[1];
+          }
           }
         });
       }
     } catch (error) {
-      console.log("An error occurred while fetching getCurve2 data..\n", error);
+      console.log("An error occurred while fetching getCurve3 data..\n", error);
     }
   }
+
+  
 
   async function getConsumedProduced() {
     try {
@@ -464,6 +581,8 @@
   }
 
   function updateAllAgent() {
+    productioncurvedata = new Array(24).fill(0); 
+    consumptioncurvedata = new Array(24).fill(0); 
     getCurve();
     getConsumedProduced();
   }
@@ -471,6 +590,10 @@
   function updateAllAgent2() {
     getCurve2();
     getConsumedProduced();
+  }
+
+  function updateAllAgent3(){
+    getCurve3(); 
   }
 
   function updateNode() {
@@ -519,7 +642,7 @@
           ></span
         >
       </div>
-      {#if marketpiedata.length > 1}
+      {#if marketpiedata.length >= 1}
         <div class="w-1/2 mr-16">
           <PieChart {marketpiedata} />
         </div>
@@ -533,12 +656,13 @@
     </div> -->
 
     <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
+      
       <div class="form-control">
         <!-- svelte-ignore a11y-label-has-associated-control -->
         <select
           bind:value={buyChartPeriod}
           class="select select-bordered max-h-40 overflow-y-auto"
-          on:change={() => getBuyHistory(buyChartPeriod)}
+          on:change={() => getBuyHistory(buyChartPeriod)} 
         >
           <option value="Day1" default selected>24h</option>
           <option value="Week1">7d</option>
@@ -557,7 +681,7 @@
         <select
           bind:value={sellChartPeriod}
           class="select select-bordered max-h-40 overflow-y-auto"
-          on:change={() => getSellHistory(sellChartPeriod)}
+          on:change={() => getSellHistory(sellChartPeriod)} 
         >
           <option value="Day1" default selected>24h</option>
           <option value="Week1">7d</option>
@@ -578,7 +702,7 @@
     <div class="flex bg-base-100 rounded-2xl p-5 mt-3 h-20">
       <select
         bind:value={selectednode}
-        class="select select-bordered overflow-y-auto w-1/2 focus:outline-none"
+        class="select select-bordered overflow-y-auto w-1/3 focus:outline-none"
         on:change={() => {
           updateNode();
           updateAllAgent();
@@ -590,7 +714,7 @@
         {/each}
       </select>
 
-      <div class=" w-1/2">
+      <div class=" w-1/3">
         <button
           class="select select-bordered w-full text-left flex items-center h-full focus:outline-none z-9000"
           on:click={toggleDropdown}>Select Appliances</button
@@ -610,6 +734,32 @@
                   }}
                 />
                 {appliance}
+              </label>
+            {/each}
+          </div>
+        {/if}
+      </div>
+
+      <div class=" w-1/3">
+        <button
+          class="select select-bordered w-full text-left flex items-center h-full focus:outline-none z-9000"
+          on:click={toggleDropdownGenerators}>Select Generators</button
+        >
+
+        {#if generatordropdownvisible}
+          <div class="mt-2 w-full bg-base-100 rounded-md overflow-y-auto">
+            {#each generatorNames as generator}
+              <label class="flex items-center p-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  class="checkbox checkbox-primary mr-2"
+                  checked={selectedGenerators.includes(generator)}
+                  on:change={() => {
+                    toggleGenerator(generator);
+                    updateAllAgent3();
+                  }}
+                />
+                {generator}
               </label>
             {/each}
           </div>

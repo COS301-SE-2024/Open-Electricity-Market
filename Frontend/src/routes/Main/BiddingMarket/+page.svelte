@@ -23,8 +23,6 @@
   }
 
   async function place_buy_order(at_market_price) {
-    // TODO: add a check that fails if units <= 0
-
     if (at_market_price == true) {
       selectedPricePerkWh = pricePerWh * 1000;
     }
@@ -49,8 +47,6 @@
   }
 
   async function place_sell_order(at_market_price) {
-    // TODO: add a check that fails if units <= 0
-
     if (at_market_price == true) {
       selectedPricePerkWh = pricePerWh * 1000;
     }
@@ -128,7 +124,7 @@
       const fdata = await response.json();
 
       data = fdata.data;
-      
+
       pricePerWh = data.price.toFixed(2);
     } catch (error) {
       console.log(
@@ -252,7 +248,7 @@
             <div class="modal-box">
               <h3 class="text-lg font-bold">Confirm Buy Order</h3>
               <p class="py-4">
-                Please confirm your buy order for {units == null
+                Please confirm your buy order for {units == null || units <= 0
                   ? (units = 1)
                   : units} kWh at R{(selectedPricePerkWh == null
                   ? (selectedPricePerkWh = pricePerWh)
@@ -279,7 +275,7 @@
             <div class="modal-box">
               <h3 class="text-lg font-bold">Confirm Sell Order</h3>
               <p class="py-4">
-                Please confirm your sell order for {units == null
+                Please confirm your sell order for {units == null || units <= 0
                   ? (units = 1)
                   : units} kWh at R{(selectedPricePerkWh == null
                   ? (selectedPricePerkWh = pricePerWh)

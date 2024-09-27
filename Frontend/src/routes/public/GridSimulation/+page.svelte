@@ -167,15 +167,6 @@
             )} V</span
           >
         </span>
-        <div class="flex w-full justify-end -mt-4">
-          <span class="text-lg font-light"
-            >{transformerMarkerDetails.secondary_voltage.oscilloscope_detail
-              .frequency} Hz</span
-          >
-          <!-- <span class="text-lg font-light"
-        >{voltageData.oscilloscope_detail.amplitude}</span
-      > -->
-        </div>
       </div>
     {:else}
       <div

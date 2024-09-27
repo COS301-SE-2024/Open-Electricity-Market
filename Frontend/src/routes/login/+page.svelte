@@ -32,7 +32,7 @@
     });
     const json = await res.json();
     //result = JSON.stringify(json)
-    console.log(json);
+    // console.log(json);
     if (json.message == "User logged in") {
       sessionStorage.setItem("Token", json.data.token);
       await addAgent(); 

@@ -713,7 +713,7 @@
       });
 
       const fdata = await response.json();
-      //console.log("data received ",fdata)
+      // console.log("getcurve ",fdata)
       if (fdata.message == "Invalid Email or node_id") {
         applianceNames = "There was an issue retrieving your appliances.";
         generatorNames = "There was an issue retrieving your generators.";
@@ -752,7 +752,7 @@
           "You currently do not have any generators linked to this node.";
       }
     } catch (error) {
-      console.log("An error occurred while fetching getCurve data..\n", error);
+      console.log("An error occurred while fetching getCurve data..\n");
     }
   }
 

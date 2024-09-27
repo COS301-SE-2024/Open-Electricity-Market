@@ -226,7 +226,7 @@
           var primary_load = mapdata[transformer.primary_circuit].loads.find(
             (l) => l.id === transformer.primary_load
           );
-          // unfortunately it could be of any type of load:
+          // unfortunately it could be of either type of load:
           if (primary_load.load_type.Consumer) {
             latlngs.push([
               primary_load.load_type.Consumer.location.latitude,

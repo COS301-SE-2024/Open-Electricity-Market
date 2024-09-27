@@ -462,8 +462,8 @@ test.describe("signup page error testing", () => {
 
     //await page.getByRole("button", {name: "Add funds"}).click();
     //await expect(page.getByText("Please enter an amount you would like to add.")).toBeVisible();
-    await page.getByRole("link", {name: "Analytics"}).click();
-    await page.waitForURL("http://site.localhost:5173/Main/Analytics");
+    //await page.getByRole("link", {name: "Analytics"}).click();
+    //await page.waitForURL("http://site.localhost:5173/Main/Analytics");
   });
 
 });

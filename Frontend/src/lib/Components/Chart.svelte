@@ -37,9 +37,43 @@
   function fillChart() {
     if (chart && chartData != null) {
       chart.data.datasets[0].data = chartData.prices;
-      chart.data.labels = chartData.prices.map(
-        (_, index) => new Date(chartData.timestamps[index])
-      );
+      // huge switch statement that determines what the labels should look like
+      switch (chartData.chartPeriod) {
+        case "Day1":
+          chart.data.labels = chartData.prices.map(
+            (_, index) => new Date(chartData.timestamps[index]).toLocaleTimeString()
+          );
+          break;
+        case "Week1":
+          chart.data.labels = chartData.prices.map(
+            (_, index) => new Date(chartData.timestamps[index]).toLocaleDateString()
+          );
+          break;
+        case "Month1":
+          chart.data.labels = chartData.prices.map(
+            (_, index) => new Date(chartData.timestamps[index]).toLocaleDateString()
+          );
+          break;
+        case "Month3":
+          chart.data.labels = chartData.prices.map(
+            (_, index) => new Date(chartData.timestamps[index]).toLocaleDateString()
+          );
+          break;
+        case "Month6":
+          chart.data.labels = chartData.prices.map(
+            (_, index) => new Date(chartData.timestamps[index]).toLocaleDateString()
+          );
+          break;
+        case "Year1":
+          chart.data.labels = chartData.prices.map(
+            (_, index) => new Date(chartData.timestamps[index]).toLocaleDateString()
+          );
+          break;
+        default:
+          chart.data.labels = chartData.prices.map(
+            (_, index) => new Date(chartData.timestamps[index]).toLocaleDateString()
+          );
+      }
       chart.update();
     }
   }
@@ -47,9 +81,42 @@
   async function updateChart() {
     if (chart && chartData != null) {
       chart.data.datasets[0].data = chartData.prices;
-      chart.data.labels = chartData.prices.map(
-        (_, index) => new Date(chartData.timestamps[index])
-      );
+      switch (chartData.chartPeriod) {
+        case "Day1":
+          chart.data.labels = chartData.prices.map(
+            (_, index) => new Date(chartData.timestamps[index]).toLocaleTimeString()
+          );
+          break;
+        case "Week1":
+          chart.data.labels = chartData.prices.map(
+            (_, index) => new Date(chartData.timestamps[index]).toLocaleDateString()
+          );
+          break;
+        case "Month1":
+          chart.data.labels = chartData.prices.map(
+            (_, index) => new Date(chartData.timestamps[index]).toLocaleDateString()
+          );
+          break;
+        case "Month3":
+          chart.data.labels = chartData.prices.map(
+            (_, index) => new Date(chartData.timestamps[index]).toLocaleDateString()
+          );
+          break;
+        case "Month6":
+          chart.data.labels = chartData.prices.map(
+            (_, index) => new Date(chartData.timestamps[index]).toLocaleDateString()
+          );
+          break;
+        case "Year1":
+          chart.data.labels = chartData.prices.map(
+            (_, index) => new Date(chartData.timestamps[index]).toLocaleDateString()
+          );
+          break;
+        default:
+          chart.data.labels = chartData.prices.map(
+            (_, index) => new Date(chartData.timestamps[index]).toLocaleDateString()
+          );
+      }
       chart.update();
     }
     return;

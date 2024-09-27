@@ -155,6 +155,7 @@
         parseFloat((item.price * 1000).toFixed(2))
       );
       chartData.timestamps = fdata.data.map((item) => item.timestamp);
+      chartData.chartPeriod = chartPeriod;
       // console.log("This is data for the chart: " + data);
     } catch (error) {
       console.log("An error occurred while fetching price history");

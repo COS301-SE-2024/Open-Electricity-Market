@@ -5,7 +5,12 @@
   let email = "";
   let password = "";
   let errormessage = "";
-  import { API_URL_GRID, API_URL_MARKET, COOKIE_DOMAIN, API_URL_AGENT } from "$lib/config.js";
+  import {
+    API_URL_GRID,
+    API_URL_MARKET,
+    COOKIE_DOMAIN,
+    API_URL_AGENT,
+  } from "$lib/config.js";
 
   // RFC 2822 standard email validation pattern
   var emailregex =
@@ -35,10 +40,17 @@
     // console.log(json);
     if (json.message == "User logged in") {
       sessionStorage.setItem("Token", json.data.token);
-      await addAgent(); 
+      await addAgent();
       goto("/Main/Dashboard");
     } else {
-      errormessage = "Invalid Credentials";
+      errormessage = "Invalid Username or Password";
+      var input = document.getElementById("pw");
+      if (password == "") {
+        input.classList.add("input-error");
+        errormessage = "Please enter your password"
+      } else {
+        input.classList.remove("input-error");
+      }
     }
     //send to main page
   }
@@ -51,7 +63,6 @@
       input.type = "password";
     }
   }
-
 
   async function addAgent() {
     let details = {
@@ -102,6 +113,7 @@
 
           <div class="form-control mt-1">
             <input
+              id="email"
               type="email"
               placeholder="Email"
               class="input input-bordered"
@@ -119,31 +131,64 @@
               required
               bind:value={password}
             />
-            <div class="flex ml-2 mt-2">
-              <input
-                on:click={showPassword}
-                id="hs-toggle-password-checkbox"
-                type="checkbox"
-                class="shrink-0 mt-0.5 border-gray-200 rounded text-blue-600 focus:ring-blue-500 dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-blue-500 dark:checked:border-blue-500 dark:focus:ring-offset-gray-800"
-              />
-              <label
-                for="hs-toggle-password-checkbox"
-                class="text-sm text-gray-500 ms-3 dark:text-neutral-400"
-                >Show password</label
+            <!-- button with icon -->
+            <button
+              type="button"
+              on:click={showPassword}
+              class="absolute inset-y-0 end-0 flex items-center z-20 px-3 cursor-pointer text-gray-400 rounded-e-md focus:outline-none focus:text-blue-600 dark:text-neutral-600 dark:focus:text-blue-500"
+            >
+              <svg
+                class="shrink-0 size-3.5"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
               >
-            </div>
-            <!-- <label class="label" for="">
-                  <a href="#" class="label-text-alt link link-hover">Forgot password?</a>
-                </label> -->
+                <path
+                  class="hs-password-active:hidden"
+                  d="M9.88 9.88a3 3 0 1 0 4.24 4.24"
+                ></path>
+                <path
+                  class="hs-password-active:hidden"
+                  d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"
+                ></path>
+                <path
+                  class="hs-password-active:hidden"
+                  d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"
+                ></path>
+                <line
+                  class="hs-password-active:hidden"
+                  x1="2"
+                  x2="22"
+                  y1="2"
+                  y2="22"
+                ></line>
+                <path
+                  class="hidden hs-password-active:block"
+                  d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"
+                ></path>
+                <circle
+                  class="hidden hs-password-active:block"
+                  cx="12"
+                  cy="12"
+                  r="3"
+                ></circle>
+              </svg>
+            </button>
+            {#if errormessage != ""}
+              <p
+                class="text-base font-semibold text-error rounded mt-12 fixed ml-1"
+              >
+                {errormessage}
+              </p>
+            {/if}
           </div>
 
-          {#if errormessage != ""}
-            <h2 class="text-base font-semibold text-black bg-error rounded">
-              {errormessage}
-            </h2>
-          {/if}
-
-          <div class="form-control mt-6">
+          <div class="form-control mt-4">
             <button class="btn btn-primary" on:click={login}>Login</button>
           </div>
 

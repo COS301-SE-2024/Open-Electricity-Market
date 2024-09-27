@@ -3,6 +3,7 @@
   import { goto } from "$app/navigation";
   import Map from "$lib/Components/MapDashboard.svelte";
   import { API_URL_GRID, API_URL_MARKET, API_URL_AGENT } from "$lib/config.js";
+  import housesrc from '$lib/assets/house.png';
 
   let data = {};
   let nodeName = "";
@@ -938,7 +939,7 @@
                   class="card card-side border-4 border-primary min-w-1/3 bg-base-100 mb-2"
                 >
                   <figure class="w-1/4 p-3 pr-0">
-                    <img src="../src/images/house.png" alt="House node" />
+                    <img src={housesrc} alt="House node" />
                   </figure>
                   <div class="card-body pb-4 px-4">
                     <h2 class="card-title font-light text-2xl">{node.name}</h2>
@@ -957,7 +958,7 @@
                   class="card card-side border-4 border-base-100 min-w-1/3 bg-base-100 mb-2"
                 >
                   <figure class="w-1/4 p-3 pr-0">
-                    <img src="../src/images/house.png" alt="House node" />
+                    <img src={housesrc} alt="House node" />
                   </figure>
                   <div class="card-body pb-4 px-4">
                     <h2 class="card-title font-light text-2xl">{node.name}</h2>

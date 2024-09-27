@@ -25,7 +25,7 @@
 
   // 8 characters, at least one lowercase, one uppercase, one symbol and one numeric character
   // might separate it out to make it reactive and indicate which requirements are not met to the user
-  var passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/;
+  var passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z])(?=.*[^A-Za-z0-9]).{8,}$/;
 
   async function validateEmail() {
     const emailElement = document.getElementById("email");

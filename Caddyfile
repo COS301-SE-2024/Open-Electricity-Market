@@ -10,6 +10,10 @@ agent.site.localhost {
     reverse_proxy agent:8002
 }
 
+ml.site.localhost {
+    reverse_proxy ml-api:80
+}
+
 site.localhost {
     reverse_proxy site:3000
 }

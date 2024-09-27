@@ -77,6 +77,17 @@ services:
       - caddy_config:/config
     networks:
       - amplify
+  ml-api:
+    build: ./backend/ml-api
+    depends_on:
+      db:
+        condition: service_healthy
+      market-platform:
+        condition: service_healthy
+      simulation:
+        condition: service_started
+    networks:
+      - amplify
 volumes:
   pgdata:
   caddy_data:

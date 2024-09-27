@@ -603,8 +603,8 @@
   }
 </script>
 
-<div class="flex">
-  <div id="lhs" class="w-1/2 pr-4">
+<div class="md:flex xs:flex-row">
+  <div id="lhs" class="md:w-1/2 md:pr-4 xs:w-1/1 ">
     <!-- market stats to go here -->
     <!-- {#if minbuy} -->
     <span class="text-3xl text-white font-thin justify-start pl-2">
@@ -695,14 +695,14 @@
     </div>
   </div>
 
-  <div id="rhs" class="w-1/2">
-    <span class="text-3xl text-white font-thin justify-start pl-2">
+  <div id="rhs" class="md:w-1/2 xs:w-1/1 xs:mt-6 md:mt-0">
+    <span class="text-3xl text-white font-thin justify-start pl-2 xs:mt-4 md:mt-0">
       Node Stats
     </span>
-    <div class="flex bg-base-100 rounded-2xl p-5 mt-3 h-20">
+    <div class="md:flex sm:flex-col  md:flex-row bg-base-100 rounded-2xl p-5 mt-3 md:h-20 xs:h-50">
       <select
         bind:value={selectednode}
-        class="select select-bordered overflow-y-auto w-1/3 focus:outline-none"
+        class="select select-bordered overflow-y-auto md:w-1/3 focus:outline-none "
         on:change={() => {
           updateNode();
           updateAllAgent();
@@ -714,7 +714,7 @@
         {/each}
       </select>
 
-      <div class=" w-1/3">
+      <div class=" md:w-1/3 xs:w-36 xs:my-2 md:my-0 md:ml-0 ">
         <button
           class="select select-bordered w-full text-left flex items-center h-full focus:outline-none z-9000"
           on:click={toggleDropdown}>Select Appliances</button
@@ -740,7 +740,7 @@
         {/if}
       </div>
 
-      <div class=" w-1/3">
+      <div class=" md:w-1/3 xs:w-36 xs:my-2 md:my-0 md:ml-0">
         <button
           class="select select-bordered w-full text-left flex items-center h-full focus:outline-none z-9000"
           on:click={toggleDropdownGenerators}>Select Generators</button
@@ -768,13 +768,13 @@
     </div>
 
     <!-- {#if agentpiedata.length>1} -->
-    <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3 h-80">
+    <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3 md:h-80 md:h-40">
       <PieChartAgent {agentpiedata} />
     </div>
     <!-- {/if} -->
-    <div class="flex min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
-      <ConsumptionCurve class="w-1/2" data={consumptioncurvedata} />
-      <ProductionCurve class="ml-8" data={productioncurvedata} />
+    <div class="md:flex xs:flex-row md:min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
+      <ConsumptionCurve class="md:w-1/2" data={consumptioncurvedata} />
+      <ProductionCurve class="md:ml-8 md:w-1/2 xs:ml-0" data={productioncurvedata} />
     </div>
     <!-- <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
     

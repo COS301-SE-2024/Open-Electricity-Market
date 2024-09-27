@@ -38,7 +38,7 @@
     if (chart && chartData != null) {
       chart.data.datasets[0].data = chartData.prices;
       chart.data.labels = chartData.prices.map(
-        (_, index) => chartData.timestamps[index]
+        (_, index) => new Date(chartData.timestamps[index])
       );
       chart.update();
     }
@@ -48,7 +48,7 @@
     if (chart && chartData != null) {
       chart.data.datasets[0].data = chartData.prices;
       chart.data.labels = chartData.prices.map(
-        (_, index) => chartData.timestamps[index]
+        (_, index) => new Date(chartData.timestamps[index])
       );
       chart.update();
     }

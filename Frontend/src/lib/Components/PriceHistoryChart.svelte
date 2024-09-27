@@ -21,14 +21,14 @@
       fillChart();
     }
     // resizeChart();
-    window.addEventListener("resize", resizeChart);
+    // window.addEventListener("resize", resizeChart);
     // interval = setInterval(resizeChart, 5000);
 
     return () => {
       if (chart) {
         chart.destroy();
       }
-      window.removeEventListener("resize", resizeChart);
+      // window.removeEventListener("resize", resizeChart);
     };
   });
 
@@ -54,8 +54,8 @@
   }
 </script>
 
-<div style="display: flex; max-height: 100%">
-  <canvas bind:this={chartCanvas} height="340px"></canvas>
+<div class="h-full w-full">
+  <canvas bind:this={chartCanvas}></canvas>
 </div>
 
 <style>

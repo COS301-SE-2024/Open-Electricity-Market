@@ -73,8 +73,8 @@
   }
 </script>
 
-<div style="display: flex; max-height: 100%">
-  <canvas bind:this={chartCanvas} height="340px"></canvas>
+<div style="display: flex; height: 100%; width: 100%">
+  <canvas bind:this={chartCanvas}></canvas>
 </div>
 
 <style>

@@ -126,7 +126,7 @@
         credentials: "include",
       });
       const fdata = await res.json();
-      console.log("Add agent endpoint: ", fdata);
+      // console.log("Add agent endpoint: ", fdata);
     } catch (error) {
       console.log(
         "There was an error with the add_agent endpoint when creating account: ",

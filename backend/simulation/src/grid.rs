@@ -203,7 +203,7 @@ impl Grid {
         });
 
         if found {
-            self.connect_load_parallel(
+            self.connect_load_series(
                 tl_id as u32,
                 nearest_transmission_line as u32,
                 nearest_circuit as usize,

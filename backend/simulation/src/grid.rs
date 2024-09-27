@@ -157,6 +157,7 @@ pub struct GridStats {
     consumer_count: u32,
     producer_count: u32,
     user_count: u32,
+    transmission_line_voltage: f32,
 }
 
 impl Grid {
@@ -393,14 +394,17 @@ impl Grid {
             consumer_count: 0,
             producer_count: 0,
             user_count: 0,
+            transmission_line_voltage: 0.0,
         };
 
         for cir in self.circuits.iter() {
             for load in cir.loads.iter() {
                 ouput.total_impedance += load.get_impedance(self.frequency).0;
-                match load.load_type {
+                match &load.load_type {
                     load::LoadType::Consumer(_) => ouput.consumer_count += 1,
-                    load::LoadType::TransmissionLine(_) => {}
+                    load::LoadType::TransmissionLine(t) => {
+                        ouput.transmission_line_voltage += t.voltage.oscilloscope_detail.amplitude;
+                    }
                 }
             }
 

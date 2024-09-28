@@ -35,7 +35,7 @@ export const sampleChartConfig = {
         label: "Price",
         data: [],
         backgroundColor: [
-          "rgba(0, 0, 255, 0.3)",
+          "rgba(0, 0, 255, 0.1)",
           // "rgba(54, 162, 235, 0.2)",
           // "rgba(255, 206, 86, 0.2)",
           // "rgba(75, 192, 192, 0.2)",
@@ -57,8 +57,13 @@ export const sampleChartConfig = {
   },
   options: {
     scales: {
+      x: {
+        ticks: {
+          maxTicksLimit: 5
+        }
+      },
       y: {
-        beginAtZero: true,
+        beginAtZero: false,
       },
     },
     options: {

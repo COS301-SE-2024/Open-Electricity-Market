@@ -16,7 +16,7 @@
   let selected_node_id = sessionStorage.getItem("node_id");
   let selected_node_name = sessionStorage.getItem("node_name");
 
-  let data = [];
+  let chartData = [];
   async function reset_price() {
     // console.log("setting price to " + price);
     selectedPricePerkWh = pricePerWh * 1000;
@@ -123,7 +123,7 @@
 
       const fdata = await response.json();
 
-      data = fdata.data;
+      let data = fdata.data;
 
       pricePerWh = data.price.toFixed(2);
     } catch (error) {
@@ -150,9 +150,12 @@
 
       const fdata = await response.json();
       // console.log(fdata);
-      data = fdata.data.map((item) =>
+
+      chartData.prices = fdata.data.map((item) =>
         parseFloat((item.price * 1000).toFixed(2))
       );
+      chartData.timestamps = fdata.data.map((item) => item.timestamp);
+      chartData.chartPeriod = chartPeriod;
       // console.log("This is data for the chart: " + data);
     } catch (error) {
       console.log("An error occurred while fetching price history");
@@ -183,7 +186,7 @@
         </div>
       </span>
       <div class="w-full">
-        <Chart {data} />
+        <Chart {chartData} />
       </div>
       <!-- <PriceChartD3 id = "chartPrice" />  -->
     </div>

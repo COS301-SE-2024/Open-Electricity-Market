@@ -36,10 +36,10 @@ export const sampleChartConfig = {
     datasets: [
       {
         fill: true,
-        label: "Production Curve",
+        label: "Predicted Price",
         data: [],
-        backgroundColor: ["rgba(0, 0, 255, 0.3)"],
-        borderColor: ["rgba(0, 0, 255, 1)"],
+        backgroundColor: ["rgba(0, 255, 0, 0.3)"],
+        borderColor: ["rgba(0, 255, 25, 1)"],
         borderWidth: 1,
         pointRadius: 0,
       },
@@ -53,19 +53,20 @@ export const sampleChartConfig = {
       x: {
         title: {
           display: true,
-          text: "Time (Hours)",  
+          text: "Time (Minutes)", 
         },
       },
       y: {
         beginAtZero: true,
         title: {
           display: true,
-          text: "Watts",  
+          text: "Price per kW (ZAR)", 
         },
       },
     },
     options: {
       responsive: true,
     },
+    
   },
 };

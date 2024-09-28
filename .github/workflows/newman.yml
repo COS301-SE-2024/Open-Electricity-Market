@@ -13,3 +13,15 @@ jobs:
         with:
           collection: postman_tests/MarketPlatform.postman_collection.json
           environment: postman_tests/Open_em.postman_environment.json
+      - uses: matt-ball/newman-action@master
+        with:
+          collection: postman_tests/MarketAdvisor.postman_collection.json
+          environment: postman_tests/Open_em.postman_environment.json
+      - uses: matt-ball/newman-action@master
+        with:
+          collection: postman_tests/Simulation.postman_collection.json
+          environment: postman_tests/Open_em.postman_environment.json
+      - uses: matt-ball/newman-action@master
+        with:
+          collection: postman_tests/Agent.postman_collection.json
+          environment: postman_tests/Open_em.postman_environment.

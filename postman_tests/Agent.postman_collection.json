@@ -313,6 +313,47 @@
 			"response": []
 		},
 		{
+			"name": "AddAgentWithoutToken",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Succesful response to request with no token\", function(){",
+							"    pm.expect(pm.response.code).to.be.eq(403)",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"tester@example.com\",\n    \"password\": \"test@123\",\n    \"token\" : \"{{marker_token}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{agent_url}}/add_agent",
+					"protocol": "https",
+					"host": [
+						"{{agent_url}}"
+					],
+					"path": [
+						"add_agent"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "AddApplianceWithToken",
 			"event": [
 				{
@@ -339,6 +380,47 @@
 						}
 					]
 				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"tester@example.com\",\n    \"node_id\": \"{{node_id}}\",\n    \"appliances\": [\n        {\n            \"appliance_type\": \"WashingMachine\",\n            \"on_periods\": [\n                {\n                    \"start\": 15.0,\n                    \"end\": 800.0\n                }\n            ]\n        }\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{agent_url}}/add_appliances",
+					"protocol": "https",
+					"host": [
+						"{{agent_url}}"
+					],
+					"path": [
+						"add_appliances"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "AddApplianceWithoutToken",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Succesful response to request with no token\", function(){",
+							"    pm.expect(pm.response.code).to.be.eq(403)",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
 				"method": "POST",
 				"header": [],
 				"body": {
@@ -415,6 +497,47 @@
 			"response": []
 		},
 		{
+			"name": "AddGeneratorWithOutToken",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Succesful response to request with no token\", function(){",
+							"    pm.expect(pm.response.code).to.be.eq(403)",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "\n\n{\n    \"email\": \"tester@example.com\",\n    \"node_id\": \"{{node_id}}\",\n    \"generators\": [\n        {\n            \"generator_type\": {\n                \"NuclearReactor\": \"BWR\"\n            },\n            \"on_periods\": [\n                {\n                    \"start\": 15.0,\n                    \"end\": 800.0\n                }\n            ]\n        }\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{agent_url}}/add_generators",
+					"protocol": "https",
+					"host": [
+						"{{agent_url}}"
+					],
+					"path": [
+						"add_generators"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "GetCurvesWithToken",
 			"event": [
 				{
@@ -466,6 +589,47 @@
 			"response": []
 		},
 		{
+			"name": "GetCurvesWithoutToken",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Succesful response to request with no token\", function(){",
+							"    pm.expect(pm.response.code).to.be.eq(403)",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"tester@example.com\",\n    \"node_id\" : \"{{node_id}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{agent_url}}/get_curve",
+					"protocol": "https",
+					"host": [
+						"{{agent_url}}"
+					],
+					"path": [
+						"get_curve"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "GetProductionVConsumptionWithToken",
 			"event": [
 				{
@@ -492,6 +656,47 @@
 						}
 					]
 				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"node_id\" : \"{{node_id}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{agent_url}}/get_consumed_produced",
+					"protocol": "https",
+					"host": [
+						"{{agent_url}}"
+					],
+					"path": [
+						"get_consumed_produced"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetProductionVConsumptionWithoutToken",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Succesful response to request with no token\", function(){",
+							"    pm.expect(pm.response.code).to.be.eq(403)",
+							"})"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
 				"method": "POST",
 				"header": [],
 				"body": {

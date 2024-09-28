@@ -2,7 +2,7 @@
   import PieChart from "$lib/Components/PieChart.svelte";
   import { onMount } from "svelte";
   import { goto } from "$app/navigation";
-  import { API_URL_GRID, API_URL_MARKET, API_URL_AGENT } from "$lib/config.js";
+  import { API_URL_GRID, API_URL_MARKET, API_URL_AGENT, API_URL_ML } from "$lib/config.js";
   import ConsumptionCurve from "$lib/Components/ConsumptionCurve.svelte";
   import ProductionCurve from "$lib/Components/ProductionCurve.svelte";
   import PriceHistoryChart from "$lib/Components/PriceHistoryChart.svelte";
@@ -41,6 +41,14 @@
   let buyhistorydata = [];
   let sellhistorydata = [];
   let generatorNames = []; 
+  //stuff for ml api request
+  let totalImpedance; 
+  let consumerVoltage; 
+  let transmissionLineVoltage; 
+  let generatorVoltage; 
+  let currHour; 
+  let currMinute; 
+  const timeFrame = 12; 
 
   onMount(async () => {
     // token check and refresh
@@ -96,25 +104,32 @@
     generatordropdownvisible = !generatordropdownvisible; 
   }
 
-  async function fetchAgentData() {
-    // try {
-    //   const response = await fetch(`${API_URL_MARKET}/get_nodes`, {
-    //     method: "POST",
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //       'Accept': 'application/json',
-    //       'Authorization': `Bearer ${sessionStorage.getItem("Token")}`
-    //     },
-    //     credentials: "include",
-    //     body: JSON.stringify({
-    //       limit: 10
-    //     })
-    //   });
-    //   const fdata = await response.json();
-    // } catch (error) {
-    //   console.log("An error occurred while fetching agent data..\n", error);
-    // }
-  }
+  async function fetchGridStats() {
+    try {
+      const response = await fetch(`${API_URL_GRID}/stats`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      });
+
+      const fdata = await response.json();
+      totalImpedance = fdata.total_impedance;
+      consumerVoltage = fdata.consumer_voltage; 
+      transmissionLineVoltage = fdata.transmission_line_voltage; 
+      generatorVoltage = fdata.generator_voltage; 
+      let currTime = new Date(); 
+      currHour = currTime.getHours();
+      currMinute = currTime.getMinutes(); 
+   
+    } catch (error) {
+      console.log(
+        "There was an error fetching the JSON for the stats on grid sim:",
+        error
+      );
+    }
+  } 
 
   function toggleAppliance(appliance) {
     if (selectedAppliances.includes(appliance)) {
@@ -601,6 +616,9 @@
     let currindex = listofnodes.indexOf(selectednode);
     nodeid = listofnodeids[currindex];
   }
+
+
+
 </script>
 
 <div class="md:flex xs:flex-row">

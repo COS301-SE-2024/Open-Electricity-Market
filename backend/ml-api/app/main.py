@@ -386,7 +386,7 @@ def price_predict(request: PredictRequest):
     cursor.close()
 
     hours = [(request.current_hour + x) % 24 for x in range(request.time_frame) for _ in range(60)]
-    hours.extend([hours.pop(0) - request.current_hour + 1 for _ in range(request.current_hour)])
+    hours.extend([hours.pop(0) - request.current_hour for _ in range(request.current_hour)])
     minutes = [x for _ in range(request.time_frame) for x in range(60)]
     minutes.extend([minutes.pop(0) for _ in range(request.current_minute)])
     fee_sum_list = [fee_sum for _ in range(request.time_frame * 60)]

@@ -1,0 +1,140 @@
+{
+	"info": {
+		"_postman_id": "ac0afccf-6e9b-437f-b078-94f2687c73a0",
+		"name": "Simulation",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "26671993"
+	},
+	"item": [
+		{
+			"name": "GridStartWithCorrectDetail",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Succesful start\",function () {",
+							"    pm.expect(pm.response.json().Message).to.be.oneOf([\"Grid Started\",\"Grid Already Running\"])",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{grid_url}}/start",
+					"protocol": "https",
+					"host": [
+						"{{grid_url}}"
+					],
+					"path": [
+						"start"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GridStatsWithCorrectDetail",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Succesful stats\",function () {",
+							"    pm.expect(pm.response.json().hasOwnProperty(\"total_impedance\")).to.be.eq(true);",
+							"    pm.expect(pm.response.json().hasOwnProperty(\"total_generation\")).to.be.eq(true);",
+							"    pm.expect(pm.response.json().hasOwnProperty(\"consumer_count\")).to.be.eq(true);",
+							"    pm.expect(pm.response.json().hasOwnProperty(\"producer_count\")).to.be.eq(true);",
+							"    pm.expect(pm.response.json().hasOwnProperty(\"user_count\")).to.be.eq(true);",
+							"    pm.expect(pm.response.json().hasOwnProperty(\"transmission_line_voltage\")).to.be.eq(true);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{grid_url}}/stats",
+					"protocol": "https",
+					"host": [
+						"{{grid_url}}"
+					],
+					"path": [
+						"stats"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GridInfoWithCorrectDetail",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Succesful info\",function () {",
+							"    pm.expect(pm.response.json().hasOwnProperty(\"circuits\")).to.be.eq(true);",
+							"    pm.expect(pm.response.json().hasOwnProperty(\"frequency\")).to.be.eq(true);",
+							"    pm.expect(pm.response.json().hasOwnProperty(\"started\")).to.be.eq(true);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{grid_url}}/info",
+					"protocol": "https",
+					"host": [
+						"{{grid_url}}"
+					],
+					"path": [
+						"info"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

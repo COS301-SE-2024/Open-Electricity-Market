@@ -3,6 +3,7 @@
   import { goto } from "$app/navigation";
   import Map from "$lib/Components/MapDashboard.svelte";
   import { API_URL_GRID, API_URL_MARKET, API_URL_AGENT } from "$lib/config.js";
+  import housesrc from '$lib/assets/house.png';
 
   let data = {};
   let nodeName = "";
@@ -713,7 +714,7 @@
       });
 
       const fdata = await response.json();
-      //console.log("data received ",fdata)
+      // console.log("getcurve ",fdata)
       if (fdata.message == "Invalid Email or node_id") {
         applianceNames = "There was an issue retrieving your appliances.";
         generatorNames = "There was an issue retrieving your generators.";
@@ -752,7 +753,7 @@
           "You currently do not have any generators linked to this node.";
       }
     } catch (error) {
-      console.log("An error occurred while fetching getCurve data..\n", error);
+      console.log("An error occurred while fetching getCurve data..\n");
     }
   }
 
@@ -840,10 +841,10 @@
             <div class="rounded-2xl min-w-1/3 bg-base-100 mb-2 p-3">
               <span class="w-full flex">
                 <span class="text-ss -pt-3">
-                  Buying at:
+                  Buying at (per kWh):
                 </span>
                 <h2 class="text-2xl ml-auto">
-                  {formatCurrency(buyorder.max_price)}
+                  {formatCurrency(buyorder.max_price * 1000)}
                 </h2>
               </span>
               <div class="card-actions">
@@ -852,8 +853,8 @@
                     Filled units:
                   </span>
                   <span class="ml-auto">
-                    {buyorder.filled_units.toFixed(1)} /
-                    {Intl.NumberFormat().format(buyorder.sought_units) + " Wh"}
+                    {Intl.NumberFormat().format(buyorder.filled_units/1000)} /
+                    {Intl.NumberFormat().format(buyorder.sought_units/1000) + " kWh"}
                   </span>
                 </span>
                 <progress
@@ -938,7 +939,7 @@
                   class="card card-side border-4 border-primary min-w-1/3 bg-base-100 mb-2"
                 >
                   <figure class="w-1/4 p-3 pr-0">
-                    <img src="../src/images/house.png" alt="House node" />
+                    <img src={housesrc} alt="House node" />
                   </figure>
                   <div class="card-body pb-4 px-4">
                     <h2 class="card-title font-light text-2xl">{node.name}</h2>
@@ -957,7 +958,7 @@
                   class="card card-side border-4 border-base-100 min-w-1/3 bg-base-100 mb-2"
                 >
                   <figure class="w-1/4 p-3 pr-0">
-                    <img src="../src/images/house.png" alt="House node" />
+                    <img src={housesrc} alt="House node" />
                   </figure>
                   <div class="card-body pb-4 px-4">
                     <h2 class="card-title font-light text-2xl">{node.name}</h2>
@@ -1002,10 +1003,10 @@
             <div class="rounded-2xl min-w-1/3 bg-base-100 mb-2 p-3">
               <span class="w-full flex">
                 <span class="text-ss -pt-3">
-                  Selling at:
+                  Selling at (per kWh):
                 </span>
                 <h2 class="text-2xl ml-auto">
-                  {formatCurrency(sellorder.min_price)}
+                  {formatCurrency(sellorder.min_price * 1000)}
                 </h2>
               </span>
               <div class="card-actions">
@@ -1014,8 +1015,8 @@
                     Claimed units:
                   </span>
                   <span class="ml-auto">
-                    {sellorder.claimed_units.toFixed(1)} /
-                    {sellorder.offered_units.toFixed(1) + " Wh"}
+                    {Intl.NumberFormat().format(sellorder.claimed_units / 1000)} /
+                    {Intl.NumberFormat().format(sellorder.offered_units / 1000) + " kWh"}
                   </span>
                 </span>
                 <progress

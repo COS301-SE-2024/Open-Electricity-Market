@@ -210,6 +210,7 @@
                     >
                   </li>
                 {/if}
+                <li><a on:click={showModal} class="text-lg">Help</a></li>
               </ul>
             </div>
           </div>
@@ -223,7 +224,7 @@
             This is the central hub for controlling your nodes on the grid. <br
             />
             You can see your details, such as credit, on the left, and a list of
-            your nodes and buy orders on the right. <br />
+            your nodes in the centre. <br />
             If you plan on buying electricity, be sure to start by adding some funds
             to your account first. <br />
             Your credit is also where you will receive money for any electricity
@@ -233,7 +234,13 @@
             information about them, such as the amount of electricity it is allowed
             to consume/needs to produce. <br />
             Click on the "Transact with this node" button to go to the market page,
-            where you can be part of our open market.
+            where you can be part of our open market. <br /><br />
+            Users can also view the appliances/generators linked
+            to their node. If you wish to add an appliance you may select one from the drop down and click 
+            'add appliance'. If a user wishes to add a generator - you will have to click the 'to generator' 
+            button and then they will have to click on a generator category then specify a type for said generator. 
+            Once that is done - a user may enter in their typical usage times for that generator, however if they wish to stick 
+            to the default times then they can click on the 'skip' button. 
           </p>
         </div>
         <form method="dialog" class="modal-backdrop">

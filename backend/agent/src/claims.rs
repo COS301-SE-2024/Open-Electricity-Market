@@ -1,11 +1,10 @@
 use std::env;
 
-use chrono::{Duration, Utc};
+use chrono::Utc;
 use dotenvy::dotenv;
 use jsonwebtoken::{
     decode, encode, errors::ErrorKind, DecodingKey, EncodingKey, Header, Validation,
 };
-use lazy_static::lazy_static;
 use rocket::{
     http::Status,
     request::{FromRequest, Outcome},

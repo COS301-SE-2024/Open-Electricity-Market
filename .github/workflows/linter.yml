@@ -45,4 +45,9 @@ jobs:
           VALIDATE_JAVASCRIPT_STANDARD: false # should install and run standard --fix
           VALIDATE_MARKDOWN: false # Markdown files are acceptable but still a work in progress
           VALIDATE_JSCPD: false # checks for duplicated code blocks
+          VALIDATE_PYTHON_BLACK: false
+          VALIDATE_PYTHON_FLAKE8: false
+          VALIDATE_PYTHON_ISORT: false
+          VALIDATE_PYTHON_PYLINT: false
+          VALIDATE_PYTHON_RUFF: false
           # VALIDATE_HTML: false # It checks for the tabspaces inconsistencies

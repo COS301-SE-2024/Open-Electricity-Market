@@ -20,7 +20,6 @@ use diesel::RunQueryDsl;
 use diesel::{insert_into, PgConnection};
 use dotenvy::dotenv;
 use grid::transformer::Transformer;
-use grid::GridStats;
 use rocket::fairing::{Fairing, Info, Kind};
 use rocket::http::{Header, Method, Status};
 use rocket::response::content;
@@ -32,7 +31,6 @@ use schema::open_em::grid_history::{self, grid_state};
 use uuid::Uuid;
 
 use std::ops::Deref;
-use std::sync::mpsc::{self, SyncSender};
 use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Instant;
@@ -72,7 +70,7 @@ impl Fairing for CORS {
 fn check_password(password: String) -> bool {
     dotenv().ok();
     let correct_password = env::var("GRID_PASS").unwrap();
-    return password == correct_password;
+    password == correct_password
 }
 
 #[derive(Deserialize)]
@@ -98,7 +96,7 @@ fn get_token(
             let uuid = email_records[i].id;
             let claims = Claims::from_name(uuid.to_string());
             let token = claims.into_token().unwrap();
-            return content::RawJson(json!({"token":token}).to_string());
+            content::RawJson(json!({"token":token}).to_string())
         }
         None => {
             let uuid = Uuid::new_v4();
@@ -108,7 +106,7 @@ fn get_token(
                 id: uuid,
                 email: data.email.clone(),
             });
-            return content::RawJson(json!({"token":token}).to_string());
+            content::RawJson(json!({"token":token}).to_string())
         }
     }
 }
@@ -125,10 +123,8 @@ fn set_consumer(
     {
         let owns = owns.lock().unwrap();
         for gen in owns.iter() {
-            if gen.id == uuid {
-                if data.circuit == gen.circuit && data.consumer == gen.consumer {
-                    is_owned_by = true;
-                }
+            if gen.id == uuid && data.circuit == gen.circuit && data.consumer == gen.consumer {
+                is_owned_by = true;
             }
         }
     }
@@ -140,7 +136,7 @@ fn set_consumer(
 
     let mut g = grid.lock().unwrap();
     g.set_consumer(data.into_inner());
-    return content::RawJson(json!({"status" : "ok","message" : "succesfully set"}).to_string());
+    content::RawJson(json!({"status" : "ok","message" : "succesfully set"}).to_string())
 }
 
 #[post("/set_generator", format = "application/json", data = "<data>")]
@@ -156,10 +152,8 @@ fn set_generator(
         let owns = owns.lock().unwrap();
 
         for gen in owns.iter() {
-            if gen.id == uuid {
-                if data.circuit == gen.circuit && data.generator == gen.genrator {
-                    is_owned_by = true;
-                }
+            if gen.id == uuid && data.circuit == gen.circuit && data.generator == gen.genrator {
+                is_owned_by = true;
             }
         }
     }
@@ -171,7 +165,7 @@ fn set_generator(
 
     let mut g = grid.lock().unwrap();
     g.set_generator(data.into_inner());
-    return content::RawJson(json!({"status" : "ok","message" : "succesfully set"}).to_string());
+    content::RawJson(json!({"status" : "ok","message" : "succesfully set"}).to_string())
 }
 
 #[derive(Deserialize, Clone)]
@@ -199,15 +193,13 @@ fn add_consumer(
     {
         let owns = owns.lock().unwrap();
         for con in owns.iter() {
-            if con.id == uuid {
-                if data.latitude == con.latitude && data.longitude == con.longitude {
-                    let new_consumer = NewConsumer {
-                        circuit: con.circuit,
-                        consumer: con.consumer,
-                    };
-                    let out = serde_json::to_string(&new_consumer).unwrap();
-                    return content::RawJson(out);
-                }
+            if con.id == uuid && data.latitude == con.latitude && data.longitude == con.longitude {
+                let new_consumer = NewConsumer {
+                    circuit: con.circuit,
+                    consumer: con.consumer,
+                };
+                let out = serde_json::to_string(&new_consumer).unwrap();
+                return content::RawJson(out);
             }
         }
     }
@@ -251,15 +243,13 @@ fn add_generator(
     {
         let owns = owns.lock().unwrap();
         for gen in owns.iter() {
-            if gen.id == uuid {
-                if data.latitude == gen.latitude && data.longitude == gen.longitude {
-                    let new_generator = NewGenerator {
-                        circuit: gen.circuit,
-                        generator: gen.genrator,
-                    };
-                    let out = serde_json::to_string(&new_generator).unwrap();
-                    return content::RawJson(out);
-                }
+            if gen.id == uuid && data.latitude == gen.latitude && data.longitude == gen.longitude {
+                let new_generator = NewGenerator {
+                    circuit: gen.circuit,
+                    generator: gen.genrator,
+                };
+                let out = serde_json::to_string(&new_generator).unwrap();
+                return content::RawJson(out);
             }
         }
     }
@@ -294,9 +284,9 @@ fn current_voltage(grid: &State<Arc<Mutex<Grid>>>) -> content::RawJson<String> {
         .get_voltage()
         .oscilloscope_detail
         .amplitude;
-    return content::RawJson(
+    content::RawJson(
         json!({"status" : "ok","message" : "Voltage returned", "data" :out}).to_string(),
-    );
+    )
 }
 
 #[post("/stats")]
@@ -452,14 +442,14 @@ fn rocket() -> _ {
                                     },
                                 },
                                 location: Location {
-                                    latitude: -26.2977,
-                                    longitude: 28.1028,
+                                    latitude: -25.755_686,
+                                    longitude: 28.231_646,
                                 },
                             }),
                             id: 0,
                         },
                         Load {
-                            load_type: LoadType::new_transmission_line(80.0, -25.724639, 28.25625),
+                            load_type: LoadType::new_transmission_line(80.0, -25.724_64, 28.25625),
                             id: 1,
                         },
                     ],

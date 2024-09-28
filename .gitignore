@@ -131,5 +131,6 @@ Cargo.lock
 Frontend/Caddyfile
 Frontend/src/lib/config.js
 Frontend/bun.lockb
-
+backend/ml-api/app/models/electricity-usage/data
+backend/ml-api/app/apienv
 playwright/.auth

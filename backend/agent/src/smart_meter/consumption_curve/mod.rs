@@ -36,7 +36,7 @@ pub enum HomeApplianceType {
 
 impl HomeApplianceType {
     pub fn to_string(&self) -> String {
-        return match self {
+        match self {
             HomeApplianceType::WashingMachine => String::from("washing_machine"),
             HomeApplianceType::Router => String::from("router"),
             HomeApplianceType::Vacuum => String::from("vacuum"),
@@ -60,7 +60,7 @@ impl HomeApplianceType {
             HomeApplianceType::Printer => String::from("printer"),
             HomeApplianceType::Dryer => String::from("dryer"),
             HomeApplianceType::Freezer => String::from("freezer"),
-        };
+        }
     }
 }
 
@@ -91,18 +91,17 @@ impl Curve for HomeAppliance {
     fn total_in_24_hour(&mut self) -> f64 {
         let conn = &mut establish_connection();
         let total_appliance = total_appliance(self.appliance_type.to_string());
-        let total = match diesel::select(total_appliance).first(conn) {
+
+        match diesel::select(total_appliance).first(conn) {
             Ok(t) => t,
             Err(err) => {
                 println!("{}", err);
                 0.0
             }
-        };
-
-        total
+        }
     }
 
     fn get_appliance_list_if_possible(&mut self) -> Vec<String> {
-        return vec![self.appliance_type.to_string()];
+        vec![self.appliance_type.to_string()]
     }
 }

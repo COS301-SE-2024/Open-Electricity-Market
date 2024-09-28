@@ -44,9 +44,9 @@
   let generatorNames = []; 
   //stuff for ml api request
   let totalImpedance; 
-  let consumerVoltage; 
+  const consumerVoltage = 240; 
   let transmissionLineVoltage; 
-  let generatorVoltage; 
+  const generatorVoltage = 240; 
   let currHour; 
   let currMinute; 
   const timeFrame = 12; 
@@ -122,9 +122,8 @@
 
       const fdata = await response.json();
       totalImpedance = fdata.total_impedance;
-      consumerVoltage = fdata.consumer_voltage; 
       transmissionLineVoltage = fdata.transmission_line_voltage; 
-      generatorVoltage = fdata.generator_voltage; 
+      
       let currTime = new Date(); 
       currHour = currTime.getHours();
       currMinute = currTime.getMinutes(); 
@@ -158,7 +157,10 @@
         }),
       });
 
+      console.log(totalImpedance +" "+ consumerVoltage +" "+ transmissionLineVoltage +" "+ generatorVoltage + " "+currHour +" "+ currMinute +" "+ timeFrame); 
+
       const fdata = await response.json();
+      console.log(fdata)
       pricepredictordata = fdata.data.price_list.map(item=> item.price); 
       alert(pricepredictordata); 
      

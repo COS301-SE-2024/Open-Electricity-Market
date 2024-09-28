@@ -7,6 +7,7 @@
   import ProductionCurve from "$lib/Components/ProductionCurve.svelte";
   import PriceHistoryChart from "$lib/Components/PriceHistoryChart.svelte";
   import PieChartAgent from "$lib/Components/PieChartAgent.svelte";
+  import PricePredictorChart from "$lib/Components/PricePredictorChart.svelte";
 
   let selectednode = "";
   let selectedAppliances = []; //by default should be all of them
@@ -158,8 +159,8 @@
       });
 
       const fdata = await response.json();
-      
-      alert(fdata); 
+      pricepredictordata = fdata.data.price_list.map(item=> item.price); 
+      alert(pricepredictordata); 
      
    
     } catch (error) {

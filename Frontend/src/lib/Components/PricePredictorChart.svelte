@@ -56,7 +56,7 @@
     .chartstyle{
       display: flex; 
       max-height: 100%; 
-      margin-left: 4rem; 
+      
       /* @media (max-width:490px){
         margin-left: 0rem;
       } */

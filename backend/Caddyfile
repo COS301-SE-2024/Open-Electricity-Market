@@ -5,3 +5,11 @@ market.amplify.org.za {
 grid.amplify.org.za {
     reverse_proxy simulation:8000
 }
+
+agent.amplify.org.za {
+    reverse_proxy agent:8002
+}
+
+ml.amplify.org.za {
+    reverse_proxy ml-api:80
+}

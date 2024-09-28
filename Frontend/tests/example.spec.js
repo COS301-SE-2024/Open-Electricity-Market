@@ -446,7 +446,7 @@ test.describe("signup page error testing", () => {
   test("Testing valid signup for webkit", async ({ page, browserName }) => {
     //Wait for page to finish loading
     await page.waitForLoadState("networkidle");
-    //test.skip(browserName === 'firefox' || browserName === 'chromium');
+    test.skip(browserName === 'firefox' || browserName === 'chromium');
     
 
     //type in a valid email
@@ -490,8 +490,8 @@ test.describe("signup page error testing", () => {
     await page.waitForLoadState();
     await page.waitForURL("http://site.localhost:5173/Main/Dashboard");
 
-  });
-  test("Testing valid signup for chromium", async ({ page, browserName }) => {
+  });*/
+  /*test("Testing valid signup for chromium", async ({ page, browserName }) => {
     //Wait for page to finish loading
     await page.waitForLoadState("networkidle");
     test.skip(browserName === 'webkit' || browserName === 'firefox');

@@ -24,6 +24,7 @@
   $: passwordSPCharacterError = false;
   $: passwordNoCapitalError = false;
   $: passwordNoLowerCaseError = false;
+  $: passwordNoNumericError = false;
 
   $: passwordMismatchError = false;
 
@@ -68,12 +69,15 @@
       passwordNoCapitalError = false;
       passwordSPCharacterError = false;
       passwordNoLowerCaseError = false;
+      passwordNoNumericError = false;
 
       if (password.length < 8) passwordLengthError = true;
       else if (password.search(/^.*[A-Z].*$/) == -1)
         passwordNoCapitalError = true;
       else if (password.search(/^.*[a-z].*$/) == -1)
         passwordNoLowerCaseError = true;
+      else if (password.search(/^.*[0-9].*$/) == -1)
+        passwordNoNumericError = true;
       else if (password.search(/^.*[^A-Za-z0-9]$/) == -1)
         passwordSPCharacterError = true;
 
@@ -85,6 +89,7 @@
       passwordNoCapitalError = false;
       passwordSPCharacterError = false;
       passwordNoLowerCaseError = false;
+      passwordNoNumericError = false;
 
       pwElement.classList.remove("input-error");
       validPassword = true;
@@ -305,6 +310,12 @@
                 class="text-base font-semibold text-error rounded mt-12 fixed ml-1"
               >
                 Password must include an uppercase character
+              </p>
+            {:else if passwordNoNumericError}
+              <p
+                class="text-base font-semibold text-error rounded mt-12 fixed ml-1"
+              >
+                Password must include a number
               </p>
             {:else if passwordSPCharacterError}
               <p

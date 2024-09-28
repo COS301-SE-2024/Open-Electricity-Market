@@ -59,6 +59,8 @@ test.describe("simulation page (not logged in)", () => {
     await page.waitForURL("**/login");
   });
   test("To Analytics", async ({page}) => {
+    //Wait for page to finish loading
+    await page.waitForLoadState('networkidle');
     await page.getByRole("link", {name: "Analytics" }).click();
     await page.waitForURL("**/Main/Analytics");
   });
@@ -71,6 +73,8 @@ test.describe("simulation page (not logged in)", () => {
     await expect(page.getByText("The grid simulation page contains an overview of the current state of the electrical grid. On the map, you can see all the nodes that are connected to the simulated grid. Clicking on one of these nodes will give you more information on them, and will show the voltage being generated at that point on the oscilloscope, on the right. At the bottom you can see a few general statistics about the grid")).toBeVisible();
   });
   test("To Login page", async ({page}) => {
+    //Wait for page to finish loading
+    await page.waitForLoadState('networkidle');
     await page.getByRole("button", {name: "Log in" }).click();
     await page.waitForURL("**/login");
   });
@@ -82,7 +86,7 @@ test.describe("login page", () => {
   });
   test("To signup page", async ({ page }) => {
     //Wait for page to finish loading
-    //await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('networkidle');
 
     // Click the signup button.
     await page.getByRole("link", { name: "Create an account" }).click();
@@ -102,7 +106,7 @@ test.describe("signup page", () => {
   });
   test("Back to login page", async ({ page }) => {
     //Wait for page to finish loading
-    //await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('networkidle');
 
     // Click the "I already have an account" button.
     await page.getByRole("link", { name: "I already have an account" }).click();

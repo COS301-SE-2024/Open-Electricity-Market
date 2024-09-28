@@ -400,7 +400,7 @@ class PredictResponse(BaseModel):
 
 
 @app.options("/price_predict")
-def price_predict():
+def price_predict_options():
     return
 
 

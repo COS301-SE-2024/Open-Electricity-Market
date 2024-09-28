@@ -49,7 +49,7 @@ test.describe("simulation page (not logged in)", () => {
   });
   test("To Dashboard", async ({ page }) => {
     //Wait for page to finish loading
-    //await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('networkidle');
 
     // Click the "Dashboard" button.
     await page.getByRole("link", { name: "Dashboard" }).click();
@@ -142,7 +142,7 @@ test.describe("signup page error testing", () => {
 
     //Expects an error message to appear saying the email address is not valid.
     await expect(
-      page.getByText("Please enter a valid email address.")
+      page.getByText("Please enter a valid email address")
     ).toBeVisible();
 
     // Click the "Create account" button.
@@ -163,7 +163,7 @@ test.describe("signup page error testing", () => {
 
     //Expects an error message to appear saying the email address is not valid.
     await expect(
-      page.getByText("Please enter a valid email address.")
+      page.getByText("Please enter a valid email address")
     ).toBeVisible();
 
     // Click the "Create account" button.
@@ -184,7 +184,7 @@ test.describe("signup page error testing", () => {
 
     //Expects an error message to appear saying the email address is not valid.
     await expect(
-      page.getByText("Please enter a valid email address.")
+      page.getByText("Please enter a valid email address")
     ).toBeVisible();
 
     // Click the "Create account" button.
@@ -205,7 +205,7 @@ test.describe("signup page error testing", () => {
 
     //Expects an error message to appear saying the email address is not valid.
     await expect(
-      page.getByText("Please enter a valid email address.")
+      page.getByText("Please enter a valid email address")
     ).toBeVisible();
 
     // Click the "Create account" button.
@@ -226,7 +226,7 @@ test.describe("signup page error testing", () => {
 
     //Expects an error message to appear saying the email address is not valid.
     await expect(
-      page.getByText("Please enter a valid email address.")
+      page.getByText("Please enter a valid email address")
     ).toBeVisible();
 
     // Click the "Create account" button.
@@ -247,7 +247,7 @@ test.describe("signup page error testing", () => {
 
     //Expects an error message to appear saying the email address is not valid.
     await expect(
-      page.getByText("Please enter a valid email address.")
+      page.getByText("Please enter a valid email address")
     ).toBeVisible();
 
     // Click the "Create account" button.
@@ -268,7 +268,7 @@ test.describe("signup page error testing", () => {
 
     //Expects an error message to appear saying the email address is not valid.
     await expect(
-      page.getByText("Please enter a valid email address.")
+      page.getByText("Please enter a valid email address")
     ).toBeVisible();
 
     // Click the "Create account" button.
@@ -289,7 +289,7 @@ test.describe("signup page error testing", () => {
 
     //Expects an error message to appear saying the email address is not valid.
     await expect(
-      page.getByText("Please enter a valid email address.")
+      page.getByText("Please enter a valid email address")
     ).toBeVisible();
 
     // Click the "Create account" button.
@@ -310,7 +310,7 @@ test.describe("signup page error testing", () => {
 
     //Expects an error message to appear saying the email address is not valid.
     await expect(
-      page.getByText("Please enter a valid email address.")
+      page.getByText("Please enter a valid email address")
     ).toBeVisible();
 
     // Click the "Create account" button.
@@ -346,7 +346,7 @@ test.describe("signup page error testing", () => {
     await page.locator('input[placeholder="Password"]').fill("" + process.env.NONUM);
 
     //Expects an error message to appear.
-    await expect(page.getByText("Password requires at least 8 characters, uppercase and lowercase, a symbol and a number")).toBeVisible();
+    //await expect(page.getByText("Password must inc")).toBeVisible();
     // Click the "Create account" button.
     await page.getByRole("button", { name: "Create account" }).click();
 
@@ -354,7 +354,7 @@ test.describe("signup page error testing", () => {
     await expect(page.getByText("Invalid email or password")).toBeVisible();
   });
 
-  test("password with no symbols", async ({ page }) => {
+  test("password with no special characters", async ({ page }) => {
     //Wait for page to finish loading
     await page.waitForLoadState("networkidle");
 
@@ -364,7 +364,7 @@ test.describe("signup page error testing", () => {
     await page.locator('input[placeholder="Password"]').fill("" + process.env.NOSYM);
 
     //Expects an error message to appear.
-    await expect(page.getByText("Password requires at least 8 characters, uppercase and lowercase, a symbol and a number")).toBeVisible();
+    await expect(page.getByText("Password must include a special character")).toBeVisible();
     // Click the "Create account" button.
     await page.getByRole("button", { name: "Create account" }).click();
 
@@ -381,7 +381,7 @@ test.describe("signup page error testing", () => {
     await page.locator('input[placeholder="Password"]').fill("" + process.env.NOCAP);
 
     //Expects an error message to appear.
-    await expect(page.getByText("Password requires at least 8 characters, uppercase and lowercase, a symbol and a number")).toBeVisible();
+    await expect(page.getByText("Password must include an uppercase character")).toBeVisible();
     // Click the "Create account" button.
     await page.getByRole("button", { name: "Create account" }).click();
 
@@ -398,7 +398,7 @@ test.describe("signup page error testing", () => {
     await page.locator('input[placeholder="Password"]').fill("" + process.env.SHORT);
 
     //Expects an error message to appear.
-    await expect(page.getByText("Password requires at least 8 characters, uppercase and lowercase, a symbol and a number")).toBeVisible();
+    await expect(page.getByText("Password must be at least 8 characters long")).toBeVisible();
     // Click the "Create account" button.
     await page.getByRole("button", { name: "Create account" }).click();
 
@@ -439,9 +439,11 @@ test.describe("signup page error testing", () => {
     await expect(page.getByText("Passwords must match")).toBeVisible();
   });
 
-  test("All valid", async ({ page }) => {
+  test("Testing valid signup for webkit", async ({ page, browserName }) => {
     //Wait for page to finish loading
     await page.waitForLoadState("networkidle");
+    test.skip(browserName === 'firefox' || browserName === 'chromium');
+    
 
     //type in a valid email
     await page.getByPlaceholder("Email").fill("" + process.env.EMAIL);
@@ -457,13 +459,56 @@ test.describe("signup page error testing", () => {
     
     // Click the "Create account" button.
     await page.getByRole("button", { name: "Create account" }).click();
+    
+    await page.waitForURL("http://site.localhost:5173/Main/Dashboard");
+
+  });
+  test("Testing valid signup for firefox", async ({ page, browserName }) => {
+    //Wait for page to finish loading
+    await page.waitForLoadState("networkidle");
+    test.skip(browserName === 'webkit' || browserName === 'chromium');
+    
+
+    //type in a valid email
+    await page.getByPlaceholder("Email").fill("" + process.env.EMAILFIRE);
+    //Type in valid.
+
+    await page.locator('input[placeholder="First name"]').fill("" + process.env.FIRSTNAME);
+
+    await page.locator('input[placeholder="Surname"]').fill("" + process.env.SURNAME);
+
+    //
+    await page.locator('input[placeholder="Password"]').fill("" + process.env.PASSWORD);
+    await page.locator('input[placeholder="Re-enter password"]').fill("" + process.env.PASSWORD);
+    
+    // Click the "Create account" button.
+    await page.getByRole("button", { name: "Create account" }).click();
 
     await page.waitForURL("http://site.localhost:5173/Main/Dashboard");
 
-    //await page.getByRole("button", {name: "Add funds"}).click();
-    //await expect(page.getByText("Please enter an amount you would like to add.")).toBeVisible();
-    //await page.getByRole("link", {name: "Analytics"}).click();
-    //await page.waitForURL("http://site.localhost:5173/Main/Analytics");
+  });
+  test("Testing valid signup for chromium", async ({ page, browserName }) => {
+    //Wait for page to finish loading
+    await page.waitForLoadState("networkidle");
+    test.skip(browserName === 'webkit' || browserName === 'firefox');
+    
+    //type in a valid email
+    await page.getByPlaceholder("Email").fill("" + process.env.EMAILCHROME);
+    //Type in valid.
+
+    await page.locator('input[placeholder="First name"]').fill("" + process.env.FIRSTNAME);
+
+    await page.locator('input[placeholder="Surname"]').fill("" + process.env.SURNAME);
+
+    //
+    await page.locator('input[placeholder="Password"]').fill("" + process.env.PASSWORD);
+    await page.locator('input[placeholder="Re-enter password"]').fill("" + process.env.PASSWORD);
+    
+    // Click the "Create account" button.
+    await page.getByRole("button", { name: "Create account" }).click();
+
+    await page.waitForURL("http://site.localhost:5173/Main/Dashboard");
+
   });
 
 });

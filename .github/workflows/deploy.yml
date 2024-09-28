@@ -93,6 +93,7 @@ jobs:
           envkey_DB_PASSWORD: ${{ secrets.OPEN_EM_PASS }}
           envkey_DB_HOST: "db"
           envkey_DB_PORT: "5432"
+          envkey_FRONTEND_URL: ${{ vars.MARKET_FRONTEND_URL }}
           directory: backend/ml-api/app/models/price
           file_name: .env
 

@@ -79,41 +79,51 @@
   <header>
     <div class="navbar bg-base-100 border-b border-accent">
       <div class="navbar-start">
-        <a class="btn btn-ghost md:text-xl font-normal xs:text-sm" href="/"
+        <a class="btn btn-ghost md:text-2xl font-normal xs:text-sm" href="/"
           >Amplify</a
         >
-        <span class="md:text-xl xs:text-sm pl-4 font-normal">
-          {activebutton == "/public/GridSimulation"
-            ? "Simulation"
-            : activebutton == "/Main/BiddingMarket"
-              ? "Marketplace"
-              : activebutton == "/Main/Dashboard"
-                ? "Dashboard"
-                : activebutton == "/Main/Analytics"
-                  ? "Analytics"
-                  : ""}
-        </span>
       </div>
 
       <div class="navbar-center hidden lg:flex">
         <ul class="menu menu-horizontal px-1">
           <li class="px-2">
-            <a
-              class="btn btn-ghost rounded-btn font-normal"
-              href="/public/GridSimulation">Simulation</a
-            >
+            {#if activebutton == "/public/GridSimulation"}
+              <a
+                class="btn btn-outline rounded-btn font-normal"
+                href="/public/GridSimulation">Simulation</a
+              >
+            {:else}
+              <a
+                class="btn btn-ghost rounded-btn font-normal"
+                href="/public/GridSimulation">Simulation</a
+              >
+            {/if}
           </li>
           <li class="px-2">
-            <a
-              class="btn btn-ghost rounded-btn font-normal"
-              href="/Main/Dashboard">Dashboard</a
-            >
+            {#if activebutton == "/Main/Dashboard"}
+              <a
+                class="btn btn-outline rounded-btn font-normal"
+                href="/Main/Dashboard">Dashboard</a
+              >
+            {:else}
+              <a
+                class="btn btn-ghost rounded-btn font-normal"
+                href="/Main/Dashboard">Dashboard</a
+              >
+            {/if}
           </li>
           <li class="px-2">
-            <a
-              class="btn btn-ghost rounded-btn font-normal"
-              href="/Main/Analytics">Analytics</a
-            >
+            {#if activebutton == "/Main/Analytics"}
+              <a
+                class="btn btn-outline rounded-btn font-normal"
+                href="/Main/Analytics">Analytics</a
+              >
+            {:else}
+              <a
+                class="btn btn-ghost rounded-btn font-normal"
+                href="/Main/Analytics">Analytics</a
+              >
+            {/if}
           </li>
         </ul>
       </div>
@@ -235,12 +245,14 @@
             to consume/needs to produce. <br />
             Click on the "Transact with this node" button to go to the market page,
             where you can be part of our open market. <br /><br />
-            Users can also view the appliances/generators linked
-            to their node. If you wish to add an appliance you may select one from the drop down and click 
-            'add appliance'. If a user wishes to add a generator - you will have to click the 'to generator' 
-            button and then they will have to click on a generator category then specify a type for said generator. 
-            Once that is done - a user may enter in their typical usage times for that generator, however if they wish to stick 
-            to the default times then they can click on the 'skip' button. 
+            Users can also view the appliances/generators linked to their node. If
+            you wish to add an appliance you may select one from the drop down and
+            click 'add appliance'. If a user wishes to add a generator - you will
+            have to click the 'to generator' button and then they will have to click
+            on a generator category then specify a type for said generator. Once
+            that is done - a user may enter in their typical usage times for that
+            generator, however if they wish to stick to the default times then they
+            can click on the 'skip' button.
           </p>
         </div>
         <form method="dialog" class="modal-backdrop">

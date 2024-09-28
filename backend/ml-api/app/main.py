@@ -362,8 +362,8 @@ async def lifespan(app: FastAPI):
     conn.close()
 
 
-ml_api = FastAPI(lifespan=lifespan)
-ml_api.add_middleware(
+app = FastAPI(lifespan=lifespan)
+app.add_middleware(
     CORSMiddleware,
     allow_origins=[os.getenv("FRONTEND_URL")],
     allow_credentials=True,
@@ -399,7 +399,12 @@ class PredictResponse(BaseModel):
     message: str
 
 
-@ml_api.post("/price_predict", response_model=PredictResponse)
+@app.options("/price_predict")
+def price_predict():
+    return
+
+
+@app.post("/price_predict", response_model=PredictResponse)
 def price_predict(request: PredictRequest):
     cursor = conn.cursor()
     cursor.execute(

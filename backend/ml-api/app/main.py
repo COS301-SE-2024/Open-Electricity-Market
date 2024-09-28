@@ -373,13 +373,33 @@ def price_predict(request: PredictRequest):
     funds_total = cursor.fetchall()[0][0]
     cursor.execute(
         """
-        SELECT COUNT(*) FROM buy_orders WHERE sought_units > filled_units AND active = TRUE
+        SELECT COUNT(*) 
+        FROM (
+            SELECT 
+                transactions.buy_order_id
+                , SUM(transacted_units) AS ttu
+                , sought_units 
+            FROM transactions
+                INNER JOIN buy_orders ON transactions.buy_order_id = buy_orders.buy_order_id
+            GROUP BY transactions.buy_order_id, sought_units
+        )
+        WHERE ttu < sought_units
         """
     )
     num_open_buys = cursor.fetchall()[0][0]
     cursor.execute(
         """
-        SELECT COUNT(*) FROM sell_orders WHERE offered_units > claimed_units AND active = TRUE
+        SELECT COUNT(*) 
+        FROM (
+            SELECT 
+                transactions.sell_order_id
+                , SUM(transacted_units) AS ttu
+                , offered_units 
+            FROM transactions
+                INNER JOIN sell_orders ON transactions.sell_order_id = sell_orders.sell_order_id
+            GROUP BY transactions.sell_order_id, offered_units
+        )
+        WHERE ttu < offered_units
         """
     )
     num_open_sells = cursor.fetchall()[0][0]

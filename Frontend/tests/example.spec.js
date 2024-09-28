@@ -443,31 +443,8 @@ test.describe("signup page error testing", () => {
     await expect(page.getByText("Passwords must match")).toBeVisible();
   });
 
-  test("Testing valid signup for webkit", async ({ page, browserName }) => {
-    //Wait for page to finish loading
-    await page.waitForLoadState("networkidle");
-    test.skip(browserName === 'firefox' || browserName === 'chromium');
-    
-
-    //type in a valid email
-    await page.getByPlaceholder("Email").fill("" + process.env.EMAIL);
-    //Type in valid.
-
-    await page.locator('input[placeholder="First name"]').fill("" + process.env.FIRSTNAME);
-
-    await page.locator('input[placeholder="Surname"]').fill("" + process.env.SURNAME);
-
-    //
-    await page.locator('input[placeholder="Password"]').fill("" + process.env.PASSWORD);
-    await page.locator('input[placeholder="Re-enter password"]').fill("" + process.env.PASSWORD);
-    
-    // Click the "Create account" button.
-    await page.getByRole("button", { name: "Create account" }).click();
-    await page.waitForLoadState();
-    await page.waitForURL("http://site.localhost:5173/Main/Dashboard");
-
-  });
-  /*test("Testing valid signup for firefox", async ({ page, browserName }) => {
+  
+  test("Testing valid signup for firefox", async ({ page, browserName }) => {
     //Wait for page to finish loading
     await page.waitForLoadState("networkidle");
     test.skip(browserName === 'webkit' || browserName === 'chromium');
@@ -490,8 +467,32 @@ test.describe("signup page error testing", () => {
     await page.waitForLoadState();
     await page.waitForURL("http://site.localhost:5173/Main/Dashboard");
 
-  });*/
-  /*test("Testing valid signup for chromium", async ({ page, browserName }) => {
+  });
+  test("Testing valid signup for webkit", async ({ page, browserName }) => {
+    
+    test.skip(browserName === 'firefox' || browserName === 'chromium');
+    
+    //Wait for page to finish loading
+    await page.waitForLoadState("networkidle");
+    //type in a valid email
+    await page.getByPlaceholder("Email").fill("" + process.env.EMAIL);
+    //Type in valid.
+
+    await page.locator('input[placeholder="First name"]').fill("" + process.env.FIRSTNAME);
+
+    await page.locator('input[placeholder="Surname"]').fill("" + process.env.SURNAME);
+
+    //
+    await page.locator('input[placeholder="Password"]').fill("" + process.env.PASSWORD);
+    await page.locator('input[placeholder="Re-enter password"]').fill("" + process.env.PASSWORD);
+    
+    // Click the "Create account" button.
+    await page.getByRole("button", { name: "Create account" }).click();
+    //await page.waitForLoadState();
+    await page.waitForURL("http://site.localhost:5173/Main/Dashboard");
+
+  });
+  test("Testing valid signup for chromium", async ({ page, browserName }) => {
     //Wait for page to finish loading
     await page.waitForLoadState("networkidle");
     test.skip(browserName === 'webkit' || browserName === 'firefox');
@@ -513,6 +514,6 @@ test.describe("signup page error testing", () => {
     await page.waitForLoadState();
     await page.waitForURL("http://site.localhost:5173/Main/Dashboard");
 
-  });*/
+  });
 
 });

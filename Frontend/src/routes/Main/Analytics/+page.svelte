@@ -149,9 +149,9 @@
       const fdata = await response.json();
       console.log(fdata);
       if (fdata.message == "User's buying stats successfully retrieved") {
-        maxbuy = fdata.data.max_price.toFixed(2);
-        minbuy = fdata.data.min_price.toFixed(2);
-        avgbuy = fdata.data.average_price.toFixed(2);
+        maxbuy = (fdata.data.max_price * 1000).toFixed(2);
+        minbuy = (fdata.data.min_price * 1000).toFixed(2);
+        avgbuy = (fdata.data.average_price * 1000).toFixed(2);
       }
     } catch (error) {
       console.log(
@@ -176,9 +176,9 @@
       const fdata = await response.json();
       console.log(fdata);
       if (fdata.message == "User's selling stats successfully retrieved") {
-        maxsell = fdata.data.max_price.toFixed(2);
-        minsell = fdata.data.min_price.toFixed(2);
-        avgsell = fdata.data.average_price.toFixed(2);
+        maxsell = (fdata.data.max_price * 1000).toFixed(2);
+        minsell = (fdata.data.min_price * 1000).toFixed(2);
+        avgsell = (fdata.data.average_price * 1000).toFixed(2);
       }
     } catch (error) {
       console.log(
@@ -607,40 +607,76 @@
   <div id="lhs" class="md:w-1/2 md:pr-4 xs:w-1/1 ">
     <!-- market stats to go here -->
     <!-- {#if minbuy} -->
-    <span class="text-3xl text-white font-thin justify-start pl-2">
+    <span class="text-3xl font-thin justify-start pl-2">
       Market Stats
     </span>
-    <div class="flex min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
-      <div class="flex-col w-2/3">
-        <span class="font-light"
-          >Minimum price bought at: <span class="font-normal">R{minbuy}</span
-          ></span
-        >
-        <br />
-        <span class="font-light"
-          >Maximum price bought at: <span class="font-normal">R{maxbuy}</span
-          ></span
-        >
-        <br />
-        <span class="font-light"
-          >Average price bought at: <span class="font-normal">R{avgbuy}</span
-          ></span
-        >
-        <br />
-        <span class="font-light"
-          >Minimum price sold at: <span class="font-normal">R{minsell}</span
-          ></span
-        >
-        <br />
-        <span class="font-light"
-          >Maximum price sold at: <span class="font-normal">R{maxsell}</span
-          ></span
-        >
-        <br />
-        <span class="font-light"
-          >Average price sold at: <span class="font-normal">R{avgsell}</span
-          ></span
-        >
+    <div class="flex flex-row min-w-3/4 bg-base-100 rounded-2xl p-3 mt-3 overflow-auto">
+      <div class="card bg-gradient-to-b from-blue-400 to-primary mr-2">
+        <span class="font-normal card bg-blue-700 p-2 text-white rounded-sm rounded-t-xl justify-center text-center">
+          Minimum <br> buy price:
+        </span>
+        <span class="font-normal text-white text-4xl p-3 pt-2">R{minbuy}</span>
+      </div>
+      <!-- <div class="card bg-gradient-to-b from-blue-400 to-primary p-5 mx-2">
+        <span class="font-normal">
+          Maximum BUY: 
+        </span>
+        <span class="font-normal text-5xl">R{maxbuy}</span>
+      </div>
+      <div class="card bg-gradient-to-b from-blue-500 to-blue-600 p-5 mx-2">
+        <span class="font-normal">
+          Average BUY: 
+        </span>
+        <span class="font-normal text-5xl">R{avgbuy}</span>
+      </div> -->
+      <div class="card bg-gradient-to-b from-blue-400 to-primary mr-2">
+        <span class="font-normal card bg-blue-700 p-2 text-white rounded-sm rounded-t-xl justify-center text-center">
+          Maximum <br>buy price:
+        </span>
+        <span class="font-normal text-white text-4xl p-3 pt-2">R{maxbuy}</span>
+      </div>
+      <div class="card bg-gradient-to-b from-blue-400 to-primary mr-2">
+        <span class="font-normal card bg-blue-700 p-2 text-white rounded-sm rounded-t-xl justify-center text-center">
+          Average <br> buy price:
+        </span>
+        <span class="font-normal text-white text-4xl p-3 pt-2">R{avgbuy}</span>
+      </div>
+      <!-- previous attempts -->
+      <!-- <div class="card bg-gradient-to-b from-orange-400 to-orange-600 p-5 mx-2">
+        <span class="font-normal">
+          Minimum SELL: 
+        </span>
+        <span class="font-normal text-5xl">R{minsell}</span>
+      </div>
+      <div class="card bg-gradient-to-b from-orange-400 to-orange-600 p-5 mx-2">
+        <span class="font-normal">
+          Maximum SELL: 
+        </span>
+        <span class="font-normal text-5xl">R{maxsell}</span>
+      </div>
+      <div class="card bg-gradient-to-b from-orange-400 to-orange-600 p-5 ml-2">
+        <span class="font-normal">
+          Average SELL: 
+        </span>
+        <span class="font-normal text-5xl">R{avgsell}</span>
+      </div> -->
+      <div class="card bg-gradient-to-b from-orange-400 to-orange-600 mr-2">
+        <span class="font-normal card bg-orange-600 p-2 text-white rounded-sm rounded-t-xl justify-center text-center">
+          Minimum <br> sell price:
+        </span>
+        <span class="font-normal text-white text-4xl p-3 pt-2">R{minsell}</span>
+      </div>
+      <div class="card bg-gradient-to-b from-orange-400 to-orange-600 mr-2">
+        <span class="font-normal card bg-orange-600 p-2 text-white rounded-sm rounded-t-xl justify-center text-center">
+          Maximum <br> sell price:
+        </span>
+        <span class="font-normal text-white text-4xl p-3 pt-2">R{maxsell}</span>
+      </div>
+      <div class="card bg-gradient-to-b from-orange-400 to-orange-600 mr-2">
+        <span class="font-normal card bg-orange-600 p-2 text-white rounded-sm rounded-t-xl justify-center text-center">
+          Average <br> sell price:
+        </span>
+        <span class="font-normal text-white text-4xl p-3 pt-2">R{avgsell}</span>
       </div>
       {#if marketpiedata.length >= 1}
         <div class="w-1/2 mr-16">
@@ -695,28 +731,29 @@
     </div>
   </div>
 
-  <div id="rhs" class="md:w-1/2 xs:w-1/1 xs:mt-6 md:mt-0">
-    <span class="text-3xl text-white font-thin justify-start pl-2 xs:mt-4 md:mt-0">
+  <div id="rhs" class="xs:mt-6 md:mt-0">
+    <span class="text-3xl font-thin justify-start pl-2 xs:mt-4 md:mt-0">
       Node Stats
     </span>
-    <div class="md:flex sm:flex-col  md:flex-row bg-base-100 rounded-2xl p-5 mt-3 md:h-20 xs:h-50">
-      <select
-        bind:value={selectednode}
-        class="select select-bordered overflow-y-auto md:w-1/3 focus:outline-none "
-        on:change={() => {
-          updateNode();
-          updateAllAgent();
-        }}
-      >
-        <!-- <option value="" disabled id = "nodeselector">Select Node</option> -->
-        {#each listofnodes as node}
-          <option value={node}>{node}</option>
-        {/each}
-      </select>
-
-      <div class=" md:w-1/3 xs:w-36 xs:my-2 md:my-0 md:ml-0 ">
+    <div class="md:flex sm:flex-col md:flex-row bg-base-100 rounded-2xl p-3 mt-3 xs:h-50">
+      <div class="md:w-1/3 md:pr-2">
+        <select
+          bind:value={selectednode}
+          class="select select-bordered w-full overflow-y-auto mr-2 focus:outline-none "
+          on:change={() => {
+            updateNode();
+            updateAllAgent();
+          }}
+        >
+          <!-- <option value="" disabled id = "nodeselector">Select Node</option> -->
+          {#each listofnodes as node}
+            <option value={node}>{node}</option>
+          {/each}
+        </select>
+      </div>
+      <div class="md:w-1/3 md:px-2 md:py-0 py-2">
         <button
-          class="select select-bordered w-full text-left flex items-center h-full focus:outline-none z-9000"
+          class="select select-bordered w-full text-left flex items-center focus:outline-none z-9000"
           on:click={toggleDropdown}>Select Appliances</button
         >
 
@@ -739,10 +776,9 @@
           </div>
         {/if}
       </div>
-
-      <div class=" md:w-1/3 xs:w-36 xs:my-2 md:my-0 md:ml-0">
+      <div class="md:w-1/3 md:pl-2">
         <button
-          class="select select-bordered w-full text-left flex items-center h-full focus:outline-none z-9000"
+          class="select select-bordered w-full text-left flex items-center focus:outline-none z-9000"
           on:click={toggleDropdownGenerators}>Select Generators</button
         >
 

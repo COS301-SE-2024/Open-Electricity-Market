@@ -50,9 +50,23 @@ export const sampleChartConfig = {
       y: {
         beginAtZero: true,
       },
+      x: {
+        title: {
+          display: true,
+          text: "Time (Minutes)", 
+        },
+      },
+      y: {
+        beginAtZero: true,
+        title: {
+          display: true,
+          text: "Price per kW (ZAR)", 
+        },
+      },
     },
     options: {
       responsive: true,
     },
+    
   },
 };

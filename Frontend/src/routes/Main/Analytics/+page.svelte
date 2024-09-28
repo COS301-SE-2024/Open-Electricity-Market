@@ -53,6 +53,9 @@
 
   let pricepredictordata = []; 
 
+  let bestTime; 
+  let bestPrice; 
+
   onMount(async () => {
     // token check and refresh
     const session = sessionStorage.getItem("Token");
@@ -160,9 +163,11 @@
       console.log(totalImpedance +" "+ consumerVoltage +" "+ transmissionLineVoltage +" "+ generatorVoltage + " "+currHour +" "+ currMinute +" "+ timeFrame); 
 
       const fdata = await response.json();
-      console.log(fdata)
-      pricepredictordata = fdata.data.price_list.map(item=> item.price); 
-      // alert(pricepredictordata); 
+   
+      pricepredictordata = fdata.data.price_list.map(item=> item.price*1000); 
+      
+      bestTime = fdata.data.best.hour.toString().padStart(2, '0') + ":" + fdata.data.best.minute.toString().padStart(2, '0'); 
+      bestPrice = fdata.data.best.price.toFixed(2);  
      
    
     } catch (error) {
@@ -714,10 +719,22 @@
     <!-- <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
       <PieChart {marketpiedata} />
     </div> -->
-
+    <span class="text-3xl text-white font-thin justify-start pl-2">
+      AI Generated Price Prediction
+    </span>
     <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
       <!-- put w-1/2 for chart   -->
+       
        <PricePredictorChart class = "w-1/2" data = {pricepredictordata} />
+     
+    </div>
+
+    <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
+     
+      
+      <span>Best buying time: {bestTime}</span>
+      <br>
+      <span>Best price: R{bestPrice}</span>
      
     </div>
 

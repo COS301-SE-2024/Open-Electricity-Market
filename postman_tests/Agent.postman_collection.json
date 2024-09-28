@@ -1,0 +1,520 @@
+{
+	"info": {
+		"_postman_id": "ec9c6ad1-94a8-485d-b0be-9451f1635ba0",
+		"name": "Agent",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "26671993"
+	},
+	"item": [
+		{
+			"name": "Setup",
+			"item": [
+				{
+					"name": "RegisterWIthCorrectDetail",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful register\",function () {",
+									"    pm.expect(pm.response.json().message).to.be.oneOf([\"New user added\",\"Failed to create new user\"])",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"tester@example.com\",\n  \"first_name\": \"test\",\n  \"last_name\": \"test\",\n  \"password\": \"test@123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/register",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "LoginWithCorrectDetail",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful login\",function () {",
+									"    pm.expect(pm.response.json().message).to.be.eq(\"User logged in\")",
+									"});",
+									"pm.environment.set(\"marker_token\", pm.response.json().data.token);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"tester@example.com\",\n  \"password\": \"test@123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/login",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AddNodeWithToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful add token\",function () {",
+									"    pm.expect(pm.response.json().message).to.be.eq(\"New Node Added\")",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{marker_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Business\",\n  \"location_x\": 28,\n  \"location_y\": -26.5\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/add_node",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"add_node"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetNodesWithToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful get tokens\",function () {",
+									"    pm.expect(pm.response.json().message).to.be.eq(\"List of nodes successfully retrieved\")",
+									"});",
+									"pm.environment.set(\"node_id\", pm.response.json().data[0].node_id);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{marker_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"limit\": 10\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/get_nodes",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"get_nodes"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "AvailibleApplianceWithCorrectDetail",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Succesful Appliances\",function () {",
+							"    pm.expect(pm.response.json().hasOwnProperty(\"Appliances\")).to.be.eq(true);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "https://{{agent_url}}/availible_appliances",
+					"protocol": "https",
+					"host": [
+						"{{agent_url}}"
+					],
+					"path": [
+						"availible_appliances"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "AvailibleGeneratorWithCorrectDetail",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Succesful Generators\",function () {",
+							"    pm.expect(pm.response.json().hasOwnProperty(\"generators\")).to.be.eq(true);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "https://{{agent_url}}/availible_generators",
+					"protocol": "https",
+					"host": [
+						"{{agent_url}}"
+					],
+					"path": [
+						"availible_generators"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "AddAgentWithToken",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Succesful Add Agent\",function () {",
+							"    pm.expect(pm.response.json().message).to.be.oneOf([\"Succesfully added agent\",\"An agent acciotaed with that email already exits\"]);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{marker_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"tester@example.com\",\n    \"password\": \"test@123\",\n    \"token\" : \"{{marker_token}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{agent_url}}/add_agent",
+					"protocol": "https",
+					"host": [
+						"{{agent_url}}"
+					],
+					"path": [
+						"add_agent"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "AddApplianceWithToken",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Succesful Add Appliance\",function () {",
+							"    pm.expect(pm.response.json().message).to.be.oneOf([\"Succesfully added appliances\",\"You don't seem to have permission\"]);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{marker_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"tester@example.com\",\n    \"node_id\": \"{{node_id}}\",\n    \"appliances\": [\n        {\n            \"appliance_type\": \"WashingMachine\",\n            \"on_periods\": [\n                {\n                    \"start\": 15.0,\n                    \"end\": 800.0\n                }\n            ]\n        }\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{agent_url}}/add_appliances",
+					"protocol": "https",
+					"host": [
+						"{{agent_url}}"
+					],
+					"path": [
+						"add_appliances"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "AddGeneratorWithToken",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Succesful Add Agent\",function () {",
+							"    pm.expect(pm.response.json().message).to.be.oneOf([\"Succesfully added generators\",\"You don't seem to have permission\"]);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{marker_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "\n\n{\n    \"email\": \"tester@example.com\",\n    \"node_id\": \"{{node_id}}\",\n    \"generators\": [\n        {\n            \"generator_type\": {\n                \"NuclearReactor\": \"BWR\"\n            },\n            \"on_periods\": [\n                {\n                    \"start\": 15.0,\n                    \"end\": 800.0\n                }\n            ]\n        }\n    ]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{agent_url}}/add_generators",
+					"protocol": "https",
+					"host": [
+						"{{agent_url}}"
+					],
+					"path": [
+						"add_generators"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetCurvesWithToken",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Succesful Appliances\",function () {",
+							"    pm.expect(pm.response.json().message).to.be.eq(\"Here is the detail\");",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{marker_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"tester@example.com\",\n    \"node_id\" : \"{{node_id}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{agent_url}}/get_curve",
+					"protocol": "https",
+					"host": [
+						"{{agent_url}}"
+					],
+					"path": [
+						"get_curve"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetProductionVConsumptionWithToken",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Succesful Appliances\",function () {",
+							"    pm.expect(pm.response.json().message).to.be.eq(\"Here is the detail\");",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{marker_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"node_id\" : \"{{node_id}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{agent_url}}/get_consumed_produced",
+					"protocol": "https",
+					"host": [
+						"{{agent_url}}"
+					],
+					"path": [
+						"get_consumed_produced"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

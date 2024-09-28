@@ -50,6 +50,8 @@
   let currMinute; 
   const timeFrame = 12; 
 
+  let pricepredictordata = []; 
+
   onMount(async () => {
     // token check and refresh
     const session = sessionStorage.getItem("Token");
@@ -89,6 +91,9 @@
     await getSellHistory("Day1");
     await getConsumedProduced();
     await getCurve();
+
+    await fetchGridStats(); 
+    await fetchPricePrediction(); 
 
     console.log("Appliances are: ", appliances);
     console.log("Selected Appliances are: ", selectedAppliances);
@@ -130,6 +135,40 @@
       );
     }
   } 
+
+  async function fetchPricePrediction(){
+    try {
+      const response = await fetch(`${API_URL_ML}/price_predict`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+         
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          total_impedance: totalImpedance,
+          consumer_voltage: consumerVoltage,
+          transmission_line_voltage: transmissionLineVoltage,
+          generator_voltage: generatorVoltage,
+          current_hour: currHour,
+          current_minute: currMinute,
+          time_frame: timeFrame
+        }),
+      });
+
+      const fdata = await response.json();
+      
+      alert(fdata); 
+     
+   
+    } catch (error) {
+      console.log(
+        "There was an error fetching the price predictions from the ML api:",
+        error
+      );
+    }
+  }
 
   function toggleAppliance(appliance) {
     if (selectedAppliances.includes(appliance)) {
@@ -674,43 +713,12 @@
     </div> -->
 
     <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
-      
-      <div class="form-control">
-        <!-- svelte-ignore a11y-label-has-associated-control -->
-        <select
-          bind:value={buyChartPeriod}
-          class="select select-bordered max-h-40 overflow-y-auto"
-          on:change={() => getBuyHistory(buyChartPeriod)} 
-        >
-          <option value="Day1" default selected>24h</option>
-          <option value="Week1">7d</option>
-          <option value="Month1">1M</option>
-          <option value="Month3">3M</option>
-          <option value="Month6">6M</option>
-          <option value="Year1">1Y</option>
-        </select>
-      </div>
-      <PriceHistoryChart class="w-1/2" data={buyhistorydata} />
+      <!-- put w-1/2 for chart   -->
+       <PricePredictorChart class = "w-1/2" data = {pricepredictordata} />
+     
     </div>
 
-    <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
-      <div class="form-control">
-        <!-- svelte-ignore a11y-label-has-associated-control -->
-        <select
-          bind:value={sellChartPeriod}
-          class="select select-bordered max-h-40 overflow-y-auto"
-          on:change={() => getSellHistory(sellChartPeriod)} 
-        >
-          <option value="Day1" default selected>24h</option>
-          <option value="Week1">7d</option>
-          <option value="Month1">1M</option>
-          <option value="Month3">3M</option>
-          <option value="Month6">6M</option>
-          <option value="Year1">1Y</option>
-        </select>
-      </div>
-      <PriceHistoryChart class="w-1/2" data={sellhistorydata} />
-    </div>
+    
   </div>
 
   <div id="rhs" class="md:w-1/2 xs:w-1/1 xs:mt-6 md:mt-0">

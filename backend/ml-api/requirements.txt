@@ -8,6 +8,7 @@ async-lru==2.0.4
 attrs==24.2.0
 babel==2.16.0
 beautifulsoup4==4.12.3
+black==24.8.0
 bleach==6.1.0
 certifi==2024.8.30
 cffi==1.17.1
@@ -54,6 +55,7 @@ MarkupSafe==2.1.5
 matplotlib-inline==0.1.7
 mdurl==0.1.2
 mistune==3.0.2
+mypy-extensions==1.0.0
 nbclient==0.10.0
 nbconvert==7.16.4
 nbformat==5.10.4
@@ -66,6 +68,7 @@ packaging==24.1
 pandas==2.2.3
 pandocfilters==1.5.1
 parso==0.8.4
+pathspec==0.12.1
 pexpect==4.9.0
 platformdirs==4.3.6
 prometheus_client==0.21.0

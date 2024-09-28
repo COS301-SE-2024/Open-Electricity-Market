@@ -1,0 +1,1484 @@
+NAME                        CPU %
+amplify-agent-1             0.21%
+amplify-simulation-1        0.34%
+amplify-market-platform-1   6.20%
+amplify-caddy-1             0.00%
+amplify-db-1                3.00%
+amplify-site-1              0.01%
+NAME                        CPU %
+amplify-agent-1             0.20%
+amplify-simulation-1        0.32%
+amplify-market-platform-1   6.18%
+amplify-caddy-1             0.01%
+amplify-db-1                3.01%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.18%
+amplify-simulation-1        0.32%
+amplify-market-platform-1   6.09%
+amplify-caddy-1             0.03%
+amplify-db-1                2.97%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.23%
+amplify-simulation-1        0.32%
+amplify-market-platform-1   6.24%
+amplify-caddy-1             0.00%
+amplify-db-1                4.98%
+amplify-site-1              0.01%
+NAME                        CPU %
+amplify-agent-1             1.94%
+amplify-simulation-1        0.31%
+amplify-market-platform-1   6.15%
+amplify-caddy-1             0.00%
+amplify-db-1                2.98%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.16%
+amplify-simulation-1        0.35%
+amplify-market-platform-1   6.19%
+amplify-caddy-1             0.00%
+amplify-db-1                3.01%
+amplify-site-1              0.01%
+NAME                        CPU %
+amplify-agent-1             0.21%
+amplify-simulation-1        0.36%
+amplify-market-platform-1   6.21%
+amplify-caddy-1             0.02%
+amplify-db-1                3.45%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.11%
+amplify-simulation-1        0.22%
+amplify-market-platform-1   5.51%
+amplify-caddy-1             0.00%
+amplify-db-1                5.67%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             1.62%
+amplify-simulation-1        0.36%
+amplify-market-platform-1   8.41%
+amplify-caddy-1             0.00%
+amplify-db-1                74.28%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.19%
+amplify-simulation-1        0.32%
+amplify-market-platform-1   5.91%
+amplify-caddy-1             0.00%
+amplify-db-1                3.19%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             1.86%
+amplify-simulation-1        0.39%
+amplify-market-platform-1   15.47%
+amplify-caddy-1             0.02%
+amplify-db-1                83.32%
+amplify-site-1              0.01%
+NAME                        CPU %
+amplify-agent-1             0.22%
+amplify-simulation-1        0.33%
+amplify-market-platform-1   6.30%
+amplify-caddy-1             0.00%
+amplify-db-1                5.09%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.23%
+amplify-simulation-1        0.35%
+amplify-market-platform-1   26.41%
+amplify-caddy-1             0.00%
+amplify-db-1                3.06%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.22%
+amplify-simulation-1        0.35%
+amplify-market-platform-1   6.24%
+amplify-caddy-1             0.00%
+amplify-db-1                3.00%
+amplify-site-1              0.01%
+NAME                        CPU %
+amplify-agent-1             3.67%
+amplify-simulation-1        0.44%
+amplify-market-platform-1   23.54%
+amplify-caddy-1             0.01%
+amplify-db-1                162.73%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.06%
+amplify-simulation-1        0.27%
+amplify-market-platform-1   3.77%
+amplify-caddy-1             0.00%
+amplify-db-1                2.37%
+amplify-site-1              0.01%
+NAME                        CPU %
+amplify-agent-1             4.80%
+amplify-simulation-1        0.85%
+amplify-market-platform-1   25.47%
+amplify-caddy-1             0.00%
+amplify-db-1                209.59%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             2.09%
+amplify-simulation-1        0.37%
+amplify-market-platform-1   15.05%
+amplify-caddy-1             0.00%
+amplify-db-1                82.03%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             3.57%
+amplify-simulation-1        0.39%
+amplify-market-platform-1   24.05%
+amplify-caddy-1             0.00%
+amplify-db-1                145.89%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             1.83%
+amplify-simulation-1        0.34%
+amplify-market-platform-1   14.84%
+amplify-caddy-1             0.00%
+amplify-db-1                84.80%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.62%
+amplify-simulation-1        0.33%
+amplify-market-platform-1   6.19%
+amplify-caddy-1             0.00%
+amplify-db-1                4.24%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.22%
+amplify-simulation-1        0.34%
+amplify-market-platform-1   6.16%
+amplify-caddy-1             0.00%
+amplify-db-1                3.97%
+amplify-site-1              0.01%
+NAME                        CPU %
+amplify-agent-1             2.17%
+amplify-simulation-1        0.35%
+amplify-market-platform-1   22.09%
+amplify-caddy-1             0.00%
+amplify-db-1                87.28%
+amplify-site-1              0.01%
+NAME                        CPU %
+amplify-agent-1             4.55%
+amplify-simulation-1        0.42%
+amplify-market-platform-1   25.52%
+amplify-caddy-1             0.00%
+amplify-db-1                213.98%
+amplify-site-1              0.01%
+NAME                        CPU %
+amplify-agent-1             0.19%
+amplify-simulation-1        0.36%
+amplify-market-platform-1   6.18%
+amplify-caddy-1             0.00%
+amplify-db-1                3.76%
+amplify-site-1              0.01%
+NAME                        CPU %
+amplify-agent-1             0.20%
+amplify-simulation-1        0.34%
+amplify-market-platform-1   9.09%
+amplify-caddy-1             0.00%
+amplify-db-1                5.58%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.22%
+amplify-simulation-1        0.31%
+amplify-market-platform-1   6.15%
+amplify-caddy-1             0.00%
+amplify-db-1                3.09%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             3.57%
+amplify-simulation-1        0.44%
+amplify-market-platform-1   25.95%
+amplify-caddy-1             0.00%
+amplify-db-1                173.40%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.16%
+amplify-simulation-1        0.36%
+amplify-market-platform-1   5.23%
+amplify-caddy-1             0.02%
+amplify-db-1                1.30%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             4.42%
+amplify-simulation-1        0.44%
+amplify-market-platform-1   30.25%
+amplify-caddy-1             0.00%
+amplify-db-1                185.48%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             2.23%
+amplify-simulation-1        0.82%
+amplify-market-platform-1   15.03%
+amplify-caddy-1             0.00%
+amplify-db-1                82.23%
+amplify-site-1              0.01%
+NAME                        CPU %
+amplify-agent-1             3.70%
+amplify-simulation-1        0.38%
+amplify-market-platform-1   23.98%
+amplify-caddy-1             0.00%
+amplify-db-1                136.70%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             1.96%
+amplify-simulation-1        0.42%
+amplify-market-platform-1   9.65%
+amplify-caddy-1             0.00%
+amplify-db-1                80.12%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.62%
+amplify-simulation-1        0.33%
+amplify-market-platform-1   6.26%
+amplify-caddy-1             0.00%
+amplify-db-1                3.72%
+amplify-site-1              0.01%
+NAME                        CPU %
+amplify-agent-1             0.22%
+amplify-simulation-1        0.34%
+amplify-market-platform-1   6.24%
+amplify-caddy-1             0.00%
+amplify-db-1                3.05%
+amplify-site-1              0.01%
+NAME                        CPU %
+amplify-agent-1             1.77%
+amplify-simulation-1        0.36%
+amplify-market-platform-1   13.31%
+amplify-caddy-1             0.00%
+amplify-db-1                60.41%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             5.10%
+amplify-simulation-1        0.39%
+amplify-market-platform-1   20.50%
+amplify-caddy-1             0.00%
+amplify-db-1                228.33%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.22%
+amplify-simulation-1        0.34%
+amplify-market-platform-1   6.24%
+amplify-caddy-1             0.00%
+amplify-db-1                3.04%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.31%
+amplify-simulation-1        0.37%
+amplify-market-platform-1   8.00%
+amplify-caddy-1             0.00%
+amplify-db-1                23.69%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.18%
+amplify-simulation-1        0.33%
+amplify-market-platform-1   6.32%
+amplify-caddy-1             0.00%
+amplify-db-1                5.37%
+amplify-site-1              0.01%
+NAME                        CPU %
+amplify-agent-1             4.52%
+amplify-simulation-1        0.49%
+amplify-market-platform-1   26.98%
+amplify-caddy-1             0.00%
+amplify-db-1                210.07%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.21%
+amplify-simulation-1        0.35%
+amplify-market-platform-1   6.24%
+amplify-caddy-1             0.00%
+amplify-db-1                3.60%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             3.98%
+amplify-simulation-1        0.45%
+amplify-market-platform-1   32.63%
+amplify-caddy-1             0.01%
+amplify-db-1                168.60%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.20%
+amplify-simulation-1        0.33%
+amplify-market-platform-1   13.23%
+amplify-caddy-1             0.00%
+amplify-db-1                70.07%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             4.34%
+amplify-simulation-1        0.41%
+amplify-market-platform-1   19.15%
+amplify-caddy-1             0.00%
+amplify-db-1                166.24%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             1.83%
+amplify-simulation-1        0.35%
+amplify-market-platform-1   16.12%
+amplify-caddy-1             0.01%
+amplify-db-1                81.70%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.57%
+amplify-simulation-1        0.28%
+amplify-market-platform-1   6.23%
+amplify-caddy-1             0.00%
+amplify-db-1                3.73%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.19%
+amplify-simulation-1        0.32%
+amplify-market-platform-1   6.36%
+amplify-caddy-1             0.00%
+amplify-db-1                3.08%
+amplify-site-1              0.01%
+NAME                        CPU %
+amplify-agent-1             0.82%
+amplify-simulation-1        0.36%
+amplify-market-platform-1   12.90%
+amplify-caddy-1             0.00%
+amplify-db-1                22.67%
+amplify-site-1              0.01%
+NAME                        CPU %
+amplify-agent-1             4.48%
+amplify-simulation-1        0.39%
+amplify-market-platform-1   24.64%
+amplify-caddy-1             0.00%
+amplify-db-1                199.70%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.19%
+amplify-simulation-1        0.35%
+amplify-market-platform-1   6.18%
+amplify-caddy-1             0.00%
+amplify-db-1                3.01%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             1.10%
+amplify-simulation-1        0.36%
+amplify-market-platform-1   8.30%
+amplify-caddy-1             0.00%
+amplify-db-1                40.45%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.18%
+amplify-simulation-1        0.36%
+amplify-market-platform-1   6.05%
+amplify-caddy-1             0.00%
+amplify-db-1                2.98%
+amplify-site-1              0.01%
+NAME                        CPU %
+amplify-agent-1             5.29%
+amplify-simulation-1        0.44%
+amplify-market-platform-1   21.90%
+amplify-caddy-1             0.00%
+amplify-db-1                242.21%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.18%
+amplify-simulation-1        0.33%
+amplify-market-platform-1   6.15%
+amplify-caddy-1             0.00%
+amplify-db-1                3.03%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             3.70%
+amplify-simulation-1        0.47%
+amplify-market-platform-1   26.46%
+amplify-caddy-1             0.00%
+amplify-db-1                163.63%
+amplify-site-1              0.01%
+NAME                        CPU %
+amplify-agent-1             1.17%
+amplify-simulation-1        0.32%
+amplify-market-platform-1   6.19%
+amplify-caddy-1             0.00%
+amplify-db-1                47.43%
+amplify-site-1              0.01%
+NAME                        CPU %
+amplify-agent-1             4.14%
+amplify-simulation-1        0.43%
+amplify-market-platform-1   24.46%
+amplify-caddy-1             0.00%
+amplify-db-1                174.29%
+amplify-site-1              0.01%
+NAME                        CPU %
+amplify-agent-1             2.06%
+amplify-simulation-1        0.40%
+amplify-market-platform-1   16.86%
+amplify-caddy-1             0.00%
+amplify-db-1                93.45%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.62%
+amplify-simulation-1        0.32%
+amplify-market-platform-1   8.19%
+amplify-caddy-1             0.02%
+amplify-db-1                4.46%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.20%
+amplify-simulation-1        0.39%
+amplify-market-platform-1   6.24%
+amplify-caddy-1             0.00%
+amplify-db-1                2.98%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.35%
+amplify-simulation-1        0.37%
+amplify-market-platform-1   8.60%
+amplify-caddy-1             0.00%
+amplify-db-1                3.96%
+amplify-site-1              0.01%
+NAME                        CPU %
+amplify-agent-1             4.09%
+amplify-simulation-1        0.45%
+amplify-market-platform-1   32.58%
+amplify-caddy-1             0.03%
+amplify-db-1                165.83%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.23%
+amplify-simulation-1        0.34%
+amplify-market-platform-1   6.29%
+amplify-caddy-1             0.00%
+amplify-db-1                3.01%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             1.42%
+amplify-simulation-1        0.34%
+amplify-market-platform-1   8.34%
+amplify-caddy-1             0.00%
+amplify-db-1                77.35%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.26%
+amplify-simulation-1        0.33%
+amplify-market-platform-1   15.78%
+amplify-caddy-1             0.00%
+amplify-db-1                16.87%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             3.88%
+amplify-simulation-1        0.50%
+amplify-market-platform-1   26.12%
+amplify-caddy-1             0.00%
+amplify-db-1                234.75%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.22%
+amplify-simulation-1        0.35%
+amplify-market-platform-1   6.18%
+amplify-caddy-1             0.00%
+amplify-db-1                3.31%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             3.25%
+amplify-simulation-1        0.33%
+amplify-market-platform-1   23.11%
+amplify-caddy-1             0.00%
+amplify-db-1                137.23%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.48%
+amplify-simulation-1        0.33%
+amplify-market-platform-1   12.85%
+amplify-caddy-1             0.00%
+amplify-db-1                7.15%
+amplify-site-1              0.01%
+NAME                        CPU %
+amplify-agent-1             4.66%
+amplify-simulation-1        0.42%
+amplify-market-platform-1   20.45%
+amplify-caddy-1             0.00%
+amplify-db-1                182.15%
+amplify-site-1              0.01%
+NAME                        CPU %
+amplify-agent-1             2.90%
+amplify-simulation-1        0.42%
+amplify-market-platform-1   31.45%
+amplify-caddy-1             0.00%
+amplify-db-1                121.44%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.58%
+amplify-simulation-1        0.33%
+amplify-market-platform-1   6.19%
+amplify-caddy-1             0.00%
+amplify-db-1                4.46%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.20%
+amplify-simulation-1        0.30%
+amplify-market-platform-1   6.17%
+amplify-caddy-1             0.00%
+amplify-db-1                5.20%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.15%
+amplify-simulation-1        0.31%
+amplify-market-platform-1   6.22%
+amplify-caddy-1             0.00%
+amplify-db-1                2.96%
+amplify-site-1              0.01%
+NAME                        CPU %
+amplify-agent-1             3.80%
+amplify-simulation-1        0.39%
+amplify-market-platform-1   23.83%
+amplify-caddy-1             0.00%
+amplify-db-1                160.95%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.23%
+amplify-simulation-1        0.32%
+amplify-market-platform-1   6.23%
+amplify-caddy-1             0.03%
+amplify-db-1                5.72%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             1.95%
+amplify-simulation-1        0.39%
+amplify-market-platform-1   23.74%
+amplify-caddy-1             0.00%
+amplify-db-1                84.83%
+amplify-site-1              0.01%
+NAME                        CPU %
+amplify-agent-1             0.99%
+amplify-simulation-1        0.40%
+amplify-market-platform-1   8.61%
+amplify-caddy-1             0.00%
+amplify-db-1                40.52%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             4.95%
+amplify-simulation-1        0.46%
+amplify-market-platform-1   34.94%
+amplify-caddy-1             0.00%
+amplify-db-1                225.61%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.18%
+amplify-simulation-1        0.32%
+amplify-market-platform-1   5.97%
+amplify-caddy-1             0.00%
+amplify-db-1                2.89%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.58%
+amplify-simulation-1        0.36%
+amplify-market-platform-1   21.26%
+amplify-caddy-1             0.00%
+amplify-db-1                99.37%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.22%
+amplify-simulation-1        0.21%
+amplify-market-platform-1   8.70%
+amplify-caddy-1             0.00%
+amplify-db-1                3.43%
+amplify-site-1              0.01%
+NAME                        CPU %
+amplify-agent-1             4.15%
+amplify-simulation-1        0.44%
+amplify-market-platform-1   23.57%
+amplify-caddy-1             0.00%
+amplify-db-1                172.70%
+amplify-site-1              0.01%
+NAME                        CPU %
+amplify-agent-1             3.95%
+amplify-simulation-1        0.40%
+amplify-market-platform-1   19.07%
+amplify-caddy-1             0.00%
+amplify-db-1                184.24%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.17%
+amplify-simulation-1        0.13%
+amplify-market-platform-1   6.18%
+amplify-caddy-1             0.00%
+amplify-db-1                3.71%
+amplify-site-1              0.01%
+NAME                        CPU %
+amplify-agent-1             1.98%
+amplify-simulation-1        0.28%
+amplify-market-platform-1   6.18%
+amplify-caddy-1             0.00%
+amplify-db-1                3.57%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.05%
+amplify-simulation-1        0.93%
+amplify-market-platform-1   1.97%
+amplify-caddy-1             0.00%
+amplify-db-1                3.52%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             3.22%
+amplify-simulation-1        0.39%
+amplify-market-platform-1   23.24%
+amplify-caddy-1             0.00%
+amplify-db-1                148.76%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.21%
+amplify-simulation-1        0.28%
+amplify-market-platform-1   6.24%
+amplify-caddy-1             0.00%
+amplify-db-1                3.83%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             2.64%
+amplify-simulation-1        0.40%
+amplify-market-platform-1   17.08%
+amplify-caddy-1             0.31%
+amplify-db-1                123.32%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.21%
+amplify-simulation-1        0.33%
+amplify-market-platform-1   10.79%
+amplify-caddy-1             0.00%
+amplify-db-1                81.46%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             5.13%
+amplify-simulation-1        0.48%
+amplify-market-platform-1   30.52%
+amplify-caddy-1             0.00%
+amplify-db-1                233.28%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.21%
+amplify-simulation-1        0.29%
+amplify-market-platform-1   6.21%
+amplify-caddy-1             0.01%
+amplify-db-1                5.54%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             2.02%
+amplify-simulation-1        0.36%
+amplify-market-platform-1   15.74%
+amplify-caddy-1             0.00%
+amplify-db-1                81.43%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.17%
+amplify-simulation-1        0.29%
+amplify-market-platform-1   6.28%
+amplify-caddy-1             0.00%
+amplify-db-1                2.95%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             3.65%
+amplify-simulation-1        0.41%
+amplify-market-platform-1   25.79%
+amplify-caddy-1             0.00%
+amplify-db-1                162.71%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             3.77%
+amplify-simulation-1        0.42%
+amplify-market-platform-1   22.86%
+amplify-caddy-1             0.00%
+amplify-db-1                175.41%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.61%
+amplify-simulation-1        0.31%
+amplify-market-platform-1   6.24%
+amplify-caddy-1             0.00%
+amplify-db-1                3.75%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.21%
+amplify-simulation-1        0.30%
+amplify-market-platform-1   8.04%
+amplify-caddy-1             0.00%
+amplify-db-1                3.06%
+amplify-site-1              0.01%
+NAME                        CPU %
+amplify-agent-1             0.61%
+amplify-simulation-1        0.23%
+amplify-market-platform-1   6.28%
+amplify-caddy-1             0.00%
+amplify-db-1                3.74%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             4.03%
+amplify-simulation-1        0.46%
+amplify-market-platform-1   28.03%
+amplify-caddy-1             0.00%
+amplify-db-1                184.55%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.20%
+amplify-simulation-1        0.29%
+amplify-market-platform-1   6.20%
+amplify-caddy-1             0.00%
+amplify-db-1                3.13%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             3.23%
+amplify-simulation-1        0.42%
+amplify-market-platform-1   17.84%
+amplify-caddy-1             0.00%
+amplify-db-1                160.46%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             2.01%
+amplify-simulation-1        0.38%
+amplify-market-platform-1   11.90%
+amplify-caddy-1             0.00%
+amplify-db-1                79.91%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             4.40%
+amplify-simulation-1        0.39%
+amplify-market-platform-1   30.65%
+amplify-caddy-1             0.00%
+amplify-db-1                191.93%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.22%
+amplify-simulation-1        0.31%
+amplify-market-platform-1   6.20%
+amplify-caddy-1             0.00%
+amplify-db-1                3.62%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             1.70%
+amplify-simulation-1        0.30%
+amplify-market-platform-1   13.17%
+amplify-caddy-1             0.01%
+amplify-db-1                50.31%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.06%
+amplify-simulation-1        0.28%
+amplify-market-platform-1   2.27%
+amplify-caddy-1             0.00%
+amplify-db-1                2.30%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             4.01%
+amplify-simulation-1        0.44%
+amplify-market-platform-1   24.66%
+amplify-caddy-1             0.00%
+amplify-db-1                165.63%
+amplify-site-1              0.01%
+NAME                        CPU %
+amplify-agent-1             4.37%
+amplify-simulation-1        0.45%
+amplify-market-platform-1   24.31%
+amplify-caddy-1             0.01%
+amplify-db-1                183.69%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.17%
+amplify-simulation-1        0.32%
+amplify-market-platform-1   6.34%
+amplify-caddy-1             0.00%
+amplify-db-1                4.03%
+amplify-site-1              0.01%
+NAME                        CPU %
+amplify-agent-1             0.16%
+amplify-simulation-1        0.28%
+amplify-market-platform-1   6.13%
+amplify-caddy-1             0.00%
+amplify-db-1                2.94%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             1.90%
+amplify-simulation-1        0.17%
+amplify-market-platform-1   6.21%
+amplify-caddy-1             0.00%
+amplify-db-1                4.83%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             4.67%
+amplify-simulation-1        0.44%
+amplify-market-platform-1   24.98%
+amplify-caddy-1             0.00%
+amplify-db-1                202.54%
+amplify-site-1              0.01%
+NAME                        CPU %
+amplify-agent-1             0.17%
+amplify-simulation-1        0.20%
+amplify-market-platform-1   6.09%
+amplify-caddy-1             0.00%
+amplify-db-1                3.27%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             4.00%
+amplify-simulation-1        0.46%
+amplify-market-platform-1   28.31%
+amplify-caddy-1             0.00%
+amplify-db-1                177.14%
+amplify-site-1              0.01%
+NAME                        CPU %
+amplify-agent-1             1.92%
+amplify-simulation-1        0.34%
+amplify-market-platform-1   14.49%
+amplify-caddy-1             0.00%
+amplify-db-1                80.35%
+amplify-site-1              0.01%
+NAME                        CPU %
+amplify-agent-1             3.81%
+amplify-simulation-1        0.49%
+amplify-market-platform-1   25.76%
+amplify-caddy-1             0.00%
+amplify-db-1                180.63%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             4.55%
+amplify-simulation-1        0.30%
+amplify-market-platform-1   8.10%
+amplify-caddy-1             0.00%
+amplify-db-1                10.61%
+amplify-site-1              0.01%
+NAME                        CPU %
+amplify-agent-1             0.69%
+amplify-simulation-1        0.29%
+amplify-market-platform-1   12.81%
+amplify-caddy-1             0.00%
+amplify-db-1                10.62%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.03%
+amplify-simulation-1        0.23%
+amplify-market-platform-1   0.02%
+amplify-caddy-1             0.00%
+amplify-db-1                0.81%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             3.31%
+amplify-simulation-1        0.34%
+amplify-market-platform-1   22.25%
+amplify-caddy-1             0.00%
+amplify-db-1                131.33%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             4.33%
+amplify-simulation-1        0.51%
+amplify-market-platform-1   33.27%
+amplify-caddy-1             0.00%
+amplify-db-1                194.17%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.54%
+amplify-simulation-1        0.24%
+amplify-market-platform-1   6.06%
+amplify-caddy-1             0.02%
+amplify-db-1                4.05%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.06%
+amplify-simulation-1        0.12%
+amplify-market-platform-1   5.79%
+amplify-caddy-1             0.00%
+amplify-db-1                2.64%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.66%
+amplify-simulation-1        0.16%
+amplify-market-platform-1   6.08%
+amplify-caddy-1             0.00%
+amplify-db-1                3.86%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             4.43%
+amplify-simulation-1        0.42%
+amplify-market-platform-1   27.65%
+amplify-caddy-1             0.00%
+amplify-db-1                199.51%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.12%
+amplify-simulation-1        0.18%
+amplify-market-platform-1   6.27%
+amplify-caddy-1             0.00%
+amplify-db-1                2.91%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             5.58%
+amplify-simulation-1        0.48%
+amplify-market-platform-1   28.20%
+amplify-caddy-1             0.00%
+amplify-db-1                258.29%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             1.89%
+amplify-simulation-1        0.32%
+amplify-market-platform-1   15.42%
+amplify-caddy-1             0.00%
+amplify-db-1                94.23%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             4.09%
+amplify-simulation-1        0.36%
+amplify-market-platform-1   25.30%
+amplify-caddy-1             0.00%
+amplify-db-1                170.98%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             1.29%
+amplify-simulation-1        0.28%
+amplify-market-platform-1   8.78%
+amplify-caddy-1             0.00%
+amplify-db-1                58.24%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.17%
+amplify-simulation-1        0.18%
+amplify-market-platform-1   7.94%
+amplify-caddy-1             0.00%
+amplify-db-1                3.08%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.08%
+amplify-simulation-1        0.17%
+amplify-market-platform-1   2.53%
+amplify-caddy-1             0.00%
+amplify-db-1                0.49%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             2.20%
+amplify-simulation-1        0.32%
+amplify-market-platform-1   17.29%
+amplify-caddy-1             0.00%
+amplify-db-1                90.79%
+amplify-site-1              0.01%
+NAME                        CPU %
+amplify-agent-1             5.00%
+amplify-simulation-1        0.54%
+amplify-market-platform-1   31.58%
+amplify-caddy-1             0.00%
+amplify-db-1                220.82%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.56%
+amplify-simulation-1        0.19%
+amplify-market-platform-1   6.12%
+amplify-caddy-1             0.00%
+amplify-db-1                4.25%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.08%
+amplify-simulation-1        0.51%
+amplify-market-platform-1   4.25%
+amplify-caddy-1             0.00%
+amplify-db-1                3.69%
+amplify-site-1              0.01%
+NAME                        CPU %
+amplify-agent-1             0.61%
+amplify-simulation-1        0.20%
+amplify-market-platform-1   6.16%
+amplify-caddy-1             0.00%
+amplify-db-1                3.90%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             4.00%
+amplify-simulation-1        0.43%
+amplify-market-platform-1   26.27%
+amplify-caddy-1             0.00%
+amplify-db-1                196.34%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.16%
+amplify-simulation-1        0.25%
+amplify-market-platform-1   6.41%
+amplify-caddy-1             0.01%
+amplify-db-1                3.44%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             4.50%
+amplify-simulation-1        0.43%
+amplify-market-platform-1   30.78%
+amplify-caddy-1             0.00%
+amplify-db-1                195.67%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             1.93%
+amplify-simulation-1        0.37%
+amplify-market-platform-1   15.36%
+amplify-caddy-1             0.00%
+amplify-db-1                82.98%
+amplify-site-1              0.01%
+NAME                        CPU %
+amplify-agent-1             3.93%
+amplify-simulation-1        0.43%
+amplify-market-platform-1   22.73%
+amplify-caddy-1             0.01%
+amplify-db-1                182.43%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             1.83%
+amplify-simulation-1        0.34%
+amplify-market-platform-1   9.53%
+amplify-caddy-1             0.00%
+amplify-db-1                83.81%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.21%
+amplify-simulation-1        0.29%
+amplify-market-platform-1   6.21%
+amplify-caddy-1             0.00%
+amplify-db-1                3.04%
+amplify-site-1              0.01%
+NAME                        CPU %
+amplify-agent-1             0.12%
+amplify-simulation-1        0.28%
+amplify-market-platform-1   1.89%
+amplify-caddy-1             0.00%
+amplify-db-1                2.85%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             1.07%
+amplify-simulation-1        0.31%
+amplify-market-platform-1   12.66%
+amplify-caddy-1             0.00%
+amplify-db-1                36.13%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             5.35%
+amplify-simulation-1        0.46%
+amplify-market-platform-1   25.32%
+amplify-caddy-1             0.00%
+amplify-db-1                235.63%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.56%
+amplify-simulation-1        0.30%
+amplify-market-platform-1   8.22%
+amplify-caddy-1             0.00%
+amplify-db-1                3.61%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.13%
+amplify-simulation-1        0.17%
+amplify-market-platform-1   4.60%
+amplify-caddy-1             0.00%
+amplify-db-1                22.20%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.60%
+amplify-simulation-1        0.21%
+amplify-market-platform-1   6.11%
+amplify-caddy-1             0.00%
+amplify-db-1                3.85%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             5.03%
+amplify-simulation-1        0.46%
+amplify-market-platform-1   29.55%
+amplify-caddy-1             0.00%
+amplify-db-1                236.77%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.13%
+amplify-simulation-1        0.17%
+amplify-market-platform-1   6.08%
+amplify-caddy-1             0.00%
+amplify-db-1                3.60%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             3.92%
+amplify-simulation-1        0.45%
+amplify-market-platform-1   31.48%
+amplify-caddy-1             0.01%
+amplify-db-1                179.16%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             1.41%
+amplify-simulation-1        0.23%
+amplify-market-platform-1   14.55%
+amplify-caddy-1             0.00%
+amplify-db-1                56.29%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             1.75%
+amplify-simulation-1        0.42%
+amplify-market-platform-1   24.08%
+amplify-caddy-1             0.00%
+amplify-db-1                185.85%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             2.10%
+amplify-simulation-1        0.33%
+amplify-market-platform-1   28.66%
+amplify-caddy-1             0.01%
+amplify-db-1                88.73%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.13%
+amplify-simulation-1        0.57%
+amplify-market-platform-1   7.90%
+amplify-caddy-1             0.00%
+amplify-db-1                3.73%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.11%
+amplify-simulation-1        0.16%
+amplify-market-platform-1   5.72%
+amplify-caddy-1             0.00%
+amplify-db-1                1.27%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.22%
+amplify-simulation-1        0.22%
+amplify-market-platform-1   6.32%
+amplify-caddy-1             0.00%
+amplify-db-1                4.29%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             4.72%
+amplify-simulation-1        0.43%
+amplify-market-platform-1   30.69%
+amplify-caddy-1             0.00%
+amplify-db-1                188.84%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.58%
+amplify-simulation-1        0.16%
+amplify-market-platform-1   6.13%
+amplify-caddy-1             0.00%
+amplify-db-1                3.98%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             1.90%
+amplify-simulation-1        0.32%
+amplify-market-platform-1   2.72%
+amplify-caddy-1             0.00%
+amplify-db-1                79.36%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.63%
+amplify-simulation-1        0.31%
+amplify-market-platform-1   8.11%
+amplify-caddy-1             0.00%
+amplify-db-1                17.66%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             4.59%
+amplify-simulation-1        0.46%
+amplify-market-platform-1   32.16%
+amplify-caddy-1             0.00%
+amplify-db-1                210.16%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.15%
+amplify-simulation-1        0.29%
+amplify-market-platform-1   6.22%
+amplify-caddy-1             0.00%
+amplify-db-1                5.40%
+amplify-site-1              0.01%
+NAME                        CPU %
+amplify-agent-1             3.24%
+amplify-simulation-1        0.36%
+amplify-market-platform-1   17.77%
+amplify-caddy-1             0.00%
+amplify-db-1                144.53%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.36%
+amplify-simulation-1        0.22%
+amplify-market-platform-1   12.89%
+amplify-caddy-1             0.00%
+amplify-db-1                7.57%
+amplify-site-1              0.01%
+NAME                        CPU %
+amplify-agent-1             5.03%
+amplify-simulation-1        0.49%
+amplify-market-platform-1   28.21%
+amplify-caddy-1             0.00%
+amplify-db-1                200.62%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             3.44%
+amplify-simulation-1        0.36%
+amplify-market-platform-1   17.78%
+amplify-caddy-1             0.00%
+amplify-db-1                130.23%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.16%
+amplify-simulation-1        0.19%
+amplify-market-platform-1   6.35%
+amplify-caddy-1             0.01%
+amplify-db-1                2.95%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.21%
+amplify-simulation-1        0.28%
+amplify-market-platform-1   8.06%
+amplify-caddy-1             0.00%
+amplify-db-1                2.93%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.22%
+amplify-simulation-1        0.30%
+amplify-market-platform-1   6.20%
+amplify-caddy-1             0.00%
+amplify-db-1                2.91%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             4.42%
+amplify-simulation-1        0.43%
+amplify-market-platform-1   27.40%
+amplify-caddy-1             0.01%
+amplify-db-1                203.57%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.58%
+amplify-simulation-1        0.24%
+amplify-market-platform-1   6.41%
+amplify-caddy-1             0.00%
+amplify-db-1                3.99%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             1.94%
+amplify-simulation-1        0.37%
+amplify-market-platform-1   23.42%
+amplify-caddy-1             0.00%
+amplify-db-1                91.82%
+amplify-site-1              0.01%
+NAME                        CPU %
+amplify-agent-1             1.42%
+amplify-simulation-1        0.24%
+amplify-market-platform-1   8.66%
+amplify-caddy-1             0.00%
+amplify-db-1                47.09%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             5.16%
+amplify-simulation-1        0.38%
+amplify-market-platform-1   25.92%
+amplify-caddy-1             0.00%
+amplify-db-1                221.49%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.13%
+amplify-simulation-1        0.31%
+amplify-market-platform-1   6.43%
+amplify-caddy-1             0.00%
+amplify-db-1                3.11%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             2.42%
+amplify-simulation-1        0.17%
+amplify-market-platform-1   17.54%
+amplify-caddy-1             0.00%
+amplify-db-1                98.01%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.13%
+amplify-simulation-1        0.16%
+amplify-market-platform-1   6.15%
+amplify-caddy-1             0.00%
+amplify-db-1                2.84%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             4.25%
+amplify-simulation-1        0.20%
+amplify-market-platform-1   24.69%
+amplify-caddy-1             0.00%
+amplify-db-1                175.20%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             3.53%
+amplify-simulation-1        0.35%
+amplify-market-platform-1   18.20%
+amplify-caddy-1             0.00%
+amplify-db-1                167.08%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.13%
+amplify-simulation-1        0.23%
+amplify-market-platform-1   6.33%
+amplify-caddy-1             0.00%
+amplify-db-1                3.73%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.15%
+amplify-simulation-1        0.21%
+amplify-market-platform-1   6.38%
+amplify-caddy-1             0.00%
+amplify-db-1                3.12%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             1.60%
+amplify-simulation-1        0.20%
+amplify-market-platform-1   8.69%
+amplify-caddy-1             0.00%
+amplify-db-1                3.79%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             4.82%
+amplify-simulation-1        0.84%
+amplify-market-platform-1   32.97%
+amplify-caddy-1             0.00%
+amplify-db-1                206.12%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.55%
+amplify-simulation-1        0.20%
+amplify-market-platform-1   6.07%
+amplify-caddy-1             0.01%
+amplify-db-1                4.05%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             3.75%
+amplify-simulation-1        0.38%
+amplify-market-platform-1   26.31%
+amplify-caddy-1             0.00%
+amplify-db-1                172.03%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             2.82%
+amplify-simulation-1        0.27%
+amplify-market-platform-1   15.11%
+amplify-caddy-1             0.00%
+amplify-db-1                87.59%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             4.78%
+amplify-simulation-1        0.45%
+amplify-market-platform-1   28.11%
+amplify-caddy-1             0.00%
+amplify-db-1                233.63%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.13%
+amplify-simulation-1        0.19%
+amplify-market-platform-1   6.21%
+amplify-caddy-1             0.00%
+amplify-db-1                2.89%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             1.42%
+amplify-simulation-1        0.17%
+amplify-market-platform-1   8.78%
+amplify-caddy-1             0.00%
+amplify-db-1                55.67%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.15%
+amplify-simulation-1        0.26%
+amplify-market-platform-1   6.30%
+amplify-caddy-1             0.00%
+amplify-db-1                3.32%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             3.72%
+amplify-simulation-1        0.40%
+amplify-market-platform-1   24.46%
+amplify-caddy-1             0.00%
+amplify-db-1                187.02%
+amplify-site-1              0.01%
+NAME                        CPU %
+amplify-agent-1             3.71%
+amplify-simulation-1        0.45%
+amplify-market-platform-1   26.21%
+amplify-caddy-1             0.00%
+amplify-db-1                188.68%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.07%
+amplify-simulation-1        0.17%
+amplify-market-platform-1   6.18%
+amplify-caddy-1             0.00%
+amplify-db-1                2.73%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.13%
+amplify-simulation-1        0.18%
+amplify-market-platform-1   6.20%
+amplify-caddy-1             0.00%
+amplify-db-1                2.92%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.14%
+amplify-simulation-1        0.19%
+amplify-market-platform-1   6.23%
+amplify-caddy-1             0.00%
+amplify-db-1                3.07%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             4.70%
+amplify-simulation-1        0.47%
+amplify-market-platform-1   34.32%
+amplify-caddy-1             0.00%
+amplify-db-1                214.18%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.54%
+amplify-simulation-1        0.16%
+amplify-market-platform-1   6.23%
+amplify-caddy-1             0.00%
+amplify-db-1                4.31%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             4.02%
+amplify-simulation-1        0.45%
+amplify-market-platform-1   14.17%
+amplify-caddy-1             0.00%
+amplify-db-1                196.28%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             2.69%
+amplify-simulation-1        0.30%
+amplify-market-platform-1   15.17%
+amplify-caddy-1             0.00%
+amplify-db-1                92.65%
+amplify-site-1              0.01%
+NAME                        CPU %
+amplify-agent-1             4.07%
+amplify-simulation-1        0.43%
+amplify-market-platform-1   24.66%
+amplify-caddy-1             0.00%
+amplify-db-1                174.98%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.13%
+amplify-simulation-1        0.18%
+amplify-market-platform-1   6.17%
+amplify-caddy-1             0.01%
+amplify-db-1                3.37%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.15%
+amplify-simulation-1        0.18%
+amplify-market-platform-1   7.46%
+amplify-caddy-1             0.00%
+amplify-db-1                1.37%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.13%
+amplify-simulation-1        0.16%
+amplify-market-platform-1   6.23%
+amplify-caddy-1             0.00%
+amplify-db-1                2.86%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             2.48%
+amplify-simulation-1        0.35%
+amplify-market-platform-1   23.06%
+amplify-caddy-1             0.00%
+amplify-db-1                116.81%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             4.70%
+amplify-simulation-1        0.42%
+amplify-market-platform-1   26.42%
+amplify-caddy-1             0.00%
+amplify-db-1                192.89%
+amplify-site-1              0.00%
+NAME                        CPU %
+amplify-agent-1             0.08%
+amplify-simulation-1        0.19%
+amplify-market-platform-1   0.08%
+amplify-caddy-1             0.00%
+amplify-db-1                3.35%
+amplify-site-1              0.00%

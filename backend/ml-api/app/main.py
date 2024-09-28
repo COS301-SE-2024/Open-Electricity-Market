@@ -1,3 +1,4 @@
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI
 from pydantic import BaseModel
 import pickle
@@ -332,6 +333,13 @@ async def lifespan(app: FastAPI):
     conn.close()
 
 ml_api = FastAPI(lifespan=lifespan)
+ml_api.add_middleware(
+    CORSMiddleware,
+    allow_origins=[os.getenv("FRONTEND_URL")],
+    allow_credentials=True,
+    allow_methods=["POST", "PATCH", "GET", "DELETE"],
+    allow_headers=["content_type", "authorization"]
+)
 
 class PredictRequest(BaseModel):
     total_impedance: float

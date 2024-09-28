@@ -78,7 +78,7 @@ services:
     networks:
       - amplify
   ml-api:
-    build: ./backend/ml-api
+    build: ./backend/ml-api/
     depends_on:
       db:
         condition: service_healthy

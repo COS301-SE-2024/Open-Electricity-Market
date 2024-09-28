@@ -70,7 +70,7 @@ services:
     networks:
       - backend
   ml-api:
-    build: ./backend/ml-api
+    build: ./ml-api/
     depends_on:
       db:
         condition: service_healthy

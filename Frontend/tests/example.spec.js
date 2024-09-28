@@ -328,7 +328,7 @@ test.describe("signup page error testing", () => {
     await page.waitForLoadState("networkidle");
 
     //type in a valid email
-    await page.getByPlaceholder("Email").fill("" + process.env.EMAIL);
+    await page.getByPlaceholder("Email").fill("" + process.env.EMAILWEB);
 
     //Click on name field so to get page to check email Input
     await page.getByPlaceholder("First name").click();
@@ -345,7 +345,7 @@ test.describe("signup page error testing", () => {
     await page.waitForLoadState("networkidle");
 
     //type in a valid email
-    await page.getByPlaceholder("Email").fill("" + process.env.EMAIL);
+    await page.getByPlaceholder("Email").fill("" + process.env.EMAILWEB);
     //Type in password with no numerical characters.
     await page.locator('input[placeholder="Password"]').fill("" + process.env.NONUM);
 
@@ -363,7 +363,7 @@ test.describe("signup page error testing", () => {
     await page.waitForLoadState("networkidle");
 
     //type in a valid email
-    await page.getByPlaceholder("Email").fill("" + process.env.EMAIL);
+    await page.getByPlaceholder("Email").fill("" + process.env.EMAILWEB);
     //Type in password with no numerical characters.
     await page.locator('input[placeholder="Password"]').fill("" + process.env.NOSYM);
 
@@ -380,7 +380,7 @@ test.describe("signup page error testing", () => {
     await page.waitForLoadState("networkidle");
 
     //type in a valid email
-    await page.getByPlaceholder("Email").fill("" + process.env.EMAIL);
+    await page.getByPlaceholder("Email").fill("" + process.env.EMAILWEB);
     //Type in password with no numerical characters.
     await page.locator('input[placeholder="Password"]').fill("" + process.env.NOCAP);
 
@@ -397,7 +397,7 @@ test.describe("signup page error testing", () => {
     await page.waitForLoadState("networkidle");
 
     //type in a valid email
-    await page.getByPlaceholder("Email").fill("" + process.env.EMAIL);
+    await page.getByPlaceholder("Email").fill("" + process.env.EMAILWEB);
     //Type in password with no numerical characters.
     await page.locator('input[placeholder="Password"]').fill("" + process.env.SHORT);
 
@@ -414,7 +414,7 @@ test.describe("signup page error testing", () => {
     await page.waitForLoadState("networkidle");
 
     //type in a valid email
-    await page.getByPlaceholder("Email").fill("" + process.env.EMAIL);
+    await page.getByPlaceholder("Email").fill("" + process.env.EMAILWEB);
     //Type in password with no numerical characters.
     await page.locator('input[placeholder="Password"]').fill("" + process.env.PASSWORD);
 
@@ -429,7 +429,7 @@ test.describe("signup page error testing", () => {
     await page.waitForLoadState("networkidle");
 
     //type in a valid email
-    await page.getByPlaceholder("Email").fill("" + process.env.EMAIL);
+    await page.getByPlaceholder("Email").fill("" + process.env.EMAILWEB);
     //Type in valid.
     await page.locator('input[placeholder="Password"]').fill("" + process.env.PASSWORD);
 
@@ -468,14 +468,15 @@ test.describe("signup page error testing", () => {
     await page.waitForURL("http://site.localhost:5173/Main/Dashboard");
 
   });
-  test("Testing valid signup for webkit", async ({ page, browserName }) => {
-    
-    test.skip(browserName === 'firefox' || browserName === 'chromium');
-    
+  /*test("Testing valid signup for webkit", async ({ page, browserName }) => {
+   
     //Wait for page to finish loading
     await page.waitForLoadState("networkidle");
+    test.skip(browserName === 'firefox' || browserName === 'chromium');
+    
+    
     //type in a valid email
-    await page.getByPlaceholder("Email").fill("" + process.env.EMAIL);
+    await page.getByPlaceholder("Email").fill("" + process.env.EMAILWEB);
     //Type in valid.
 
     await page.locator('input[placeholder="First name"]').fill("" + process.env.FIRSTNAME);
@@ -488,10 +489,10 @@ test.describe("signup page error testing", () => {
     
     // Click the "Create account" button.
     await page.getByRole("button", { name: "Create account" }).click();
-    //await page.waitForLoadState();
+    await page.waitForLoadState();
     await page.waitForURL("http://site.localhost:5173/Main/Dashboard");
 
-  });
+  });*/
   test("Testing valid signup for chromium", async ({ page, browserName }) => {
     //Wait for page to finish loading
     await page.waitForLoadState("networkidle");

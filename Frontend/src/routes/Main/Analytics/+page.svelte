@@ -7,6 +7,7 @@
   import ProductionCurve from "$lib/Components/ProductionCurve.svelte";
   import PriceHistoryChart from "$lib/Components/PriceHistoryChart.svelte";
   import PieChartAgent from "$lib/Components/PieChartAgent.svelte";
+  import PricePredictorChart from "$lib/Components/PricePredictorChart.svelte";
 
   let selectednode = "";
   let selectedAppliances = []; //by default should be all of them
@@ -43,12 +44,18 @@
   let generatorNames = []; 
   //stuff for ml api request
   let totalImpedance; 
-  let consumerVoltage; 
+  const consumerVoltage = 240; 
   let transmissionLineVoltage; 
-  let generatorVoltage; 
+  const generatorVoltage = 240; 
   let currHour; 
   let currMinute; 
   const timeFrame = 12; 
+
+  let pricepredictordata = []; 
+  let bestTime; 
+  let bestPrice; 
+
+  let loading = true; 
 
   onMount(async () => {
     // token check and refresh
@@ -90,10 +97,12 @@
     await getConsumedProduced();
     await getCurve();
 
-    console.log("Appliances are: ", appliances);
-    console.log("Selected Appliances are: ", selectedAppliances);
-    console.log("Units produced are: ", unitsproduced);
-    console.log("Units consumed are: ", unitsconsumed);
+    await fetchGridStats(); 
+    await fetchPricePrediction(); 
+
+    loading = false; 
+
+   
   });
 
   function toggleDropdown() {
@@ -116,9 +125,8 @@
 
       const fdata = await response.json();
       totalImpedance = fdata.total_impedance;
-      consumerVoltage = fdata.consumer_voltage; 
       transmissionLineVoltage = fdata.transmission_line_voltage; 
-      generatorVoltage = fdata.generator_voltage; 
+      
       let currTime = new Date(); 
       currHour = currTime.getHours();
       currMinute = currTime.getMinutes(); 
@@ -130,6 +138,45 @@
       );
     }
   } 
+
+  async function fetchPricePrediction(){
+    try {
+      const response = await fetch(`${API_URL_ML}/price_predict`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+         
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          total_impedance: totalImpedance,
+          consumer_voltage: consumerVoltage,
+          transmission_line_voltage: transmissionLineVoltage,
+          generator_voltage: generatorVoltage,
+          current_hour: currHour,
+          current_minute: currMinute,
+          time_frame: timeFrame
+        }),
+      });
+
+     // console.log(totalImpedance +" "+ consumerVoltage +" "+ transmissionLineVoltage +" "+ generatorVoltage + " "+currHour +" "+ currMinute +" "+ timeFrame); 
+
+      const fdata = await response.json();
+   
+      pricepredictordata = fdata.data.price_list.map(item=> item.price*1000); 
+      
+      bestTime = fdata.data.best.hour.toString().padStart(2, '0') + ":" + fdata.data.best.minute.toString().padStart(2, '0'); 
+      bestPrice = fdata.data.best.price.toFixed(2);  
+     
+   
+    } catch (error) {
+      console.log(
+        "There was an error fetching the price predictions from the ML api:",
+        error
+      );
+    }
+  }
 
   function toggleAppliance(appliance) {
     if (selectedAppliances.includes(appliance)) {
@@ -621,6 +668,13 @@
 
 </script>
 
+{#if loading}
+  <div class="flex items-center justify-center min-h-screen">
+    <span class="loading loading-bars loading-lg" style="font-size: 5rem;"></span>
+  </div>
+{:else}
+ 
+
 <div class="md:flex xs:flex-row">
   <div id="lhs" class="md:w-1/2 md:pr-4 xs:w-1/1 ">
     <!-- market stats to go here -->
@@ -672,45 +726,26 @@
     <!-- <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
       <PieChart {marketpiedata} />
     </div> -->
+    <span class="text-3xl text-white font-thin justify-start pl-2">
+      AI Generated Price Prediction
+    </span>
+    <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
+      <!-- put w-1/2 for chart   -->
+       
+       <PricePredictorChart class = "w-1/2" data = {pricepredictordata} />
+     
+    </div>
 
     <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
+     
       
-      <div class="form-control">
-        <!-- svelte-ignore a11y-label-has-associated-control -->
-        <select
-          bind:value={buyChartPeriod}
-          class="select select-bordered max-h-40 overflow-y-auto"
-          on:change={() => getBuyHistory(buyChartPeriod)} 
-        >
-          <option value="Day1" default selected>24h</option>
-          <option value="Week1">7d</option>
-          <option value="Month1">1M</option>
-          <option value="Month3">3M</option>
-          <option value="Month6">6M</option>
-          <option value="Year1">1Y</option>
-        </select>
-      </div>
-      <PriceHistoryChart class="w-1/2" data={buyhistorydata} />
+      <span>Best buying time: {bestTime}</span>
+      <br>
+      <span>Best price: R{bestPrice}</span>
+     
     </div>
 
-    <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
-      <div class="form-control">
-        <!-- svelte-ignore a11y-label-has-associated-control -->
-        <select
-          bind:value={sellChartPeriod}
-          class="select select-bordered max-h-40 overflow-y-auto"
-          on:change={() => getSellHistory(sellChartPeriod)} 
-        >
-          <option value="Day1" default selected>24h</option>
-          <option value="Week1">7d</option>
-          <option value="Month1">1M</option>
-          <option value="Month3">3M</option>
-          <option value="Month6">6M</option>
-          <option value="Year1">1Y</option>
-        </select>
-      </div>
-      <PriceHistoryChart class="w-1/2" data={sellhistorydata} />
-    </div>
+    
   </div>
 
   <div id="rhs" class="md:w-1/2 xs:w-1/1 xs:mt-6 md:mt-0">
@@ -799,3 +834,5 @@
     </div> -->
   </div>
 </div>
+
+{/if}

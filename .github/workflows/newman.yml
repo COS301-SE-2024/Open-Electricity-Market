@@ -24,4 +24,4 @@ jobs:
       - uses: matt-ball/newman-action@master
         with:
           collection: postman_tests/Agent.postman_collection.json
-          environment: postman_tests/Open_em.postman_environment.
+          environment: postman_tests/Open_em.postman_environment.json

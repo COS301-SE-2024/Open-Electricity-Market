@@ -39,8 +39,16 @@
   
     async function updateChart() {
       if (chart && data.length > 0) {
+        const interval = 180; 
+        const currTime = new Date(); 
+        const labels = data.map((_, index) => {
+          const time = new Date(currTime.getTime() + index * 60000); 
+          const hours = time.getHours().toString().padStart(2, '0');
+          const minutes = time.getMinutes().toString().padStart(2, '0');
+          return `${hours}:${minutes}`;
+        });
         chart.data.datasets[0].data = data;
-        chart.data.labels = data.map((_, index) => index + 1);
+        chart.data.labels = labels; 
         chart.update();
       }
       return;
@@ -48,7 +56,7 @@
   </script>
   
   <div class="chartstyle">
-    <canvas bind:this={chartCanvas} height="450px" width = "350px"></canvas>
+    <canvas bind:this={chartCanvas} height="450px" width = "650px"></canvas>
   </div>
   
   <style>

@@ -162,7 +162,7 @@
       const fdata = await response.json();
       console.log(fdata)
       pricepredictordata = fdata.data.price_list.map(item=> item.price); 
-      alert(pricepredictordata); 
+      // alert(pricepredictordata); 
      
    
     } catch (error) {

@@ -52,9 +52,10 @@
   const timeFrame = 12; 
 
   let pricepredictordata = []; 
-
   let bestTime; 
   let bestPrice; 
+
+  let loading = true; 
 
   onMount(async () => {
     // token check and refresh
@@ -99,10 +100,9 @@
     await fetchGridStats(); 
     await fetchPricePrediction(); 
 
-    console.log("Appliances are: ", appliances);
-    console.log("Selected Appliances are: ", selectedAppliances);
-    console.log("Units produced are: ", unitsproduced);
-    console.log("Units consumed are: ", unitsconsumed);
+    loading = false; 
+
+   
   });
 
   function toggleDropdown() {
@@ -160,7 +160,7 @@
         }),
       });
 
-      console.log(totalImpedance +" "+ consumerVoltage +" "+ transmissionLineVoltage +" "+ generatorVoltage + " "+currHour +" "+ currMinute +" "+ timeFrame); 
+     // console.log(totalImpedance +" "+ consumerVoltage +" "+ transmissionLineVoltage +" "+ generatorVoltage + " "+currHour +" "+ currMinute +" "+ timeFrame); 
 
       const fdata = await response.json();
    
@@ -668,6 +668,13 @@
 
 </script>
 
+{#if loading}
+  <div class="flex items-center justify-center min-h-screen">
+    <span class="loading loading-bars loading-lg" style="font-size: 5rem;"></span>
+  </div>
+{:else}
+ 
+
 <div class="md:flex xs:flex-row">
   <div id="lhs" class="md:w-1/2 md:pr-4 xs:w-1/1 ">
     <!-- market stats to go here -->
@@ -827,3 +834,5 @@
     </div> -->
   </div>
 </div>
+
+{/if}

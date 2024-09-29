@@ -39,7 +39,7 @@
 
   async function updateChart() {
     if (chart && data.length > 0) {
-      chart.data.datasets[0].data = data;
+      chart.data.datasets[0].data = data.map((value, _) => value / 1000);
       chart.data.labels = data.map((_, index) => index + 1);
       chart.update();
     }

@@ -126,9 +126,9 @@
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <!-- svelte-ignore a11y-no-static-element-interactions -->
             <!-- svelte-ignore a11y-missing-attribute -->
-            <a
+            <button
               class="btn btn-ghost rounded-btn font-normal mx-2"
-              on:click={showModal}>Help</a
+              on:click={showModal}>Help</button
             >
             {#if loggedIn}
               <span

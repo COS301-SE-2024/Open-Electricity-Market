@@ -802,7 +802,7 @@
         {#if bestPrice}
           <span class="flex-row w-full"
             >Best price: R
-            {bestPrice}
+            {bestPrice * 1000}
           </span>
           <!-- <span>Best price: R{bestPrice ? bestPrice * 1000 : "--.-"}</span> -->
         {:else}

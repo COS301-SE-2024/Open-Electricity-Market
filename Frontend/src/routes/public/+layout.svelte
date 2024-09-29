@@ -71,39 +71,51 @@
   <header>
     <div class="navbar bg-base-100 border-b border-accent">
       <div class="navbar-start">
-        <a class="btn btn-ghost md:text-xl font-normal xs:text-sm" href="/"
+        <a class="btn btn-ghost md:text-2xl font-normal xs:text-sm" href="/"
           >Amplify</a
         >
-        <span class="md:text-xl xs:text-sm pl-4 font-normal">
-          {activebutton == "/public/GridSimulation"
-            ? "Simulation"
-            : activebutton == "/Main/BiddingMarket"
-              ? "Marketplace"
-              : activebutton == "/Main/Dashboard"
-                ? "Dashboard"
-                : ""}
-        </span>
       </div>
 
       <div class="navbar-center hidden lg:flex">
         <ul class="menu menu-horizontal px-1">
           <li class="px-2">
-            <a
-              class="btn btn-ghost rounded-btn font-normal"
-              href="/public/GridSimulation">Simulation</a
-            >
+            {#if activebutton == "/public/GridSimulation"}
+              <a
+                class="btn btn-outline rounded-btn font-normal"
+                href="/public/GridSimulation">Simulation</a
+              >
+            {:else}
+              <a
+                class="btn btn-ghost rounded-btn font-normal"
+                href="/public/GridSimulation">Simulation</a
+              >
+            {/if}
           </li>
           <li class="px-2">
-            <a
-              class="btn btn-ghost rounded-btn font-normal"
-              href="/Main/Dashboard">Dashboard</a
-            >
+            {#if activebutton == "/Main/Dashboard"}
+              <a
+                class="btn btn-outline rounded-btn font-normal"
+                href="/Main/Dashboard">Dashboard</a
+              >
+            {:else}
+              <a
+                class="btn btn-ghost rounded-btn font-normal"
+                href="/Main/Dashboard">Dashboard</a
+              >
+            {/if}
           </li>
           <li class="px-2">
-            <a
-              class="btn btn-ghost rounded-btn font-normal"
-              href="/Main/Analytics">Analytics</a
-            >
+            {#if activebutton == "/Main/Analytics"}
+              <a
+                class="btn btn-outline rounded-btn font-normal"
+                href="/Main/Analytics">Analytics</a
+              >
+            {:else}
+              <a
+                class="btn btn-ghost rounded-btn font-normal"
+                href="/Main/Analytics">Analytics</a
+              >
+            {/if}
           </li>
         </ul>
       </div>
@@ -111,6 +123,9 @@
       <div class="navbar-end">
         <div class="xs: hidden md:flex">
           <div class="dropdown dropdown-end">
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
+            <!-- svelte-ignore a11y-no-static-element-interactions -->
+            <!-- svelte-ignore a11y-missing-attribute -->
             <a
               class="btn btn-ghost rounded-btn font-normal mx-2"
               on:click={showModal}>Help</a
@@ -177,6 +192,8 @@
                 </li>
                 <!-- svelte-ignore a11y-missing-attribute -->
                 <li><a href="/Main/Dashboard" class="text-lg">Dashboard</a></li>
+                <!-- svelte-ignore a11y-missing-attribute -->
+                <li><a href="/Main/Analytics" class="text-lg">Analytics</a></li>
                 {#if loggedIn}
                   <li>
                     <button class="text-lg" on:click={logout}>Log out</button>
@@ -195,6 +212,7 @@
                     >
                   </li>
                 {/if}
+                <li><a on:click={showModal} class="text-lg">Help</a></li>
               </ul>
             </div>
           </div>

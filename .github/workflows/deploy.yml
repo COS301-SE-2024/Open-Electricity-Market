@@ -19,6 +19,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Make config.js
+        run: echo "${{ vars.DEPLOY_CONFIG_JS }}" > Frontend/src/lib/config.js
+
       - name: Install sshpass
         run: sudo apt install sshpass
 
@@ -56,6 +59,7 @@ jobs:
         with:
           envkey_PASSWORD : ${{ secrets.AGENT_PASSWORD }}
           envkey_DATABASE_URL: ${{ secrets.MARKET_DATABASE_URL }}
+          envkey_FRONTEND_URL: ${{ vars.MARKET_FRONTEND_URL }}
           envkey_JWT_SECRET: ${{ secrets.JWT_SECRET }}
           envkey_GRID_PASS: ${{ secrets.GRID_PASS }}
           directory : backend/agent 
@@ -81,6 +85,18 @@ jobs:
           directory: backend/simulation
           file_name: .env
 
+      - name: Make ml-api .emv
+        uses: SpicyPizza/create-envfile@v2.0.3
+        with:
+          envkey_DB_DATABASE: "open_em"
+          envkey_DB_USER: "open_em"
+          envkey_DB_PASSWORD: ${{ secrets.OPEN_EM_PASS }}
+          envkey_DB_HOST: "db"
+          envkey_DB_PORT: "5432"
+          envkey_FRONTEND_URL: ${{ vars.MARKET_FRONTEND_URL }}
+          directory: backend/ml-api/app/models/price
+          file_name: .env
+
       - name: Install sshpass
         run: sudo apt install sshpass
 
@@ -99,6 +115,7 @@ jobs:
             docker image rm backend-simulation
             docker image rm backend-market-platform
             docker image rm backend-agent
+            docker image rm backend-ml-api
             docker compose up -d
  
 

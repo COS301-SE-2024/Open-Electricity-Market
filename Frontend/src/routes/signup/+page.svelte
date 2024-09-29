@@ -8,16 +8,30 @@
     COOKIE_DOMAIN,
     API_URL_AGENT,
   } from "$lib/config.js";
+  import { sineOut } from "svelte/easing";
 
+  // variables bound to form values
   let email = "";
   let firstname = "";
   let surname = "";
   let password = "";
   let password2 = "";
-  let errormessage = "";
+
+  // boolean checks for errors
+  $: emailInvalidError = false;
+
+  $: passwordLengthError = false;
+  $: passwordSPCharacterError = false;
+  $: passwordNoCapitalError = false;
+  $: passwordNoLowerCaseError = false;
+  $: passwordNoNumericError = false;
+
+  $: passwordMismatchError = false;
+
+  // allow sending request
   let validEmail = false;
   let validPassword = false;
-  let data = {};
+  $: generalError = "";
 
   // RFC 2822 standard email validation pattern
   var emailRegex =
@@ -25,20 +39,22 @@
 
   // 8 characters, at least one lowercase, one uppercase, one symbol and one numeric character
   // might separate it out to make it reactive and indicate which requirements are not met to the user
-  var passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/;
+  var passwordRegex =
+    /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z])(?=.*[^A-Za-z0-9]).{8,}$/;
 
   async function validateEmail() {
     const emailElement = document.getElementById("email");
+
     if (!email.match(emailRegex)) {
+      emailInvalidError = true;
       validEmail = false;
-      errormessage = "Please enter a valid email address.";
 
       emailElement.classList.add("input-error");
 
       return;
     }
     // maybe have an email specific error message
-    errormessage = "";
+    emailInvalidError = false;
     emailElement.classList.remove("input-error");
 
     validEmail = true;
@@ -47,12 +63,34 @@
   function passwordCreationHelp() {
     var pwElement = document.getElementById("pw");
     if (!password.match(passwordRegex)) {
-      errormessage =
-        "Password requires at least 8 characters, uppercase and lowercase, a symbol and a number";
+      // passwordError =
+      //   "Password requires at least 8 characters, uppercase and lowercase, a symbol and a number";
+      passwordLengthError = false;
+      passwordNoCapitalError = false;
+      passwordSPCharacterError = false;
+      passwordNoLowerCaseError = false;
+      passwordNoNumericError = false;
+
+      if (password.length < 8) passwordLengthError = true;
+      else if (password.search(/^.*[A-Z].*$/) == -1)
+        passwordNoCapitalError = true;
+      else if (password.search(/^.*[a-z].*$/) == -1)
+        passwordNoLowerCaseError = true;
+      else if (password.search(/^.*[0-9].*$/) == -1)
+        passwordNoNumericError = true;
+      else if (password.search(/^.*[^A-Za-z0-9]$/) == -1)
+        passwordSPCharacterError = true;
+
       pwElement.classList.add("input-error");
       validPassword = false;
     } else {
-      errormessage = "";
+      // resetting boolean checks
+      passwordLengthError = false;
+      passwordNoCapitalError = false;
+      passwordSPCharacterError = false;
+      passwordNoLowerCaseError = false;
+      passwordNoNumericError = false;
+
       pwElement.classList.remove("input-error");
       validPassword = true;
     }
@@ -77,12 +115,15 @@
   }
 
   async function create() {
+    generalError = "";
+
     if (!validEmail || !validPassword) {
-      errormessage = "Invalid email or password";
+      generalError = "Invalid email or password";
       return;
     }
 
     if (password == password2) {
+      passwordMismatchError = false;
       const res = await fetch(`${API_URL_MARKET}/register`, {
         method: "POST",
         headers: {
@@ -101,11 +142,13 @@
         sessionStorage.setItem("Token", json.data.token);
         await addAgent();
         goto("/Main/Dashboard");
+      } else if (json.message == "Failed to create new user") {
+        generalError = "This email is already in use";
       } else {
-        errormessage = "An error occured";
+        generalError = "An error occured";
       }
     } else {
-      errormessage = "Passwords must match";
+      passwordMismatchError = true;
     }
   }
 
@@ -126,7 +169,7 @@
         credentials: "include",
       });
       const fdata = await res.json();
-      console.log("Add agent endpoint: ", fdata);
+      // console.log("Add agent endpoint: ", fdata);
     } catch (error) {
       console.log(
         "There was an error with the add_agent endpoint when creating account: ",
@@ -166,6 +209,11 @@
               bind:value={email}
               on:change={validateEmail}
             />
+            {#if emailInvalidError}
+              <p class="text-base font-semibold text-error fixed mt-11 ml-1">
+                Please enter a valid email address
+              </p>
+            {/if}
           </div>
 
           <div class="form-control mt-4">
@@ -198,36 +246,87 @@
               bind:value={password}
               on:input={passwordCreationHelp}
             />
-
-            <!-- button with icon (this doesnt work) -->
-            <!-- <button type="button" on:click={showPassword} class="absolute inset-y-0 end-0 flex items-center z-20 px-3 cursor-pointer text-gray-400 rounded-e-md focus:outline-none focus:text-blue-600 dark:text-neutral-600 dark:focus:text-blue-500">
-                  <svg class="shrink-0 size-3.5" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path class="hs-password-active:hidden" d="M9.88 9.88a3 3 0 1 0 4.24 4.24"></path>
-                    <path class="hs-password-active:hidden" d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"></path>
-                    <path class="hs-password-active:hidden" d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"></path>
-                    <line class="hs-password-active:hidden" x1="2" x2="22" y1="2" y2="22"></line>
-                    <path class="hidden hs-password-active:block" d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path>
-                    <circle class="hidden hs-password-active:block" cx="12" cy="12" r="3"></circle>
-                  </svg>
-                </button> -->
-          </div>
-
-          <!-- Checkbox (these work)-->
-          <div class="flex ml-2">
-            <input
+            <!-- button with icon -->
+            <button
+              type="button"
               on:click={showPassword}
-              id="hs-toggle-password-checkbox"
-              type="checkbox"
-              class="shrink-0 mt-0.5 border-gray-200 rounded text-blue-600 focus:ring-blue-500 dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-blue-500 dark:checked:border-blue-500 dark:focus:ring-offset-gray-800"
-            />
-            <label
-              for="hs-toggle-password-checkbox"
-              class="text-sm text-gray-500 ms-3 dark:text-neutral-400"
-              >Show</label
+              class="absolute inset-y-0 end-0 flex items-center z-20 px-3 cursor-pointer text-gray-400 rounded-e-md focus:outline-none focus:text-blue-600 dark:text-neutral-600 dark:focus:text-blue-500"
             >
+              <svg
+                class="shrink-0 size-3.5"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  class="hs-password-active:hidden"
+                  d="M9.88 9.88a3 3 0 1 0 4.24 4.24"
+                ></path>
+                <path
+                  class="hs-password-active:hidden"
+                  d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"
+                ></path>
+                <path
+                  class="hs-password-active:hidden"
+                  d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"
+                ></path>
+                <line
+                  class="hs-password-active:hidden"
+                  x1="2"
+                  x2="22"
+                  y1="2"
+                  y2="22"
+                ></line>
+                <path
+                  class="hidden hs-password-active:block"
+                  d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"
+                ></path>
+                <circle
+                  class="hidden hs-password-active:block"
+                  cx="12"
+                  cy="12"
+                  r="3"
+                ></circle>
+              </svg>
+            </button>
+
+            {#if passwordLengthError}
+              <p class="text-base font-semibold text-error rounded mt-12 fixed">
+                Password must be at least 8 characters long
+              </p>
+            {:else if passwordNoLowerCaseError}
+              <p
+                class="text-base font-semibold text-error rounded mt-12 fixed ml-1"
+              >
+                Password must include a lowercase character
+              </p>
+            {:else if passwordNoCapitalError}
+              <p
+                class="text-base font-semibold text-error rounded mt-12 fixed ml-1"
+              >
+                Password must include an uppercase character
+              </p>
+            {:else if passwordNoNumericError}
+              <p
+                class="text-base font-semibold text-error rounded mt-12 fixed ml-1"
+              >
+                Password must include a number
+              </p>
+            {:else if passwordSPCharacterError}
+              <p
+                class="text-base font-semibold text-error rounded mt-12 fixed ml-1"
+              >
+                Password must include a special character
+              </p>
+            {/if}
           </div>
 
-          <div class="form-control mt-2">
+          <div class="form-control mt-4">
             <input
               id="pw2"
               type="password"
@@ -235,34 +334,88 @@
               class="input input-bordered"
               required
               bind:value={password2}
+              on:change={() => {
+                if (password == password2) {
+                  passwordMismatchError = false;
+                  var input = document.getElementById("pw2");
+                  input.classList.remove("input-error");
+                } else {
+                  passwordMismatchError = true;
+                  var input = document.getElementById("pw2");
+                  input.classList.add("input-error");
+                }
+              }}
             />
-          </div>
 
-          <!-- Checkbox -->
-          <div class="flex ml-2">
-            <input
+            <!-- button with icon -->
+            <button
+              type="button"
               on:click={showPassword2}
-              id="hs-toggle-password-checkbox-2"
-              type="checkbox"
-              class="shrink-0 mt-0.5 border-gray-200 rounded text-blue-600 focus:ring-blue-500 dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-blue-500 dark:checked:border-blue-500 dark:focus:ring-offset-gray-800"
-            />
-            <label
-              for="hs-toggle-password-checkbox-2"
-              class="text-sm text-gray-500 ms-3 dark:text-neutral-400"
-              >Show</label
+              class="absolute inset-y-0 end-0 flex items-center z-20 px-3 cursor-pointer text-gray-400 rounded-e-md focus:outline-none focus:text-blue-600 dark:text-neutral-600 dark:focus:text-blue-500"
             >
-          </div>
+              <svg
+                class="shrink-0 size-3.5"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path
+                  class="hs-password-active:hidden"
+                  d="M9.88 9.88a3 3 0 1 0 4.24 4.24"
+                ></path>
+                <path
+                  class="hs-password-active:hidden"
+                  d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"
+                ></path>
+                <path
+                  class="hs-password-active:hidden"
+                  d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"
+                ></path>
+                <line
+                  class="hs-password-active:hidden"
+                  x1="2"
+                  x2="22"
+                  y1="2"
+                  y2="22"
+                ></line>
+                <path
+                  class="hidden hs-password-active:block"
+                  d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"
+                ></path>
+                <circle
+                  class="hidden hs-password-active:block"
+                  cx="12"
+                  cy="12"
+                  r="3"
+                ></circle>
+              </svg>
+            </button>
 
-          {#if errormessage != ""}
-            <p class="text-base font-semibold text-error rounded mt-2">
-              {errormessage}
-            </p>
-          {/if}
+            {#if passwordMismatchError}
+              <p
+                class="text-base font-semibold text-error rounded mt-12 fixed ml-1"
+              >
+                Passwords must match
+              </p>
+            {/if}
+          </div>
 
           <div class="form-control mt-4">
             <button class="btn btn-primary" on:click={create}
               >Create account</button
             >
+            {#if generalError != ""}
+              <p
+                class="text-base font-semibold text-error rounded mt-11 fixed ml-1"
+              >
+                {generalError}
+              </p>
+            {/if}
           </div>
 
           <div class="form-control mt-3">

@@ -57,6 +57,18 @@ jobs:
           directory: backend/simulation
           file_name: .env
 
+      - name: Make ml-api .env
+        uses: SpicyPizza/create-envfile@v2.0.3
+        with:
+          envkey_DB_DATABASE: "open_em"
+          envkey_DB_USER: "open_em"
+          envkey_DB_PASSWORD: ${{ secrets.STAGING_OPEN_EM_PASS }}
+          envkey_DB_HOST: "db"
+          envkey_DB_PORT: "5432"
+          envkey_FRONTEND_URL: ${{ vars.STAGING_FRONTEND_URL }}
+          directory: backend/ml-api/app/models/price
+          file_name: .env
+
       - name: Make config.js
         run: echo "${{ vars.STAGING_CONFIG_JS }}" > Frontend/src/lib/config.js
 
@@ -81,5 +93,6 @@ jobs:
             docker image rm amplify-simulation
             docker image rm amplify-market-platform
             docker image rm amplify-agent
+            docker image rm amplify-ml-api
             docker image rm amplify-site
             docker compose up -d

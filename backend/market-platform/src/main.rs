@@ -19,7 +19,7 @@ use rocket::http::{Header, Method, Status};
 use rocket::{Request, Response};
 use std::env;
 
-const TRANSACTION_LIFETIME: i64 = 24; // Lifetime in hours
+const TRANSACTION_LIFETIME: i64 = 2; // Lifetime in hours
                                       // const TARGET_VOLTAGE: f64 = 240.0;
                                       // Endpoint for current_voltage
 

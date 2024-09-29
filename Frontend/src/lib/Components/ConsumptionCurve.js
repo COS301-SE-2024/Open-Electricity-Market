@@ -60,7 +60,7 @@ export const sampleChartConfig = {
         beginAtZero: true,
         title: {
           display: true,
-          text: "Watts",  
+          text: "kW",  
         },
       },
     },

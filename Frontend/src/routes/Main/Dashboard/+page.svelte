@@ -3,7 +3,7 @@
   import { goto } from "$app/navigation";
   import Map from "$lib/Components/MapDashboard.svelte";
   import { API_URL_GRID, API_URL_MARKET, API_URL_AGENT } from "$lib/config.js";
-  import housesrc from '$lib/assets/house.png';
+  import housesrc from "$lib/assets/house.png";
 
   let data = {};
   let nodeName = "";
@@ -722,19 +722,18 @@
       }
       let temp = fdata.data.consumption;
       let size = Object.keys(temp).length;
-      if(size != 0)
-      {
+      if (size != 0) {
         //applianceNames.clear();
         applianceNames = new Set();
         temp.forEach((item) => {
           applianceNames.add(item.appliance);
         });
         applianceNames = Array.from(applianceNames).join("\n");
+      } else {
+        applianceNames =
+          "You currently do not have any appliances linked to this node.";
       }
-      else{
-        applianceNames = "You currently do not have any appliances linked to this node.";
-      }
-      
+
       /*if (applianceNames === "") {
         applianceNames =
           "You currently do not have any appliances linked to this node.";
@@ -840,21 +839,39 @@
           {#each buyorders as buyorder}
             <div class="rounded-2xl min-w-1/3 bg-base-100 mb-2 p-3">
               <span class="w-full flex">
-                <span class="text-ss -pt-3">
-                  Buying at (per kWh):
-                </span>
+                <span class="text-ss -pt-3"> Buying at (per kWh): </span>
                 <h2 class="text-2xl ml-auto">
                   {formatCurrency(buyorder.max_price * 1000)}
                 </h2>
               </span>
               <div class="card-actions">
                 <span class="w-full flex text-ss">
-                  <span class="text-ss -pt-3">
-                    Filled units:
-                  </span>
+                  <span class="text-ss -pt-3"> Filled units: </span>
+                  <svg
+                    fill="#000000"
+                    version="1.1"
+                    id="Capa_1"
+                    xmlns="http://www.w3.org/2000/svg"
+                    xmlns:xlink="http://www.w3.org/1999/xlink"
+                    width="40px"
+                    height="40px"
+                    viewBox="0 0 485 485"
+                    xml:space="preserve"
+                  >
+                    <g>
+                      <g>
+                        <rect x="67.224" width="350.535" height="71.81" />
+                        <path
+                          d="M417.776,92.829H67.237V485h350.537V92.829H417.776z M165.402,431.447h-28.362V146.383h28.362V431.447z M256.689,431.447
+			h-28.363V146.383h28.363V431.447z M347.97,431.447h-28.361V146.383h28.361V431.447z"
+                        />
+                      </g>
+                    </g>
+                  </svg>
                   <span class="ml-auto">
-                    {Intl.NumberFormat().format(buyorder.filled_units/1000)} /
-                    {Intl.NumberFormat().format(buyorder.sought_units/1000) + " kWh"}
+                    {Intl.NumberFormat().format(buyorder.filled_units / 1000)} /
+                    {Intl.NumberFormat().format(buyorder.sought_units / 1000) +
+                      " kWh"}
                   </span>
                 </span>
                 <progress
@@ -1002,27 +1019,26 @@
           {#each sellorders as sellorder}
             <div class="rounded-2xl min-w-1/3 bg-base-100 mb-2 p-3">
               <span class="w-full flex">
-                <span class="text-ss -pt-3">
-                  Selling at (per kWh):
-                </span>
+                <span class="text-ss -pt-3"> Selling at (per kWh): </span>
                 <h2 class="text-2xl ml-auto">
                   {formatCurrency(sellorder.min_price * 1000)}
                 </h2>
               </span>
               <div class="card-actions">
                 <span class="w-full flex text-ss">
-                  <span class="text-ss -pt-3">
-                    Claimed units:
-                  </span>
+                  <span class="text-ss -pt-3"> Claimed units: </span>
                   <span class="ml-auto">
-                    {Intl.NumberFormat().format(sellorder.claimed_units / 1000)} /
-                    {Intl.NumberFormat().format(sellorder.offered_units / 1000) + " kWh"}
+                    {Intl.NumberFormat().format(sellorder.claimed_units / 1000)}
+                    /
+                    {Intl.NumberFormat().format(
+                      sellorder.offered_units / 1000
+                    ) + " kWh"}
                   </span>
                 </span>
                 <progress
                   class="progress progress-primary"
                   value={sellorder.claimed_units}
-                    max={sellorder.offered_units}
+                  max={sellorder.offered_units}
                 ></progress>
               </div>
             </div>

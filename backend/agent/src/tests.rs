@@ -322,9 +322,9 @@ pub fn home_appliance_type_boiler_to_string() {
     assert_eq!(value, String::from("boiler"));
 }
 #[test]
-pub fn home_appliance_type_hair_purifier_to_string() {
-    let value = HomeApplianceType::HairPurifier.to_string();
-    assert_eq!(value, String::from("hair_purifier"));
+pub fn home_appliance_type_air_purifier_to_string() {
+    let value = HomeApplianceType::AirPurifier.to_string();
+    assert_eq!(value, String::from("air_purifier"));
 }
 #[test]
 pub fn home_appliance_type_sound_system_to_string() {

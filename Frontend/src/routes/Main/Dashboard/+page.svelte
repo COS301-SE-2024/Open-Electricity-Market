@@ -46,14 +46,14 @@
     "Vacuum",
     "Dishwasher",
     "Boiler",
-    "Hair Purifier",
+    "Air Purifier",
     "Sound System",
     "Coffee Machine",
     "Phone Charger",
     "Fridge",
     "Radiator",
     "Dehumidifier",
-    "Microwave Oven",
+    "MicroWave Oven",
     "Laptop",
     "Tv",
     "Screen",
@@ -1113,14 +1113,14 @@
             <div class="stat">
               <div class="stat-title">Available Consumption</div>
               <div class="stat-value font-light">
-                {Intl.NumberFormat().format(nodeToConsume)} Wh
+                {Intl.NumberFormat().format(nodeToConsume / 1000)} kWh
               </div>
             </div>
 
             <div class="stat">
               <div class="stat-title">Pending Generation</div>
               <div class="stat-value font-light">
-                {Intl.NumberFormat().format(nodeToProduce)} Wh
+                {Intl.NumberFormat().format(nodeToProduce / 1000)} kWh
               </div>
             </div>
             <div

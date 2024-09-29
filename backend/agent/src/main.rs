@@ -352,7 +352,7 @@ fn availible_appliances() -> content::RawJson<String> {
         HomeApplianceType::Vacuum,
         HomeApplianceType::Dishwasher,
         HomeApplianceType::Boiler,
-        HomeApplianceType::HairPurifier,
+        HomeApplianceType::AirPurifier,
         HomeApplianceType::SoundSystem,
         HomeApplianceType::Printer3d,
         HomeApplianceType::CoffeeMachine,

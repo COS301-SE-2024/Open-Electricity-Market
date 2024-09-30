@@ -96,7 +96,7 @@ test.describe("login page", () => {
   });
   test("Back to landing page", async ({page}) => {
     await page.getByRole("link", {name: "Amplify"}).click();
-    await page.waitForURL("http://site.localhost:5173")
+    await page.waitForURL("http://site.localhost:5173");
   });
 });
 

@@ -1,4 +1,4 @@
-# Team Isidore - [Amplify](www.amplify.org.za)
+# Team Isidore - [Amplify](https://www.amplify.org.za)
 
 for EPI-USE Labs  
 A cutting-edge simulation platform, designed to transform the way we manage energy, as well as optimise grid operations.

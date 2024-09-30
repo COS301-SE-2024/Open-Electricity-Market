@@ -835,7 +835,7 @@
         </div>
         <div class="md:w-1/3 md:px-2 md:py-0 py-2">
           <button
-            class="select select-bordered w-full text-left flex items-center focus:outline-none z-9000 md:mt-1"
+            class="select select-bordered w-full text-left flex items-center focus:outline-none z-50 relative md:mt-1"
             on:click={toggleDropdown}>Select Appliances</button
           >
 
@@ -887,7 +887,7 @@
 
       <!-- {#if agentpiedata.length>1} -->
       <div
-        class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3 md:h-80 md:h-40"
+        class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3 md:h-80 md:h-40 z-0"
       >
         <PieChartAgent {agentpiedata} />
       </div>
@@ -897,7 +897,7 @@
       >
         <ConsumptionCurve class="md:w-1/2" data={consumptioncurvedata} />
         <ProductionCurve
-          class="md:ml-8 md:w-1/2 xs:ml-0"
+          class="md:ml-8 md:w-1/2 xs:ml-0 xs:mt-4"
           data={productioncurvedata}
         />
       </div>

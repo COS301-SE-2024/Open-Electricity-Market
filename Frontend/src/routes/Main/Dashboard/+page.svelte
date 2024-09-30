@@ -765,17 +765,17 @@
   }
 </script>
 
-<main class="container mx-auto p-4">
+<main class="container mx-auto sm:p-4">
   <div class="md:flex md:flex-row">
     <!--first-->
-    <div class="sm:w-1/3 h-[calc(100vh-70px)] flex flex-col">
+    <div class="sm:w-1/3 sm:h-[calc(100vh-70px)] flex flex-col">
       <!--Personal Info-->
       <span class="text-3xl font-thin justify-start pl-2">
         Personal Information
       </span>
 
       <div class="h-1/2 stats stats-vertical w-full">
-        <div class="stat">
+        <div class="stat pb-2 sm:py-4">
           <div class="stat-title">Available Credit</div>
           {#if totalamount == null}
             <span class="loading loading-spinner loading-lg"></span>
@@ -796,7 +796,7 @@
           >
         </div>
 
-        <div class="stat">
+        <div class="stat py-2 sm:py-4">
           <div class="stat-title">Firstname</div>
           {#if firstname == null}
             <span class="loading loading-spinner loading-lg"></span>
@@ -805,7 +805,7 @@
           {/if}
         </div>
 
-        <div class="stat">
+        <div class="stat py-2 sm:py-4">
           <div class="stat-title">Lastname</div>
           {#if lastname == null}
             <span class="loading loading-spinner loading-lg"></span>
@@ -814,12 +814,12 @@
           {/if}
         </div>
 
-        <div class="stat">
+        <div class="stat pt-2 sm:py-4">
           <div class="stat-title">Email</div>
           {#if email == null}
             <span class="loading loading-spinner loading-lg"></span>
           {:else}
-            <div class="stat-value font-light">{email}</div>
+            <div class="stat-value font-light text-2xl sm:text-4xl">{email}</div>
           {/if}
         </div>
       </div>
@@ -863,7 +863,7 @@
                         <rect x="67.224" width="350.535" height="71.81" />
                         <path
                           d="M417.776,92.829H67.237V485h350.537V92.829H417.776z M165.402,431.447h-28.362V146.383h28.362V431.447z M256.689,431.447
-			h-28.363V146.383h28.363V431.447z M347.97,431.447h-28.361V146.383h28.361V431.447z"
+      h-28.363V146.383h28.363V431.447z M347.97,431.447h-28.361V146.383h28.361V431.447z"
                         />
                       </g>
                     </g>
@@ -878,6 +878,48 @@
                   class="progress progress-primary"
                   value={buyorder.filled_units}
                   max={buyorder.sought_units}
+                ></progress>
+              </div>
+            </div>
+          {/each}
+        {/if}
+      </div>
+
+      <!--Sell orders (for mobile view)-->
+      <span class="text-3xl font-light justify-start pl-2 mt-2 sm:hidden block">
+        Sell Orders
+      </span>
+      <div
+        class="rounded-2xl backdrop-blur-sm bg-white/30 p-2 overflow-y-auto sm:hidden block"
+      >
+        {#if sellorders.length == 0}
+          <div class="rounded-xl h-full bg-base-100 flex justify-center">
+            <p class="self-center text-2xl font-light">--No Sell Orders--</p>
+          </div>
+        {:else}
+          {#each sellorders as sellorder}
+            <div class="rounded-2xl min-w-1/3 bg-base-100 mb-2 p-3">
+              <span class="w-full flex">
+                <span class="text-ss -pt-3"> Selling at (per kWh): </span>
+                <h2 class="text-2xl ml-auto">
+                  {formatCurrency(sellorder.min_price * 1000)}
+                </h2>
+              </span>
+              <div class="card-actions">
+                <span class="w-full flex text-ss">
+                  <span class="text-ss -pt-3"> Claimed units: </span>
+                  <span class="ml-auto">
+                    {Intl.NumberFormat().format(sellorder.claimed_units / 1000)}
+                    /
+                    {Intl.NumberFormat().format(
+                      sellorder.offered_units / 1000
+                    ) + " kWh"}
+                  </span>
+                </span>
+                <progress
+                  class="progress progress-primary"
+                  value={sellorder.claimed_units}
+                  max={sellorder.offered_units}
                 ></progress>
               </div>
             </div>
@@ -936,7 +978,7 @@
     </div>
 
     <!--second-->
-    <div class="sm:w-1/3 h-[calc(100vh-70px)] mx-4 flex flex-col">
+    <div class="sm:w-1/3 sm:h-[calc(100vh-70px)] sm:mx-4 flex flex-col">
       <!--Nodes-->
       <span class="basis text-3xl font-thin justify-start pl-2">
         Your Nodes
@@ -1003,13 +1045,12 @@
           </div>
         </div>
       </div>
-
-      <!--Sell orders-->
-      <span class="text-3xl font-light justify-start pl-2 mt-2">
+      <!--Sell orders (hidden on mobile)-->
+      <span class="text-3xl font-light justify-start pl-2 mt-2 hidden sm:block">
         Sell Orders
       </span>
       <div
-        class="rounded-2xl h-1/3 backdrop-blur-sm bg-white/30 p-2 overflow-y-auto"
+        class="rounded-2xl h-1/3 backdrop-blur-sm bg-white/30 p-2 overflow-y-auto hidden sm:block"
       >
         {#if sellorders.length == 0}
           <div class="rounded-xl h-full bg-base-100 flex justify-center">

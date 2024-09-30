@@ -11,7 +11,7 @@ pub struct User {
     pub pass_hash: String,
     pub credit: f64,
     // pub created_at: DateTime<Utc>,
-    pub active: bool,
+    // pub active: bool,
 }
 
 #[derive(Insertable)]

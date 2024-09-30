@@ -219,21 +219,12 @@ pub fn login(credentials: Json<Credentials>) -> Value {
 
     match users
         .filter(email.eq(credentials.email.clone()))
+        .filter(active.eq(true))
         .select(User::as_select())
         .first(connection)
     {
         Ok(user) => {
             if bcrypt::verify(credentials.password.clone(), &*user.pass_hash) {
-                if !user.active {
-                    match diesel::update(users)
-                        .filter(user_id.eq(user.user_id))
-                        .set(active.eq(true))
-                        .execute(connection)
-                    {
-                        Ok(_) => {}
-                        Err(_) => {}
-                    }
-                }
                 let claim = Claims::from_name(user.user_id.to_string());
                 match claim.into_token() {
                     Ok(token) => {

@@ -802,7 +802,7 @@
         {#if bestPrice}
           <span class="flex-row w-full"
             >Best price: R
-            {bestPrice}
+            {bestPrice * 1000}
           </span>
           <!-- <span>Best price: R{bestPrice ? bestPrice * 1000 : "--.-"}</span> -->
         {:else}
@@ -816,9 +816,9 @@
         Node Stats
       </span>
       <div
-        class="md:flex sm:flex-col md:flex-row bg-base-100 rounded-2xl p-3 mt-3 xs:h-50"
+        class="md:flex sm:flex-col md:flex-row bg-base-100 rounded-2xl p-3 mt-3 xs:h-50 md:h-20"
       >
-        <div class="md:w-1/3 md:pr-2">
+        <div class="md:w-1/3 md:pr-2 md:mt-1">
           <select
             bind:value={selectednode}
             class="select select-bordered w-full overflow-y-auto mr-2 focus:outline-none"
@@ -835,7 +835,7 @@
         </div>
         <div class="md:w-1/3 md:px-2 md:py-0 py-2">
           <button
-            class="select select-bordered w-full text-left flex items-center focus:outline-none z-9000"
+            class="select select-bordered w-full text-left flex items-center focus:outline-none z-9000 md:mt-1"
             on:click={toggleDropdown}>Select Appliances</button
           >
 
@@ -860,7 +860,7 @@
         </div>
         <div class="md:w-1/3 md:pl-2">
           <button
-            class="select select-bordered w-full text-left flex items-center focus:outline-none z-9000"
+            class="select select-bordered w-full text-left flex items-center focus:outline-none z-9000 md:mt-1"
             on:click={toggleDropdownGenerators}>Select Generators</button
           >
 

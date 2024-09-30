@@ -2,7 +2,7 @@
 
 ## Coding Conventions
 
-For this project, we mainly used the Rust programming language for backend, as well as the combination of extended HTML and Javascript in `.svelte` files for frontend.
+For this project, we mainly used the Rust programming language for backend, as well as the combination of extended HTML and JavaScript in `.svelte` files for frontend.
 
 ### Linter Rules
 To help keep our code consistent with our decided conventions, we make use of Super-Linter, which supplies linters for every language used in this project and more. Checks are performed on every Pull Request into our default branch.

@@ -763,6 +763,44 @@
       addWot = "a";
     }
   }
+
+  async function cancelBuyOrder(orderid) {
+    try {
+      const response = await fetch(`${API_URL_MARKET}/cancel_buy_order`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${sessionStorage.getItem("Token")}`,
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          order_id: orderid,
+        }),
+      });
+    } catch (error) {
+      console.log("An error occurred while cancelling buy order..", error);
+    }
+  }
+
+  async function cancelSellOrder(orderid) {
+    try {
+      const response = await fetch(`${API_URL_MARKET}/cancel_sell_order`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          Authorization: `Bearer ${sessionStorage.getItem("Token")}`,
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          order_id: orderid,
+        }),
+      });
+    } catch (error) {
+      console.log("An error occurred while cancelling sell order..");
+    }
+  }
 </script>
 
 <main class="container mx-auto sm:p-4">
@@ -819,7 +857,9 @@
           {#if email == null}
             <span class="loading loading-spinner loading-lg"></span>
           {:else}
-            <div class="stat-value font-light text-2xl sm:text-4xl">{email}</div>
+            <div class="stat-value font-light text-2xl sm:text-4xl">
+              {email}
+            </div>
           {/if}
         </div>
       </div>
@@ -829,7 +869,7 @@
         Buy Orders
       </span>
       <div
-        class="rounded-2xl h-1/3 backdrop-blur-sm bg-white/30 p-2 overflow-y-auto"
+        class="rounded-2xl h-1/3 backdrop-blur-sm bg-white/30 p-2 overflow-y-auto overflow-x-hidden"
       >
         {#if buyorders.length == 0}
           <div class="rounded-xl h-full bg-base-100 flex justify-center">
@@ -837,7 +877,39 @@
           </div>
         {:else}
           {#each buyorders as buyorder}
-            <div class="rounded-2xl min-w-1/3 bg-base-100 mb-2 p-3">
+            <div class="rounded-2xl min-w-1/3 bg-base-100 mb-2 p-3 group">
+              <div
+                class="backdrop-blur-md bg-white/20 rounded-2xl justify-center fixed p-3 w-11/12 invisible group-hover:visible flex"
+              >
+                <!-- svelte-ignore a11y-click-events-have-key-events -->
+                <!-- svelte-ignore a11y-no-static-element-interactions -->
+                <svg
+                  fill="#FF2222"
+                  version="1.1"
+                  id="Capa_1"
+                  xmlns="http://www.w3.org/2000/svg"
+                  xmlns:xlink="http://www.w3.org/1999/xlink"
+                  width="40px"
+                  height="40px"
+                  viewBox="0 0 485 485"
+                  xml:space="preserve"
+                  on:click={ () => {
+                    document.getElementById("cancelBuyOrder").showModal()
+                  }
+                  }
+                >
+                  <g>
+                    <g>
+                      <rect x="67.224" width="350.535" height="71.81" />
+                      <path
+                        d="M417.776,92.829H67.237V485h350.537V92.829H417.776z M165.402,431.447h-28.362V146.383h28.362V431.447z M256.689,431.447
+      h-28.363V146.383h28.363V431.447z M347.97,431.447h-28.361V146.383h28.361V431.447z"
+                      />
+                    </g>
+                  </g>
+                </svg>
+              </div>
+
               <span class="w-full flex">
                 <span class="text-ss -pt-3"> Buying at (per kWh): </span>
                 <h2 class="text-2xl ml-auto">
@@ -847,27 +919,6 @@
               <div class="card-actions">
                 <span class="w-full flex text-ss">
                   <span class="text-ss -pt-3"> Filled units: </span>
-                  <svg
-                    fill="#000000"
-                    version="1.1"
-                    id="Capa_1"
-                    xmlns="http://www.w3.org/2000/svg"
-                    xmlns:xlink="http://www.w3.org/1999/xlink"
-                    width="40px"
-                    height="40px"
-                    viewBox="0 0 485 485"
-                    xml:space="preserve"
-                  >
-                    <g>
-                      <g>
-                        <rect x="67.224" width="350.535" height="71.81" />
-                        <path
-                          d="M417.776,92.829H67.237V485h350.537V92.829H417.776z M165.402,431.447h-28.362V146.383h28.362V431.447z M256.689,431.447
-      h-28.363V146.383h28.363V431.447z M347.97,431.447h-28.361V146.383h28.361V431.447z"
-                        />
-                      </g>
-                    </g>
-                  </svg>
                   <span class="ml-auto">
                     {Intl.NumberFormat().format(buyorder.filled_units / 1000)} /
                     {Intl.NumberFormat().format(buyorder.sought_units / 1000) +
@@ -881,6 +932,31 @@
                 ></progress>
               </div>
             </div>
+            <dialog id="cancelBuyOrder" class="modal">
+              <div class="modal-box">
+                <h3 class="font-bold text-lg">Confirmation</h3>
+                <p>Are you sure you want to cancel this buy order?</p>
+                <div class="modal-action">
+                  <button
+                    class="btn btn-error"
+                    on:click={() => {
+                      cancelBuyOrder(buyorder.order_id);
+                      listOpenBuys();
+                      document.getElementById("cancelBuyOrder").close();
+                    }}>Yes</button
+                  >
+                  <button
+                    class="btn btn-outline"
+                    on:click={() => {
+                      document.getElementById("cancelBuyOrder").close();
+                    }}>No</button
+                  >
+                </div>
+              </div>
+              <form method="dialog" class="modal-backdrop">
+                <button>close</button>
+              </form>
+            </dialog>
           {/each}
         {/if}
       </div>
@@ -898,7 +974,38 @@
           </div>
         {:else}
           {#each sellorders as sellorder}
-            <div class="rounded-2xl min-w-1/3 bg-base-100 mb-2 p-3">
+            <div class="rounded-2xl min-w-1/3 bg-base-100 mb-2 p-3 group">
+              <div
+                class="backdrop-blur-md bg-white/20 rounded-2xl justify-center fixed p-3 w-11/12 invisible group-hover:visible flex"
+              >
+                <!-- svelte-ignore a11y-click-events-have-key-events -->
+                <!-- svelte-ignore a11y-no-static-element-interactions -->
+                <svg
+                  fill="#FF2222"
+                  version="1.1"
+                  id="Capa_1"
+                  xmlns="http://www.w3.org/2000/svg"
+                  xmlns:xlink="http://www.w3.org/1999/xlink"
+                  width="40px"
+                  height="40px"
+                  viewBox="0 0 485 485"
+                  xml:space="preserve"
+                  on:click={ () => {
+                    document.getElementById("cancelSellOrder1").showModal()
+                  }
+                  }
+                >
+                  <g>
+                    <g>
+                      <rect x="67.224" width="350.535" height="71.81" />
+                      <path
+                        d="M417.776,92.829H67.237V485h350.537V92.829H417.776z M165.402,431.447h-28.362V146.383h28.362V431.447z M256.689,431.447
+      h-28.363V146.383h28.363V431.447z M347.97,431.447h-28.361V146.383h28.361V431.447z"
+                      />
+                    </g>
+                  </g>
+                </svg>
+              </div>
               <span class="w-full flex">
                 <span class="text-ss -pt-3"> Selling at (per kWh): </span>
                 <h2 class="text-2xl ml-auto">
@@ -923,6 +1030,32 @@
                 ></progress>
               </div>
             </div>
+
+            <dialog id="cancelSellOrder1" class="modal">
+              <div class="modal-box">
+                <h3 class="font-bold text-lg">Confirmation</h3>
+                <p>Are you sure you want to cancel this sell order?</p>
+                <div class="modal-action">
+                  <button
+                    class="btn btn-error"
+                    on:click={() => {
+                      cancelSellOrder(sellorder.order_id);
+                      listOpenSells();
+                      document.getElementById("cancelSellOrder1").close();
+                    }}>Yes</button
+                  >
+                  <button
+                    class="btn btn-outline"
+                    on:click={() => {
+                      document.getElementById("cancelSellOrder1").close();
+                    }}>No</button
+                  >
+                </div>
+              </div>
+              <form method="dialog" class="modal-backdrop">
+                <button>close</button>
+              </form>
+            </dialog>
           {/each}
         {/if}
       </div>
@@ -1045,6 +1178,7 @@
           </div>
         </div>
       </div>
+
       <!--Sell orders (hidden on mobile)-->
       <span class="text-3xl font-light justify-start pl-2 mt-2 hidden sm:block">
         Sell Orders
@@ -1058,7 +1192,38 @@
           </div>
         {:else}
           {#each sellorders as sellorder}
-            <div class="rounded-2xl min-w-1/3 bg-base-100 mb-2 p-3">
+            <div class="rounded-2xl min-w-1/3 bg-base-100 mb-2 p-3 group">
+              <div
+                class="backdrop-blur-md bg-white/20 rounded-2xl justify-center fixed p-3 w-11/12 invisible group-hover:visible flex"
+              >
+                <!-- svelte-ignore a11y-click-events-have-key-events -->
+                <!-- svelte-ignore a11y-no-static-element-interactions -->
+                <svg
+                  fill="#FF2222"
+                  version="1.1"
+                  id="Capa_1"
+                  xmlns="http://www.w3.org/2000/svg"
+                  xmlns:xlink="http://www.w3.org/1999/xlink"
+                  width="40px"
+                  height="40px"
+                  viewBox="0 0 485 485"
+                  xml:space="preserve"
+                  on:click={ () => {
+                    document.getElementById("cancelSellOrder2").showModal()
+                  }
+                  }
+                >
+                  <g>
+                    <g>
+                      <rect x="67.224" width="350.535" height="71.81" />
+                      <path
+                        d="M417.776,92.829H67.237V485h350.537V92.829H417.776z M165.402,431.447h-28.362V146.383h28.362V431.447z M256.689,431.447
+      h-28.363V146.383h28.363V431.447z M347.97,431.447h-28.361V146.383h28.361V431.447z"
+                      />
+                    </g>
+                  </g>
+                </svg>
+              </div>
               <span class="w-full flex">
                 <span class="text-ss -pt-3"> Selling at (per kWh): </span>
                 <h2 class="text-2xl ml-auto">
@@ -1083,6 +1248,32 @@
                 ></progress>
               </div>
             </div>
+
+            <dialog id="cancelSellOrder2" class="modal">
+              <div class="modal-box">
+                <h3 class="font-bold text-lg">Confirmation</h3>
+                <p>Are you sure you want to cancel this sell order?</p>
+                <div class="modal-action">
+                  <button
+                    class="btn btn-error"
+                    on:click={() => {
+                      cancelSellOrder(sellorder.order_id);
+                      listOpenSells();
+                      document.getElementById("cancelSellOrder2").close();
+                    }}>Yes</button
+                  >
+                  <button
+                    class="btn btn-outline"
+                    on:click={() => {
+                      document.getElementById("cancelSellOrder2").close();
+                    }}>No</button
+                  >
+                </div>
+              </div>
+              <form method="dialog" class="modal-backdrop">
+                <button>close</button>
+              </form>
+            </dialog>
           {/each}
         {/if}
       </div>

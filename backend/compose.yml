@@ -79,7 +79,7 @@ services:
       simulation:
         condition: service_started
     networks:
-      - amplify
+      - backend
 volumes:
   pgdata:
   caddy_data:

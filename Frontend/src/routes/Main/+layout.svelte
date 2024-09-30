@@ -1,180 +1,339 @@
 <script>
   import "../../app.css";
-  import {page} from '$app/stores';
-  import {derived} from "svelte/store";
-  import Cookies from 'js-cookie';
-  import {onMount} from "svelte";
+  import { page } from "$app/stores";
+  import { derived } from "svelte/store";
+  import Cookies from "js-cookie";
+  import { onMount } from "svelte";
 
-  let loggedIn = false; 
+  let loggedIn = false;
 
-  let activebutton = '';
+  let activebutton = "";
 
-  const currentpath = derived(page, $page => $page.url.pathname);
+  const currentpath = derived(page, ($page) => $page.url.pathname);
 
   $: activebutton = $currentpath;
 
-  function showModal(){
-    if(activebutton=="/public/GridSimulation"){
-        document.getElementById("my_modal_grid").showModal(); 
+  function showModal() {
+    if (activebutton == "/public/GridSimulation") {
+      document.getElementById("my_modal_grid").showModal();
+    } else if (activebutton == "/Main/Dashboard") {
+      document.getElementById("my_modal_dash").showModal();
+    } else if (activebutton == "/Main/BiddingMarket") {
+      document.getElementById("help_modal").showModal();
+    } else if (activebutton == "/Main/Analytics") {
+      document.getElementById("analytics_help").showModal();
     }
-    else if (activebutton=="/Main/Dashboard"){
-        document.getElementById("my_modal_dash").showModal();
-    }
-    else if(activebutton=="/Main/BiddingMarket"){
-        document.getElementById("help_modal").showModal();
-    }
-
   }
 
   onMount(() => {
-    const session = Cookies.get('session_id');
+    const session = sessionStorage.getItem("Token");
     // console.log("Session id is: ", session);
-    if(session){
-      loggedIn = true; 
-    }
-    else{
-      loggedIn = false; 
-      window.location.href = '/login';
+    if (session) {
+      loggedIn = true;
+    } else {
+      loggedIn = false;
+      window.location.href = "/login";
+      // this does not work here:
+      // goto("/login");
     }
     // loggedIn = session === 'loggedIn';
   });
 
-  async function removeAccount(){
+  async function removeAccount() {
     let data;
     try {
-      const response = await fetch("http://localhost:8001/remove_account", {
+      const response = await fetch(`${API_URL_MARKET}/remove_account`, {
         method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
         credentials: "include",
       });
       data = await response.json();
       // console.log("Data received from remove account endpoint: ", data);
-
     } catch (error) {
       console.log("There was an error calling remove account:", error);
     }
 
-    if(data.message == "Account successfully deleted"){
+    if (data.message == "Account successfully deleted") {
       Cookies.remove("session_id");
-      window.location.href = '/login';
+      window.location.href = "/login";
     }
   }
 
   function logout() {
-    Cookies.remove("session_id");
-    window.location.href = '/login';
+    sessionStorage.removeItem("Token");
+    window.location.href = "/login";
   }
-  </script>
-  
-<!--   
-  <header class="bg-gray-800 text-white p-4 ">
-    <nav class="container mx-auto">
-      <a href="/Main/Dashboard" class = {activebutton == '/Main/Dashboard' ? 'active' : ''}>Dashboard</a>
-      <a href="/Main/GridSimulation" class = {activebutton == '/Main/GridSimulation' ? 'active' : ''}>Grid Simulation</a>
-      <a href="/Main/BiddingMarket" class = {activebutton == '/Main/BiddingMarket' ? 'active' : ''}>Bidding Market</a>
-    </nav>
-  </header>
-  
-  <main class="container mx-auto mt-8">
-    <slot />
-  </main> -->
-<header>
-  <div class="navbar bg-base-100 border-b border-accent">
-    <div class="navbar-start">  
-      <a class="btn btn-ghost text-xl" href="/">Amplify</a>
-      <span class="text-xl pl-4"> {activebutton == '/public/GridSimulation' ? "Simulation" : 
-      activebutton == '/Main/BiddingMarket' ? "Marketplace" : 
-      activebutton == '/Main/Dashboard' ? "Dashboard" : ""} </span>
-    </div>
-      
-    <div class="navbar-center hidden lg:flex">
-      <ul class="menu menu-horizontal px-1">
-        <li class="px-2"><a class="w-28 justify-center btn-ghost" href="/public/GridSimulation">Grid</a></li>
-        <li class="px-2"><a class=" btn-ghost w-22" href="/Main/Dashboard">Dashboard</a></li>
-      </ul>
-    </div>
-      
-    <div class="navbar-end">
 
+  let showMenu = false;
+  let showIcon = true;
 
-  <ul class="menu menu-horizontal px-3 ">
-    <!-- <button class="bg-slate-800 " on:click={showModal}>Help</button> -->
-    <!-- svelte-ignore a11y-click-events-have-key-events -->
-    <!-- svelte-ignore a11y-no-static-element-interactions -->
-    <!-- svelte-ignore a11y-missing-attribute -->
-    <li class="px-2"><a class="w-22 btn-ghost" on:click={showModal}>Help</a></li>
-  </ul>
-      <div class="dropdown dropdown-end">
-        <div tabindex="0" role="button" class="btn btn-ghost rounded-btn">Account</div>
-        <ul class="menu dropdown-content bg-base-100 rounded-box z-[1] mt-4 w-52 p-2 shadow">
-          <button class="btn" onclick="removeaccount_modal.showModal()">Remove Account</button>
-          <button class="btn mt-2" on:click={logout}>Log out</button>
+  function toggleHamburger() {
+    showMenu = !showMenu;
+    showIcon = !showIcon;
+  }
+</script>
+
+<body class="w-full min-h-screen bg-gradient-to-b from-base-200 to-base-300">
+  <header>
+    <div class="navbar bg-base-100 border-b border-accent">
+      <div class="navbar-start">
+        <a class="btn btn-ghost md:text-2xl font-normal xs:text-sm" href="/"
+          >Amplify</a
+        >
+      </div>
+
+      <div class="navbar-center hidden lg:flex">
+        <ul class="menu menu-horizontal px-1">
+          <li class="px-2">
+            {#if activebutton == "/public/GridSimulation"}
+              <a
+                class="btn btn-outline rounded-btn font-normal"
+                href="/public/GridSimulation">Simulation</a
+              >
+            {:else}
+              <a
+                class="btn btn-ghost rounded-btn font-normal"
+                href="/public/GridSimulation">Simulation</a
+              >
+            {/if}
+          </li>
+          <li class="px-2">
+            {#if activebutton == "/Main/Dashboard"}
+              <a
+                class="btn btn-outline rounded-btn font-normal"
+                href="/Main/Dashboard">Dashboard</a
+              >
+            {:else}
+              <a
+                class="btn btn-ghost rounded-btn font-normal"
+                href="/Main/Dashboard">Dashboard</a
+              >
+            {/if}
+          </li>
+          <li class="px-2">
+            {#if activebutton == "/Main/Analytics"}
+              <a
+                class="btn btn-outline rounded-btn font-normal"
+                href="/Main/Analytics">Analytics</a
+              >
+            {:else}
+              <a
+                class="btn btn-ghost rounded-btn font-normal"
+                href="/Main/Analytics">Analytics</a
+              >
+            {/if}
+          </li>
         </ul>
       </div>
 
-    </div>
-  </div>
-
-
-  <dialog id="my_modal_dash" class="modal">  
-    <div class="modal-box">
-      <h3 class="font-bold text-lg ">Dashboard Page</h3>
-      <p class="py-4">Here you can see details about your account and interactions on the grid. 
-        Go to the marketplace to purchase or sell electricity for any of your nodes. 
-      </p>
-    </div>
-    <form method="dialog" class="modal-backdrop">
-      <button>close</button>
-    </form>
-  </dialog>
-
-  <dialog id="my_modal_grid" class="modal">  
-    <div class="modal-box">
-      <h3 class="font-bold text-lg ">Grid Simulation Page</h3>
-      <p class="py-4">The grid simulation page contains an overview of the current 
-        state of the electrical grid. 
-      </p>
-    </div>
-    <form method="dialog" class="modal-backdrop">
-      <button>close</button>
-    </form>
-  </dialog>
-
-  <dialog id="help_modal" class="modal">  
-    <div class="modal-box">
-      <h3 class="font-bold text-lg ">Bidding Market Page</h3>
-      <p class="py-4">Click the button on the 'Advertise Here' card to enter the number of units you want to sell, and the price you wish to sell them for.</p>
-      <p class="py-4">You can click the button on any of the advertisements to buy one unit of electricity from them.</p>
-    </div>
-    <form method="dialog" class="modal-backdrop">
-      <button>close</button>
-    </form>
-  </dialog>
-</header>
-
-<main class="container mx-auto mt-8">
-  {#if loggedIn}
-    <slot />
-  {:else}
-    <script>
-        // 
-    </script>
-  {/if}
-
-
-  <dialog id="removeaccount_modal" class="modal">
-    <div class="modal-box">
-      <h3 class="text-lg font-bold">Delete Account</h3>
-      <p class="py-4">Are you sure you would like to delete your account?</p>
-      <div class="modal-action">
-        <form method="dialog">
-          <!-- if there is a button in form, it will close the modal -->
-          <button class="btn bg-red-500" on:click={removeAccount}>Delete</button>
-          <button class="btn bg-gray-600">Cancel</button>
-        </form>
+      <div class="navbar-end">
+        <div class="xs: hidden md:flex">
+          <!-- svelte-ignore a11y-no-static-element-interactions -->
+          <div class="dropdown dropdown-end">
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
+            <!-- svelte-ignore a11y-missing-attribute -->
+            <a
+              class="btn btn-ghost rounded-btn font-normal mx-2"
+              on:click={showModal}>Help</a
+            >
+            {#if loggedIn}
+              <span
+                tabindex="0"
+                role="button"
+                class="btn btn-ghost rounded-btn font-normal mx-2">Account</span
+              >
+              <ul
+                class="menu dropdown-content bg-base-100 rounded-box z-[1] mt-4 w-52 p-2 shadow"
+              >
+                <button class="btn mb-2" on:click={logout}>Log out</button>
+                <button
+                  class="btn btn-error"
+                  onclick="removeaccount_modal.showModal()"
+                  >Remove Account</button
+                >
+              </ul>
+            {:else}
+              <a
+                tabindex="0"
+                role="button"
+                class="btn btn-ghost rounded-btn font-normal mx-2"
+                href="/login">Log in</a
+              >
+            {/if}
+          </div>
+        </div>
+        <!-- mobile hamburger menu-->
+        <!-- svelte-ignore a11y-click-events-have-key-events -->
+        <!-- svelte-ignore a11y-no-static-element-interactions -->
+        <div on:click={toggleHamburger} class="md:hidden xs:flex">
+          <div class="navbar-end">
+            <div class="dropdown">
+              <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 6h16M4 12h16M4 18h7"
+                  />
+                </svg>
+              </div>
+              <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
+              <ul
+                tabindex="0"
+                class="menu menu-sm dropdown-content bg-base-100 rounded-box z-[1] mt-3 w-48 p-2 shadow align-super fixed right-0"
+              >
+                <!-- svelte-ignore a11y-missing-attribute -->
+                <li><a href="/" class="text-lg">Landing</a></li>
+                <!-- svelte-ignore a11y-missing-attribute -->
+                <li>
+                  <a href="/public/GridSimulation" class="text-lg">Simulation</a
+                  >
+                </li>
+                <!-- svelte-ignore a11y-missing-attribute -->
+                <li><a href="/Main/Dashboard" class="text-lg">Dashboard</a></li>
+                <!-- svelte-ignore a11y-missing-attribute -->
+                <li><a href="/Main/Analytics" class="text-lg">Analytics</a></li>
+                {#if loggedIn}
+                  <li>
+                    <button class="text-lg" on:click={logout}>Log out</button>
+                  </li>
+                  <li>
+                    <button
+                      class="text-lg"
+                      onclick="removeaccount_modal.showModal()"
+                      >Remove Account</button
+                    >
+                  </li>
+                {:else}
+                  <li>
+                    <a tabindex="0" role="button" class="text-lg" href="/login"
+                      >Log in</a
+                    >
+                  </li>
+                {/if}
+                <li><a on:click={showModal} class="text-lg">Help</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
       </div>
+
+      <dialog id="my_modal_dash" class="modal">
+        <div class="modal-box">
+          <h3 class="font-bold text-lg">Dashboard</h3>
+          <p class="py-4">
+            This is the central hub for controlling your nodes on the grid. <br
+            />
+            You can see your details, such as credit, on the left, and a list of
+            your nodes in the centre. <br />
+            If you plan on buying electricity, be sure to start by adding some funds
+            to your account first. <br />
+            Your credit is also where you will receive money for any electricity
+            you sell, and you can withdraw from this at any time. <br />
+            <br />
+            Clicking on the "details" button on any of your nodes will open up more
+            information about them, such as the amount of electricity it is allowed
+            to consume/needs to produce. <br />
+            Click on the "Transact with this node" button to go to the market page,
+            where you can be part of our open market. <br /><br />
+            Users can also view the appliances/generators linked to their node. If
+            you wish to add an appliance you may select one from the drop down and
+            click 'add appliance'. If a user wishes to add a generator - you will
+            have to click the 'to generator' button and then they will have to click
+            on a generator category then specify a type for said generator. Once
+            that is done - a user may enter in their typical usage times for that
+            generator, however if they wish to stick to the default times then they
+            can click on the 'skip' button.
+          </p>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+          <button>close</button>
+        </form>
+      </dialog>
+
+      <dialog id="my_modal_grid" class="modal">
+        <div class="modal-box">
+          <h3 class="font-bold text-lg">Grid Simulation</h3>
+          <p class="py-4">
+            The grid simulation page contains an overview of the current state
+            of the electrical grid. <br />
+            On the map, you can see all the nodes that are connected to the simulated
+            grid. <br />
+            Clicking on one of these nodes will give you more information on them,
+            and will show the voltage being generated at that point on the oscilloscope,
+            on the right. <br />
+            At the bottom you can see a few general statistics about the grid.
+          </p>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+          <button>close</button>
+        </form>
+      </dialog>
+
+      <dialog id="help_modal" class="modal">
+        <div class="modal-box">
+          <h3 class="font-bold text-lg">Marketplace</h3>
+          <p class="py-4">
+            The marketplace is designed to be much like any other trading
+            website, where you can observe recent activity in the form of a
+            price graph. <br />
+            Here you can place buy orders, or sell your excess power to someone else
+            connected to the grid.
+          </p>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+          <button>close</button>
+        </form>
+      </dialog>
+
+      <dialog id="analytics_help" class="modal">
+        <div class="modal-box">
+          <h3 class="font-bold text-lg">Analytics</h3>
+          <p class="py-4">
+            This is the analytics page. Users can see in-depth analytics for
+            their profiles. Users can specify nodes that they would like to view
+            their analytics for - and toggle their appliances on and off (using
+            the dropdown) to see how each appliance affects their consumption
+            curve. Users are also able to see market stats related to their
+            profile including previous buy and sell history as well as bought
+            vs. sold ratios. Different time periods can be used on the price
+            history charts by making use of the dropdown.
+          </p>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+          <button>close</button>
+        </form>
+      </dialog>
+
+      <dialog id="removeaccount_modal" class="modal">
+        <div class="modal-box">
+          <h3 class="text-lg font-bold">Delete Account</h3>
+          <p class="py-4">Are you sure you want to delete your account?</p>
+          <div class="modal-action">
+            <form method="dialog">
+              <!-- if there is a button in form, it will close the modal -->
+              <button class="btn bg-red-500" on:click={removeAccount}
+                >Delete</button
+              >
+              <button class="btn bg-gray-600">Cancel</button>
+            </form>
+          </div>
+        </div>
+      </dialog>
     </div>
-  </dialog>
-</main>
+  </header>
+  <main class="container mx-auto mt-8">
+    {#if loggedIn}
+      <slot />
+    {/if}
+  </main>
+</body>

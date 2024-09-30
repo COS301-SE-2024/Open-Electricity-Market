@@ -1,0 +1,25 @@
+select FORMAT('Insert into printer (time,data) value (%L,%L)',time,data) from printer_aggregated
+select FORMAT('Insert into air_purifier (time,data) value (%L,%L)',time,data) from air_purifier_aggregated
+select FORMAT('Insert into boiler (time,data) value (%L,%L)',time,data) from boiler_aggregated
+select FORMAT('Insert into coffee (time,data) value (%L,%L)',time,data) from coffee_aggregated
+select FORMAT('Insert into washing_machine (time,data) value (%L,%L)',time,data) from washing_machine_aggregated
+select FORMAT('Insert into computer (time,data) value (%L,%L)',time,data) from computer_aggregated
+select FORMAT('Insert into dehumidifier (time,data) value (%L,%L)',time,data) from dehumidifier_aggregated
+select FORMAT('Insert into dishwasher (time,data) value (%L,%L)',time,data) from dishwasher_aggregated
+select FORMAT('Insert into dryer (time,data) value (%L,%L)',time,data) from dryer_aggregated
+select FORMAT('Insert into fan (time,data) value (%L,%L)',time,data) from fan_aggregated
+select FORMAT('Insert into freezer (time,data) value (%L,%L)',time,data) from freezer_aggregated
+select FORMAT('Insert into fridge (time,data) value (%L,%L)',time,data) from fridge_aggregated
+select FORMAT('Insert into internet_router (time,data) value (%L,%L)',time,data) from internet_router_aggregated
+select FORMAT('Insert into laptop (time,data) value (%L,%L)',time,data) from laptop_aggregated
+select FORMAT('Insert into micro_wave_oven (time,data) value (%L,%L)',time,data) from micro_wave_oven_aggregated
+select FORMAT('Insert into phone_charger (time,data) value (%L,%L)',time,data) from phone_charger_aggregated
+select FORMAT('Insert into printer (time,data) value (%L,%L)',time,data) from printer_aggregated
+select FORMAT('Insert into radiator (time,data) value (%L,%L)',time,data) from radiator_aggregated
+select FORMAT('Insert into screen (time,data) value (%L,%L)',time,data) from screen_aggregated
+select FORMAT('Insert into solar_panel (time,data) value (%L,%L)',time,data) from solar_panel_aggregated
+select FORMAT('Insert into sound_system (time,data) value (%L,%L)',time,data) from sound_system_aggregated
+select FORMAT('Insert into tv (time,data) value (%L,%L)',time,data) from tv_aggregated
+select FORMAT('Insert into vacuum (time,data) value (%L,%L)',time,data) from vacuum_aggregated
+select FORMAT('Insert into air_conditioner (time,data) value (%L,%L)',time,data) from air_conditioner_aggregated
+

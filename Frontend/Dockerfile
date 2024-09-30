@@ -1,13 +1,11 @@
-FROM node
+FROM oven/bun
 
 WORKDIR /usr/site/app
 
 COPY . .
 
-RUN npm i
+RUN bun install
 
-RUN npm update
+RUN bun run build
 
-RUN npm run build
-
-CMD ["node","build/index.js"]
+CMD ["bun","build/index.js"]

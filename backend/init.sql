@@ -13,3 +13,12 @@ CREATE EXTENSION "uuid-ossp" WITH SCHEMA open_em;
 GRANT ALL PRIVILEGES ON SCHEMA open_em to open_em;
 
 ALTER ROLE open_em IN DATABASE open_em SET search_path=open_em, public;
+
+-- log in as extension owner on open_em database
+-- drop extensions and recreate them with the schema set
+-- otherwise the extensions are created by default on the public schema
+\c open_em postgres
+DROP EXTENSION timescaledb;
+CREATE EXTENSION IF NOT EXISTS timescaledb SCHEMA open_em CASCADE;
+DROP EXTENSION timescaledb_toolkit;
+CREATE EXTENSION IF NOT EXISTS timescaledb_toolkit SCHEMA open_em CASCADE;

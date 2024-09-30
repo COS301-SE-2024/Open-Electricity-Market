@@ -1,256 +1,194 @@
-
-
 <script>
   import { onMount } from "svelte";
-  import Map from '$lib/Components/Map.svelte';
+  import Map from "$lib/Components/Map.svelte";
   import Chart from "$lib/Components/Chart2.svelte";
   import GridStats from "../../../lib/Components/GridStats.svelte";
-  import { API_URL_GRID, API_URL_MARKET } from '$lib/config.js';
+  import { API_URL_GRID } from "$lib/config.js";
 
-
- 
-
-  let data = {};
-  let interval; 
-  let numDecimals = 2; 
-  let advancedView = false; 
-  let dropdownViewable = false; 
-  let mapdata; 
-  let oscilloscopedata = null;
-
-  function toggleDropdown(){
-    dropdownViewable = !dropdownViewable; 
-  }
+  $: voltageData = null;
+  $: power = null;
+  $: mapdata = null;
 
   onMount(async () => {
     await fetchData();
-    await fetchstart();  
-    //interval = setInterval(fetchData, 10000); 
-    
-   
+    // interval = setInterval(fetchData, 10000);
+
     return () => {
-      clearInterval(interval);
+      // clearInterval(interval);
+      Map.destroy();
     };
   });
 
-     async function fetchstart() {
-
-      try {
-        const response = await fetch(`${API_URL_GRID}/start`, {
-      method: "POST", 
-      headers: {
-        'Content-Type': 'application/json' 
-      }
-
-    });
-        console.log("start being sent...");
-        // const response = fetch("http://localhost:8000");
-        const startdata = await response.json();
-        console.log(startdata);
-        //Voltage 1,2,3 as well as price
-        //updateChart(data.Phase1, data.Phase2);
-      } catch (error) {
-        console.log("There was an error fetching the JSON for the chart..", error);
-        
-      }
-  };
-
-   function setAdvancedView(){
-    advancedView = !advancedView;
-    if(advancedView){
-      numDecimals = 7; 
-    }
-    else{
-      numDecimals = 2;  
+  async function fetchstart() {
+    try {
+      const response = await fetch(`${API_URL_GRID}/start`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      });
+      // console.log("start being sent...");
+      const startdata = await response.json();
+    } catch (error) {
+      console.log("There was an error fetching the JSON for start()..", error);
     }
   }
 
   async function fetchData() {
     try {
       const response = await fetch(`${API_URL_GRID}/info`, {
-        method: "POST", 
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json' 
-        }
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
       });
       //console.log("Request being sent...");
       const fdata = await response.json();
-      console.log("Fetched data:", fdata);
-      mapdata = fdata.circuits[0];
-      // data = null; 
-      // data = {
-      //   ...fdata,
-      //   Consumers: fdata.Consumers.map(item => JSON.parse(item)),
-      //   Generators: fdata.Generators.map(item => JSON.parse(item)),
-      //   Transformers: fdata.Transformers.map(item => JSON.parse(item)),
-      //   "Transmission Lines": fdata["Transmission Lines"].map(item => JSON.parse(item))
-      // };
-      // console.log("Data is this: ");
-      // console.log(data);
-      // chartdata = data[Consumers.Voltage.Phase1];
-      
+      // console.log("Fetched data [gridsim /info]:", fdata);
+      if (!fdata.started) {
+        await fetchstart();
+        return;
+      }
+      mapdata = fdata.circuits;
     } catch (error) {
-      console.log("There was an error fetching the JSON for the overview:", error);
+      console.log(
+        "There was an error fetching the JSON for the overview:",
+        error
+      );
     }
   }
 
+  $: consumerMarkerDetails = null;
+  $: transformerMarkerDetails = null;
+  function handleMarkerClick(entity) {
+    // reset everything to null beforehand:
+    consumerMarkerDetails = null;
+    transformerMarkerDetails = null;
 
-  function handleMarkerClick(entity){
-    // console.log(entity.detail.voltage);
-    // data = entity.detail; 
-    const markerData = entity.detail;
-    console.log('Marker clicked:', markerData);  
-    data = { ...markerData.voltage };
-    console.log("Updated data is this: ", data);
+    if (entity.detail.type === "consumer") {
+      consumerMarkerDetails = entity.detail;
+      voltageData = { ...consumerMarkerDetails.voltage };
+
+      power =
+        (Math.pow(consumerMarkerDetails.voltage.oscilloscope_detail.amplitude),
+        2) / consumerMarkerDetails.resistance;
+      // console.log(
+      //   consumerMarkerDetails.voltage.oscilloscope_detail.amplitude +
+      //     " " +
+      //     consumerMarkerDetails.resistance +
+      //     " " +
+      //     power
+      // );
+    } else if (entity.detail.type === "transformer") {
+      transformerMarkerDetails = entity.detail;
+    }
   }
-
 </script>
 
-<main class="container mx-auto p-4">
-
- <!-- <div class="dropdown mr-3 mt-3">
-  <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
-    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6a1.5 1.5 0 110 3 1.5 1.5 0 010-3zm0 4.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zm0 4.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3z" />
-    </svg>
-  </div>
-  svelte-ignore a11y-no-noninteractive-tabindex
-   <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
-      <li class="flex items-center">
-      <label class="cursor-pointer flex items-center space-x-3 w-full hover:bg-gray-600">
-        <input type="checkbox" class="checkbox checkbox-primary" on:click={setAdvancedView} />
-        <span>Advanced view</span>
-      </label>
-    </li>
-  </ul>
-</div> -->
-
-
-<!-- <button class="btn" onclick="my_modal_2.showModal()">Help</button> -->
-    <!-- <dialog id="my_modal_2" class="modal">  
-      <div class="modal-box">
-        <h3 class="font-bold text-lg ">Grid Simulation Page</h3>
-        <p class="py-4">The grid simulation page contains an overview of the current 
-          state of the electrical grid. 
-        </p>
+<main class="container sm:mx-auto">
+  <div class="fullsection flex xs:flex-row -mt-6 w-full justify-center">
+    <div class="bg-base-100 mx-2 p-4 rounded-2xl h-4/6 w-2/3">
+      <div class="mapsection md:w-full xs:w-full">
+        {#if mapdata != null}
+          <Map {mapdata} on:markerClick={handleMarkerClick} />
+        {/if}
       </div>
-      <form method="dialog" class="modal-backdrop">
-        <button>close</button>
-      </form>
-    </dialog> -->
 
-  <!-- <div class="form-control top-right">
-  <label class="label cursor-pointer">
-    <span class="label-text mr-2">Advanced view</span>
-    <input type="checkbox" class="toggle" checked={advancedView} on:change={setAdvancedView} />
-  </label>
-  </div> -->
-
-   
- 
-  <!-- {#if Object.keys(data).length > 0}
-    
-    <section class="mb-8">
-      <h2 class="text-2xl font-bold mb-4">Consumers</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {#each data.Consumers as consumer}
-          <div class="card shadow-md p-4 transform transition duration-200 hover:scale-105 hover:shadow-lg">
-            <h3 class="text-lg font-semibold mb-2">Consumer ID: {consumer.ID}</h3>
-            <p><strong>Connected Transmission Line:</strong> {consumer["Connected Transmission Line"]}</p>
-            <p><strong>Resistance:</strong> {consumer.Resistance} Ω</p>
-            <p><strong>Phase 1 Voltage:</strong> {consumer.Voltage["Phase 1"].toFixed(numDecimals)} V</p>
-            <p><strong>Phase 2 Voltage:</strong> {consumer.Voltage["Phase 2"].toFixed(numDecimals)} V</p>
-            <p><strong>Phase 3 Voltage:</strong> {consumer.Voltage["Phase 3"].toFixed(numDecimals)} V</p>
-          </div>
-        {/each}
+      <div class="statsection mt-2">
+        <GridStats />
       </div>
-    </section>
-
-    
-    <section class="mb-8">
-      <h2 class="text-2xl font-bold mb-4">Generators</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {#each data.Generators as generator}
-          <div class="card shadow-md p-4 transform transition duration-300 hover:scale-105 hover:shadow-lg ">
-            <h3 class="text-lg font-semibold mb-2">Generator ID: {generator.ID}</h3>
-            <p><strong>Connected Transmission Line:</strong> {generator["Connected Transmission Line"]}</p>
-            <p><strong>Frequency:</strong> {generator.Frequency} Hz</p>
-            <p><strong>Max Voltage:</strong> {generator["Max Voltage"]} V</p>
-            <p><strong>Phase 1 Voltage:</strong> {generator.Voltage["Phase 1"].toFixed(numDecimals)} V</p>
-            <p><strong>Phase 2 Voltage:</strong> {generator.Voltage["Phase 2"].toFixed(numDecimals)} V</p>
-            <p><strong>Phase 3 Voltage:</strong> {generator.Voltage["Phase 3"].toFixed(numDecimals)} V</p>
-          </div>
-        {/each}
-      </div>
-    </section>
-
-  
-    <section class="mb-8">
-      <h2 class="text-2xl font-bold mb-4">Transformers</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {#each data.Transformers as transformer}
-          <div class="card shadow-md p-4 transform transition duration-300 hover:scale-105 hover:shadow-lg">
-            <h3 class="text-lg font-semibold mb-2">Transformer ID: {transformer.ID}</h3>
-            <p><strong>Primary Transmission Line:</strong> {transformer["Primary Transmission Line"]}</p>
-            <p><strong>Secondary Transmission Line:</strong> {transformer["Secondary Transmission Line"]}</p>
-            <p><strong>Ratio:</strong> {transformer.Ratio}</p>
-          </div>
-        {/each}
-      </div>
-    </section>
-
-   
-    <section class="mb-8">
-      <h2 class="text-2xl font-bold mb-4">Transmission Lines</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {#each data["Transmission Lines"] as line}
-          <div class="card shadow-md p-4 transform transition duration-300 hover:scale-105 hover:shadow-lg ">
-            <h3 class="text-lg font-semibold mb-2">Transmission Line ID: {line.ID}</h3>
-            <p><strong>Impedance:</strong> {line.Impedance} Ω</p>
-            <p><strong>Resistance:</strong> {line.Resistance} Ω</p>
-            <p><strong>Phase 1 Voltage:</strong> {line.Voltage["Phase 1"].toFixed(numDecimals)} V</p>
-            <p><strong>Phase 2 Voltage:</strong> {line.Voltage["Phase 2"].toFixed(numDecimals)} V</p>
-            <p><strong>Phase 3 Voltage:</strong> {line.Voltage["Phase 3"].toFixed(numDecimals)} V</p>
-          </div>
-        {/each}
-      </div>
-    </section>
-  {:else}
-   <span class="loading loading-ring loading-lg ml-6"></span>
-  {/if} -->
-
-<div class="fullsection flex md:flex-row xs:flex-col">
-
-<div class="mapsection md:w-3/5  xs:w-full xs:p-0 left-0">
-  <Map {mapdata} on:markerClick = {handleMarkerClick} class="xs:rounded-md"  /> 
-
-    <div class="statsection">
-        <GridStats /> 
-        </div>
     </div>
-
-<div class="chartsection md:w-2/5 md:h-full p-5 xs:w-full xs:">   
-  <Chart {data} />
-
-      
-</div>
-
-
-
-
-
-</div>
-
-
-
-
-
-
+    {#if consumerMarkerDetails != null}
+      <div
+        class="chartsection md:w-1/4 mx-2 p-5 xs:w-full bg-base-100 rounded-2xl flex flex-col max-w-full"
+      >
+        <h1 class="text-3xl">Consumer Details</h1>
+        <hr />
+        <span class="pt-5">
+          <span class="font-light text-lg mt-10">Consumption: </span><br />
+          <!-- TODO: format according to the average consumption rate of a typical consumer -->
+          <span class="text-4xl">{Intl.NumberFormat().format(power)} W</span>
+          <br />
+          <span class="font-light text-lg mt-10">Impedance: </span><br />
+          <span class="text-4xl"
+            >{Intl.NumberFormat().format(
+              (consumerMarkerDetails.resistance / 1000).toFixed(3)
+            )} kΩ</span
+          >
+        </span>
+        {#if consumerMarkerDetails.generators != null}
+          <span class="pt-5">
+            <span class="font-light text-lg">Generators: </span> <br />
+            {#each consumerMarkerDetails.generators as generator}
+              <span class="text-2xl">Generator ID: {generator.id}</span><br />
+              <span class="text-2xl"
+                >Current Generation: {(
+                  Math.pow(generator.max_voltage, 2) /
+                  consumerMarkerDetails.resistance /
+                  1000
+                ).toFixed(3)} kW</span
+              >
+            {/each}
+          </span>
+        {/if}
+        <h1 class="font-light text-lg pt-5">Voltage and Phase</h1>
+        <div class="h-max w-full">
+          <Chart data={voltageData} />
+        </div>
+        <div class="flex w-full justify-end -mt-4">
+          <span class="text-lg font-light"
+            >{voltageData.oscilloscope_detail.frequency} Hz</span
+          >
+          <!-- <span class="text-lg font-light"
+            >{voltageData.oscilloscope_detail.amplitude}</span
+          > -->
+        </div>
+      </div>
+    {:else if transformerMarkerDetails != null}
+      <div
+        class="chartsection md:w-1/4 mx-2 p-5 xs:w-full bg-base-100 rounded-2xl flex flex-col max-w-full"
+      >
+        <h1 class="text-3xl">Transformer Details</h1>
+        <hr />
+        <span class="pt-5">
+          <span class="font-light text-lg mt-10">Ratio: </span><br />
+          <span class="text-4xl"
+            >{Intl.NumberFormat().format(transformerMarkerDetails.ratio)}</span
+          >
+          <br />
+          <span class="font-light text-lg mt-10">Output Voltage: </span><br />
+          <span class="text-4xl"
+            >{Intl.NumberFormat().format(
+              transformerMarkerDetails.secondary_voltage.oscilloscope_detail.amplitude.toFixed(
+                3
+              )
+            )} V</span
+          >
+        </span>
+      </div>
+    {:else}
+      <div
+        class="chartsection md:w-1/4 mx-2 p-5 xs:w-full bg-base-100 rounded-2xl"
+      >
+        <h1 class="text-4xl mb-6">Click on a marker to begin</h1>
+        <p>Click on a marker to learn more about the activity on our grid!</p>
+      </div>
+    {/if}
+  </div>
+  <!-- <div class="w-full py-20 flex justify-center">
+    <div class="card glass bg-base-100 p-6 w-2/3">
+      <h1 class="text-2xl">This is a paragraph</h1>
+      <p>
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+        tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
+        veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
+        commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
+        velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
+        occaecat cupidatat non proident, sunt in culpa qui officia deserunt
+        mollit anim id est laborum.
+      </p>
+    </div>
+  </div> -->
 </main>
-
-<style>
-
-  
-</style>
-
-      

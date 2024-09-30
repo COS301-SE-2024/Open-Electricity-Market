@@ -1,4 +1,4 @@
-import { Chart, Colors } from "chart.js/auto";
+import { Chart, Colors, plugins } from "chart.js/auto";
 
 export function createChart(context, config) {
   return new Chart(context, config);
@@ -78,18 +78,38 @@ export const sampleChartConfig = {
     ],
   },
   options: {
-    scales: {
-      y: {
-        beginAtZero: true,
-        min: -200,
-        max: 200,
+    maintainAspectRatio: false,
+    // I don't think this is working as expected
+    tooltips: {
+      enabled: false,
+    },
+    elements: {
+      point: {
+        radius: 0,
       },
     },
-    // elements: {
-    //   point: {
-    //     // radius: 0,
-    //   },
-    // },
-    // pointRadius: 0;
+    scales: {
+      x: {
+        grid: {
+          display: false,
+        },
+        ticks: {
+          display: false,
+        },
+      },
+      y: {
+        // grid: {
+        //   display: false,
+        // },
+        // ticks: {
+        //   display: false,
+        // },
+      },
+    },
+    plugins: {
+      legend: {
+        display: false,
+      },
+    },
   },
 };

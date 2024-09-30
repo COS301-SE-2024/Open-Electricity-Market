@@ -6,7 +6,7 @@ use crate::grid::{CurrentWrapper, VoltageWrapper};
 use rocket::serde::Serialize;
 use std::sync::{Arc, Mutex};
 
-use super::Resistance;
+use super::{OscilloscopeDetail, Resistance, Voltage};
 
 #[derive(Serialize)]
 #[serde(crate = "rocket::serde")]
@@ -29,6 +29,9 @@ impl Circuit {
         match &mut self.loads[position].load_type {
             super::load::LoadType::Consumer(c) => {
                 let resitance = (240.0 * 240.0) / power;
+                println!("****************************************************************************************************");
+                println!("Since I havae an input of {} watt and my sockets are assumed to be at 240 V I set my impedance to {}",power,resitance);
+                println!("****************************************************************************************************");
 
                 if resitance > 0.0 {
                     c.resistance = Resistance(resitance);
@@ -59,7 +62,20 @@ impl Circuit {
             gen.voltage.oscilloscope_detail.frequency = gen.frequency;
         }
 
-        let mut out = self.generators[0].voltage.clone();
+        let mut out = VoltageWrapper {
+            voltage: Voltage(0.0, 0.0, 0.0),
+            oscilloscope_detail: OscilloscopeDetail {
+                frequency: 50.0,
+                amplitude: 0.0,
+                phase: 0.0,
+            },
+        };
+
+        if !self.generators.is_empty() {
+            for gen in self.generators.iter() {
+                out = out.add_voltage(gen.voltage.clone())
+            }
+        }
 
         for transformer in self.transformers.iter() {
             let transformer = transformer.lock().unwrap();
@@ -187,8 +203,15 @@ impl Circuit {
 
                 for load_id in lane {
                     let load = self.loads[load_id as usize].get_voltage();
-                    total_voltage.subtract_voltage(load);
                     if load_id == prev_load_id {
+                        if transformer.target.is_some() {
+                            let target = transformer.target.unwrap();
+                            let incomming_voltage = total_voltage.oscilloscope_detail.amplitude;
+                            if incomming_voltage != 0.0 {
+                                transformer.ratio = target / incomming_voltage;
+                            }
+                        }
+
                         transformer.secondary_voltage.voltage.0 =
                             total_voltage.voltage.0 * transformer.ratio;
                         transformer.secondary_voltage.voltage.1 =
@@ -197,6 +220,8 @@ impl Circuit {
                             total_voltage.voltage.2 * transformer.ratio;
                         transformer.secondary_voltage.oscilloscope_detail.amplitude =
                             total_voltage.oscilloscope_detail.amplitude * transformer.ratio;
+
+                        total_voltage.subtract_voltage(load);
                     }
                 }
             }

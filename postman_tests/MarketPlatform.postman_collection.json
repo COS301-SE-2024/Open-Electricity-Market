@@ -1,0 +1,2809 @@
+{
+	"info": {
+		"_postman_id": "6632fe30-cdfb-4162-be18-59cc37556391",
+		"name": "MarketPlatform",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "26671993"
+	},
+	"item": [
+		{
+			"name": "UserManagement",
+			"item": [
+				{
+					"name": "RegisterWIthCorrectDetail",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful register\",function () {",
+									"    pm.expect(pm.response.json().message).to.be.oneOf([\"New user added\",\"Failed to create new user\"])",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"tester1@example.com\",\n  \"first_name\": \"test\",\n  \"last_name\": \"test\",\n  \"password\": \"test@123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/register",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "RegisterWithNoneSense",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful response to nonsense\", function(){",
+									"    pm.expect(pm.response.code).to.be.eq(422)",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"tester1@example.com\",\n  \"first_name\": \"test\",\n  \"password\": \"test@123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/register",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "LoginWithCorrectDetail",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful login\",function () {",
+									"    pm.expect(pm.response.json().message).to.be.eq(\"User logged in\")",
+									"});",
+									"pm.environment.set(\"marker_token\", pm.response.json().data.token);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"tester1@example.com\",\n  \"password\": \"test@123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/login",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "LoginWithNonsense",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful response to nonsense\", function(){",
+									"    pm.expect(pm.response.code).to.be.eq(422)",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"tester1@example.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/login",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "TokenRefreshWithCorrectDetailAndToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful token refresh\",function () {",
+									"    pm.expect(pm.response.json().message).to.be.eq(\"Token refreshed\")",
+									"});",
+									"pm.environment.set(\"marker_token\", pm.response.json().data.token);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{marker_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/token_refresh",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"token_refresh"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "TokenRefreshWithoutToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful response to request with no token\", function(){",
+									"    pm.expect(pm.response.code).to.be.eq(403)",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "https://{{market_url}}/token_refresh",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"token_refresh"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "TokenRefreshWithNonsense",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful response to nonsense\", function(){",
+									"    pm.expect(pm.response.json().message).to.be.eq(\"Token refreshed\")",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{marker_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/token_refresh",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"token_refresh"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UserDetailWithToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful user detail\",function () {",
+									"    pm.expect(pm.response.json().message).to.be.eq(\"User details successfully retrieved\")",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{marker_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/user_details",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"user_details"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UserDetailWithNoToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful response to request with no token\", function(){",
+									"    pm.expect(pm.response.code).to.be.eq(403)",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "https://{{market_url}}/user_details",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"user_details"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AddFundsWithToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful add funds\",function () {",
+									"    pm.expect(pm.response.json().message).to.be.eq(\"Funds added\")",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{marker_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"funds\": 1000.0\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/add_funds",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"add_funds"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AddFundsWithoutToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful response to request with no token\", function(){",
+									"    pm.expect(pm.response.code).to.be.eq(403)",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"funds\": 1000.0\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/add_funds",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"add_funds"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AddFundsWithNonsense",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful response to nonsense\", function(){",
+									"    pm.expect(pm.response.code).to.be.eq(422)",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{marker_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"fund\": 1000.0\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/add_funds",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"add_funds"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "WithdrawFundsWithToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful withdraw funds\",function () {",
+									"    pm.expect(pm.response.json().message).to.be.eq(\"Funds removed\")",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{marker_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"funds\": 100.0\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/remove_funds",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"remove_funds"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "WithdrawFundsWithoutToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful response to request with no token\", function(){",
+									"    pm.expect(pm.response.code).to.be.eq(403)",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"funds\": 100.0\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/remove_funds",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"remove_funds"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "WithdrawFundsWithNonesense",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful response to request with no token\", function(){",
+									"    pm.expect(pm.response.code).to.be.eq(422)",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{marker_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"fund\": 100.0\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/remove_funds",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"remove_funds"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "NodeManagement",
+			"item": [
+				{
+					"name": "AddNodeWithToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful add token\",function () {",
+									"    pm.expect(pm.response.json().message).to.be.eq(\"New Node Added\")",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{marker_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Business\",\n  \"location_x\": 28,\n  \"location_y\": -26.5\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/add_node",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"add_node"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AddNodeWithoutToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful response to request with no token\", function(){",
+									"    pm.expect(pm.response.code).to.be.eq(403)",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Business\",\n  \"location_x\": 28,\n  \"location_y\": -26.5\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/add_node",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"add_node"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "AddNodeWitNonesense",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful response to nonesense\", function(){",
+									"    pm.expect(pm.response.code).to.be.eq(422)",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{marker_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"names\": \"Business\",\n  \"location_x\": 28,\n  \"location_y\": -26.5\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/add_node",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"add_node"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetNodesWithToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful get tokens\",function () {",
+									"    pm.expect(pm.response.json().message).to.be.eq(\"List of nodes successfully retrieved\")",
+									"});",
+									"pm.environment.set(\"node_id\", pm.response.json().data[0].node_id);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{marker_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"limit\": 10\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/get_nodes",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"get_nodes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetNodesWithoutToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful response to request with no token\", function(){",
+									"    pm.expect(pm.response.code).to.be.eq(403)",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"limit\": 10\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/get_nodes",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"get_nodes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetNodesWithNonesense",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful response to nonesense\", function(){",
+									"    pm.expect(pm.response.code).to.be.eq(422)",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{marker_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"limi\": 10\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/get_nodes",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"get_nodes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "NodeDetailsWithToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful node details\",function () {",
+									"    pm.expect(pm.response.json().message).to.be.eq(\"Node details retrieved succesfully\")",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{marker_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"node_id\": \"{{node_id}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/node_details",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"node_details"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "NodeDetailsWithoutToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful response to request with no token\", function(){",
+									"    pm.expect(pm.response.code).to.be.eq(403)",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"node_id\": \"{{node_id}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/node_details",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"node_details"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "NodeDetailsWithNonesense",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful response to nonesense\", function(){",
+									"    pm.expect(pm.response.code).to.be.eq(422)",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{marker_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"node\": \"{{node_id}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/node_details",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"node_details"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "RemoveNodeWithToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful remove node\",function () {",
+									"    pm.expect(pm.response.json().message).to.be.eq(\"Node successfully removed\")",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{marker_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"node_id\": \"{{node_id}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/remove_node",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"remove_node"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "RemoveNodeWithoutToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful response to request with no token\", function(){",
+									"    pm.expect(pm.response.code).to.be.eq(403)",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"node_id\": \"{{node_id}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/remove_node",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"remove_node"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "RemoveNodeWithNonesense",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful response to nonesense\", function(){",
+									"    pm.expect(pm.response.code).to.be.eq(422)",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{marker_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"node\": \"{{node_id}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/remove_node",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"remove_node"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "MarketInteraction",
+			"item": [
+				{
+					"name": "SetupANode",
+					"item": [
+						{
+							"name": "AddNodeWithToken",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Succesful add token\",function () {",
+											"    pm.expect(pm.response.json().message).to.be.eq(\"New Node Added\")",
+											"});"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{marker_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"name\": \"Business\",\n  \"location_x\": 28,\n  \"location_y\": -26.5\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://{{market_url}}/add_node",
+									"protocol": "https",
+									"host": [
+										"{{market_url}}"
+									],
+									"path": [
+										"add_node"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GetNodesWithToken",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Succesful get tokens\",function () {",
+											"    pm.expect(pm.response.json().message).to.be.eq(\"List of nodes successfully retrieved\")",
+											"});",
+											"pm.environment.set(\"node_id\", pm.response.json().data[0].node_id);"
+										],
+										"type": "text/javascript",
+										"packages": {}
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{marker_token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"limit\": 10\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "https://{{market_url}}/get_nodes",
+									"protocol": "https",
+									"host": [
+										"{{market_url}}"
+									],
+									"path": [
+										"get_nodes"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "PriceView",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful price view\",function () {",
+									"    pm.expect(pm.response.json().message).to.be.eq(\"Successfully retrieved price\")",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/price_view",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"price_view"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PriceHistoryWithCorrectDetail",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful price history\",function () {",
+									"    pm.expect(pm.response.json().message).to.be.eq(\"Successfully retrieved price history\")",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"time_frame\": \"Day1\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/price_history",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"price_history"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PriceHistoryWithNonesense",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful response to nonesense\", function(){",
+									"    pm.expect(pm.response.code).to.be.eq(422)",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"time\": \"Day1\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/price_history",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"price_history"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "BuyOrderWithToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful buy order\",function () {",
+									"    pm.expect(pm.response.json().message).to.be.eq(\"Buy order created successfully\")",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{marker_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"node_id\": \"{{node_id}}\",\n  \"price\": 0.03,\n  \"units\": 10.0\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/buy_order",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"buy_order"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "BuyOrderWithoutToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful response to request with no token\", function(){",
+									"    pm.expect(pm.response.code).to.be.eq(403)",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"node_id\": \"{{node_id}}\",\n  \"price\": 100.0,\n  \"units\": 10.0\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/buy_order",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"buy_order"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "BuyOrderWithNonsense",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful response to nonesense\", function(){",
+									"    pm.expect(pm.response.code).to.be.eq(422)",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{marker_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"node\": \"{{node_id}}\",\n  \"price\": 100.0,\n  \"units\": 10.0\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/buy_order",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"buy_order"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "SellOrderWithToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful sell order\",function () {",
+									"    pm.expect(pm.response.json().message).to.be.eq(\"Sell order created successfully\")",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{marker_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"node_id\": \"{{node_id}}\",\n  \"price\": 0.03,\n  \"units\": 10.0\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/sell_order",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"sell_order"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "SellOrderWithoutToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful response to request with no token\", function(){",
+									"    pm.expect(pm.response.code).to.be.eq(403)",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"node_id\": \"{{node_id}}\",\n  \"price\": 100.0,\n  \"units\": 10.0\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/sell_order",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"sell_order"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "SellOrderWithNonsense",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful response to nonesense\", function(){",
+									"    pm.expect(pm.response.code).to.be.eq(422)",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{marker_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"node\": \"{{node_id}}\",\n  \"price\": 100.0,\n  \"units\": 10.0\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/sell_order",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"sell_order"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ListOpenBuyOrdersWithToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful list open buy order\",function () {",
+									"    pm.expect(pm.response.json().message).to.be.oneOf([\"Successfully retrieved open buy orders\",\"No open buy orders\"])",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{marker_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/list_open_buys",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"list_open_buys"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ListOpenBuyOrdersWithoutToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful response to nonesense\", function(){",
+									"    pm.expect(pm.response.code).to.be.eq(403)",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/list_open_buys",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"list_open_buys"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ListOpenSellOrdersWithToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful list open sell order\",function () {",
+									"    pm.expect(pm.response.json().message).to.be.oneOf([\"Successfully retrieved open sell orders\",\"No open sell orders\"])",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{marker_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/list_open_sells",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"list_open_sells"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ListOpenSellOrdersWithoutToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful response to nonesense\", function(){",
+									"    pm.expect(pm.response.code).to.be.eq(403)",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/list_open_sells",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"list_open_sells"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "EstimateSellFeeWithCorrectDetail",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful esitmate sell fee\",function () {",
+									"    pm.expect(pm.response.json().message).to.be.eq(\"Sell fee estimation\")",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"units\": 20.0,\n  \"price\": 100.0\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/estimate_sell_fee",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"estimate_sell_fee"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "EstimateSellFeeWithNonesense",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful response to nonesense\", function(){",
+									"    pm.expect(pm.response.code).to.be.eq(422)",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"unit\": 20.0,\n  \"price\": 100.0\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/estimate_sell_fee",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"estimate_sell_fee"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "EstimateBuyFeeWithCorrectDetail",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful esitmate buy fee\",function () {",
+									"    pm.expect(pm.response.json().message).to.be.eq(\"Buy fee estimation\")",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"units\": 20.0,\n  \"price\": 100.0\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/estimate_buy_fee",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"estimate_buy_fee"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "EstimateBuyFeeWithNonesense",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful response to nonesense\", function(){",
+									"    pm.expect(pm.response.code).to.be.eq(422)",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"unit\": 20.0,\n  \"price\": 100.0\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/estimate_buy_fee",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"estimate_buy_fee"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ListAllOpenBuyOrdersWithCorrectDetail",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful retrieved open buy orders\",function () {",
+									"    pm.expect(pm.response.json().message).to.be.eq(\"Successfully retrieved open buy orders\")",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"limit\": 10\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/all_open_buy",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"all_open_buy"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ListAllOpenBuyOrdersWithNonsense",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful response to nonesense\", function(){",
+									"    pm.expect(pm.response.code).to.be.eq(422)",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"limits\": 10\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/all_open_buy",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"all_open_buy"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ListAllOpenSellOrdersWithCorrectDetail",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful retrieved open sell orders\",function () {",
+									"    pm.expect(pm.response.json().message).to.be.eq(\"Successfully retrieved open sell orders\")",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"limit\": 10\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/all_open_sell",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"all_open_sell"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ListAllOpenSellOrdersWithNonsense",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful response to nonesense\", function(){",
+									"    pm.expect(pm.response.code).to.be.eq(422)",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"limits\": 10\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/all_open_sell",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"all_open_sell"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "MarketAnalytics",
+			"item": [
+				{
+					"name": "UserBuyStatsWithToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful user buy stats\",function () {",
+									"    pm.expect(pm.response.json().message).to.be.eq(\"User's buying stats successfully retrieved\")",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{marker_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "https://{{market_url}}/user_buy_stats",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"user_buy_stats"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UserBuyStatsWithoutToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful response to invalid token\", function(){",
+									"    pm.expect(pm.response.code).to.be.eq(403)",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "https://{{market_url}}/user_buy_stats",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"user_buy_stats"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UserSellStatsWithToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful user sell stats\",function () {",
+									"    pm.expect(pm.response.json().message).to.be.eq(\"User's selling stats successfully retrieved\")",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{marker_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "https://{{market_url}}/user_sell_stats",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"user_sell_stats"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UserSellStatsWithoutToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful response to invalid token\", function(){",
+									"    pm.expect(pm.response.code).to.be.eq(403)",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "https://{{market_url}}/user_sell_stats",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"user_sell_stats"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UserBuyHistoryWithToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful user buy history\",function () {",
+									"    pm.expect(pm.response.json().message).to.be.eq(\"Successfully retrieved user buy history\")",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{marker_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"time_frame\": \"Day1\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/buy_history_stat",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"buy_history_stat"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UserBuyHistoryWithoutToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful response to invalid token\", function(){",
+									"    pm.expect(pm.response.code).to.be.eq(403)",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"time_frame\": \"Day1\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/buy_history_stat",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"buy_history_stat"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UserBuyHistortyWithNonsense",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful response to nonesense\", function(){",
+									"    pm.expect(pm.response.code).to.be.eq(422)",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{marker_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"time\": \"Day1\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/buy_history_stat",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"buy_history_stat"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UserSellHistoryWithToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful user sell history\",function () {",
+									"    pm.expect(pm.response.json().message).to.be.eq(\"Successfully retrieved user sell history\")",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{marker_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"time_frame\": \"Day1\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/sell_history_stat",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"sell_history_stat"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UserSellHistoryWithoutToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful response to invalid token\", function(){",
+									"    pm.expect(pm.response.code).to.be.eq(403)",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"time_frame\": \"Day1\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/sell_history_stat",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"sell_history_stat"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UserSellHistortyWithNonsense",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful response to nonesense\", function(){",
+									"    pm.expect(pm.response.code).to.be.eq(422)",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{marker_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"time\": \"Day1\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://{{market_url}}/sell_history_stat",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"sell_history_stat"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UserBoughtUnitsVsSoldUnitsWithtToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful user sell history\",function () {",
+									"    pm.expect(pm.response.json().message).to.be.eq(\"Successfully retrieved user bought and sold units\")",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{marker_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "https://{{market_url}}/bought_vs_sold_stat",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"bought_vs_sold_stat"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UserBoughtUnitsVsSoldUnitsWithoutToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Succesful response to invalid token\", function(){",
+									"    pm.expect(pm.response.code).to.be.eq(403)",
+									"})"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "https://{{market_url}}/bought_vs_sold_stat",
+							"protocol": "https",
+							"host": [
+								"{{market_url}}"
+							],
+							"path": [
+								"bought_vs_sold_stat"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

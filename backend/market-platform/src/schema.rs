@@ -2,15 +2,46 @@
 
 pub mod open_em {
     diesel::table! {
-        open_em.buy_orders (buy_order_id) {
-            buy_order_id -> Int8,
+        open_em.agent_history (created_at) {
+            created_at -> Timestamptz,
+            agent_state -> Nullable<Jsonb>,
+        }
+    }
+
+    diesel::table! {
+        open_em.appliance_data (time, appliance) {
+            time -> Timestamptz,
+            data -> Nullable<Float8>,
+            appliance -> Text,
+        }
+    }
+
+    diesel::table! {
+        open_em.buy_orders (buy_order_id, created_at) {
+            buy_order_id -> Uuid,
             buyer_id -> Uuid,
             sought_units -> Float8,
             filled_units -> Float8,
             max_price -> Float8,
-            min_price -> Float8,
             created_at -> Timestamptz,
+            active -> Bool,
             consumer_id -> Uuid,
+        }
+    }
+
+    diesel::table! {
+        open_em.funds (payment_id) {
+            payment_id -> Int8,
+            fund_holder -> Uuid,
+            amount -> Float8,
+            created_at -> Timestamptz,
+        }
+    }
+
+    diesel::table! {
+        open_em.grid_history (created_at) {
+            created_at -> Timestamptz,
+            grid_state -> Nullable<Jsonb>,
         }
     }
 
@@ -21,6 +52,7 @@ pub mod open_em {
             location_x -> Float8,
             location_y -> Float8,
             node_active -> Bool,
+            created_at -> Timestamptz,
             name -> Text,
         }
     }
@@ -34,23 +66,23 @@ pub mod open_em {
     }
 
     diesel::table! {
-        open_em.sell_orders (sell_order_id) {
-            sell_order_id -> Int8,
+        open_em.sell_orders (sell_order_id, created_at) {
+            sell_order_id -> Uuid,
             seller_id -> Uuid,
             created_at -> Timestamptz,
             offered_units -> Float8,
             claimed_units -> Float8,
-            max_price -> Float8,
             min_price -> Float8,
+            active -> Bool,
             producer_id -> Uuid,
         }
     }
 
     diesel::table! {
-        open_em.transactions (transaction_id) {
-            transaction_id -> Int8,
-            sell_order_id -> Int8,
-            buy_order_id -> Int8,
+        open_em.transactions (transaction_id, created_at) {
+            transaction_id -> Uuid,
+            sell_order_id -> Uuid,
+            buy_order_id -> Uuid,
             transacted_units -> Float8,
             transacted_price -> Float8,
             created_at -> Timestamptz,
@@ -67,22 +99,25 @@ pub mod open_em {
             pass_hash -> Text,
             credit -> Float8,
             active -> Bool,
-            session_id -> Nullable<Text>,
+            deleted_at -> Nullable<Timestamptz>,
             created_at -> Timestamptz,
         }
     }
 
     diesel::joinable!(buy_orders -> nodes (consumer_id));
     diesel::joinable!(buy_orders -> users (buyer_id));
+    diesel::joinable!(funds -> users (fund_holder));
     diesel::joinable!(nodes -> users (node_owner));
     diesel::joinable!(profiles -> users (profile_user_id));
     diesel::joinable!(sell_orders -> nodes (producer_id));
     diesel::joinable!(sell_orders -> users (seller_id));
-    diesel::joinable!(transactions -> buy_orders (buy_order_id));
-    diesel::joinable!(transactions -> sell_orders (sell_order_id));
 
     diesel::allow_tables_to_appear_in_same_query!(
+        agent_history,
+        appliance_data,
         buy_orders,
+        funds,
+        grid_history,
         nodes,
         profiles,
         sell_orders,

@@ -18,4 +18,4 @@ RUN --mount=type=cache,mode=0777,target=/home/root/.cache/sccache \
 
 ENV ROCKET_ADDRESS=0.0.0.0
 
-CMD /usr/src/agent/target/release/agent
+CMD curl -H 'Content-Type: application/json' -X POST http://simulation:8000/start ;/usr/src/agent/target/release/agent

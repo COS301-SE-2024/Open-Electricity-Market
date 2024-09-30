@@ -3,7 +3,8 @@ CREATE TABLE users (
     email text UNIQUE NOT NULL,
     pass_hash text NOT NULL,
     credit float8 NOT NULL DEFAULT 0,
-    active bool NOT NULL DEFAULT TRUE
+    active bool NOT NULL DEFAULT TRUE,
+    deleted_at timestamptz DEFAULT NULL
 );
 
 CREATE TABLE profiles (

@@ -9,17 +9,22 @@ services:
       NODE_ENV: production
     networks:
       - amplify
-    volumes:
-      - node_modules:/usr/src/app/node_modules
   simulation:
     build: ./backend/simulation/
+    depends_on:
+      db:
+        condition: service_healthy
+      market-platform:
+        condition: service_healthy
+    environment:
+      DATABASEHOST: db
     networks:
       - amplify
   db:
-    image: postgres
+    image: timescale/timescaledb-ha:pg16
     volumes:
       - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
-      - pgdata:/var/lib/postgresql/data
+      - pgdata:/home/postgres/pgdata/data
     ports:
       - "5432:5432"
     env_file: "backend/db.env"
@@ -38,14 +43,23 @@ services:
     environment:
       DATABASEHOST: db
       GRIDDOMAIN: simulation
+    healthcheck:
+      test: curl --fail http://localhost:8001/ || exit
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     networks:
       - amplify
   agent:
     build: ./backend/agent/
     depends_on:
-      - db
-      - simulation
-      - market-platform
+      db:
+        condition: service_healthy
+      market-platform:
+        condition: service_healthy
+      simulation:
+        condition: service_started
     environment:
       DATABASEHOST: db
       GURL: simulation
@@ -61,6 +75,17 @@ services:
       - ./Caddyfile:/etc/caddy/Caddyfile
       - caddy_data:/data
       - caddy_config:/config
+    networks:
+      - amplify
+  ml-api:
+    build: ./backend/ml-api/
+    depends_on:
+      db:
+        condition: service_healthy
+      market-platform:
+        condition: service_healthy
+      simulation:
+        condition: service_started
     networks:
       - amplify
 volumes:

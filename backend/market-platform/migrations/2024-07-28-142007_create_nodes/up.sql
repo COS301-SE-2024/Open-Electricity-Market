@@ -4,9 +4,11 @@ CREATE TABLE nodes(
     location_x float8 NOT NULL DEFAULT 0, -- Potentially replace with location type
     location_y float8 NOT NULL DEFAULT 0,
     node_active bool NOT NULL DEFAULT true,
+    created_at timestamptz NOT NULL DEFAULT NOW(),
     CONSTRAINT fk_node_owner
         FOREIGN KEY(node_owner)
         REFERENCES users(user_id)
+        ON DELETE CASCADE
 );
 
 ALTER TABLE sell_orders

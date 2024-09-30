@@ -1,31 +1,29 @@
 // @ts-check
 import { test, expect } from "@playwright/test";
-//require(‘dotenv-playwright’).config();
-//import dotenv from 'dotenv';
 
 test.describe("Landing page", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("http://site.localhost:5173");
+    await page.goto("/");
   });
   test("To dashboard", async ({ page }) => {
     // Click the sign in button.
     await page.getByRole("link", { name: "Sign in" }).click();
 
     // Expects to be redirected to login page.
-    await page.waitForURL("**/login");
+    await page.waitForURL("/login");
   });
   test("To simulation", async ({ page }) => {
     // Click the sign in button.
     await page.getByRole("link", { name: "Simulation" }).click();
 
     // Expects to be redirected to login page.
-    await page.waitForURL("**/public/GridSimulation");
+    await page.waitForURL("/public/GridSimulation");
   });
 });
 
 test.describe("simulation page (not logged in)", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("http://site.localhost:5173/public/GridSimulation");
+    await page.goto("/public/GridSimulation");
   });
   test("Back to Landing page", async ({ page }) => {
     //Wait for page to finish loading
@@ -35,7 +33,7 @@ test.describe("simulation page (not logged in)", () => {
     await page.getByRole("link", { name: "Amplify" }).click();
 
     // Expects to be redirected back to landing page.
-    await page.waitForURL("http://site.localhost:5173");
+    await page.waitForURL("/");
   });
   test("To Grid Simulation page", async ({ page }) => {
     //Wait for page to finish loading
@@ -45,7 +43,7 @@ test.describe("simulation page (not logged in)", () => {
     await page.getByRole("link", { name: "Simulation" }).click();
 
     // Expects to be redirected to simulation grid page.
-    await page.waitForURL("**/public/GridSimulation");
+    await page.waitForURL("/public/GridSimulation");
   });
   test("To Dashboard", async ({ page }) => {
     //Wait for page to finish loading
@@ -56,13 +54,13 @@ test.describe("simulation page (not logged in)", () => {
 
     // Expects to be redirected to Dashboard page.
     //await page.waitForURL("**/Main/Dashboard");
-    await page.waitForURL("**/login");
+    await page.waitForURL("/login");
   });
   test("To Analytics", async ({page}) => {
     //Wait for page to finish loading
     await page.waitForLoadState('networkidle');
     await page.getByRole("link", {name: "Analytics" }).click();
-    await page.waitForURL("**/Main/Analytics");
+    await page.waitForURL("/Main/Analytics");
   });
   test("Help", async ({ page }) => {
 
@@ -76,13 +74,13 @@ test.describe("simulation page (not logged in)", () => {
     //Wait for page to finish loading
     await page.waitForLoadState('networkidle');
     await page.getByRole("button", {name: "Log in" }).click();
-    await page.waitForURL("**/login");
+    await page.waitForURL("/login");
   });
 });
 
 test.describe("login page", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("http://site.localhost:5173/login");
+    await page.goto("/login");
   });
   test("To signup page", async ({ page }) => {
     //Wait for page to finish loading
@@ -92,17 +90,17 @@ test.describe("login page", () => {
     await page.getByRole("link", { name: "Create an account" }).click();
 
     // Expects to be redirected to signup page.
-    await page.waitForURL("**/signup");
+    await page.waitForURL("/signup");
   });
   test("Back to landing page", async ({page}) => {
     await page.getByRole("link", {name: "Amplify"}).click();
-    await page.waitForURL("http://site.localhost:5173")
+    await page.waitForURL("/");
   });
 });
 
 test.describe("signup page", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("http://site.localhost:5173/signup");
+    await page.goto("/signup");
   });
   test("Back to login page", async ({ page }) => {
     //Wait for page to finish loading
@@ -112,17 +110,17 @@ test.describe("signup page", () => {
     await page.getByRole("link", { name: "I already have an account" }).click();
 
     // Expects to be redirected back to login page.
-    await page.waitForURL("**/login");
+    await page.waitForURL("/login");
   });
   test("Back to landing page", async ({page}) => {
     await page.getByRole("link", {name: "Amplify"}).click();
-    await page.waitForURL("http://site.localhost:5173")
+    await page.waitForURL("/")
   });
 });
 
 test.describe("signup page error testing", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("http://site.localhost:5173/signup");
+    await page.goto("/signup");
   });
   test("Empty email", async ({ page }) => {
     //Wait for page to finish loading
@@ -465,7 +463,7 @@ test.describe("signup page error testing", () => {
     // Click the "Create account" button.
     await page.getByRole("button", { name: "Create account" }).click();
     await page.waitForLoadState();
-    await page.waitForURL("http://site.localhost:5173/Main/Dashboard");
+    await page.waitForURL("/Main/Dashboard");
 
   });
   /*test("Testing valid signup for webkit", async ({ page, browserName }) => {
@@ -490,7 +488,7 @@ test.describe("signup page error testing", () => {
     // Click the "Create account" button.
     await page.getByRole("button", { name: "Create account" }).click();
     await page.waitForLoadState();
-    await page.waitForURL("http://site.localhost:5173/Main/Dashboard");
+    await page.waitForURL("/Main/Dashboard");
 
   });*/
   test("Testing valid signup for chromium", async ({ page, browserName }) => {
@@ -513,7 +511,7 @@ test.describe("signup page error testing", () => {
     // Click the "Create account" button.
     await page.getByRole("button", { name: "Create account" }).click();
     await page.waitForLoadState();
-    await page.waitForURL("http://site.localhost:5173/Main/Dashboard");
+    await page.waitForURL("/Main/Dashboard");
 
   });
 

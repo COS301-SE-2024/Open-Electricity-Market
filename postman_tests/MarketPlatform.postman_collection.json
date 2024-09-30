@@ -30,7 +30,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"tester@example.com\",\n  \"first_name\": \"test\",\n  \"last_name\": \"test\",\n  \"password\": \"test@123\"\n}",
+							"raw": "{\n  \"email\": \"tester1@example.com\",\n  \"first_name\": \"test\",\n  \"last_name\": \"test\",\n  \"password\": \"test@123\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -71,7 +71,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"tester@example.com\",\n  \"first_name\": \"test\",\n  \"password\": \"test@123\"\n}",
+							"raw": "{\n  \"email\": \"tester1@example.com\",\n  \"first_name\": \"test\",\n  \"password\": \"test@123\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -113,7 +113,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"tester@example.com\",\n  \"password\": \"test@123\"\n}",
+							"raw": "{\n  \"email\": \"tester1@example.com\",\n  \"password\": \"test@123\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -154,7 +154,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"tester@example.com\"\n}",
+							"raw": "{\n  \"email\": \"tester1@example.com\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -673,89 +673,6 @@
 							],
 							"path": [
 								"remove_funds"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "RemoveAccountWithToken",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Succesful remove account\",function () {",
-									"    pm.expect(pm.response.json().message).to.be.eq(\"Account successfully deleted\")",
-									"});"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{marker_token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "https://{{market_url}}/remove_account",
-							"protocol": "https",
-							"host": [
-								"{{market_url}}"
-							],
-							"path": [
-								"remove_account"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "RemoveAccountWithoutToken",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Succesful response to request with no token\", function(){",
-									"    pm.expect(pm.response.code).to.be.eq(403)",
-									"})"
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"url": {
-							"raw": "https://{{market_url}}/remove_account",
-							"protocol": "https",
-							"host": [
-								"{{market_url}}"
-							],
-							"path": [
-								"remove_account"
 							]
 						}
 					},

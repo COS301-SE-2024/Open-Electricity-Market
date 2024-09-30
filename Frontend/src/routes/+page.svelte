@@ -4,6 +4,7 @@
   import market_image from "$lib/assets/pexels-energepic-com-27411-159888.jpg";
   import strategy_image from "$lib/assets/pexels-pixabay-163064.jpg";
   import breaker_image from "$lib/assets/troy-bridges-maXnRLszYY0-unsplash.jpg";
+  import api_image from "$lib/assets/walkator-klMii3cR9iI-unsplash.jpg";
   import { onMount } from "svelte";
 
   let scrollY;
@@ -157,7 +158,7 @@
             <p class="text-xl">
               Powerful tools are provided for users to manage their own nodes,
               and the appliances they choose to connect. <br />
-              This any user in the nation to easily observe and manage their use
+              This allows any user in the nation to easily observe and manage their use
               of electricity.
             </p>
           </div>
@@ -174,6 +175,22 @@
               market as well as maintain a stable grid. <br />
               Market price is adjusted to ensure the grid load stays within predetermined
               limits, and bought electricity has a lifetime in order to avoid hoarding.
+            </p>
+          </div>
+        </div>
+
+
+        <div class="card sm:card-side glass shadow-xl mt-4 min-h-72">
+          <figure class="max-w-96 max-h-72">
+            <img src={api_image} alt="img" />
+          </figure>
+          <div class="card-body text-white">
+            <h2 class="card-title text-4xl">Public API</h2>
+            <p class="text-xl">
+                Amplify features a public API which allows users of our system to build their own smart agents. These
+                agents can for example buy and sell electricity, monitor the market state and alert users and much more.
+                Documentation for this API is available
+                <a class="link" href="https://github.com/COS301-SE-2024/Open-Electricity-Market/wiki">here</a>
             </p>
           </div>
         </div>

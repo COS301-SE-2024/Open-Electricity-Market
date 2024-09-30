@@ -31,7 +31,7 @@ A cutting-edge simulation platform, designed to transform the way we manage ener
 
 - A PDF of the installation manual can be found [here](https://drive.google.com/file/d/1mUAVHsBsUE-qD9GNEbh5qQffu-iG_WHS/view?usp=drive_link)
 
-### [User Manual](https://drive.google.com/file/d/1cwd0825UdNOTkrD7H-Fb6b-BBc5QnTlH/view?usp=sharing)
+### [User Manual](https://drive.google.com/file/d/1G4fQVAYeXUatr1-xSmgA68Xtpqggn3Gr/view?usp=drive_link)
 
 ### [GitHub Rules and Conventions](https://github.com/COS301-SE-2024/Open-Electricity-Market/blob/dev/Documentation/GitHub_Rules_and_Conventions.md)
 

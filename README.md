@@ -1,12 +1,13 @@
-# Team Isidore - Open Electricity Market
+# Team Isidore - [Amplify](www.amplify.org.za)
 
 for EPI-USE Labs  
 A cutting-edge simulation platform, designed to transform the way we manage energy, as well as optimise grid operations.
 
-[](<[![Super-Linter](https://github.com/COS301-SE-2024/Open-Electricity-Market/actions/workflows/linter.yml/badge.svg)](https://github.com/marketplace/actions/super-linter)>)
-
+[![Super-Linter](https://github.com/COS301-SE-2024/Open-Electricity-Market/actions/workflows/linter.yml/badge.svg)](https://github.com/marketplace/actions/super-linter)
 ![GitHub Workflow Status](https://github.com/COS301-SE-2024/Open-Electricity-Market/actions/workflows/rust.yml/badge.svg)
-![GitHub Workflow Status](https://github.com/COS301-SE-2024/Open-Electricity-Market/actions/workflows/node.js.yml/badge.svg)
+![GitHub Workflow Status](https://github.com/COS301-SE-2024/Open-Electricity-Market/actions/workflows/deploy.yml/badge.svg)
+![GitHub Workflow Status](https://github.com/COS301-SE-2024/Open-Electricity-Market/actions/workflows/newman.yml/badge.svg)
+
 
 ### [Project Board](https://github.com/orgs/COS301-SE-2024/projects/61)
 
@@ -33,7 +34,7 @@ A cutting-edge simulation platform, designed to transform the way we manage ener
 
 ### [User Manual](https://drive.google.com/file/d/1cwd0825UdNOTkrD7H-Fb6b-BBc5QnTlH/view?usp=sharing)
 
-### [GitHub Rules and Conventions](https://github.com/COS301-SE-2024/Open-Electricity-Market/blob/main/Documentation/GitHub_Rules_and_Conventions.md)
+### [GitHub Rules and Conventions](https://github.com/COS301-SE-2024/Open-Electricity-Market/blob/dev/Documentation/GitHub_Rules_and_Conventions.md)
 
 ## Team
 

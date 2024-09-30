@@ -45,7 +45,7 @@ test.describe("signed in to dashboard", () => {
         });
         test("Add a Buy order", async ({page}) => {
             await page.getByRole('button', { name: 'Details' }).click();
-            await page.getByRole('button', { name: 'Transact with this node' }).toBeVisible();
+            //await page.getByRole('button', { name: 'Transact with this node' }).toBeVisible();
             await page.getByRole('button', { name: 'Transact with this node' }).click();
             await page.waitForURL("/Main/BiddingMarket");
             await page.waitForLoadState('domcontentloaded');

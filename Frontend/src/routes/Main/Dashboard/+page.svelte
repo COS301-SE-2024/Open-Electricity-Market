@@ -893,10 +893,9 @@
                   height="40px"
                   viewBox="0 0 485 485"
                   xml:space="preserve"
-                  on:click={ () => {
-                    document.getElementById("cancelBuyOrder").showModal()
-                  }
-                  }
+                  on:click={() => {
+                    document.getElementById("cancelBuyOrder").showModal();
+                  }}
                 >
                   <g>
                     <g>
@@ -990,10 +989,9 @@
                   height="40px"
                   viewBox="0 0 485 485"
                   xml:space="preserve"
-                  on:click={ () => {
-                    document.getElementById("cancelSellOrder1").showModal()
-                  }
-                  }
+                  on:click={() => {
+                    document.getElementById("cancelSellOrder1").showModal();
+                  }}
                 >
                   <g>
                     <g>
@@ -1208,10 +1206,9 @@
                   height="40px"
                   viewBox="0 0 485 485"
                   xml:space="preserve"
-                  on:click={ () => {
-                    document.getElementById("cancelSellOrder2").showModal()
-                  }
-                  }
+                  on:click={() => {
+                    document.getElementById("cancelSellOrder2").showModal();
+                  }}
                 >
                   <g>
                     <g>

@@ -8,7 +8,6 @@ A cutting-edge simulation platform, designed to transform the way we manage ener
 ![GitHub Workflow Status](https://github.com/COS301-SE-2024/Open-Electricity-Market/actions/workflows/deploy.yml/badge.svg)
 ![GitHub Workflow Status](https://github.com/COS301-SE-2024/Open-Electricity-Market/actions/workflows/newman.yml/badge.svg)
 
-
 ### [Project Board](https://github.com/orgs/COS301-SE-2024/projects/61)
 
 ### Demo Videos

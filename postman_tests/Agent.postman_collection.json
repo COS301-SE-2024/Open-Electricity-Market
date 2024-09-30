@@ -30,7 +30,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"tester@example.com\",\n  \"first_name\": \"test\",\n  \"last_name\": \"test\",\n  \"password\": \"test@123\"\n}",
+							"raw": "{\n  \"email\": \"tester1@example.com\",\n  \"first_name\": \"test\",\n  \"last_name\": \"test\",\n  \"password\": \"test@123\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -72,7 +72,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"tester@example.com\",\n  \"password\": \"test@123\"\n}",
+							"raw": "{\n  \"email\": \"tester1@example.com\",\n  \"password\": \"test@123\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -292,7 +292,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\": \"tester@example.com\",\n    \"password\": \"test@123\",\n    \"token\" : \"{{marker_token}}\"\n}",
+					"raw": "{\n    \"email\": \"tester1@example.com\",\n    \"password\": \"test@123\",\n    \"token\" : \"{{marker_token}}\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -333,7 +333,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\": \"tester@example.com\",\n    \"password\": \"test@123\",\n    \"token\" : \"{{marker_token}}\"\n}",
+					"raw": "{\n    \"email\": \"tester1@example.com\",\n    \"password\": \"test@123\",\n    \"token\" : \"{{marker_token}}\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -384,7 +384,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\": \"tester@example.com\",\n    \"node_id\": \"{{node_id}}\",\n    \"appliances\": [\n        {\n            \"appliance_type\": \"WashingMachine\",\n            \"on_periods\": [\n                {\n                    \"start\": 15.0,\n                    \"end\": 800.0\n                }\n            ]\n        }\n    ]\n}",
+					"raw": "{\n    \"email\": \"tester1@example.com\",\n    \"node_id\": \"{{node_id}}\",\n    \"appliances\": [\n        {\n            \"appliance_type\": \"WashingMachine\",\n            \"on_periods\": [\n                {\n                    \"start\": 15.0,\n                    \"end\": 800.0\n                }\n            ]\n        }\n    ]\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -425,7 +425,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\": \"tester@example.com\",\n    \"node_id\": \"{{node_id}}\",\n    \"appliances\": [\n        {\n            \"appliance_type\": \"WashingMachine\",\n            \"on_periods\": [\n                {\n                    \"start\": 15.0,\n                    \"end\": 800.0\n                }\n            ]\n        }\n    ]\n}",
+					"raw": "{\n    \"email\": \"tester1@example.com\",\n    \"node_id\": \"{{node_id}}\",\n    \"appliances\": [\n        {\n            \"appliance_type\": \"WashingMachine\",\n            \"on_periods\": [\n                {\n                    \"start\": 15.0,\n                    \"end\": 800.0\n                }\n            ]\n        }\n    ]\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -476,7 +476,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "\n\n{\n    \"email\": \"tester@example.com\",\n    \"node_id\": \"{{node_id}}\",\n    \"generators\": [\n        {\n            \"generator_type\": {\n                \"NuclearReactor\": \"BWR\"\n            },\n            \"on_periods\": [\n                {\n                    \"start\": 15.0,\n                    \"end\": 800.0\n                }\n            ]\n        }\n    ]\n}",
+					"raw": "\n\n{\n    \"email\": \"tester1@example.com\",\n    \"node_id\": \"{{node_id}}\",\n    \"generators\": [\n        {\n            \"generator_type\": {\n                \"NuclearReactor\": \"BWR\"\n            },\n            \"on_periods\": [\n                {\n                    \"start\": 15.0,\n                    \"end\": 800.0\n                }\n            ]\n        }\n    ]\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -517,7 +517,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "\n\n{\n    \"email\": \"tester@example.com\",\n    \"node_id\": \"{{node_id}}\",\n    \"generators\": [\n        {\n            \"generator_type\": {\n                \"NuclearReactor\": \"BWR\"\n            },\n            \"on_periods\": [\n                {\n                    \"start\": 15.0,\n                    \"end\": 800.0\n                }\n            ]\n        }\n    ]\n}",
+					"raw": "\n\n{\n    \"email\": \"tester1@example.com\",\n    \"node_id\": \"{{node_id}}\",\n    \"generators\": [\n        {\n            \"generator_type\": {\n                \"NuclearReactor\": \"BWR\"\n            },\n            \"on_periods\": [\n                {\n                    \"start\": 15.0,\n                    \"end\": 800.0\n                }\n            ]\n        }\n    ]\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -568,7 +568,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\": \"tester@example.com\",\n    \"node_id\" : \"{{node_id}}\"\n}",
+					"raw": "{\n    \"email\": \"tester1@example.com\",\n    \"node_id\" : \"{{node_id}}\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -609,7 +609,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\": \"tester@example.com\",\n    \"node_id\" : \"{{node_id}}\"\n}",
+					"raw": "{\n    \"email\": \"tester1@example.com\",\n    \"node_id\" : \"{{node_id}}\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"

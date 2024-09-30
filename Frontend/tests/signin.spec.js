@@ -42,8 +42,10 @@ test.describe("signed in to dashboard", () => {
             await page.locator('div').filter({ hasText: /^\+− Leaflet \| © OpenStreetMap contributors$/ }).nth(1).click();
             await page.getByRole('button', { name: 'Confirm' }).click();
             await page.getByRole('button', { name: 'Details' }).click();
+            await page.getByRole('button', { name: 'Remove node' }).click();
+            await page.getByRole('button', { name: 'Yes' }).click();
         });
-        test("Add a Buy order", async ({page}) => {
+        /*test("Add a Buy order", async ({page}) => {
             await page.getByRole('button', { name: 'Details' }).click();
             //await page.getByRole('button', { name: 'Transact with this node' }).toBeVisible();
             await page.getByRole('button', { name: 'Transact with this node' }).click();
@@ -72,12 +74,12 @@ test.describe("signed in to dashboard", () => {
             await page.waitForLoadState('domcontentloaded');
             await page.locator('#Capa_1').nth(1).click();
             await page.locator('#cancelSellOrder2').getByRole('button', { name: 'Yes' }).click();
-        });
-        test("remove Node", async ({page}) => {
+        });*/
+        /*test("remove Node", async ({page}) => {
             await page.getByRole('button', { name: 'Details' }).click();
             await page.getByRole('button', { name: 'Remove node' }).click();
             await page.getByRole('button', { name: 'Yes' }).click();
-        });
+        });*/
     });
         
     

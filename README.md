@@ -23,17 +23,22 @@ A cutting-edge simulation platform, designed to transform the way we manage ener
 
 ## Documentation
 
-### [SRS Document](https://docs.google.com/document/d/16w2L2sb7ZySCD4mMtRvPDSg7gqIOvZfyJhutkYTsVHU/edit?usp=sharing)
+### [SRS Document](https://docs.google.com/document/d/1TWXuyvVNMfoEz-0VTt4-FJIbGmO2NC7WxXOY_wxl6nY/edit?usp=sharing)
+
+- A PDF of the SRS document can be found [here](https://drive.google.com/file/d/1b9_dAPqjy-yzoPDOH-X7AN3SlHuhVfw4/view?usp=sharing)
 
 ### [Architecture Document](https://docs.google.com/document/d/1iOWSFGFzaD9XpniBLI5MVvW14hI2wmSAqM8neAVzzKQ/edit?usp=sharing)
+
+- A PDF of the Architecure document can be found [here](https://drive.google.com/file/d/1_ZRJ9h2_MRobdjVMRWlZ19UvJ48Zb68e/view?usp=drive_link)
 
 ### [Wiki](https://github.com/COS301-SE-2024/Open-Electricity-Market/wiki) (Including Installation Manual)
 
 - A PDF of the installation manual can be found [here](https://drive.google.com/file/d/1mUAVHsBsUE-qD9GNEbh5qQffu-iG_WHS/view?usp=drive_link)
 
-### [User Manual](https://drive.google.com/file/d/1G4fQVAYeXUatr1-xSmgA68Xtpqggn3Gr/view?usp=drive_link)
+### [User Manual](https://drive.google.com/file/d/1G4fQVAYeXUatr1-xSmgA68Xtpqggn3Gr/view?usp=drive_link) (PDF)
 
 ### [GitHub Rules and Conventions](https://github.com/COS301-SE-2024/Open-Electricity-Market/blob/dev/Documentation/GitHub_Rules_and_Conventions.md)
+- A PDF of the GitHub Rules and Conventions can be found [here](https://drive.google.com/file/d/1WRcUWB-A0LqADv4HSqpwhGjrPLIREA36/view?usp=sharing)
 
 ## Team
 

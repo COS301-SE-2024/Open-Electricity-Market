@@ -1,12 +1,12 @@
-# Team Isidore - Open Electricity Market
+# Team Isidore - [Amplify](https://www.amplify.org.za)
 
 for EPI-USE Labs  
 A cutting-edge simulation platform, designed to transform the way we manage energy, as well as optimise grid operations.
 
-[](<[![Super-Linter](https://github.com/COS301-SE-2024/Open-Electricity-Market/actions/workflows/linter.yml/badge.svg)](https://github.com/marketplace/actions/super-linter)>)
-
+[![Super-Linter](https://github.com/COS301-SE-2024/Open-Electricity-Market/actions/workflows/linter.yml/badge.svg)](https://github.com/marketplace/actions/super-linter)
 ![GitHub Workflow Status](https://github.com/COS301-SE-2024/Open-Electricity-Market/actions/workflows/rust.yml/badge.svg)
-![GitHub Workflow Status](https://github.com/COS301-SE-2024/Open-Electricity-Market/actions/workflows/node.js.yml/badge.svg)
+![GitHub Workflow Status](https://github.com/COS301-SE-2024/Open-Electricity-Market/actions/workflows/deploy.yml/badge.svg)
+![GitHub Workflow Status](https://github.com/COS301-SE-2024/Open-Electricity-Market/actions/workflows/newman.yml/badge.svg)
 
 ### [Project Board](https://github.com/orgs/COS301-SE-2024/projects/61)
 
@@ -23,17 +23,22 @@ A cutting-edge simulation platform, designed to transform the way we manage ener
 
 ## Documentation
 
-### [SRS Document](https://docs.google.com/document/d/16w2L2sb7ZySCD4mMtRvPDSg7gqIOvZfyJhutkYTsVHU/edit?usp=sharing)
+### [SRS Document](https://docs.google.com/document/d/1TWXuyvVNMfoEz-0VTt4-FJIbGmO2NC7WxXOY_wxl6nY/edit?usp=sharing)
+
+- A PDF of the SRS document can be found [here](https://drive.google.com/file/d/1b9_dAPqjy-yzoPDOH-X7AN3SlHuhVfw4/view?usp=sharing)
 
 ### [Architecture Document](https://docs.google.com/document/d/1iOWSFGFzaD9XpniBLI5MVvW14hI2wmSAqM8neAVzzKQ/edit?usp=sharing)
+
+- A PDF of the Architecure document can be found [here](https://drive.google.com/file/d/1_ZRJ9h2_MRobdjVMRWlZ19UvJ48Zb68e/view?usp=drive_link)
 
 ### [Wiki](https://github.com/COS301-SE-2024/Open-Electricity-Market/wiki) (Including Installation Manual)
 
 - A PDF of the installation manual can be found [here](https://drive.google.com/file/d/1mUAVHsBsUE-qD9GNEbh5qQffu-iG_WHS/view?usp=drive_link)
 
-### [User Manual](https://drive.google.com/file/d/1cwd0825UdNOTkrD7H-Fb6b-BBc5QnTlH/view?usp=sharing)
+### [User Manual](https://drive.google.com/file/d/1G4fQVAYeXUatr1-xSmgA68Xtpqggn3Gr/view?usp=drive_link) (PDF)
 
-### [GitHub Rules and Conventions](https://github.com/COS301-SE-2024/Open-Electricity-Market/blob/main/Documentation/GitHub_Rules_and_Conventions.md)
+### [GitHub Rules and Conventions](https://github.com/COS301-SE-2024/Open-Electricity-Market/blob/dev/Documentation/GitHub_Rules_and_Conventions.md)
+- A PDF of the GitHub Rules and Conventions can be found [here](https://drive.google.com/file/d/1WRcUWB-A0LqADv4HSqpwhGjrPLIREA36/view?usp=sharing)
 
 ## Team
 

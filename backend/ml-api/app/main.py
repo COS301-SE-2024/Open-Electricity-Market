@@ -413,44 +413,6 @@ def price_predict(request: PredictRequest):
         """
     )
     fee_sum = cursor.fetchall()[0][0]
-    cursor.execute(
-        """
-        SELECT SUM(amount) FROM funds
-        """
-    )
-    funds_total = cursor.fetchall()[0][0]
-    # cursor.execute(
-    #     """
-    #     SELECT COUNT(*)
-    #     FROM (
-    #         SELECT
-    #             transactions.buy_order_id
-    #             , SUM(transacted_units) AS ttu
-    #             , sought_units
-    #         FROM transactions
-    #             INNER JOIN buy_orders ON transactions.buy_order_id = buy_orders.buy_order_id
-    #         GROUP BY transactions.buy_order_id, sought_units
-    #     )
-    #     WHERE ttu < sought_units
-    #     """
-    # )
-    # num_open_buys = cursor.fetchall()[0][0]
-    # cursor.execute(
-    #     """
-    #     SELECT COUNT(*)
-    #     FROM (
-    #         SELECT
-    #             transactions.sell_order_id
-    #             , SUM(transacted_units) AS ttu
-    #             , offered_units
-    #         FROM transactions
-    #             INNER JOIN sell_orders ON transactions.sell_order_id = sell_orders.sell_order_id
-    #         GROUP BY transactions.sell_order_id, offered_units
-    #     )
-    #     WHERE ttu < offered_units
-    #     """
-    # )
-    # num_open_sells = cursor.fetchall()[0][0]
     cursor.close()
 
     hours = [
@@ -464,9 +426,6 @@ def price_predict(request: PredictRequest):
     minutes = [x for _ in range(request.time_frame) for x in range(60)]
     minutes.extend([minutes.pop(0) for _ in range(request.current_minute)])
     fee_sum_list = [fee_sum for _ in range(request.time_frame * 60)]
-    total_funds_list = [funds_total for _ in range(request.time_frame * 60)]
-    # num_open_buys_list = [num_open_buys for _ in range(request.time_frame * 60)]
-    # num_open_sells_list = [num_open_sells for _ in range(request.time_frame * 60)]
     total_impedance_list = [
         request.total_impedance for _ in range(request.time_frame * 60)
     ]
@@ -485,13 +444,10 @@ def price_predict(request: PredictRequest):
             "day_hour": hours,
             "day_minute": minutes,
             "fee_sum": fee_sum_list,
-            "funds_total": total_funds_list,
             "total_impedance": total_impedance_list,
             "consumer_voltage": consumer_voltage_list,
             "transmission_line_voltage": tl_voltage_list,
             "generator_voltage": generator_voltage_list,
-            # "num_open_buys": num_open_buys_list,
-            # "num_open_sells": num_open_sells_list,
         }
     )
 

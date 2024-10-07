@@ -30,7 +30,7 @@ pub mod open_em {
     }
 
     diesel::table! {
-        open_em.funds (payment_id) {
+        open_em.funds (payment_id, created_at) {
             payment_id -> Int8,
             fund_holder -> Uuid,
             amount -> Float8,

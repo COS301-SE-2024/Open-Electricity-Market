@@ -1,12 +1,15 @@
 CREATE TABLE funds (
-    payment_id bigserial PRIMARY KEY,
+    payment_id bigserial,
     fund_holder uuid NOT NULL,
     amount float8 NOT NULL DEFAULT 0,
     created_at timestamptz NOT NULL DEFAULT now(),
+    PRIMARY KEY (payment_id, created_at),
     CONSTRAINT fk_user_id
         FOREIGN KEY (fund_holder)
         REFERENCES users(user_id)
 );
+
+SELECT create_hypertable('funds',by_range('created_at'));
 
 CREATE OR REPLACE FUNCTION update_user_credit()
     RETURNS TRIGGER

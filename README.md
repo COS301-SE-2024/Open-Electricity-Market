@@ -37,6 +37,8 @@ A cutting-edge simulation platform, designed to transform the way we manage ener
 
 ### [User Manual](https://drive.google.com/file/d/1G4fQVAYeXUatr1-xSmgA68Xtpqggn3Gr/view?usp=drive_link) (PDF)
 
+### [Testing Policy](https://docs.google.com/document/d/1ihWtZrghmX4Ig4nx2P1o_rxici69e8y-bOlsbUGiN84/edit?usp=sharing)
+
 ### [GitHub Rules and Conventions](https://github.com/COS301-SE-2024/Open-Electricity-Market/blob/dev/Documentation/GitHub_Rules_and_Conventions.md)
 - A PDF of the GitHub Rules and Conventions can be found [here](https://drive.google.com/file/d/1WRcUWB-A0LqADv4HSqpwhGjrPLIREA36/view?usp=sharing)
 

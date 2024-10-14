@@ -1067,6 +1067,9 @@
               class="input input-bordered"
               type="number"
               placeholder="Amount"
+              min="0.01"
+              max="{12000000000 - totalamount}" 
+              step="0.01"
               required
               bind:value={amount}
             />
@@ -1285,6 +1288,7 @@
                 class="input input-bordered"
                 type="text"
                 placeholder="Name"
+                maxlength="23"
                 bind:value={nodeName}
               />
             </div>
@@ -1322,7 +1326,7 @@
           <div class="stats stats-vertical w-full">
             <div class="stat">
               <div class="stat-title">Node</div>
-              <div class="stat-value font-light">{nodeNameDetail}</div>
+              <div class="stat-value font-light text-wrap">{nodeNameDetail}</div>
             </div>
             <!-- flex min-w-max py-0 justify-center -->
             <div class="stat flex w-full py-0 justify-center mb-2 mt-2">

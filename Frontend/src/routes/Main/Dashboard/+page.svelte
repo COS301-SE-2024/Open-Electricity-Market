@@ -16,6 +16,7 @@
   $: nodeToProduce = "";
   $: nodeToConsume = "";
   $: selectedNodeID = "";
+  $: selectedOrderID = "";
 
   $: nodes = [];
   let amount;
@@ -764,6 +765,11 @@
     }
   }
 
+  function showBuyOrderCancelDialogue(orderId) {
+    selectedOrderID = orderId;
+    document.getElementById("cancelBuyOrder").showModal();
+  }
+
   async function cancelBuyOrder(orderid) {
     try {
       const response = await fetch(`${API_URL_MARKET}/cancel_buy_order`, {
@@ -778,9 +784,23 @@
           order_id: orderid,
         }),
       });
+
+      let index = -1
+      for (let i = 0; i < buyorders.length; i++) {
+        const order = buyorders[i];
+        if (order.order_id = orderid) index = i;
+      }
+
+      if (index >= 0)
+        buyorders.splice(index, 1);
     } catch (error) {
       console.log("An error occurred while cancelling buy order..", error);
     }
+  }
+
+  function showSellCancelDialogue(orderId) {
+    selectedOrderID = orderId;
+    document.getElementById("cancelSellOrder").showModal();
   }
 
   async function cancelSellOrder(orderid) {
@@ -797,6 +817,15 @@
           order_id: orderid,
         }),
       });
+
+      let index = -1
+      for (let i = 0; i < sellorders.length; i++) {
+        const order = sellorders[i];
+        if (order.order_id = orderid) index = i;
+      }
+
+      if (index >= 0)
+        sellorders.splice(index, 1);
     } catch (error) {
       console.log("An error occurred while cancelling sell order..");
     }
@@ -894,7 +923,7 @@
                   viewBox="0 0 485 485"
                   xml:space="preserve"
                   on:click={() => {
-                    document.getElementById("cancelBuyOrder").showModal();
+                    showBuyOrderCancelDialogue(buyorder.order_id);
                   }}
                 >
                   <g>
@@ -931,31 +960,6 @@
                 ></progress>
               </div>
             </div>
-            <dialog id="cancelBuyOrder" class="modal">
-              <div class="modal-box">
-                <h3 class="font-bold text-lg">Confirmation</h3>
-                <p>Are you sure you want to cancel this buy order?</p>
-                <div class="modal-action">
-                  <button
-                    class="btn btn-error"
-                    on:click={() => {
-                      cancelBuyOrder(buyorder.order_id);
-                      listOpenBuys();
-                      document.getElementById("cancelBuyOrder").close();
-                    }}>Yes</button
-                  >
-                  <button
-                    class="btn btn-outline"
-                    on:click={() => {
-                      document.getElementById("cancelBuyOrder").close();
-                    }}>No</button
-                  >
-                </div>
-              </div>
-              <form method="dialog" class="modal-backdrop">
-                <button>close</button>
-              </form>
-            </dialog>
           {/each}
         {/if}
       </div>
@@ -990,7 +994,7 @@
                   viewBox="0 0 485 485"
                   xml:space="preserve"
                   on:click={() => {
-                    document.getElementById("cancelSellOrder1").showModal();
+                    showSellCancelDialogue(sellorder.order_id);
                   }}
                 >
                   <g>
@@ -1028,35 +1032,63 @@
                 ></progress>
               </div>
             </div>
-
-            <dialog id="cancelSellOrder1" class="modal">
-              <div class="modal-box">
-                <h3 class="font-bold text-lg">Confirmation</h3>
-                <p>Are you sure you want to cancel this sell order?</p>
-                <div class="modal-action">
-                  <button
-                    class="btn btn-error"
-                    on:click={() => {
-                      cancelSellOrder(sellorder.order_id);
-                      listOpenSells();
-                      document.getElementById("cancelSellOrder1").close();
-                    }}>Yes</button
-                  >
-                  <button
-                    class="btn btn-outline"
-                    on:click={() => {
-                      document.getElementById("cancelSellOrder1").close();
-                    }}>No</button
-                  >
-                </div>
-              </div>
-              <form method="dialog" class="modal-backdrop">
-                <button>close</button>
-              </form>
-            </dialog>
           {/each}
         {/if}
       </div>
+      <!-- cancel order modals -->
+
+      <dialog id="cancelBuyOrder" class="modal">
+        <div class="modal-box">
+          <h3 class="font-bold text-lg">Confirmation</h3>
+          <p>Are you sure you want to cancel this buy order?</p>
+          <div class="modal-action">
+            <button
+              class="btn btn-error"
+              on:click={() => {
+                cancelBuyOrder(selectedOrderID);
+                listOpenBuys();
+                document.getElementById("cancelBuyOrder").close();
+              }}>Yes</button
+            >
+            <button
+              class="btn btn-outline"
+              on:click={() => {
+                document.getElementById("cancelBuyOrder").close();
+              }}>No</button
+            >
+          </div>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+          <button>close</button>
+        </form>
+      </dialog>
+
+      <dialog id="cancelSellOrder" class="modal">
+        <div class="modal-box">
+          <h3 class="font-bold text-lg">Confirmation</h3>
+          <p>Are you sure you want to cancel this sell order?</p>
+          <div class="modal-action">
+            <button
+              class="btn btn-error"
+              on:click={() => {
+                cancelSellOrder(selectedOrderID);
+                listOpenSells();
+                document.getElementById("cancelSellOrder").close();
+              }}>Yes</button
+            >
+            <button
+              class="btn btn-outline"
+              on:click={() => {
+                document.getElementById("cancelSellOrder").close();
+              }}>No</button
+            >
+          </div>
+        </div>
+        <form method="dialog" class="modal-backdrop">
+          <button>close</button>
+        </form>
+      </dialog>
+
       <!-- change funds modals -->
       <dialog id="add_modal" class="modal">
         <div class="modal-box">
@@ -1210,7 +1242,8 @@
                   viewBox="0 0 485 485"
                   xml:space="preserve"
                   on:click={() => {
-                    document.getElementById("cancelSellOrder2").showModal();
+                    // document.getElementById("cancelSellOrder2").showModal();
+                    showSellCancelDialogue(sellorder.order_id);
                   }}
                 >
                   <g>
@@ -1248,32 +1281,6 @@
                 ></progress>
               </div>
             </div>
-
-            <dialog id="cancelSellOrder2" class="modal">
-              <div class="modal-box">
-                <h3 class="font-bold text-lg">Confirmation</h3>
-                <p>Are you sure you want to cancel this sell order?</p>
-                <div class="modal-action">
-                  <button
-                    class="btn btn-error"
-                    on:click={() => {
-                      cancelSellOrder(sellorder.order_id);
-                      listOpenSells();
-                      document.getElementById("cancelSellOrder2").close();
-                    }}>Yes</button
-                  >
-                  <button
-                    class="btn btn-outline"
-                    on:click={() => {
-                      document.getElementById("cancelSellOrder2").close();
-                    }}>No</button
-                  >
-                </div>
-              </div>
-              <form method="dialog" class="modal-backdrop">
-                <button>close</button>
-              </form>
-            </dialog>
           {/each}
         {/if}
       </div>

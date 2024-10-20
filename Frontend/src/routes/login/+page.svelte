@@ -22,6 +22,7 @@
       return;
     }
 
+    email = email.toLowerCase();
     errormessage = "";
 
     const res = await fetch(`${API_URL_MARKET}/login`, {

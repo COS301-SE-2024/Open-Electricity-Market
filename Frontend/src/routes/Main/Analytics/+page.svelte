@@ -777,7 +777,7 @@
       <!-- <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">
       <PieChart {marketpiedata} />
     </div> -->
-      <span class="text-3xl text-white font-thin justify-start pl-2">
+      <span class="text-3xl font-thin justify-start pl-2">
         AI Generated Price Prediction
       </span>
       <div class="flex-col min-w-3/4 bg-base-100 rounded-2xl p-5 mt-3">

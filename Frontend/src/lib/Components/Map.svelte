@@ -281,13 +281,13 @@
 </script>
 
 <main class="min-w-full min-h-full">
-  <div bind:this={mapContainer}></div>
+  <div bind:this={mapContainer} class="h-96 md:h-[650px]"></div>
 </main>
 
 <style>
   @import "leaflet/dist/leaflet.css";
   div {
-    height: 700px;
+    height: 700;
     z-index: 0;
   }
 </style>

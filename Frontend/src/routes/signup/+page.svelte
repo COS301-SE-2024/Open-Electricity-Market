@@ -56,6 +56,7 @@
     // maybe have an email specific error message
     emailInvalidError = false;
     emailElement.classList.remove("input-error");
+    email = email.toLowerCase();
 
     validEmail = true;
   }

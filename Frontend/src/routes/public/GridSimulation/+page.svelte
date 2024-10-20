@@ -87,28 +87,27 @@
   }
 </script>
 
-<main class="container sm:mx-auto">
-  <div class="fullsection flex xs:flex-row -mt-6 w-full justify-center">
-    <div class="bg-base-100 mx-2 p-4 rounded-2xl h-4/6 w-2/3">
-      <div class="mapsection md:w-full xs:w-full">
+<main class="container mx-auto">
+  <div class="fullsection flex flex-col md:flex-row -mt-6 w-full justify-center">
+    <div class="bg-base-100 mb-4 md:mx-2 p-4 rounded-2xl h-4/6 md:w-2/3">
+      <div class="mapsection md:w-full">
         {#if mapdata != null}
           <Map {mapdata} on:markerClick={handleMarkerClick} />
         {/if}
       </div>
 
-      <div class="statsection mt-2">
+      <div class="statsection mt-2 hidden md:block">
         <GridStats />
       </div>
     </div>
     {#if consumerMarkerDetails != null}
       <div
-        class="chartsection md:w-1/4 mx-2 p-5 xs:w-full bg-base-100 rounded-2xl flex flex-col max-w-full"
+        class="chartsection md:w-1/4 mb-4 mx-2 p-5 xs:w-full bg-base-100 rounded-2xl flex flex-col max-w-full"
       >
         <h1 class="text-3xl">Consumer Details</h1>
         <hr />
         <span class="pt-5">
           <span class="font-light text-lg mt-10">Consumption: </span><br />
-          <!-- TODO: format according to the average consumption rate of a typical consumer -->
           <span class="text-4xl">{Intl.NumberFormat().format(power)} W</span>
           <br />
           <span class="font-light text-lg mt-10">Impedance: </span><br />
@@ -148,7 +147,7 @@
       </div>
     {:else if transformerMarkerDetails != null}
       <div
-        class="chartsection md:w-1/4 mx-2 p-5 xs:w-full bg-base-100 rounded-2xl flex flex-col max-w-full"
+        class="chartsection md:w-1/4 mb-4 mx-2 p-5 xs:w-full bg-base-100 rounded-2xl flex flex-col max-w-full"
       >
         <h1 class="text-3xl">Transformer Details</h1>
         <hr />
@@ -170,7 +169,7 @@
       </div>
     {:else}
       <div
-        class="chartsection md:w-1/4 mx-2 p-5 xs:w-full bg-base-100 rounded-2xl"
+        class="chartsection md:w-1/4 mb-4 mx-2 p-5 xs:w-full bg-base-100 rounded-2xl"
       >
         <h1 class="text-4xl mb-6">Click on a marker to begin</h1>
         <p>Click on a marker to learn more about the activity on our grid!</p>
